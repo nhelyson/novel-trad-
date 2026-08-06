@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="fr" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NovelTrad - Traduction PDF avec Préservation de Mise en Page</title>
+  <!-- Google Fonts: Inter & Outfit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <div class="app-container">
+    
+    <!-- HEADER -->
+    <header class="app-header">
+      <div class="logo">
+        <div class="logo-icon">
+          <i class="fa-solid fa-file-pdf"></i>
+        </div>
+        <div class="logo-text">
+          <h1>NovelTrad <span>DeepL</span></h1>
+          <p>Traduction PDF avec Préservation Stricte de la Mise en Page</p>
+        </div>
+      </div>
+
+      <div class="header-status">
+        <div class="status-badge" id="apiStatusBadge">
+          <span class="status-dot warning" id="statusDot"></span>
+          <span id="statusText">Vérification DeepL API...</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- MAIN TRANSLATION CARD -->
+    <main class="main-content">
+      <div class="translation-card card">
+        
+        <!-- DROPZONE -->
+        <div class="dropzone" id="pdfDropzone">
+          <input type="file" id="pdfFileInput" accept=".pdf,application/pdf" hidden>
+          
+          <div class="dropzone-empty" id="dropzoneEmpty">
+            <div class="upload-icon-pulse">
+              <i class="fa-solid fa-cloud-arrow-up"></i>
+            </div>
+            <h2>Glissez-déposez votre fichier PDF ici</h2>
+            <p>Documents, livres illustrés, manuels ou rapports (Max. 50 Mo)</p>
+            <button class="btn btn-secondary" onclick="document.getElementById('pdfFileInput').click()">
+              <i class="fa-solid fa-folder-open"></i> Sélectionner un PDF
+            </button>
+          </div>
+
+          <div class="file-loaded-info hidden" id="fileLoadedInfo">
+            <div class="pdf-badge-icon">
+              <i class="fa-solid fa-file-pdf"></i>
+            </div>
+            <div class="pdf-meta">
+              <h3 id="pdfFileName">document.pdf</h3>
+              <p id="pdfFileSize">0.0 MB</p>
+            </div>
+            <button class="btn-clear" id="removePdfBtn" title="Supprimer le fichier">
+              <i class="fa-solid fa-xmark"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- CONTROLS FORM -->
+        <div class="controls-grid">
+          
+          <!-- TARGET LANGUAGE -->
+          <div class="control-field">
+            <label><i class="fa-solid fa-language"></i> Langue Cible (Traduction)</label>
+            <div class="select-box">
+              <select id="targetLangSelect">
+                <option value="FR" selected>🇫🇷 Français (French)</option>
+                <option value="EN">🇺🇸 Anglais (English)</option>
+                <option value="ES">🇪🇸 Espagnol (Spanish)</option>
+                <option value="DE">🇩🇪 Allemand (German)</option>
+                <option value="IT">🇮🇹 Italien (Italian)</option>
+                <option value="PT">🇵🇹 Portugais (Portuguese)</option>
+                <option value="NL">🇳🇱 Néerlandais (Dutch)</option>
+                <option value="JA">🇯🇵 Japonais (Japanese)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- OPTIONAL DEEPL API KEY INPUT -->
+          <div class="control-field" id="apiKeyFieldContainer">
+            <label><i class="fa-solid fa-key"></i> Clé API DeepL (Optionnel si dans .env)</label>
+            <div class="input-box">
+              <input type="password" id="customApiKeyInput" placeholder="ex: xxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx:fx">
+              <button type="button" class="btn-toggle-pass" id="toggleApiKeyVisBtn"><i class="fa-regular fa-eye"></i></button>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- SUBMIT ACTION -->
+        <div class="action-row">
+          <button id="translateBtn" class="btn btn-primary btn-lg" disabled>
+            <i class="fa-solid fa-wand-magic-sparkles"></i> Traduire le PDF (DeepL API)
+          </button>
+        </div>
+
+        <!-- PROGRESS CONTAINER (Hidden by default) -->
+        <div class="progress-section hidden" id="progressSection">
+          <div class="progress-header">
+            <span class="progress-label" id="progressLabel">Traitement en cours...</span>
+            <span class="progress-percentage" id="progressPercent">0%</span>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill" id="progressFill" style="width: 0%;"></div>
+          </div>
+          <p class="progress-subtext" id="progressSubtext">Envoi sécurisé à l'API DeepL Document Translation...</p>
+        </div>
+
+        <!-- RESULT CONTAINER (Hidden by default) -->
+        <div class="result-section hidden" id="resultSection">
+          <div class="success-banner">
+            <div class="success-icon">
+              <i class="fa-solid fa-circle-check"></i>
+            </div>
+            <div class="success-text">
+              <h3>Traduction Terminée avec Succès !</h3>
+              <p>La structure, la pagination et les illustrations ont été conservées à 100%.</p>
+            </div>
+          </div>
+
+          <div class="download-action">
+            <a id="downloadPdfBtn" class="btn btn-success btn-lg" download>
+              <i class="fa-solid fa-download"></i> Télécharger le PDF Traduit
+            </a>
+          </div>
+        </div>
+
+        <!-- ERROR CONTAINER (Hidden by default) -->
+        <div class="error-banner hidden" id="errorBanner">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+          <span id="errorMessage">Une erreur s'est produite.</span>
+        </div>
+
+      </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="app-footer">
+      <p>NovelTrad PDF Service • Traitement éphémère sécurisé en mémoire sans conservation des fichiers</p>
+    </footer>
+
+  </div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>

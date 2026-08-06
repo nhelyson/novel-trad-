@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="fr" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NovelTrad AI - Traducteur Officiel de Livres & PDF</title>
+  <!-- Google Fonts: Inter & Outfit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- PDF.js CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <!-- jsPDF & html2canvas CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app-container">
+
+    <!-- HEADER / NAVBAR -->
+    <header class="app-header">
+      <div class="logo-container">
+        <div class="logo-icon">
+          <i class="fa-solid fa-book-open-reader"></i>
+        </div>
+        <div class="logo-text">
+          <h1>NovelTrad <span>AI</span></h1>
+          <p>Studio de Traduction Littéraire & Génération PDF</p>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <div class="status-badge" id="aiStatusBadge">
+          <span class="status-dot green"></span>
+          <span id="aiStatusText">Ollama Llama 3.2 Actif</span>
+        </div>
+        <button id="themeToggleBtn" class="icon-btn" title="Changer le thème">
+          <i class="fa-solid fa-moon"></i>
+        </button>
+      </div>
+    </header>
+
+    <!-- MAIN CONTENT AREA -->
+    <main class="app-main">
+
+      <!-- SECTION 1: UPLOAD & CONFIGURATION -->
+      <section class="config-section card reveal">
+        <div class="section-header">
+          <h2><i class="fa-solid fa-file-import"></i> Importer un Livre ou Document</h2>
+          <p>Chargez votre fichier PDF, EPUB, TXT ou Markdown pour démarrer la traduction automatique.</p>
+        </div>
+
+        <!-- DROPZONE -->
+        <div class="dropzone" id="fileDropzone">
+          <input type="file" id="fileInput" accept=".pdf,.txt,.epub,.md" hidden>
+          <div class="dropzone-content">
+            <div class="upload-icon">
+              <i class="fa-solid fa-cloud-arrow-up"></i>
+            </div>
+            <h3>Glissez-déposez votre livre ici</h3>
+            <p>Formats supportés : PDF, EPUB, TXT, Markdown (Max. 100 Mo)</p>
+            <button class="btn btn-primary" onclick="document.getElementById('fileInput').click()">
+              <i class="fa-solid fa-folder-open"></i> Parcourir les fichiers
+            </button>
+          </div>
+          <div class="file-info-bar hidden" id="fileInfoBar">
+            <i class="fa-solid fa-file-pdf file-icon"></i>
+            <div class="file-details">
+              <span class="file-name" id="fileName">roman.pdf</span>
+              <span class="file-meta" id="fileMeta">284 pages • PDF Document</span>
+            </div>
+            <button class="btn-remove" id="removeFileBtn" title="Supprimer le fichier">
+              <i class="fa-solid fa-xmark"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- LANGUAGE & CONTROLS TOOLBAR -->
+        <div class="translation-controls">
+          <!-- Source Language (Auto Detect) -->
+          <div class="control-group">
+            <label><i class="fa-solid fa-wand-magic-sparkles"></i> Langue Source (Détectée)</label>
+            <div class="select-wrapper">
+              <select id="sourceLangSelect" disabled>
+                <option value="auto">🔍 Détection automatique...</option>
+                <option value="en">🇺🇸 Anglais (English)</option>
+                <option value="ja">🇯🇵 Japonais (日本語)</option>
+                <option value="de">🇩🇪 Allemand (Deutsch)</option>
+                <option value="es">🇪🇸 Espagnol (Español)</option>
+                <option value="zh">🇨🇳 Chinois (中文)</option>
+                <option value="fr">🇫🇷 Français</option>
+              </select>
+              <span class="auto-badge" id="autoDetectBadge">Auto</span>
+            </div>
+          </div>
+
+          <div class="swap-arrow">
+            <i class="fa-solid fa-arrow-right"></i>
+          </div>
+
+          <!-- Target Language Select -->
+          <div class="control-group">
+            <label><i class="fa-solid fa-language"></i> Langue Cible (Traduction)</label>
+            <div class="select-wrapper">
+              <select id="targetLangSelect">
+                <option value="fr" selected>🇫🇷 Français (French)</option>
+                <option value="en">🇺🇸 Anglais (English)</option>
+                <option value="es">🇪🇸 Espagnol (Spanish)</option>
+                <option value="de">🇩🇪 Allemand (German)</option>
+                <option value="it">🇮🇹 Italien (Italian)</option>
+                <option value="pt">🇵🇹 Portugais (Portuguese)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Style Profile -->
+          <div class="control-group">
+            <label><i class="fa-solid fa-feather-pointed"></i> Style de Traduction</label>
+            <div class="select-wrapper">
+              <select id="styleProfileSelect">
+                <option value="official" selected>✨ Officielle & Littéraire (Fluide & Naturelle)</option>
+                <option value="literal">🔍 Traduction Précise / Mot à mot</option>
+                <option value="technical">🛠️ Technique / Scientifique</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- START TRANSLATION BUTTON -->
+        <div class="action-bar">
+          <button id="startTranslateBtn" class="btn btn-accent btn-lg" disabled>
+            <i class="fa-solid fa-play"></i> Démarrer la Traduction Officielle
+          </button>
+        </div>
+      </section>
+
+      <!-- SECTION 2: DUAL VIEW READER & PROGRESS -->
+      <section class="workspace-section card hidden" id="workspaceSection">
+        
+        <!-- PROGRESS HEADER BAR -->
+        <div class="progress-bar-container">
+          <div class="progress-info">
+            <span class="progress-title" id="progressTitle">Traduction en cours du Chapitre 1...</span>
+            <span class="progress-percent" id="progressPercent">0%</span>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill" id="progressFill" style="width: 0%;"></div>
+          </div>
+          <div class="progress-stats">
+            <span><i class="fa-solid fa-bolt"></i> Vitesse: <strong id="speedStat">0 mots/sec</strong></span>
+            <span><i class="fa-solid fa-clock"></i> Temps estimé: <strong id="timeStat">--:--</strong></span>
+            <span><i class="fa-solid fa-file-word"></i> Paragraphes: <strong id="chunksStat">0 / 0</strong></span>
+          </div>
+        </div>
+
+        <!-- DUAL PANE STUDIO -->
+        <div class="dual-pane-studio">
+          
+          <!-- LEFT PANE: ORIGINAL TEXT -->
+          <div class="pane pane-original">
+            <div class="pane-header">
+              <h3><i class="fa-solid fa-align-left"></i> Texte Original (<span id="sourceLangTag">Anglais</span>)</h3>
+              <div class="pane-tools">
+                <button class="mini-btn" id="copyOriginalBtn" title="Copier le texte original"><i class="fa-regular fa-copy"></i></button>
+              </div>
+            </div>
+            <div class="pane-content" id="originalTextContent">
+              <div class="placeholder-text">Le texte original s'affichera ici au lancement...</div>
+            </div>
+          </div>
+
+          <!-- RIGHT PANE: TRANSLATED TEXT -->
+          <div class="pane pane-translated">
+            <div class="pane-header">
+              <h3><i class="fa-solid fa-language"></i> Traduction Officielle (<span id="targetLangTag">Français</span>)</h3>
+              <div class="pane-tools">
+                <button class="mini-btn" id="copyTranslatedBtn" title="Copier la traduction"><i class="fa-regular fa-copy"></i></button>
+              </div>
+            </div>
+            <div class="pane-content" id="translatedTextContent">
+              <div class="placeholder-text">La traduction générée s'affichera ici en temps réel...</div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- WORKSPACE FOOTER ACTIONS -->
+        <div class="workspace-actions">
+          <button id="pauseBtn" class="btn btn-secondary"><i class="fa-solid fa-pause"></i> Pause</button>
+          <button id="exportPdfBtn" class="btn btn-success btn-lg"><i class="fa-solid fa-file-pdf"></i> Générer & Télécharger le PDF Traduit</button>
+          <button id="exportTxtBtn" class="btn btn-outline"><i class="fa-solid fa-file-lines"></i> Exporter en TXT</button>
+        </div>
+
+      </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="app-footer">
+      <p>NovelTrad AI Studio • Traduction haute fidélité d'e-books • Génération PDF conforme</p>
+    </footer>
+
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
