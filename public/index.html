@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>NovelTrad - Traduction PDF avec Préservation de Mise en Page</title>
+  <title>NovelTrad - Traduction PDF avec Préservation de la Mise en Page & Images</title>
   <!-- Google Fonts: Inter & Outfit -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -16,7 +16,7 @@
 
   <div class="app-container">
     
-    <!-- HEADER -->
+    <!-- HEADER NAVBAR -->
     <header class="app-header">
       <div class="logo">
         <div class="logo-icon">
@@ -24,9 +24,16 @@
         </div>
         <div class="logo-text">
           <h1>NovelTrad <span>DeepL</span></h1>
-          <p>Traduction PDF avec Préservation Stricte de la Mise en Page</p>
+          <p>Préservation Stricte de la Mise en Page</p>
         </div>
       </div>
+
+      <nav class="nav-links">
+        <a href="#hero" class="nav-link">Accueil</a>
+        <a href="#features" class="nav-link">Avantages</a>
+        <a href="#howItWorks" class="nav-link">Comment ça marche</a>
+        <a href="#translatorStudio" class="nav-link btn-nav"><i class="fa-solid fa-wand-magic-sparkles"></i> Traduire</a>
+      </nav>
 
       <div class="header-status">
         <div class="status-badge" id="apiStatusBadge">
@@ -36,8 +43,121 @@
       </div>
     </header>
 
-    <!-- MAIN TRANSLATION CARD -->
-    <main class="main-content">
+    <!-- LANDING HERO SECTION -->
+    <section class="hero-section" id="hero">
+      <div class="hero-badge">
+        <i class="fa-solid fa-shield-halved"></i> Préservation à 100% des Polices, Images & Illustrations
+      </div>
+      <h1 class="hero-title">
+        Traduisez vos Livres & PDF sans <span>Déformer la Mise en Page</span>
+      </h1>
+      <p class="hero-subtitle">
+        NovelTrad utilise l'API DeepL Document Translation pour remplacer le texte source par sa traduction officielle. Votre document conserve exactement ses illustrations, sa pagination, ses tableaux et son style visuel d'origine.
+      </p>
+
+      <div class="hero-actions">
+        <a href="#translatorStudio" class="btn btn-primary btn-hero">
+          <i class="fa-solid fa-cloud-arrow-up"></i> Traduire mon PDF Maintenant
+        </a>
+        <a href="#features" class="btn btn-secondary btn-hero">
+          <i class="fa-solid fa-circle-info"></i> Découvrir les avantages
+        </a>
+      </div>
+
+      <!-- HIGHLIGHT STATS -->
+      <div class="hero-stats">
+        <div class="stat-item">
+          <span class="stat-num">100%</span>
+          <span class="stat-desc">Images & Illustrations conservées</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <span class="stat-num">DeepL</span>
+          <span class="stat-desc">Moteur de traduction officielle</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <span class="stat-num">0 Stockage</span>
+          <span class="stat-desc">Traitement confidentiel en RAM</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- FEATURES SECTION -->
+    <section class="features-section" id="features">
+      <div class="section-title">
+        <h2>Pourquoi choisir <span>NovelTrad</span> ?</h2>
+        <p>Une technologie pensée pour les romans illustrés, manuels et documents nécessitant une haute fidélité visuelle.</p>
+      </div>
+
+      <div class="features-grid">
+        <div class="feature-card card">
+          <div class="feature-icon bg-indigo">
+            <i class="fa-solid fa-image"></i>
+          </div>
+          <h3>Illustrations & Images Intactes</h3>
+          <p>Les illustrations, couvertures et schémas restent à leur emplacement exact sans jamais être déplacés ou altérés.</p>
+        </div>
+
+        <div class="feature-card card">
+          <div class="feature-icon bg-purple">
+            <i class="fa-solid fa-font"></i>
+          </div>
+          <h3>Respect de la Typographie</h3>
+          <p>Conserve les polices, tailles de caractères, couleurs, marges et colonnes d'origine du document.</p>
+        </div>
+
+        <div class="feature-card card">
+          <div class="feature-icon bg-emerald">
+            <i class="fa-solid fa-user-shield"></i>
+          </div>
+          <h3>Sécurité & Effacement Éphémère</h3>
+          <p>Aucun fichier n'est sauvegardé en base de données ni conservé sur disque. Les buffers sont libérés après traduction.</p>
+        </div>
+
+        <div class="feature-card card">
+          <div class="feature-icon bg-amber">
+            <i class="fa-solid fa-layer-group"></i>
+          </div>
+          <h3>Architecture Modulaire</h3>
+          <p>Conçu avec le pattern Strategy pour interchanger DeepL, Google Cloud Translation ou OpenAI en toute simplicité.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- HOW IT WORKS SECTION -->
+    <section class="steps-section" id="howItWorks">
+      <div class="section-title">
+        <h2>Comment ça marche ?</h2>
+        <p>3 étapes simples pour obtenir votre PDF traduit prêt à lire.</p>
+      </div>
+
+      <div class="steps-grid">
+        <div class="step-card">
+          <div class="step-number">1</div>
+          <h3>Sélectionnez votre PDF</h3>
+          <p>Glissez-déposez votre livre ou document PDF dans la zone sécurisée.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-number">2</div>
+          <h3>Choisissez la langue</h3>
+          <p>Sélectionnez la langue cible souhaitée (Français, Anglais, Espagnol...).</p>
+        </div>
+        <div class="step-card">
+          <div class="step-number">3</div>
+          <h3>Téléchargez le PDF</h3>
+          <p>Récupérez votre document traduit avec la mise en page d'origine préservée.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- TRANSLATOR STUDIO SECTION -->
+    <main class="main-content" id="translatorStudio">
+      <div class="section-title">
+        <h2>Studio de <span>Traduction PDF</span></h2>
+        <p>Chargez votre document ci-dessous pour lancer la conversion instantanée.</p>
+      </div>
+
       <div class="translation-card card">
         
         <!-- DROPZONE -->
