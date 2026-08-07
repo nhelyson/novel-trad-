@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="fr" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manga Translator AI - Traduction Automatique de Mangas & Webtoons</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="css/manga_style.css">
+</head>
+<body>
+
+  <div class="manga-app-container">
+
+    <!-- MODULE HEADER & NAVIGATION -->
+    <header class="manga-header">
+      <a href="index.html" class="manga-brand">
+        <div class="manga-logo-badge">
+          <i class="fa-solid fa-wand-magic-sparkles"></i>
+        </div>
+        <div class="manga-brand-text">
+          <h1>Manga Translator <span>AI</span></h1>
+          <p>Module Indépendant de Traduction Manga & Webtoon</p>
+        </div>
+      </a>
+
+      <nav class="manga-nav">
+        <a href="index.html" class="manga-nav-item active"><i class="fa-solid fa-gauge-high"></i> Dashboard</a>
+        <a href="upload.html" class="manga-nav-item"><i class="fa-solid fa-file-image"></i> Traduire un Manga</a>
+        <a href="history.html" class="manga-nav-item"><i class="fa-solid fa-clock-rotate-left"></i> Historique</a>
+      </nav>
+    </header>
+
+    <!-- HERO DASHBOARD BANNER -->
+    <section class="manga-hero">
+      <div class="manga-hero-badge">
+        <i class="fa-solid fa-sparkles"></i> Moteur Vision AI & OCR Japonais Vertical
+      </div>
+      <h2>Traduisez vos <span>Mangas & Webtoons</span> Automatiquement</h2>
+      <p>Détection automatique des bulles de dialogue, extraction OCR du japonais vertical, traduction par intelligence artificielle et reconstruction de la page.</p>
+
+      <div style="display: flex; justify-content: center; gap: 16px;">
+        <a href="upload.html" class="manga-btn manga-btn-primary">
+          <i class="fa-solid fa-plus-circle"></i> Commencer une Traduction
+        </a>
+        <a href="history.html" class="manga-btn manga-btn-secondary">
+          <i class="fa-solid fa-book-bookmark"></i> Voir mes Mangas Traduits
+        </a>
+      </div>
+    </section>
+
+    <!-- RECENT TRANSLATIONS DASHBOARD -->
+    <section class="manga-card">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+        <h3 style="font-family: var(--font-display); font-size: 20px;"><i class="fa-solid fa-clock-rotate-left"></i> Dernières Traductions Manga</h3>
+        <a href="upload.html" class="manga-btn manga-btn-primary" style="padding: 8px 16px; font-size: 13px;">
+          <i class="fa-solid fa-upload"></i> Nouveau Manga
+        </a>
+      </div>
+
+      <div class="history-grid" id="dashboardHistoryGrid">
+        <!-- Sample Item 1 -->
+        <div class="history-item-card">
+          <img src="https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?w=500&auto=format&fit=crop&q=80" class="history-thumb" alt="Sample Manga">
+          <div class="history-body">
+            <h4>One Piece - Chapitre 1110</h4>
+            <div class="history-meta">Japonais ➔ Français • 18 Pages</div>
+            <a href="viewer.html" class="manga-btn manga-btn-secondary" style="width: 100%; font-size: 13px;">
+              <i class="fa-solid fa-sliders"></i> Comparer Avant / Après
+            </a>
+          </div>
+        </div>
+
+        <!-- Sample Item 2 -->
+        <div class="history-item-card">
+          <img src="https://images.unsplash.com/photo-1578632767115-351597cf2477?w=500&auto=format&fit=crop&q=80" class="history-thumb" alt="Sample Manga">
+          <div class="history-body">
+            <h4>Solo Leveling - Chapitre 179</h4>
+            <div class="history-meta">Coréen ➔ Français • 24 Pages</div>
+            <a href="viewer.html" class="manga-btn manga-btn-secondary" style="width: 100%; font-size: 13px;">
+              <i class="fa-solid fa-sliders"></i> Comparer Avant / Après
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+</body>
+</html>

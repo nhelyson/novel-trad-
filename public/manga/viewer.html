@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="fr" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Résultat & Comparatif Manga - Manga Translator AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="css/manga_style.css">
+</head>
+<body>
+
+  <div class="manga-app-container">
+
+    <!-- MODULE HEADER -->
+    <header class="manga-header">
+      <a href="index.html" class="manga-brand">
+        <div class="manga-logo-badge">
+          <i class="fa-solid fa-wand-magic-sparkles"></i>
+        </div>
+        <div class="manga-brand-text">
+          <h1>Manga Translator <span>AI</span></h1>
+          <p>Module Indépendant de Traduction Manga & Webtoon</p>
+        </div>
+      </a>
+
+      <nav class="manga-nav">
+        <a href="index.html" class="manga-nav-item"><i class="fa-solid fa-gauge-high"></i> Dashboard</a>
+        <a href="upload.html" class="manga-nav-item"><i class="fa-solid fa-file-image"></i> Traduire un Manga</a>
+        <a href="history.html" class="manga-nav-item"><i class="fa-solid fa-clock-rotate-left"></i> Historique</a>
+      </nav>
+    </header>
+
+    <!-- VIEWER TOOLBAR CONTROLS -->
+    <div class="viewer-controls">
+      <div style="display: flex; align-items: center; gap: 16px;">
+        <button id="prevPageBtn" class="manga-btn manga-btn-secondary" style="padding: 8px 14px; font-size: 13px;">
+          <i class="fa-solid fa-chevron-left"></i> Page Précédente
+        </button>
+        <span style="font-weight: 700; font-size: 14px;" id="pageIndicator">Page 1 / 18</span>
+        <button id="nextPageBtn" class="manga-btn manga-btn-secondary" style="padding: 8px 14px; font-size: 13px;">
+          Page Suivante <i class="fa-solid fa-chevron-right"></i>
+        </button>
+      </div>
+
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <button id="zoomOutBtn" class="manga-btn manga-btn-secondary" style="padding: 8px 12px;" title="Zoom -"><i class="fa-solid fa-magnifying-glass-minus"></i></button>
+        <button id="zoomResetBtn" class="manga-btn manga-btn-secondary" style="padding: 8px 12px;" title="Réinitialiser Zoom">100%</button>
+        <button id="zoomInBtn" class="manga-btn manga-btn-secondary" style="padding: 8px 12px;" title="Zoom +"><i class="fa-solid fa-magnifying-glass-plus"></i></button>
+        <a id="downloadMangaPageBtn" class="manga-btn manga-btn-primary" style="padding: 8px 18px; font-size: 13px;">
+          <i class="fa-solid fa-download"></i> Télécharger la Page
+        </a>
+      </div>
+    </div>
+
+    <!-- INTERACTIVE BEFORE / AFTER SLIDER VIEWER -->
+    <div class="manga-slider-viewer" id="mangaSliderViewer">
+      <!-- Original Image (Before) -->
+      <img src="https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?w=1000&auto=format&fit=crop&q=80" class="slider-img" id="imgOriginal" alt="Manga Original">
+      
+      <!-- Translated Image (After) -->
+      <img src="https://images.unsplash.com/photo-1578632767115-351597cf2477?w=1000&auto=format&fit=crop&q=80" class="slider-img slider-img-after" id="imgTranslated" alt="Manga Traduit">
+
+      <!-- Drag Handle -->
+      <div class="slider-handle" id="sliderHandle">
+        <div class="slider-handle-button">
+          <i class="fa-solid fa-left-right"></i>
+        </div>
+      </div>
+
+      <!-- Labels Overlay -->
+      <div style="position: absolute; top: 16px; left: 16px; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; color: #fff;">
+        Original (Japonais)
+      </div>
+      <div style="position: absolute; top: 16px; right: 16px; background: rgba(168,85,247,0.8); backdrop-filter: blur(8px); padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; color: #fff;">
+        Traduit (Français)
+      </div>
+    </div>
+
+  </div>
+
+  <script src="js/manga_app.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (window.initBeforeAfterSlider) {
+        window.initBeforeAfterSlider();
+      }
+    });
+  </script>
+</body>
+</html>

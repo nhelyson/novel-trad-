@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="fr" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Analyse IA en cours - Manga Translator AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="css/manga_style.css">
+</head>
+<body>
+
+  <div class="manga-app-container">
+
+    <!-- MODULE HEADER -->
+    <header class="manga-header">
+      <a href="index.html" class="manga-brand">
+        <div class="manga-logo-badge">
+          <i class="fa-solid fa-wand-magic-sparkles"></i>
+        </div>
+        <div class="manga-brand-text">
+          <h1>Manga Translator <span>AI</span></h1>
+          <p>Module Indépendant de Traduction Manga & Webtoon</p>
+        </div>
+      </a>
+
+      <nav class="manga-nav">
+        <a href="index.html" class="manga-nav-item"><i class="fa-solid fa-gauge-high"></i> Dashboard</a>
+        <a href="upload.html" class="manga-nav-item active"><i class="fa-solid fa-file-image"></i> Traduire un Manga</a>
+        <a href="history.html" class="manga-nav-item"><i class="fa-solid fa-clock-rotate-left"></i> Historique</a>
+      </nav>
+    </header>
+
+    <!-- PIPELINE PROGRESS CARD -->
+    <section class="manga-card" style="text-align: center;">
+      <div style="margin-bottom: 24px;">
+        <div style="width: 60px; height: 60px; border-radius: 50%; background: var(--manga-gradient); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 24px; margin: 0 auto 16px; box-shadow: var(--shadow-glow);">
+          <i class="fa-solid fa-spinner fa-spin"></i>
+        </div>
+        <h2 style="font-family: var(--font-display); font-size: 26px;">Traitement IA du Manga en cours...</h2>
+        <p style="color: var(--text-muted); font-size: 14px;">Analyse par vision par ordinateur et reconstruction graphique des bulles de dialogue.</p>
+      </div>
+
+      <!-- PROGRESS TRACK -->
+      <div style="background: var(--bg-input); height: 12px; border-radius: 6px; overflow: hidden; margin-bottom: 32px; border: 1px solid var(--border-muted);">
+        <div id="pipelineProgressFill" style="height: 100%; width: 0%; background: var(--manga-gradient); transition: width 0.5s ease;"></div>
+      </div>
+
+      <!-- 5 PIPELINE STEPS -->
+      <div class="pipeline-container">
+        <!-- Step 1 -->
+        <div class="pipeline-step" id="step1">
+          <div class="step-icon-badge"><i class="fa-solid fa-expand"></i></div>
+          <div style="text-align: left; flex: 1;">
+            <h4 style="font-size: 15px; font-weight: 700;">1. Analyse de l'image...</h4>
+            <p style="font-size: 12px; color: var(--text-muted);">Inspection de la résolution et de la structure du chapitre.</p>
+          </div>
+          <span class="step-status-tag" style="font-size: 12px; color: var(--text-muted);">En attente</span>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="pipeline-step" id="step2">
+          <div class="step-icon-badge"><i class="fa-solid fa-comment-dots"></i></div>
+          <div style="text-align: left; flex: 1;">
+            <h4 style="font-size: 15px; font-weight: 700;">2. Détection des bulles...</h4>
+            <p style="font-size: 12px; color: var(--text-muted);">Repérage par Computer Vision des ellipses et masques de dialogue.</p>
+          </div>
+          <span class="step-status-tag" style="font-size: 12px; color: var(--text-muted);">En attente</span>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="pipeline-step" id="step3">
+          <div class="step-icon-badge"><i class="fa-solid fa-font"></i></div>
+          <div style="text-align: left; flex: 1;">
+            <h4 style="font-size: 15px; font-weight: 700;">3. Extraction du texte OCR...</h4>
+            <p style="font-size: 12px; color: var(--text-muted);">Reconnaissance OCR du japonais vertical et de l'orientation.</p>
+          </div>
+          <span class="step-status-tag" style="font-size: 12px; color: var(--text-muted);">En attente</span>
+        </div>
+
+        <!-- Step 4 -->
+        <div class="pipeline-step" id="step4">
+          <div class="step-icon-badge"><i class="fa-solid fa-language"></i></div>
+          <div style="text-align: left; flex: 1;">
+            <h4 style="font-size: 15px; font-weight: 700;">4. Traduction IA...</h4>
+            <p style="font-size: 12px; color: var(--text-muted);">Traduction contextuelle et adaptation au registre manga.</p>
+          </div>
+          <span class="step-status-tag" style="font-size: 12px; color: var(--text-muted);">En attente</span>
+        </div>
+
+        <!-- Step 5 -->
+        <div class="pipeline-step" id="step5">
+          <div class="step-icon-badge"><i class="fa-solid fa-paintbrush"></i></div>
+          <div style="text-align: left; flex: 1;">
+            <h4 style="font-size: 15px; font-weight: 700;">5. Reconstruction de la page & Typographie...</h4>
+            <p style="font-size: 12px; color: var(--text-muted);">Effacement inpainting et incrustation du texte dans les bulles.</p>
+          </div>
+          <span class="step-status-tag" style="font-size: 12px; color: var(--text-muted);">En attente</span>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <script src="js/manga_app.js"></script>
+  <script>
+    // Auto start pipeline animation on load
+    document.addEventListener('DOMContentLoaded', () => {
+      if (window.runMangaPipelineAnimation) {
+        window.runMangaPipelineAnimation();
+      }
+    });
+  </script>
+</body>
+</html>

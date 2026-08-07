@@ -83,6 +83,24 @@ app.post('/api/translate-pdf', upload.single('pdf'), async (req, res) => {
   }
 });
 
+// Dedicated Manga & Webtoon AI Translator Endpoint
+const MangaPipeline = require('./services/manga/MangaPipeline');
+app.post('/api/manga/translate', upload.single('manga'), async (req, res) => {
+  try {
+    const { sourceLang, targetLang } = req.body;
+    console.log(`[Manga AI] Nouveau manga/webtoon reçu pour traduction (${sourceLang || 'ja'} -> ${targetLang || 'fr'})...`);
+    
+    const result = await MangaPipeline.processMangaPage(
+      req.file ? req.file.buffer : null,
+      sourceLang || 'ja',
+      targetLang || 'fr'
+    );
+    return res.json(result);
+  } catch (err) {
+    return res.status(500).json({ error: true, message: err.message });
+  }
+});
+
 // Fallback pour toutes les routes
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
