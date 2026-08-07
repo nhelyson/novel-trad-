@@ -106,7 +106,9 @@ document.addEventListener('DOMContentLoaded', () => {
     hideError();
     selectedFile = file;
     pdfFileName.textContent = file.name;
-    pdfFileSize.textContent = `${(file.size / (1024 * 1024)).toFixed(2)} MB • Document PDF`;
+    const isLarge = file.size > 9.5 * 1024 * 1024;
+    const modeBadge = isLarge ? ' • ⚡ Mode Gros Document (Lots & Images)' : '';
+    pdfFileSize.textContent = `${(file.size / (1024 * 1024)).toFixed(2)} MB • Document PDF${modeBadge}`;
 
     dropzoneEmpty.classList.add('hidden');
     fileLoadedInfo.classList.remove('hidden');
@@ -195,16 +197,35 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   function animateProgressSteps() {
-    updateProgress(15, 'Envoi du document à DeepL...');
-    setTimeout(() => {
-      if (progressSection.classList.contains('hidden')) return;
-      updateProgress(45, 'Traduction en cours (Préservation de la mise en page & images)...');
-    }, 2500);
+    const isLarge = selectedFile && selectedFile.size > 9.5 * 1024 * 1024;
+    if (isLarge) {
+      updateProgress(10, '⚡ Mode Gros Document activé (Découpage par lots)...');
+      setTimeout(() => {
+        if (progressSection.classList.contains('hidden')) return;
+        updateProgress(35, 'Traduction des lots par DeepL (Préservation des images & mise en page)...');
+      }, 3000);
 
-    setTimeout(() => {
-      if (progressSection.classList.contains('hidden')) return;
-      updateProgress(80, 'Finalisation et assemblage du PDF...');
-    }, 6000);
+      setTimeout(() => {
+        if (progressSection.classList.contains('hidden')) return;
+        updateProgress(75, 'Traduction des lots en cours par DeepL...');
+      }, 10000);
+
+      setTimeout(() => {
+        if (progressSection.classList.contains('hidden')) return;
+        updateProgress(92, 'Reconstruction et fusion du PDF final...');
+      }, 18000);
+    } else {
+      updateProgress(15, 'Envoi du document à DeepL...');
+      setTimeout(() => {
+        if (progressSection.classList.contains('hidden')) return;
+        updateProgress(45, 'Traduction en cours (Préservation de la mise en page & images)...');
+      }, 2500);
+
+      setTimeout(() => {
+        if (progressSection.classList.contains('hidden')) return;
+        updateProgress(80, 'Finalisation et assemblage du PDF...');
+      }, 6000);
+    }
   }
 
   function updateProgress(percent, labelText) {

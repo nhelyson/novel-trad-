@@ -125,8 +125,8 @@ app.get('*', (req, res) => {
 
 // Démarrage du serveur Express
 app.listen(PORT, () => {
-  console.log('=' * 60);
+  console.log('='.repeat(60));
   console.log(` 📖 NovelTrad DeepL PDF Translation App running on http://localhost:${PORT}`);
   console.log(` Clé DeepL configurée dans .env: ${Boolean(process.env.DEEPL_API_KEY) ? 'OUI' : 'NON (Clé à fournir dans l\'UI)'}`);
-  console.log('=' * 60);
+  console.log('='.repeat(60));
 });
