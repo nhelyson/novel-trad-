@@ -17,6 +17,23 @@ const upload = multer({
 // Middlewares
 app.use(cors());
 app.use(express.json());
+
+// Dedicated SEO & Verification Routes
+app.get('/sitemap.xml', (req, res) => {
+  res.header('Content-Type', 'application/xml');
+  res.sendFile(path.join(__dirname, 'public', 'sitemap.xml'));
+});
+
+app.get('/robots.txt', (req, res) => {
+  res.header('Content-Type', 'text/plain');
+  res.sendFile(path.join(__dirname, 'public', 'robots.txt'));
+});
+
+app.get('/google183318dfed3f9f37.html', (req, res) => {
+  res.header('Content-Type', 'text/html');
+  res.sendFile(path.join(__dirname, 'public', 'google183318dfed3f9f37.html'));
+});
+
 app.use(express.static(path.join(__dirname, 'public')));
 
 // API Status & Healthcheck Endpoint
