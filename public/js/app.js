@@ -92,29 +92,49 @@ document.addEventListener('DOMContentLoaded', () => {
     resetFileSelection();
   });
 
+  const analyzeBtn = document.getElementById('analyzeBtn');
+  const simulationModal = document.getElementById('simulationModal');
+  const simulationBody = document.getElementById('simulationBody');
+  const cancelSimBtn = document.getElementById('cancelSimBtn');
+  const confirmSimBtn = document.getElementById('confirmSimBtn');
+
+  const statSent = document.getElementById('statSent');
+  const statSaved = document.getElementById('statSaved');
+  const statCacheEntries = document.getElementById('statCacheEntries');
+  const statHitRate = document.getElementById('statHitRate');
+
+  // Load Dashboard Stats
+  loadDashboardStats();
+  setInterval(loadDashboardStats, 10000);
+
+  async function loadDashboardStats() {
+    try {
+      const apiKey = customApiKeyInput ? customApiKeyInput.value.trim() : '';
+      const res = await fetch(`/api/dashboard-stats?apiKey=${encodeURIComponent(apiKey)}`);
+      const data = await res.json();
+
+      if (data.stats) {
+        statSent.textContent = Number(data.stats.totalCharactersSent || 0).toLocaleString();
+        statSaved.textContent = Number(data.stats.totalCharactersSaved || 0).toLocaleString();
+        statCacheEntries.textContent = Number(data.stats.cacheEntries || 0).toLocaleString();
+        statHitRate.textContent = `${data.stats.hitRatePercent || '0.0'} %`;
+      }
+    } catch (err) {
+      console.warn('Dashboard stats error:', err);
+    }
+  }
+
   function handleFileSelected(file) {
-    if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
-      showError('Seuls les fichiers au format PDF sont acceptés.');
-      return;
-    }
-
-    if (file.size > 50 * 1024 * 1024) {
-      showError('Le fichier est trop volumineux (Maximum 50 Mo).');
-      return;
-    }
-
     hideError();
     selectedFile = file;
     pdfFileName.textContent = file.name;
-    const isLarge = file.size > 9.5 * 1024 * 1024;
-    const modeBadge = isLarge ? ' • ⚡ Mode Gros Document (Lots & Images)' : '';
-    pdfFileSize.textContent = `${(file.size / (1024 * 1024)).toFixed(2)} MB • Document PDF${modeBadge}`;
+    pdfFileSize.textContent = `${(file.size / (1024 * 1024)).toFixed(2)} MB • Fichier de Roman`;
 
     dropzoneEmpty.classList.add('hidden');
     fileLoadedInfo.classList.remove('hidden');
     translateBtn.disabled = false;
+    analyzeBtn.disabled = false;
 
-    // Reset previous results
     hideResultSection();
   }
 
@@ -124,15 +144,64 @@ document.addEventListener('DOMContentLoaded', () => {
     fileLoadedInfo.classList.add('hidden');
     dropzoneEmpty.classList.remove('hidden');
     translateBtn.disabled = true;
+    analyzeBtn.disabled = true;
     hideError();
     hideResultSection();
     hideProgressSection();
-
-    if (translatedPdfBlobUrl) {
-      URL.revokeObjectURL(translatedPdfBlobUrl);
-      translatedPdfBlobUrl = null;
-    }
   }
+
+  // --- SIMULATION MODE ---
+  analyzeBtn.addEventListener('click', async () => {
+    if (!selectedFile) return;
+
+    hideError();
+    const formData = new FormData();
+    formData.append('document', selectedFile);
+    formData.append('targetLang', targetLangSelect.value);
+    if (customApiKeyInput.value.trim()) {
+      formData.append('apiKey', customApiKeyInput.value.trim());
+    }
+
+    try {
+      const res = await fetch('/api/analyze-novel', {
+        method: 'POST',
+        body: formData
+      });
+      const sim = await res.json();
+
+      if (sim.error) {
+        throw new Error(sim.message);
+      }
+
+      simulationBody.innerHTML = `
+        <div style="background: rgba(0,0,0,0.25); padding: 15px; border-radius: 10px;">
+          <p><strong>Fichier :</strong> ${sim.filename}</p>
+          <p><strong>Caractères bruts :</strong> ${sim.rawCharacters.toLocaleString()}</p>
+          <p><strong>Caractères après nettoyage :</strong> ${sim.cleanedCharacters.toLocaleString()}</p>
+          <hr style="border-color: rgba(255,255,255,0.1); margin: 10px 0;">
+          <p><strong>Total Segments :</strong> ${sim.totalSegments.toLocaleString()}</p>
+          <p><strong>Déjà en Cache :</strong> <span style="color: #34d399;">${sim.cachedSegmentsCount.toLocaleString()}</span></p>
+          <p><strong>À envoyer à DeepL :</strong> <span style="color: #fbbf24;">${sim.toTranslateCount.toLocaleString()}</span> (${sim.estimatedCharactersToSend.toLocaleString()} chars)</p>
+          <hr style="border-color: rgba(255,255,255,0.1); margin: 10px 0;">
+          <p style="font-size: 1.1rem; color: #a78bfa;"><strong>Économie totale estimée :</strong> ${sim.totalCharactersSaved.toLocaleString()} caractères (≈ ${sim.savingsPercent} %)</p>
+        </div>
+      `;
+
+      simulationModal.classList.remove('hidden');
+    } catch (err) {
+      showError(err.message || 'Erreur lors de la simulation.');
+    }
+  });
+
+  cancelSimBtn.addEventListener('click', () => {
+    simulationModal.classList.add('hidden');
+  });
+
+  confirmSimBtn.addEventListener('click', () => {
+    simulationModal.classList.add('hidden');
+    translateBtn.click();
+  });
+
 
   // Translation Submission
   translateBtn.addEventListener('click', async () => {

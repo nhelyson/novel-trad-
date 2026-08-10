@@ -299,20 +299,34 @@ class DeepLProvider extends TranslationProvider {
     return Buffer.from(resultRes.data);
   }
 
+  async getUsage(customApiKey = null) {
+    const apiKey = this.getEffectiveApiKey(customApiKey);
+    const QuotaGuard = require('../optimization/QuotaGuard');
+    return await QuotaGuard.getDeepLUsage(apiKey);
+  }
+
   /**
-   * Traduction de texte brut via /v2/translate
+   * Traduction de lots de textes via /v2/translate (Text API)
+   * Supporte jusqu'à 50 textes par requête avec balises XML
    */
-  async translateText(text, targetLang, sourceLang = null, customApiKey = null) {
+  async translateBatch(textsArray, targetLang, sourceLang = null, customApiKey = null) {
+    if (!textsArray || !Array.isArray(textsArray) || textsArray.length === 0) {
+      return [];
+    }
+
     const apiKey = this.getEffectiveApiKey(customApiKey);
     const baseUrl = this.getBaseUrl(apiKey, process.env.DEEPL_API_TYPE);
 
     let formattedTargetLang = targetLang.toUpperCase();
     if (formattedTargetLang === 'EN') formattedTargetLang = 'EN-US';
+    if (formattedTargetLang === 'PT') formattedTargetLang = 'PT-PT';
 
     const payload = {
-      text: [text],
-      target_lang: formattedTargetLang
+      text: textsArray,
+      target_lang: formattedTargetLang,
+      tag_handling: 'xml'
     };
+
     if (sourceLang && sourceLang !== 'auto') {
       payload.source_lang = sourceLang.toUpperCase();
     }
@@ -323,18 +337,33 @@ class DeepLProvider extends TranslationProvider {
           'Content-Type': 'application/json',
           'Authorization': `DeepL-Auth-Key ${apiKey}`
         },
-        timeout: 30000
+        timeout: 45000
       });
 
-      if (res.data && res.data.translations && res.data.translations[0]) {
-        return res.data.translations[0].text;
+      if (res.data && res.data.translations) {
+        return res.data.translations.map(t => t.text);
       }
-      throw new Error("Réponse de traduction de texte vide.");
+      throw new Error("Réponse vide reçue de l'API DeepL.");
     } catch (err) {
-      throw new Error(`Échec de la traduction de texte DeepL : ${err.response?.data?.message || err.message}`);
+      const statusCode = err.response?.status;
+      if (statusCode === 456 || err.message.includes('456')) {
+        const quotaErr = new Error("Quota DeepL dépassé (Erreur 456).");
+        quotaErr.isQuotaExceeded = true;
+        throw quotaErr;
+      }
+      throw new Error(`Échec de la traduction par lot DeepL : ${err.response?.data?.message || err.message}`);
     }
+  }
+
+  /**
+   * Traduction de texte brut via /v2/translate
+   */
+  async translateText(text, targetLang, sourceLang = null, customApiKey = null) {
+    const results = await this.translateBatch([text], targetLang, sourceLang, customApiKey);
+    return results[0] || text;
   }
 }
 
 module.exports = DeepLProvider;
+
 

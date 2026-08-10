@@ -227,11 +227,37 @@
 
         </div>
 
-        <!-- SUBMIT ACTION -->
-        <div class="action-row">
-          <button id="translateBtn" class="btn btn-primary btn-lg" disabled>
-            <i class="fa-solid fa-wand-magic-sparkles"></i> Traduire le PDF (DeepL API)
+        <!-- SUBMIT ACTION & SIMULATION -->
+        <div class="action-row" style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+          <button id="analyzeBtn" class="btn btn-secondary btn-lg" disabled>
+            <i class="fa-solid fa-magnifying-glass-chart"></i> Analyser avant traduction (0 char API)
           </button>
+          <button id="translateBtn" class="btn btn-primary btn-lg" disabled>
+            <i class="fa-solid fa-wand-magic-sparkles"></i> Traduire le Novel (DeepL API)
+          </button>
+        </div>
+
+        <!-- DASHBOARD STATS SECTION -->
+        <div class="dashboard-stats-card" id="dashboardCard" style="margin-top: 25px; padding: 20px; background: rgba(255, 255, 255, 0.05); border-radius: 12px; border: 1fr solid rgba(255, 255, 255, 0.1);">
+          <h3 style="margin-top: 0; font-size: 1.1rem; color: #a78bfa;"><i class="fa-solid fa-gauge-high"></i> Consommation & Gain de Quota</h3>
+          <div class="stats-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-top: 15px;">
+            <div class="stat-box" style="background: rgba(0,0,0,0.2); padding: 12px; border-radius: 8px;">
+              <span style="font-size: 0.8rem; opacity: 0.8;">Caractères Utilisés DeepL</span>
+              <h4 id="statSent" style="margin: 5px 0 0; font-size: 1.2rem; color: #f43f5e;">0</h4>
+            </div>
+            <div class="stat-box" style="background: rgba(0,0,0,0.2); padding: 12px; border-radius: 8px;">
+              <span style="font-size: 0.8rem; opacity: 0.8;">Caractères Économisés</span>
+              <h4 id="statSaved" style="margin: 5px 0 0; font-size: 1.2rem; color: #10b981;">0</h4>
+            </div>
+            <div class="stat-box" style="background: rgba(0,0,0,0.2); padding: 12px; border-radius: 8px;">
+              <span style="font-size: 0.8rem; opacity: 0.8;">Entrées Mémoire Cache</span>
+              <h4 id="statCacheEntries" style="margin: 5px 0 0; font-size: 1.2rem; color: #3b82f6;">0</h4>
+            </div>
+            <div class="stat-box" style="background: rgba(0,0,0,0.2); padding: 12px; border-radius: 8px;">
+              <span style="font-size: 0.8rem; opacity: 0.8;">Taux de Réutilisation Cache</span>
+              <h4 id="statHitRate" style="margin: 5px 0 0; font-size: 1.2rem; color: #8b5cf6;">0.0 %</h4>
+            </div>
+          </div>
         </div>
 
         <!-- PROGRESS CONTAINER (Hidden by default) -->
@@ -243,7 +269,25 @@
           <div class="progress-track">
             <div class="progress-fill" id="progressFill" style="width: 0%;"></div>
           </div>
-          <p class="progress-subtext" id="progressSubtext">Envoi sécurisé à l'API DeepL Document Translation...</p>
+          <p class="progress-subtext" id="progressSubtext">Optimisation et déduplication en cours...</p>
+          <div style="margin-top: 10px; text-align: center;">
+            <button id="pauseBtn" class="btn btn-warning btn-sm hidden"><i class="fa-solid fa-pause"></i> Pause</button>
+            <button id="resumeBtn" class="btn btn-success btn-sm hidden"><i class="fa-solid fa-play"></i> Reprendre</button>
+          </div>
+        </div>
+
+        <!-- SIMULATION MODAL -->
+        <div class="modal-overlay hidden" id="simulationModal" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.75); display: flex; align-items: center; justify-content: center; z-index: 9999;">
+          <div class="modal-card" style="background: #1e1b4b; border: 1px solid #6366f1; padding: 25px; border-radius: 16px; max-width: 550px; width: 90%; color: #fff;">
+            <h2 style="margin-top: 0; color: #818cf8;"><i class="fa-solid fa-chart-pie"></i> Estimation & Rapport de Simulation</h2>
+            <div id="simulationBody" style="margin: 20px 0; font-size: 0.95rem; line-height: 1.6;">
+              <!-- Dynamic simulation results inserted here -->
+            </div>
+            <div style="display: flex; gap: 10px; justify-content: flex-end;">
+              <button id="cancelSimBtn" class="btn btn-secondary"><i class="fa-solid fa-xmark"></i> Annuler</button>
+              <button id="confirmSimBtn" class="btn btn-primary"><i class="fa-solid fa-rocket"></i> Lancer la Traduction</button>
+            </div>
+          </div>
         </div>
 
         <!-- RESULT CONTAINER (Hidden by default) -->
@@ -254,13 +298,13 @@
             </div>
             <div class="success-text">
               <h3>Traduction Terminée avec Succès !</h3>
-              <p>La structure, la pagination et les illustrations ont été conservées à 100%.</p>
+              <p>Texte dédupliqué et sauvegardé dans votre mémoire de traduction persistante.</p>
             </div>
           </div>
 
           <div class="download-action">
             <a id="downloadPdfBtn" class="btn btn-success btn-lg" download>
-              <i class="fa-solid fa-download"></i> Télécharger le PDF Traduit
+              <i class="fa-solid fa-download"></i> Télécharger le Texte Traduit
             </a>
           </div>
         </div>
@@ -273,6 +317,7 @@
 
       </div>
     </main>
+
 
     <!-- FOOTER -->
     <footer class="app-footer">

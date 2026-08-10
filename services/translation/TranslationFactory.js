@@ -1,6 +1,7 @@
 const DeepLProvider = require('./DeepLProvider');
 const GoogleProvider = require('./GoogleProvider');
 const OpenAIProvider = require('./OpenAIProvider');
+const NLLBProvider = require('./NLLBProvider');
 
 class TranslationFactory {
   static getProvider(providerName = null) {
@@ -13,6 +14,8 @@ class TranslationFactory {
         return new GoogleProvider();
       case 'openai':
         return new OpenAIProvider();
+      case 'nllb':
+        return new NLLBProvider();
       default:
         return new DeepLProvider();
     }
@@ -20,3 +23,4 @@ class TranslationFactory {
 }
 
 module.exports = TranslationFactory;
+

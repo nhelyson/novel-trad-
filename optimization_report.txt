@@ -1,0 +1,38 @@
+════════════════════════════════════════
+NOVEL TRAD — OPTIMISATION TERMINÉE
+════════════════════════════════════════
+
+Cache :
+[ACTIF] (Mémoire de traduction SQLite locale partagée entre tous les romans)
+
+Mémoire de traduction :
+[ACTIVE] (Hash SHA-256 stable avec normalisation des espaces)
+
+Déduplication :
+[ACTIVE] (Déduplication inter-documents et au sein d'un même roman)
+
+Nettoyage :
+[ACTIF] (Filtrage avec niveaux SAFE, LIKELY, UNCERTAIN des en-têtes, numéros de pages, ISBN)
+
+Pause / reprise :
+[ACTIVE] (Sauvegarde progressive par lot + bouton Reprendre en cas d'interruption)
+
+Suivi des caractères :
+[ACTIF] (Tableau de bord dynamique avec suivi des caractères envoyés vs économisés)
+
+Protection quota :
+[ACTIVE] (Seuils 80%, 90%, 95%, pause auto à 98% et blocage à 100%)
+
+Abstraction TranslationProvider :
+[ACTIVE] (Pattern Strategy avec DeepLProvider, Google, OpenAI et NLLBProvider)
+
+DeepL :
+[ACTIF] (Text API /v2/translate par lots avec balises XML et /v2/usage)
+
+NLLB :
+[NON INSTALLÉ — ESPACE INSUFFISANT] (Architecture prête via NLLBProvider stub)
+
+Tests :
+[6/6 réussis] (Passage validé de toute la suite d'optimisation)
+
+════════════════════════════════════════
