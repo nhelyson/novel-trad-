@@ -11,7 +11,7 @@ const PORT = process.env.PORT || 3000;
 // Multer memory storage (aucun stockage sur disque)
 const upload = multer({
   storage: multer.memoryStorage(),
-  limits: { fileSize: 50 * 1024 * 1024 } // Limit: 50 MB
+  limits: { fileSize: 250 * 1024 * 1024 } // Limit: 250 MB for large PDF Light Novels
 });
 
 // Middlewares

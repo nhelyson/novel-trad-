@@ -26,20 +26,20 @@ class DeepLProvider extends TranslationProvider {
 
   /**
    * Point d'entrée principal pour la traduction de PDF.
-   * Redirige automatiquement les fichiers > 9.5 Mo vers le Mode Gros Document (découpage & fusion).
+   * Redirige automatiquement les fichiers > 8.0 Mo vers le Mode Gros Document (découpage & fusion).
    */
   async translateDocument(pdfBuffer, targetLang, sourceLang = null, customApiKey = null, onProgress = null) {
-    const LARGE_FILE_THRESHOLD = 9.5 * 1024 * 1024; // 9.5 MB threshold for DeepL
+    const LARGE_FILE_THRESHOLD = 8.0 * 1024 * 1024; // 8.0 MB threshold for DeepL
 
     if (pdfBuffer.length > LARGE_FILE_THRESHOLD) {
-      console.log(`[DeepLProvider] Gros document détecté (${(pdfBuffer.length / 1024 / 1024).toFixed(2)} MB > 9.5 MB). Activation du Mode Gros Document...`);
+      console.log(`[DeepLProvider] Gros document détecté (${(pdfBuffer.length / 1024 / 1024).toFixed(2)} MB > 8.0 MB). Activation du Mode Gros Document...`);
       return await this.splitAndTranslateLargePdf(pdfBuffer, targetLang, sourceLang, customApiKey, onProgress);
     }
 
     try {
       return await this.translateSingleDocumentChunk(pdfBuffer, targetLang, sourceLang, customApiKey, onProgress);
     } catch (err) {
-      if (err.message && err.message.toLowerCase().includes('size limit')) {
+      if (err.message && (err.message.toLowerCase().includes('size limit') || err.message.toLowerCase().includes('exceeds'))) {
         console.warn(`[DeepLProvider] Rejet DeepL pour limite de taille. Bascule automatique vers le Mode Gros Document...`);
         return await this.splitAndTranslateLargePdf(pdfBuffer, targetLang, sourceLang, customApiKey, onProgress);
       }
@@ -67,39 +67,63 @@ class DeepLProvider extends TranslationProvider {
       throw new Error('Le document PDF fourni ne contient aucune page.');
     }
 
-    // Calcul dynamique du nombre de pages par lot (cible ~6.5 Mo par lot pour marge de sécurité)
+    // Target ~4.0 MB per batch for safety margin (DeepL limit is 10 MB)
     const avgBytesPerPage = pdfBuffer.length / totalPages;
-    const targetChunkBytes = 6.5 * 1024 * 1024; // 6.5 MB
+    const targetChunkBytes = 4.0 * 1024 * 1024; // 4.0 MB
     let pagesPerChunk = Math.max(1, Math.floor(targetChunkBytes / avgBytesPerPage));
-    pagesPerChunk = Math.min(pagesPerChunk, 35); // Max 35 pages par lot pour réactivité
+    pagesPerChunk = Math.min(pagesPerChunk, 15); // Max 15 pages per batch for safety
 
-    const totalBatches = Math.ceil(totalPages / pagesPerChunk);
-    console.log(`[DeepLProvider] PDF de ${totalPages} pages découpé en ${totalBatches} lot(s) (~${pagesPerChunk} pages/lot).`);
+    // Helper pour générer des sous-PDFs de taille strictement < 7.5 MB
+    const createSubChunks = async (startP, endP) => {
+      const pageCount = endP - startP;
+      const chunkDoc = await PDFDocument.create();
+      const pageIndices = [];
+      for (let p = startP; p < endP; p++) pageIndices.push(p);
+
+      const copiedPages = await chunkDoc.copyPages(srcDoc, pageIndices);
+      copiedPages.forEach(page => chunkDoc.addPage(page));
+      const buf = Buffer.from(await chunkDoc.save());
+
+      // Si le sous-PDF dépasse 7.5 MB et contient plus d'1 page, découper en deux
+      if (buf.length > 7.5 * 1024 * 1024 && pageCount > 1) {
+        const mid = startP + Math.floor(pageCount / 2);
+        console.log(`[DeepLProvider] Sous-PDF (pages ${startP + 1}-${endP}) de ${(buf.length / 1024 / 1024).toFixed(2)} MB > 7.5 MB. Redécoupage adaptatif...`);
+        const left = await createSubChunks(startP, mid);
+        const right = await createSubChunks(mid, endP);
+        return [...left, ...right];
+      }
+
+      return [{ startPage: startP, endPage: endP, buffer: buf }];
+    };
+
+    // 1. Découpage adaptatif initial
+    let allChunks = [];
+    const rawBatchesCount = Math.ceil(totalPages / pagesPerChunk);
+    for (let i = 0; i < rawBatchesCount; i++) {
+      const startP = i * pagesPerChunk;
+      const endP = Math.min(totalPages, (i + 1) * pagesPerChunk);
+      const subChunks = await createSubChunks(startP, endP);
+      allChunks.push(...subChunks);
+    }
+
+    const totalBatches = allChunks.length;
+    console.log(`[DeepLProvider] PDF de ${totalPages} pages découpé en ${totalBatches} lot(s) sécurisé(s) (< 7.5 MB/lot).`);
 
     const translatedChunkBuffers = [];
 
     for (let i = 0; i < totalBatches; i++) {
-      const startPage = i * pagesPerChunk;
-      const endPage = Math.min(totalPages, (i + 1) * pagesPerChunk);
+      const chunkItem = allChunks[i];
       const batchNum = i + 1;
+      const startPage = chunkItem.startPage;
+      const endPage = chunkItem.endPage;
+      const chunkBuffer = chunkItem.buffer;
 
       const basePercent = Math.round(10 + (i / totalBatches) * 80);
       if (onProgress) {
-        onProgress(`[Gros Document] Lot ${batchNum}/${totalBatches} (Pages ${startPage + 1} à ${endPage}) : Préparation...`, basePercent);
+        onProgress(`[Gros Document] Lot ${batchNum}/${totalBatches} (Pages ${startPage + 1} à ${endPage}) : Envoi (${(chunkBuffer.length / 1024 / 1024).toFixed(2)} MB)...`, basePercent);
       }
 
-      // Création du sous-PDF pour ce lot
-      const chunkDoc = await PDFDocument.create();
-      const pageIndices = [];
-      for (let p = startPage; p < endPage; p++) {
-        pageIndices.push(p);
-      }
-
-      const copiedPages = await chunkDoc.copyPages(srcDoc, pageIndices);
-      copiedPages.forEach(page => chunkDoc.addPage(page));
-      const chunkBuffer = Buffer.from(await chunkDoc.save());
-
-      console.log(`[DeepLProvider] Lot ${batchNum}/${totalBatches} prêt: ${(chunkBuffer.length / 1024 / 1024).toFixed(2)} MB, pages ${startPage + 1}-${endPage}`);
+      console.log(`[DeepLProvider] Envoi Lot ${batchNum}/${totalBatches}: ${(chunkBuffer.length / 1024 / 1024).toFixed(2)} MB, pages ${startPage + 1}-${endPage}`);
 
       // Envoi du lot à DeepL avec logique de réessai (retry)
       let translatedChunkBuffer = null;
@@ -125,7 +149,6 @@ class DeepLProvider extends TranslationProvider {
           lastError = retryErr;
           console.warn(`[DeepLProvider] Échec tentative ${attempt}/${maxRetries} pour le lot ${batchNum}: ${retryErr.message}`);
           
-          // Si l'erreur est un dépassement de quota (456), il est inutile d'insister
           if (retryErr.isQuotaExceeded || retryErr.message.includes('456') || retryErr.message.includes('Quota')) {
             throw retryErr;
           }
