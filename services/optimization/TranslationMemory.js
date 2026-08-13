@@ -1,23 +1,22 @@
 const TextNormalizer = require('./TextNormalizer');
-const db = require('../storage/DatabaseService');
+const InMemoryJobStore = require('../storage/InMemoryJobStore');
 
 class TranslationMemory {
   /**
-   * Recherche un segment dans la mémoire de traduction persistante (cache global)
+   * Recherche un segment dans la mémoire de traduction éphémère (RAM uniquement)
    */
   static async lookup(sourceText, targetLang) {
     if (!sourceText || typeof sourceText !== 'string') return null;
     const normalized = TextNormalizer.normalize(sourceText);
     const hash = TextNormalizer.hash(sourceText);
 
-    const match = await db.findInMemory(hash, targetLang);
-    if (match && match.translated_text) {
+    const match = InMemoryJobStore.findInMemory(hash, targetLang);
+    if (match) {
       return {
         sourceText,
         normalizedText: normalized,
         sourceHash: hash,
-        translatedText: match.translated_text,
-        provider: match.provider,
+        translatedText: match,
         cached: true
       };
     }
@@ -25,27 +24,17 @@ class TranslationMemory {
   }
 
   /**
-   * Sauvegarde une nouvelle traduction dans la mémoire partagée
+   * Sauvegarde une nouvelle traduction dans la mémoire éphémère de session
    */
   static async save(sourceText, sourceLang, targetLang, translatedText, provider) {
     if (!sourceText || !translatedText) return;
-    const normalized = TextNormalizer.normalize(sourceText);
     const hash = TextNormalizer.hash(sourceText);
-
-    await db.saveToMemory(
-      hash,
-      sourceText,
-      normalized,
-      sourceLang,
-      targetLang,
-      translatedText,
-      provider
-    );
+    InMemoryJobStore.saveToMemory(hash, translatedText, targetLang);
   }
 
   /**
    * Déduplique un lot de segments avant envoi à DeepL :
-   * Separe les segments déjà en cache des nouveaux segments.
+   * Separe les segments déjà en mémoire des nouveaux segments.
    * Retourne { cachedSegments, newSegments, charactersSaved }
    */
   static async deduplicateBatch(segments, targetLang) {
@@ -54,9 +43,9 @@ class TranslationMemory {
     let charactersSaved = 0;
 
     for (const seg of segments) {
-      const cached = await this.lookup(seg.source_text, targetLang);
+      const cached = await this.lookup(seg.source_text || seg.text, targetLang);
       if (cached) {
-        charactersSaved += seg.source_text.length;
+        charactersSaved += (seg.source_text || seg.text || '').length;
         cachedSegments.push({
           ...seg,
           translated_text: cached.translatedText,

@@ -51,10 +51,11 @@ class DocumentCleaner {
     let charactersSaved = 0;
 
     for (const seg of rawSegments) {
-      const evalResult = this.evaluateSegment(seg.text);
+      const textVal = seg.source_text || seg.text || '';
+      const evalResult = this.evaluateSegment(textVal);
 
       if (evalResult.shouldSkip && evalResult.confidence !== 'UNCERTAIN') {
-        charactersSaved += seg.text.length;
+        charactersSaved += textVal.length;
         skippedSegments.push({
           ...seg,
           status: 'SKIPPED',

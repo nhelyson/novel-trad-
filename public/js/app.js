@@ -1,13 +1,13 @@
 /* ==========================================================================
-   NovelTrad DeepL PDF Translator - Client App Logic
+   NovelTrad DeepL PDF & EPUB Translator - Client App Logic
    ========================================================================== */
 
 document.addEventListener('DOMContentLoaded', () => {
   let selectedFile = null;
-  let translatedPdfBlobUrl = null;
+  let translatedBlobUrl = null;
+  let activeEventSource = null;
 
   // DOM Elements
-  const apiStatusBadge = document.getElementById('apiStatusBadge');
   const statusDot = document.getElementById('statusDot');
   const statusText = document.getElementById('statusText');
 
@@ -19,6 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const pdfFileSize = document.getElementById('pdfFileSize');
   const removePdfBtn = document.getElementById('removePdfBtn');
 
+  const providerSelect = document.getElementById('providerSelect');
   const targetLangSelect = document.getElementById('targetLangSelect');
   const customApiKeyInput = document.getElementById('customApiKeyInput');
   const toggleApiKeyVisBtn = document.getElementById('toggleApiKeyVisBtn');
@@ -35,20 +36,36 @@ document.addEventListener('DOMContentLoaded', () => {
   const errorBanner = document.getElementById('errorBanner');
   const errorMessage = document.getElementById('errorMessage');
 
-  // Check Backend & DeepL Status on Load
+  const analyzeBtn = document.getElementById('analyzeBtn');
+  const simulationModal = document.getElementById('simulationModal');
+  const simulationBody = document.getElementById('simulationBody');
+  const cancelSimBtn = document.getElementById('cancelSimBtn');
+  const confirmSimBtn = document.getElementById('confirmSimBtn');
+
+  const statSent = document.getElementById('statSent');
+  const statSaved = document.getElementById('statSaved');
+  const statCacheEntries = document.getElementById('statCacheEntries');
+  const statHitRate = document.getElementById('statHitRate');
+
+  // Check Backend & Provider Status on Load
   checkApiStatus();
+  loadDashboardStats();
+  setInterval(loadDashboardStats, 10000);
 
   async function checkApiStatus() {
     try {
       const res = await fetch('/api/status');
       const data = await res.json();
 
-      if (data.deeplConfigured) {
+      if (data.nllbAvailable) {
         statusDot.className = 'status-dot green';
-        statusText.textContent = 'DeepL API Configuré (Clé .env)';
+        statusText.textContent = '✓ NLLB Local disponible (Hors ligne)';
+      } else if (data.deeplConfigured) {
+        statusDot.className = 'status-dot green';
+        statusText.textContent = 'DeepL API Configuré (.env)';
       } else {
         statusDot.className = 'status-dot warning';
-        statusText.textContent = 'Clé DeepL requise ci-dessous';
+        statusText.textContent = 'Moteur Local ou Clé API requis';
       }
     } catch (err) {
       statusDot.className = 'status-dot warning';
@@ -57,11 +74,13 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Password Visibility Toggle
-  toggleApiKeyVisBtn.addEventListener('click', () => {
-    const type = customApiKeyInput.type === 'password' ? 'text' : 'password';
-    customApiKeyInput.type = type;
-    toggleApiKeyVisBtn.querySelector('i').className = type === 'password' ? 'fa-regular fa-eye' : 'fa-regular fa-eye-slash';
-  });
+  if (toggleApiKeyVisBtn) {
+    toggleApiKeyVisBtn.addEventListener('click', () => {
+      const type = customApiKeyInput.type === 'password' ? 'text' : 'password';
+      customApiKeyInput.type = type;
+      toggleApiKeyVisBtn.querySelector('i').className = type === 'password' ? 'fa-regular fa-eye' : 'fa-regular fa-eye-slash';
+    });
+  }
 
   // Drag and Drop Events
   pdfDropzone.addEventListener('dragover', (e) => {
@@ -92,32 +111,19 @@ document.addEventListener('DOMContentLoaded', () => {
     resetFileSelection();
   });
 
-  const analyzeBtn = document.getElementById('analyzeBtn');
-  const simulationModal = document.getElementById('simulationModal');
-  const simulationBody = document.getElementById('simulationBody');
-  const cancelSimBtn = document.getElementById('cancelSimBtn');
-  const confirmSimBtn = document.getElementById('confirmSimBtn');
-
-  const statSent = document.getElementById('statSent');
-  const statSaved = document.getElementById('statSaved');
-  const statCacheEntries = document.getElementById('statCacheEntries');
-  const statHitRate = document.getElementById('statHitRate');
-
-  // Load Dashboard Stats
-  loadDashboardStats();
-  setInterval(loadDashboardStats, 10000);
-
   async function loadDashboardStats() {
     try {
       const apiKey = customApiKeyInput ? customApiKeyInput.value.trim() : '';
       const res = await fetch(`/api/dashboard-stats?apiKey=${encodeURIComponent(apiKey)}`);
       const data = await res.json();
 
-      if (data.stats) {
-        statSent.textContent = Number(data.stats.totalCharactersSent || 0).toLocaleString();
-        statSaved.textContent = Number(data.stats.totalCharactersSaved || 0).toLocaleString();
-        statCacheEntries.textContent = Number(data.stats.cacheEntries || 0).toLocaleString();
-        statHitRate.textContent = `${data.stats.hitRatePercent || '0.0'} %`;
+      if (data.quotaInfo) {
+        statSent.textContent = Number(data.quotaInfo.characterCount || 0).toLocaleString();
+        statSaved.textContent = Number(data.quotaInfo.charactersRemaining || 0).toLocaleString();
+        statHitRate.textContent = `${data.quotaInfo.percentUsed || '0.0'} %`;
+      } else if (data.stats) {
+        statSent.textContent = Number(data.stats.activeJobs || 0).toLocaleString() + ' jobs';
+        statSaved.textContent = Number(data.stats.cacheEntries || 0).toLocaleString();
       }
     } catch (err) {
       console.warn('Dashboard stats error:', err);
@@ -127,8 +133,14 @@ document.addEventListener('DOMContentLoaded', () => {
   function handleFileSelected(file) {
     hideError();
     selectedFile = file;
+    const ext = file.name.split('.').pop().toUpperCase();
     pdfFileName.textContent = file.name;
-    pdfFileSize.textContent = `${(file.size / (1024 * 1024)).toFixed(2)} MB • Fichier de Roman`;
+    pdfFileSize.textContent = `${(file.size / (1024 * 1024)).toFixed(2)} MB • Format ${ext}`;
+
+    const iconEl = fileLoadedInfo.querySelector('.pdf-badge-icon i');
+    if (iconEl) {
+      iconEl.className = ext === 'EPUB' ? 'fa-solid fa-book-open' : 'fa-solid fa-file-pdf';
+    }
 
     dropzoneEmpty.classList.add('hidden');
     fileLoadedInfo.classList.remove('hidden');
@@ -148,9 +160,14 @@ document.addEventListener('DOMContentLoaded', () => {
     hideError();
     hideResultSection();
     hideProgressSection();
+
+    if (activeEventSource) {
+      activeEventSource.close();
+      activeEventSource = null;
+    }
   }
 
-  // --- SIMULATION MODE ---
+  // Mode Simulation / Analyse du document
   analyzeBtn.addEventListener('click', async () => {
     if (!selectedFile) return;
 
@@ -158,6 +175,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const formData = new FormData();
     formData.append('document', selectedFile);
     formData.append('targetLang', targetLangSelect.value);
+    formData.append('provider', providerSelect ? providerSelect.value : 'nllb');
     if (customApiKeyInput.value.trim()) {
       formData.append('apiKey', customApiKeyInput.value.trim());
     }
@@ -173,17 +191,29 @@ document.addEventListener('DOMContentLoaded', () => {
         throw new Error(sim.message);
       }
 
+      let quotaMessageHtml = '';
+      if (sim.quotaCheck) {
+        const qc = sim.quotaCheck;
+        if (qc.canProceed) {
+          quotaMessageHtml = `<p style="color: #34d399;"><strong>Vérification Quota :</strong> ✓ ${qc.message}</p>`;
+        } else {
+          quotaMessageHtml = `<p style="color: #f43f5e; white-space: pre-line;"><strong>Vérification Quota :</strong> ${qc.message}</p>`;
+        }
+      }
+
+      const fileType = sim.fileType || 'DOCUMENT';
+      const detailInfo = fileType === 'EPUB' 
+        ? `<p><strong>Chapitres :</strong> ${sim.chapters}</p><p><strong>Blocs de texte :</strong> ${sim.totalTextBlocks}</p>`
+        : `<p><strong>Pages :</strong> ${sim.pages || 'N/A'}</p>`;
+
       simulationBody.innerHTML = `
         <div style="background: rgba(0,0,0,0.25); padding: 15px; border-radius: 10px;">
-          <p><strong>Fichier :</strong> ${sim.filename}</p>
-          <p><strong>Caractères bruts :</strong> ${sim.rawCharacters.toLocaleString()}</p>
-          <p><strong>Caractères après nettoyage :</strong> ${sim.cleanedCharacters.toLocaleString()}</p>
+          <p><strong>Fichier :</strong> ${sim.filename} (${fileType})</p>
+          <p><strong>Taille :</strong> ${sim.sizeMB} Mo</p>
+          ${detailInfo}
+          <p><strong>Nombre total de caractères :</strong> ${Number(sim.totalCharacters || sim.rawCharacters || 0).toLocaleString()}</p>
           <hr style="border-color: rgba(255,255,255,0.1); margin: 10px 0;">
-          <p><strong>Total Segments :</strong> ${sim.totalSegments.toLocaleString()}</p>
-          <p><strong>Déjà en Cache :</strong> <span style="color: #34d399;">${sim.cachedSegmentsCount.toLocaleString()}</span></p>
-          <p><strong>À envoyer à DeepL :</strong> <span style="color: #fbbf24;">${sim.toTranslateCount.toLocaleString()}</span> (${sim.estimatedCharactersToSend.toLocaleString()} chars)</p>
-          <hr style="border-color: rgba(255,255,255,0.1); margin: 10px 0;">
-          <p style="font-size: 1.1rem; color: #a78bfa;"><strong>Économie totale estimée :</strong> ${sim.totalCharactersSaved.toLocaleString()} caractères (≈ ${sim.savingsPercent} %)</p>
+          ${quotaMessageHtml}
         </div>
       `;
 
@@ -202,8 +232,7 @@ document.addEventListener('DOMContentLoaded', () => {
     translateBtn.click();
   });
 
-
-  // Translation Submission
+  // Exécution de la Traduction avec événements temps réel SSE (Zéro faux pourcentage)
   translateBtn.addEventListener('click', async () => {
     if (!selectedFile) return;
 
@@ -214,25 +243,29 @@ document.addEventListener('DOMContentLoaded', () => {
     translateBtn.disabled = true;
     const targetLang = targetLangSelect.value;
     const customApiKey = customApiKeyInput.value.trim();
+    const provider = providerSelect ? providerSelect.value : 'nllb';
+    const jobId = 'job_' + Date.now();
 
     const formData = new FormData();
-    formData.append('pdf', selectedFile);
+    formData.append('document', selectedFile);
+    formData.append('jobId', jobId);
     formData.append('targetLang', targetLang);
+    formData.append('provider', provider);
     if (customApiKey) {
       formData.append('apiKey', customApiKey);
     }
 
-    // Simulate animated progress steps
-    animateProgressSteps();
+    // Connexion SSE pour suivre la progression exacte
+    connectSSE(jobId);
 
     try {
-      const response = await fetch('/api/translate-pdf', {
+      const response = await fetch('/api/translate-document', {
         method: 'POST',
         body: formData
       });
 
       if (!response.ok) {
-        let errText = 'Erreur lors de la traduction du PDF.';
+        let errText = 'Erreur lors de la traduction.';
         try {
           const errData = await response.json();
           errText = errData.message || errText;
@@ -240,18 +273,18 @@ document.addEventListener('DOMContentLoaded', () => {
         throw new Error(errText);
       }
 
-      // Received PDF Binary Blob
-      const pdfBlob = await response.blob();
-      translatedPdfBlobUrl = URL.createObjectURL(pdfBlob);
+      const blob = await response.blob();
+      translatedBlobUrl = URL.createObjectURL(blob);
 
-      // Setup Download Link
+      const ext = selectedFile.name.split('.').pop().toLowerCase();
       const originalName = selectedFile.name.replace(/\.[^/.]+$/, "");
-      const outputFilename = `${originalName}_${targetLang.toLowerCase()}.pdf`;
+      const outputFilename = `${originalName}_${targetLang.toLowerCase()}.${ext}`;
 
-      downloadPdfBtn.href = translatedPdfBlobUrl;
+      downloadPdfBtn.href = translatedBlobUrl;
       downloadPdfBtn.download = outputFilename;
+      downloadPdfBtn.innerHTML = `<i class="fa-solid fa-download"></i> Télécharger le document traduit (${ext.toUpperCase()})`;
 
-      updateProgress(100, 'Traduction terminée !');
+      updateProgress(100, 'Traduction terminée avec succès !');
       setTimeout(() => {
         hideProgressSection();
         showResultSection();
@@ -262,39 +295,58 @@ document.addEventListener('DOMContentLoaded', () => {
       hideProgressSection();
       showError(err.message || 'Une erreur inattendue est survenue.');
       translateBtn.disabled = false;
+    } finally {
+      if (activeEventSource) {
+        activeEventSource.close();
+        activeEventSource = null;
+      }
     }
   });
 
-  function animateProgressSteps() {
-    const isLarge = selectedFile && selectedFile.size > 9.5 * 1024 * 1024;
-    if (isLarge) {
-      updateProgress(10, '⚡ Mode Gros Document activé (Découpage par lots)...');
-      setTimeout(() => {
-        if (progressSection.classList.contains('hidden')) return;
-        updateProgress(35, 'Traduction des lots par DeepL (Préservation des images & mise en page)...');
-      }, 3000);
-
-      setTimeout(() => {
-        if (progressSection.classList.contains('hidden')) return;
-        updateProgress(75, 'Traduction des lots en cours par DeepL...');
-      }, 10000);
-
-      setTimeout(() => {
-        if (progressSection.classList.contains('hidden')) return;
-        updateProgress(92, 'Reconstruction et fusion du PDF final...');
-      }, 18000);
-    } else {
-      updateProgress(15, 'Envoi du document à DeepL...');
-      setTimeout(() => {
-        if (progressSection.classList.contains('hidden')) return;
-        updateProgress(45, 'Traduction en cours (Préservation de la mise en page & images)...');
-      }, 2500);
-
-      setTimeout(() => {
-        if (progressSection.classList.contains('hidden')) return;
-        updateProgress(80, 'Finalisation et assemblage du PDF...');
-      }, 6000);
+  // Connexion SSE (Server-Sent Events) pour la progression en temps réel
+  function connectSSE(jobId) {
+    if (activeEventSource) {
+      activeEventSource.close();
     }
+
+    activeEventSource = new EventSource(`/api/translation-events/${jobId}`);
+
+    activeEventSource.onmessage = (event) => {
+      try {
+        const job = JSON.parse(event.data);
+        if (!job) return;
+
+        let statusText = job.statusMessage || 'Traitement en cours...';
+        let percent = 0;
+
+        if (job.phase === 'TRANSLATION' && job.totalBlocks > 0) {
+          percent = Math.round((job.currentBlock / job.totalBlocks) * 80);
+          statusText = `Traduction : ${job.currentBlock} / ${job.totalBlocks} blocs`;
+        } else if (job.phase === 'RECONSTRUCTION') {
+          if (job.totalPages > 0) {
+            percent = 80 + Math.round((job.currentPage / job.totalPages) * 20);
+            statusText = `Reconstruction PDF : page ${job.currentPage} / ${job.totalPages}`;
+          } else if (job.totalChapters > 0) {
+            percent = 80 + Math.round((job.currentChapter / job.totalChapters) * 20);
+            statusText = `Reconstruction EPUB : chapitre ${job.currentChapter} / ${job.totalChapters}`;
+          }
+        } else if (job.phase === 'COMPLETED') {
+          percent = 100;
+          statusText = 'Traduction et assemblage terminés !';
+        }
+
+        updateProgress(Math.min(100, percent), statusText);
+      } catch (e) {
+        console.warn('SSE Parse Error:', e);
+      }
+    };
+
+    activeEventSource.onerror = () => {
+      if (activeEventSource) {
+        activeEventSource.close();
+        activeEventSource = null;
+      }
+    };
   }
 
   function updateProgress(percent, labelText) {
@@ -308,7 +360,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function showProgressSection() {
     progressSection.classList.remove('hidden');
-    updateProgress(0, 'Initialisation...');
+    updateProgress(0, 'Initialisation du traitement...');
   }
 
   function hideProgressSection() {
@@ -324,7 +376,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function showError(msg) {
-    errorMessage.textContent = msg;
+    errorMessage.innerHTML = msg.replace(/\n/g, '<br>');
     errorBanner.classList.remove('hidden');
   }
 

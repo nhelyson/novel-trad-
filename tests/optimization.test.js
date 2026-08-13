@@ -1,6 +1,4 @@
 const assert = require('assert');
-const path = require('path');
-const fs = require('fs');
 
 const TextNormalizer = require('../services/optimization/TextNormalizer');
 const DocumentCleaner = require('../services/optimization/DocumentCleaner');
@@ -8,7 +6,7 @@ const TranslationMemory = require('../services/optimization/TranslationMemory');
 const QuotaGuard = require('../services/optimization/QuotaGuard');
 const TextSegmenter = require('../services/optimization/TextSegmenter');
 const BatchEngine = require('../services/optimization/BatchEngine');
-const db = require('../services/storage/DatabaseService');
+const InMemoryJobStore = require('../services/storage/InMemoryJobStore');
 
 async function runTests() {
   console.log('====================================================');
@@ -32,7 +30,6 @@ async function runTests() {
 
   // --- TEST 1: Même phrase deux fois dans le même document ---
   await test('Test 1: Même phrase 2 fois -> 1 seul hash & cache réutilisé', async () => {
-    const text = "Hello world.";
     const norm1 = TextNormalizer.normalize("Hello world.");
     const norm2 = TextNormalizer.normalize("Hello   world.");
     assert.strictEqual(norm1, norm2, "La normalisation doit fusionner les espaces multiples");
@@ -43,71 +40,48 @@ async function runTests() {
 
     await TranslationMemory.save("Hello world.", "EN", "FR", "Bonjour le monde.", "TestProvider");
     const cached = await TranslationMemory.lookup("Hello   world.", "FR");
-    assert.ok(cached, "Le résultat doit être trouvé en cache");
+    assert.ok(cached, "Le résultat doit être trouvé en cache éphémère");
     assert.strictEqual(cached.translatedText, "Bonjour le monde.");
   });
 
   // --- TEST 2: Même phrase dans deux documents différents ---
-  await test('Test 2: Cache inter-documents (Novel A -> Novel B)', async () => {
+  await test('Test 2: Cache éphémère inter-documents', async () => {
     const novelA_text = "She looked at him silently.";
     await TranslationMemory.save(novelA_text, "EN", "FR", "Elle le regarda silencieusement.", "TestProvider");
 
-    // Novel B demande la même phrase
     const novelB_lookup = await TranslationMemory.lookup("  She looked at him silently.  ", "FR");
     assert.ok(novelB_lookup, "Novel B doit bénéficier du cache créé par Novel A");
     assert.strictEqual(novelB_lookup.translatedText, "Elle le regarda silencieusement.");
   });
 
-  // --- TEST 3: Reprise après arrêt (Pause / Resume) ---
-  await test('Test 3: Redémarrage pendant la traduction et reprise au dernier segment', async () => {
-    const testDocId = 'doc_test_resume_99';
-    const testDoc = {
-      id: testDocId,
-      filename: 'test_novel.txt',
-      status: 'PAUSED',
-      total_chapters: 1,
-      total_segments: 5,
-      translated_segments: 3,
-      raw_characters: 500,
-      cleaned_characters: 450,
-      saved_characters: 50
-    };
-
-    await db.saveDocument(testDoc);
-    const loadedDoc = await db.getDocument(testDocId);
-    assert.strictEqual(loadedDoc.status, 'PAUSED');
-    assert.strictEqual(loadedDoc.translated_segments, 3);
+  // --- TEST 3: Gestion des jobs éphémères ---
+  await test('Test 3: InMemoryJobStore enregistre et met à jour l\'état temporaire', async () => {
+    const testDocId = 'job_test_resume_99';
+    InMemoryJobStore.createJob(testDocId, 'test_novel.txt', 'text');
+    InMemoryJobStore.updateJob(testDocId, { status: 'PAUSED', currentBlock: 3, totalBlocks: 5 });
+    
+    const loadedJob = InMemoryJobStore.getJob(testDocId);
+    assert.strictEqual(loadedJob.status, 'PAUSED');
+    assert.strictEqual(loadedJob.currentBlock, 3);
   });
 
-  // --- TEST 4: Protection du Quota (Seuil 98%) ---
-  await test('Test 4: Détection de seuil de quota 98% -> Pause automatique', async () => {
+  // --- TEST 4: Protection du Quota (Seuil 99%) ---
+  await test('Test 4: Détection de seuil de quota 99% -> Pause automatique', async () => {
     const fakeUsage99 = { characterCount: 495000, characterLimit: 500000, percentUsed: 99.0 };
     const evalStatus = QuotaGuard.evaluateQuotaStatus(fakeUsage99);
-    assert.strictEqual(evalStatus.canProceed, false, "Doit refuser de continuer si >= 98%");
-    assert.strictEqual(evalStatus.warningLevel, 'AUTO_STOP_98');
+    assert.strictEqual(evalStatus.canProceed, false, "Doit refuser de continuer si >= 99%");
+    assert.strictEqual(evalStatus.warningLevel, 'AUTO_STOP_99');
   });
 
-  // --- TEST 5: Gestion d'erreur réseau & Statut FAILED ---
-  await test('Test 5: Erreur réseau -> Segment marqué FAILED et relançable', async () => {
-    const testSegId = 'seg_err_test_1';
-    const testSegs = [{
-      id: testSegId,
-      document_id: 'doc_err_1',
-      chapter_id: 'ch_1',
-      segment_index: 1,
-      source_text: 'Test failed segment',
-      normalized_text: 'Test failed segment',
-      source_hash: 'hash12345',
-      status: 'PENDING',
-      characters_count: 19
-    }];
+  // --- TEST 5: Gestion d'erreur et Statut FAILED dans InMemoryJobStore ---
+  await test('Test 5: Erreur réseau -> Job marqué FAILED', async () => {
+    const testJobId = 'job_err_test_1';
+    InMemoryJobStore.createJob(testJobId, 'doc_test.pdf', 'pdf');
+    InMemoryJobStore.failJob(testJobId, 'Connection timeout');
 
-    await db.saveSegments(testSegs);
-    await db.updateSegmentStatus(testSegId, 'FAILED', null, 'Connection timeout');
-
-    const segsFromDb = await db.getDocumentSegments('doc_err_1');
-    assert.strictEqual(segsFromDb[0].status, 'FAILED');
-    assert.strictEqual(segsFromDb[0].error_message, 'Connection timeout');
+    const job = InMemoryJobStore.getJob(testJobId);
+    assert.strictEqual(job.status, 'FAILED');
+    assert.strictEqual(job.error, 'Connection timeout');
   });
 
   // --- TEST 6: Masquage sécurisé de clé API ---
