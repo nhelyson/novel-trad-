@@ -813,8 +813,113 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Dedicated SEO & Verification Routes
 app.get('/sitemap.xml', (req, res) => {
-  res.header('Content-Type', 'application/xml');
-  res.sendFile(path.join(__dirname, 'public', 'sitemap.xml'));
+  try {
+    const data = CatalogService.loadData();
+    const seriesList = (data && Array.isArray(data.series)) ? data.series : [];
+    const publishedSeries = seriesList.filter(s => s.publication_status === 'PUBLISHED');
+
+    const baseUrl = 'https://novel-trad.online';
+    const now = new Date().toISOString().split('T')[0];
+
+    let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
+    xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n';
+
+    // Page d\'accueil
+    xml += '  <url>\n';
+    xml += `    <loc>${baseUrl}/</loc>\n`;
+    xml += `    <lastmod>${now}</lastmod>\n`;
+    xml += '    <changefreq>daily</changefreq>\n';
+    xml += '    <priority>1.0</priority>\n';
+    xml += '  </url>\n';
+
+    // Catalogue
+    xml += '  <url>\n';
+    xml += `    <loc>${baseUrl}/#catalog</loc>\n`;
+    xml += `    <lastmod>${now}</lastmod>\n`;
+    xml += '    <changefreq>daily</changefreq>\n';
+    xml += '    <priority>0.9</priority>\n';
+    xml += '  </url>\n';
+
+    // Toutes les séries publiées
+    for (const s of publishedSeries) {
+      let lastmod = now;
+      const rawDate = s.updated_at || s.created_at || (s.releaseDate ? new Date(s.releaseDate).getTime() : 0);
+      if (rawDate) {
+        try {
+          const d = new Date(typeof rawDate === 'number' ? rawDate : rawDate);
+          if (!isNaN(d.getTime())) {
+            lastmod = d.toISOString().split('T')[0];
+          }
+        } catch (e) {}
+      }
+
+      xml += '  <url>\n';
+      xml += `    <loc>${baseUrl}/series.html?id=${encodeURIComponent(s.id)}</loc>\n`;
+      xml += `    <lastmod>${lastmod}</lastmod>\n`;
+      xml += '    <changefreq>weekly</changefreq>\n';
+      xml += '    <priority>0.8</priority>\n';
+      xml += '  </url>\n';
+    }
+
+    xml += '</urlset>';
+
+    res.header('Content-Type', 'application/xml; charset=utf-8');
+    res.header('Cache-Control', 'public, max-age=3600');
+    res.send(xml);
+  } catch (err) {
+    console.error('[SEO] Erreur génération sitemap:', err);
+    res.sendFile(path.join(__dirname, 'public', 'sitemap.xml'));
+  }
+});
+
+// SSR SEO & Open Graph Injection pour les fiches de séries
+app.get(['/series.html', '/series/:id'], (req, res, next) => {
+  const seriesId = req.query.id || req.params.id;
+  if (!seriesId) return next();
+
+  try {
+    const series = CatalogService.getSeries(seriesId);
+    const seriesHtmlPath = path.join(__dirname, 'public', 'series.html');
+    if (!fs.existsSync(seriesHtmlPath)) return next();
+
+    let html = fs.readFileSync(seriesHtmlPath, 'utf8');
+    if (series && series.title) {
+      const pageTitle = `${series.title} - Light Novel en Français | NovelTrad`;
+      const cleanSynopsis = (series.synopsis || `Lisez ${series.title} traduit en français sur NovelTrad.`)
+        .replace(/<[^>]*>/g, '')
+        .replace(/"/g, '&quot;')
+        .slice(0, 250);
+      const coverUrl = series.cover_url || series.cover || '/favicon.svg';
+      const fullCoverUrl = coverUrl.startsWith('http') ? coverUrl : `https://novel-trad.online${coverUrl.startsWith('/') ? '' : '/'}${coverUrl}`;
+      const canonicalUrl = `https://novel-trad.online/series.html?id=${encodeURIComponent(series.id)}`;
+
+      const metaTags = `
+  <title>${pageTitle}</title>
+  <meta name="description" content="${cleanSynopsis}">
+  <link rel="canonical" href="${canonicalUrl}">
+  <!-- Open Graph (Facebook, Discord, etc.) -->
+  <meta property="og:type" content="book">
+  <meta property="og:site_name" content="NovelTrad">
+  <meta property="og:title" content="${pageTitle}">
+  <meta property="og:description" content="${cleanSynopsis}">
+  <meta property="og:image" content="${fullCoverUrl}">
+  <meta property="og:url" content="${canonicalUrl}">
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="${pageTitle}">
+  <meta name="twitter:description" content="${cleanSynopsis}">
+  <meta name="twitter:image" content="${fullCoverUrl}">
+`;
+
+      html = html.replace(/<title>.*?<\/title>/i, metaTags);
+    }
+
+    res.header('Content-Type', 'text/html; charset=utf-8');
+    return res.send(html);
+  } catch (err) {
+    console.warn('[SEO] Erreur injection meta series:', err.message);
+    next();
+  }
 });
 
 app.get('/robots.txt', (req, res) => {

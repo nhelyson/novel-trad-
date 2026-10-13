@@ -8,6 +8,13 @@ document.addEventListener('DOMContentLoaded', async function() {
     // Without this guard, seriesModule gets shown on every page (index.html, etc.).
     var params = new URLSearchParams(window.location.search);
     var seriesId = params.get('id');
+    if (!seriesId) {
+        var pathParts = window.location.pathname.split('/');
+        var lastPart = pathParts[pathParts.length - 1];
+        if (lastPart && lastPart !== 'series.html' && lastPart !== 'series' && lastPart !== '') {
+            seriesId = decodeURIComponent(lastPart);
+        }
+    }
 
     if (!seriesId) {
         // No series id — keep seriesModule hidden and bail out completely
@@ -74,6 +81,9 @@ document.addEventListener('DOMContentLoaded', async function() {
 });
 
 async function renderSeries(series) {
+    if (series.title) {
+        document.title = series.title + ' - Light Novel en Français | NovelTrad';
+    }
     document.getElementById('seriesTitle').textContent = series.title;
     checkAndRenderCatalogStatus(series);
 
