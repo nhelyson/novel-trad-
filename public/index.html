@@ -4,187 +4,821 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="google-site-verification" content="google183318dfed3f9f37">
-  <link rel="canonical" href="https://novel-trad.onrender.com/">
-  <meta name="description" content="NovelTrad - Service de traduction PDF haute fidélité qui conserve 100% de la mise en page, des images, polices et illustrations d'origine pour vos romans et e-books.">
-  <meta name="keywords" content="traduction pdf, deepl pdf, traducteur roman, traducteur e-book, conservation mise en page pdf, noveltrad">
-  <meta property="og:title" content="NovelTrad - Traduction PDF avec Préservation de la Mise en Page">
-  <meta property="og:description" content="Traduisez vos romans, e-books et documents PDF avec DeepL en conservant 100% de la mise en page et des images.">
-  <meta property="og:type" content="website">
-  <title>NovelTrad - Traduction PDF avec Préservation de la Mise en Page & Images</title>
-  <!-- Google Fonts: Inter & Outfit -->
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <!-- PWA & Mobile Web App Meta -->
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#080a12">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="NovelTrad">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <title>NovelTrad - Plateforme de Lecture & Traduction de Light Novels</title>
+  
+  <!-- Google Fonts: Inter, Outfit, Nunito Sans & Playfair Display -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Nunito+Sans:ital,opsz,wght@0,6..12,300;0,6..12,400;0,6..12,600;0,6..12,700;0,6..12,800;1,6..12,400&family=Outfit:wght@500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  
   <!-- FontAwesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="css/style.css">
+  
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/style.css?v=1790900961187">
+  <link rel="stylesheet" href="css/home_lnori.css?v=1790264262558">
+  <!-- Coupe-circuit de production pour console propre & anti-fuite -->
+  <script>
+    if (window.location.hostname !== 'localhost' && !window.location.search.includes('debug=true')) {
+      console.log = function() {};
+      console.debug = function() {};
+      console.info = function() {};
+    }
+  </script>
 </head>
 <body>
 
   <div class="app-container">
     
-    <!-- HEADER NAVBAR -->
-    <header class="app-header">
-      <div class="logo">
-        <div class="logo-icon">
-          <i class="fa-solid fa-file-pdf"></i>
-        </div>
-        <div class="logo-text">
-          <h1>NovelTrad <span>DeepL</span></h1>
-          <p>Préservation Stricte de la Mise en Page</p>
-        </div>
-      </div>
-
-      <nav class="nav-links">
-        <a href="#hero" class="nav-link">Accueil</a>
-        <a href="#features" class="nav-link">Avantages</a>
-        <a href="#howItWorks" class="nav-link">Comment ça marche</a>
-        <a href="#translatorStudio" class="nav-link btn-nav"><i class="fa-solid fa-wand-magic-sparkles"></i> Traduire</a>
-      </nav>
-
-      <div class="header-status">
-        <div class="status-badge" id="apiStatusBadge">
-          <span class="status-dot warning" id="statusDot"></span>
-          <span id="statusText">Vérification DeepL API...</span>
-        </div>
-      </div>
-    </header>
-
-    <!-- LANDING HERO SECTION -->
-    <section class="hero-section" id="hero">
-      <div class="hero-badge">
-        <i class="fa-solid fa-shield-halved"></i> Préservation à 100% des Polices, Images & Illustrations
-      </div>
-      <h1 class="hero-title">
-        Traduisez vos Livres & PDF sans <span>Déformer la Mise en Page</span>
-      </h1>
-      <p class="hero-subtitle">
-        NovelTrad utilise l'API DeepL Document Translation pour remplacer le texte source par sa traduction officielle. Votre document conserve exactement ses illustrations, sa pagination, ses tableaux et son style visuel d'origine.
-      </p>
-
-      <div class="hero-actions">
-        <a href="#translatorStudio" class="btn btn-primary btn-hero">
-          <i class="fa-solid fa-cloud-arrow-up"></i> Traduire mon PDF Maintenant
-        </a>
-        <a href="#features" class="btn btn-secondary btn-hero">
-          <i class="fa-solid fa-circle-info"></i> Découvrir les avantages
-        </a>
-      </div>
-
-      <!-- HIGHLIGHT STATS -->
-      <div class="hero-stats">
-        <div class="stat-item">
-          <span class="stat-num">100%</span>
-          <span class="stat-desc">Images & Illustrations conservées</span>
-        </div>
-        <div class="stat-divider"></div>
-        <div class="stat-item">
-          <span class="stat-num">DeepL</span>
-          <span class="stat-desc">Moteur de traduction officielle</span>
-        </div>
-        <div class="stat-divider"></div>
-        <div class="stat-item">
-          <span class="stat-num">0 Stockage</span>
-          <span class="stat-desc">Traitement confidentiel en RAM</span>
-        </div>
-      </div>
-    </section>
-
-    <!-- FEATURES SECTION -->
-    <section class="features-section" id="features">
-      <div class="section-title">
-        <h2>Pourquoi choisir <span>NovelTrad</span> ?</h2>
-        <p>Une technologie pensée pour les romans illustrés, manuels et documents nécessitant une haute fidélité visuelle.</p>
-      </div>
-
-      <div class="features-grid">
-        <div class="feature-card card">
-          <div class="feature-icon bg-indigo">
-            <i class="fa-solid fa-image"></i>
-          </div>
-          <h3>Illustrations & Images Intactes</h3>
-          <p>Les illustrations, couvertures et schémas restent à leur emplacement exact sans jamais être déplacés ou altérés.</p>
-        </div>
-
-        <div class="feature-card card">
-          <div class="feature-icon bg-purple">
-            <i class="fa-solid fa-font"></i>
-          </div>
-          <h3>Respect de la Typographie</h3>
-          <p>Conserve les polices, tailles de caractères, couleurs, marges et colonnes d'origine du document.</p>
-        </div>
-
-        <div class="feature-card card">
-          <div class="feature-icon bg-emerald">
-            <i class="fa-solid fa-user-shield"></i>
-          </div>
-          <h3>Sécurité & Effacement Éphémère</h3>
-          <p>Aucun fichier n'est sauvegardé en base de données ni conservé sur disque. Les buffers sont libérés après traduction.</p>
-        </div>
-
-        <div class="feature-card card">
-          <div class="feature-icon bg-amber">
-            <i class="fa-solid fa-layer-group"></i>
-          </div>
-          <h3>Architecture Modulaire</h3>
-          <p>Conçu avec le pattern Strategy pour interchanger DeepL, Google Cloud Translation ou OpenAI en toute simplicité.</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- HOW IT WORKS SECTION -->
-    <section class="steps-section" id="howItWorks">
-      <div class="section-title">
-        <h2>Comment ça marche ?</h2>
-        <p>3 étapes simples pour obtenir votre PDF traduit prêt à lire.</p>
-      </div>
-
-      <div class="steps-grid">
-        <div class="step-card">
-          <div class="step-number">1</div>
-          <h3>Sélectionnez votre PDF</h3>
-          <p>Glissez-déposez votre livre ou document PDF dans la zone sécurisée.</p>
-        </div>
-        <div class="step-card">
-          <div class="step-number">2</div>
-          <h3>Choisissez la langue</h3>
-          <p>Sélectionnez la langue cible souhaitée (Français, Anglais, Espagnol...).</p>
-        </div>
-        <div class="step-card">
-          <div class="step-number">3</div>
-          <h3>Téléchargez le PDF</h3>
-          <p>Récupérez votre document traduit avec la mise en page d'origine préservée.</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- TRANSLATOR STUDIO SECTION -->
-    <main class="main-content" id="translatorStudio">
-      <div class="section-title">
-        <h2>Studio de <span>Traduction PDF</span></h2>
-        <p>Chargez votre document ci-dessous pour lancer la conversion instantanée.</p>
-      </div>
-
-      <div class="translation-card card">
+    <!-- ═════════════════════════════════════════════════════════════════════ -->
+    <!-- TOPNAV CENTRÉE & GLASSMORPHISM PREMIUM (STYLE LNORI) -->
+    <!-- ═════════════════════════════════════════════════════════════════════ -->
+    <nav class="topnav" id="mainHeader" role="banner">
+      <div class="topnav-container">
         
+        <!-- ZONE GAUCHE : LOGO NOVELTRAD + LIENS PRINCIPAUX -->
+        <div class="topnav-left-group">
+          <!-- Logo interactif NovelTrad -->
+          <a class="topnav-logo" href="/index.html" aria-label="NovelTrad Accueil">
+            <div class="logo-icon"><i class="fa-solid fa-language"></i></div>
+            <span class="logo-text">Novel<strong>Trad</strong></span>
+          </a>
+
+          <!-- Liens de navigation épurés et directement accessibles -->
+          <div class="topnav-nav-links" id="topnavCenter">
+            <!-- Accueil -->
+            <button id="tabHomeBtn" class="nav-item-btn active" title="Accueil">
+              <span>Accueil</span>
+            </button>
+
+            <!-- Catalogue -->
+            <button id="tabCatalogBtn" class="nav-item-btn" title="Explorer le catalogue">
+              <span>Catalogue</span>
+            </button>
+
+            <!-- Calendrier -->
+            <button id="tabPlanningBtn" class="nav-item-btn" title="Calendrier des sorties officielles">
+              <span>Calendrier</span>
+            </button>
+
+            <!-- Éléments masqués temporairement (préservés pour éviter erreurs JS) -->
+            <div style="display:none !important;" hidden>
+              <button id="tabNewsBtn"></button>
+            </div>
+
+            <!-- Menu Déroulant Bibliothèque -->
+            <div class="nav-dropdown" data-nav="library">
+              <button class="nav-item-btn nav-dropdown-trigger" id="navLibraryTrigger">
+                <span>Bibliothèque</span> <i class="fa-solid fa-chevron-down nav-caret"></i>
+              </button>
+              <div class="nav-dropdown-menu">
+                <button id="tabContinueBtn" class="nav-dropdown-link">
+                  <i class="fa-solid fa-play"></i>
+                  <div class="nav-link-text">
+                    <span class="nav-link-title">Continuer la lecture</span>
+                    <span class="nav-link-desc">Reprendre vos lectures en cours</span>
+                  </div>
+                </button>
+                <button id="tabLibraryBtn" class="nav-dropdown-link">
+                  <i class="fa-solid fa-book-open"></i>
+                  <div class="nav-link-text">
+                    <span class="nav-link-title">Ma bibliothèque</span>
+                    <span class="nav-link-desc">Toutes vos séries & volumes</span>
+                  </div>
+                </button>
+                <button id="tabFavoritesBtn" class="nav-dropdown-link">
+                  <i class="fa-solid fa-star"></i>
+                  <div class="nav-link-text">
+                    <span class="nav-link-title">Favoris</span>
+                    <span class="nav-link-desc">Vos titres favoris</span>
+                  </div>
+                </button>
+                <button id="tabReadingHistoryBtn" class="nav-dropdown-link">
+                  <i class="fa-solid fa-book-bookmark"></i>
+                  <div class="nav-link-text">
+                    <span class="nav-link-title">Historique de lecture</span>
+                    <span class="nav-link-desc">Dernières lectures et chapitres</span>
+                  </div>
+                </button>
+              </div>
+            </div>
+
+            <!-- Menu Déroulant Traduction -->
+            <div class="nav-dropdown" data-nav="trad">
+              <button class="nav-item-btn nav-dropdown-trigger" id="navTradTrigger">
+                <span>Traduction</span> <i class="fa-solid fa-chevron-down nav-caret"></i>
+              </button>
+              <div class="nav-dropdown-menu">
+                <button id="tabDocsBtn" class="nav-dropdown-link">
+                  <i class="fa-solid fa-file-pdf"></i>
+                  <div class="nav-link-text">
+                    <span class="nav-link-title">Documents</span>
+                    <span class="nav-link-desc">Traduction de fichiers EPUB & PDF</span>
+                  </div>
+                </button>
+                <button id="historyBtn" class="nav-dropdown-link">
+                  <i class="fa-solid fa-clock-rotate-left"></i>
+                  <div class="nav-link-text">
+                    <span class="nav-link-title">Historique des traductions</span>
+                    <span class="nav-link-desc">Tâches en cours et terminées</span>
+                  </div>
+                  <span id="historyBadge" class="hidden history-badge">0</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ZONE DROITE : RECHERCHE UNIFIÉE & BOUTON FILTRE (STYLE LNORI) + PROFIL & MOBILE -->
+        <div class="topnav-right-group">
+          <!-- Barre de recherche & Bouton Filtre combinés façon Lnori -->
+          <div class="search-filter-container">
+            <div class="nav-search-wrapper search-input-wrapper" id="navSearchWrapper">
+              <i class="fa-solid fa-magnifying-glass nav-search-icon"></i>
+              <input type="search" name="search_global" id="navGlobalSearchInput" class="nav-search-input" placeholder="Rechercher par titre, auteur, genre..." autocomplete="off">
+              <button id="navSearchClearBtn" class="nav-search-clear hidden" title="Effacer"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <!-- Bouton Filtre Lnori intégré dans la navbar (ouvre le volet d'outils du catalogue) -->
+            <button id="catalogFilterToggleBtn" class="filter-toggle-btn nav-filter-btn" title="Filtres du catalogue">
+              <i class="fa-solid fa-sliders"></i>
+              <span id="catalogFilterCountBadge" class="filter-count-badge hidden">0</span>
+            </button>
+          </div>
+
+          <!-- Actions de droite : Loupe mobile, Auth pill, Hamburger -->
+          <div class="topnav-actions-wrapper">
+            <button id="navMobileSearchToggle" class="nav-icon-btn nav-mobile-search-toggle" aria-label="Recherche">
+              <i class="fa-solid fa-magnifying-glass"></i>
+            </button>
+
+            <!-- Auth Container / Menu Utilisateur Popover -->
+            <div id="navAuthContainer" class="nav-auth-container">
+              <button id="navLoginBtn" class="btn-nav-auth-pill">
+                <i class="fa-solid fa-user"></i> <span>Connexion</span>
+              </button>
+              
+              <div id="navUserMenu" class="nav-user-menu hidden">
+                <div class="nav-user-pill" id="navUserPill" title="Mon Compte">
+                  <div class="nav-user-avatar" id="navUserAvatar"><i class="fa-solid fa-user-check"></i></div>
+                  <span class="nav-user-email" id="navUserEmail"></span>
+                  <i class="fa-solid fa-chevron-down nav-user-arrow"></i>
+                </div>
+                
+                <!-- Popover flottant type Lnori -->
+                <div class="nav-user-dropdown avatar-popover hidden" id="navUserDropdown" role="menu">
+                  <div class="nav-user-dropdown-header">
+                    <span class="user-dropdown-label">Connecté en tant que</span>
+                    <strong class="user-dropdown-email" id="dropdownUserEmail"></strong>
+                  </div>
+                  <div class="nav-user-dropdown-divider"></div>
+                  <button class="nav-dropdown-item hidden" id="btnNavContributorStudio" role="menuitem">
+                    <i class="fa-solid fa-feather-pointed"></i> Studio Contributeur
+                  </button>
+                  <button class="nav-dropdown-item hidden" id="btnNavAdminPanel" role="menuitem">
+                    <i class="fa-solid fa-shield-halved"></i> Panneau Administration
+                  </button>
+                  <button class="nav-dropdown-item" id="btnNavOpenAccount" role="menuitem">
+                    <i class="fa-solid fa-user-gear"></i> Mon Profil & Compte
+                  </button>
+                  <button class="nav-dropdown-item" id="btnNavLibrary" role="menuitem">
+                    <i class="fa-solid fa-book-open"></i> Ma Bibliothèque
+                  </button>
+                  <button class="nav-dropdown-item" id="btnNavContinue" role="menuitem">
+                    <i class="fa-solid fa-play"></i> Continuer la lecture
+                  </button>
+                  <button class="nav-dropdown-item" id="btnNavFavorites" role="menuitem">
+                    <i class="fa-solid fa-star"></i> Mes Favoris
+                  </button>
+                  <button class="nav-dropdown-item" id="btnNavHistory" role="menuitem">
+                    <i class="fa-solid fa-clock-rotate-left"></i> Historique
+                  </button>
+                  <button class="nav-dropdown-item" id="btnNavSettings" role="menuitem">
+                    <i class="fa-solid fa-sliders"></i> Paramètres
+                  </button>
+                  <div class="nav-user-dropdown-divider"></div>
+                  <button class="nav-dropdown-item nav-dropdown-danger" id="btnNavSignOut" role="menuitem">
+                    <i class="fa-solid fa-right-from-bracket"></i> Déconnexion
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Hamburger mobile moderne -->
+            <button class="topnav-hamburger" id="topnavHamburger" aria-label="Menu de navigation">
+              <i class="fa-solid fa-bars"></i>
+            </button>
+
+            <!-- Éléments préservés pour compatibilité logique sans impact visuel -->
+            <div class="status-badge hidden" id="apiStatusBadge">
+              <span class="status-dot warning" id="statusDot"></span>
+              <span id="statusText">Vérification...</span>
+            </div>
+            <button id="tabAccountBtn" class="btn-sidebar hidden" title="Espace Compte">
+              <i class="fa-solid fa-user-circle"></i> Compte
+            </button>
+            <button id="tabSettingsBtn" class="btn-sidebar hidden" title="Paramètres">
+              <i class="fa-solid fa-gear"></i>
+            </button>
+            <div class="sync-status-badge" id="syncStatusBadge" style="display:none;">● Synchronisé</div>
+          </div>
+        </div>
+
+      </div>
+    </nav>
+
+    <!-- MOBILE DRAWER NAVIGATION -->
+    <div id="navMobileDrawer" class="nav-mobile-drawer">
+      <div class="nav-mobile-backdrop" id="navMobileBackdrop"></div>
+      <div class="nav-mobile-panel">
+        <div class="nav-mobile-header">
+          <div class="topnav-logo">
+            <div class="logo-icon"><i class="fa-solid fa-language"></i></div>
+            <h2 style="font-size:16px;font-weight:700;color:#fff;margin:0;">NovelTrad</h2>
+          </div>
+          <button id="navMobileCloseBtn" class="nav-mobile-close-btn" aria-label="Fermer"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="nav-mobile-body">
+          <!-- Barre de recherche Mobile intégrée dans le Drawer -->
+          <div class="nav-mobile-search-box">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="search" id="navMobileSearchInput" placeholder="Rechercher par titre, auteur, genre..." autocomplete="off">
+          </div>
+
+          <div class="nav-mobile-group">
+            <button class="nav-mobile-btn active" id="mobileHomeBtn">
+              <i class="fa-solid fa-house"></i> <span>Accueil</span>
+            </button>
+            <button class="nav-mobile-btn" id="mobileCatalogBtn">
+              <i class="fa-solid fa-compass"></i> <span>Catalogue</span>
+            </button>
+            <button class="nav-mobile-btn" id="mobilePlanningBtn">
+              <i class="fa-solid fa-calendar-days"></i> <span>Calendrier</span>
+            </button>
+          </div>
+
+          <div class="nav-mobile-group">
+            <div class="nav-mobile-label">Bibliothèque</div>
+            <button class="nav-mobile-btn" id="mobileContinueBtn">
+              <i class="fa-solid fa-play"></i> <span>Continuer la lecture</span>
+            </button>
+            <button class="nav-mobile-btn" id="mobileLibraryBtn">
+              <i class="fa-solid fa-book-open"></i> <span>Ma bibliothèque</span>
+            </button>
+            <button class="nav-mobile-btn" id="mobileFavoritesBtn">
+              <i class="fa-solid fa-star"></i> <span>Favoris</span>
+            </button>
+            <button class="nav-mobile-btn" id="mobileReadingHistoryBtn">
+              <i class="fa-solid fa-book-bookmark"></i> <span>Historique de lecture</span>
+            </button>
+          </div>
+
+          <div class="nav-mobile-group">
+            <div class="nav-mobile-label">Studio Traduction</div>
+            <button class="nav-mobile-btn" id="mobileDocsBtn">
+              <i class="fa-solid fa-file-pdf"></i> <span>Documents (PDF/EPUB)</span>
+            </button>
+            <button class="nav-mobile-btn" id="mobileHistoryBtn">
+              <i class="fa-solid fa-clock-rotate-left"></i> <span>Historique des traductions</span>
+              <span id="mobileHistoryBadge" class="hidden history-badge">0</span>
+            </button>
+          </div>
+
+          <div class="nav-mobile-group">
+            <button class="nav-mobile-btn pwa-install-mobile-btn" id="mobilePwaInstallBtn">
+              <i class="fa-solid fa-download"></i> <span>Installer l'application</span>
+            </button>
+          </div>
+
+          <div class="nav-mobile-group nav-mobile-auth-group">
+            <button class="nav-mobile-btn nav-mobile-login-btn" id="mobileLoginBtn">
+              <i class="fa-solid fa-user"></i> <span>Connexion / Mon Compte</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═════════════════════════════════════════════════════════════════════ -->
+    <!-- MAIN APPLICATION WORKSPACE CONTENT -->
+    <!-- ═════════════════════════════════════════════════════════════════════ -->
+    <main class="main-content">
+
+      <!-- ==================================================================== -->
+      <!-- MODULE 0 : ACCUEIL PRINCIPAL VITRINE (STYLE LNORI SANS BORDURE) -->
+      <!-- ==================================================================== -->
+      <div id="homeModuleContainer" class="module-container home-container">
+        
+        <!-- HERO CAROUSEL 3D IMMERSIF (STYLE LNORI) -->
+        <div id="homeLnoriHero" class="home-lnori-hero">
+          <div id="homeHeroAmbient" class="home-hero-ambient" style="background-image: url('https://s4.anilist.co/file/anilistcdn/media/manga/cover/large/bx131534-7P6nh7lrxccb.jpg');"></div>
+          <div id="homeHeroOverlay" class="home-hero-overlay"></div>
+          
+          <div class="home-hero-layout">
+            <!-- Colonne Gauche : Détails, Badges & Actions -->
+            <div class="home-hero-details">
+              <h1 class="home-hero-title" id="heroTitle">Agents of the Four Seasons: Dance of Spring</h1>
+              
+              <div class="home-hero-meta">
+                <span>Par <strong class="author" id="heroAuthor">Kana Akatsuki</strong></span>
+                <span>•</span>
+                <div class="home-hero-genres" id="heroGenres">
+                  <span class="hero-genre-tag">Drame</span>
+                  <span class="hero-genre-tag">Fantaisie</span>
+                  <span class="hero-genre-tag">Romance</span>
+                </div>
+              </div>
+              
+              <p class="home-hero-synopsis" id="heroSynopsis">Il était une fois l'hiver. L'hiver était autrefois la seule saison au monde, mais une telle existence était trop solitaire pour être supportée, et c'est ainsi qu'elle a créé le printemps qu'il faut aimer. Peu de temps après, la Terre a souhaité disposer de plus de temps pour se reposer dans le cycle, et l'été et l'automne sont nés.</p>
+              
+              <div class="home-hero-actions">
+                <button id="heroReadBtn" class="btn-hero-primary"><i class="fa-solid fa-book-open"></i> Commencer la lecture</button>
+                <button id="heroBookmarkBtn" class="btn-hero-glass"><i class="fa-solid fa-bookmark"></i> + Ma bibliothèque</button>
+              </div>
+            </div>
+
+            <!-- Colonne Droite : Pile de Couvertures 3D en Éventail -->
+            <div class="home-hero-deck-area">
+              <div class="home-hero-stack-container">
+                <div id="homeHeroStack" class="home-hero-stack"></div>
+              </div>
+              <div class="home-hero-nav">
+                <button id="homeHeroPrev" class="hero-arrow-btn" aria-label="Précédent"><i class="fa-solid fa-chevron-left"></i></button>
+                <div id="homeHeroPills" class="home-hero-pills"></div>
+                <button id="homeHeroNext" class="hero-arrow-btn" aria-label="Suivant"><i class="fa-solid fa-chevron-right"></i></button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- BANDEAU DE REPRISE DE LECTURE FLOTTANT -->
+        <div id="homeResumeBanner" class="home-resume-banner hidden">
+          <img id="resumeCoverImg" src="" alt="Cover" class="resume-cover">
+          <div class="resume-info">
+            <div class="resume-label">Continuer votre lecture</div>
+            <div id="resumeTitle" class="resume-title">Titre du roman</div>
+            <div class="resume-progress-wrap">
+              <div class="resume-progress-track">
+                <div id="resumeProgressBar" class="resume-progress-bar" style="width:0%"></div>
+              </div>
+              <span id="resumePercentText" class="resume-percent">0%</span>
+            </div>
+          </div>
+          <button id="resumeActionBtn" class="btn-resume-action"><i class="fa-solid fa-play"></i> Reprendre</button>
+        </div>
+
+        <!-- SECTION 1 : DERNIÈRES SORTIES & NOUVEAUTÉS -->
+        <section class="home-lnori-section">
+          <div class="home-section-title-wrap">
+            <div>
+              <h2><i class="fa-solid fa-bolt" style="color:#e11d48;"></i> Dernières Sorties & Nouveautés</h2>
+              <p>Récemment traduits et ajoutés au catalogue</p>
+            </div>
+            <a href="#catalog?sort=latest" class="home-section-link">Voir tout le catalogue <i class="fa-solid fa-arrow-right"></i></a>
+          </div>
+          <div id="homeLatestGrid" class="lnori-catalog-grid"></div>
+        </section>
+
+        <!-- SECTION 2 : TENDANCES & POPULAIRES -->
+        <section class="home-lnori-section">
+          <div class="home-section-title-wrap">
+            <div>
+              <h2><i class="fa-solid fa-fire" style="color:#f43f5e;"></i> Tendances & Populaires</h2>
+              <p>Les séries les plus suivies par la communauté</p>
+            </div>
+            <a href="#catalog?sort=popular" class="home-section-link">Voir tout <i class="fa-solid fa-arrow-right"></i></a>
+          </div>
+          <div id="homeTrendingGrid" class="lnori-catalog-grid"></div>
+        </section>
+
+        <!-- SECTION 3 : CHEFS-D'ŒUVRE MIEUX NOTÉS -->
+        <section class="home-lnori-section">
+          <div class="home-section-title-wrap">
+            <div>
+              <h2><i class="fa-solid fa-star" style="color:#fbbf24;"></i> Chefs-d'œuvre Mieux Notés</h2>
+              <p>Sélectionnés selon les notes et avis des lecteurs</p>
+            </div>
+            <a href="#catalog?sort=rating" class="home-section-link">Voir tout <i class="fa-solid fa-arrow-right"></i></a>
+          </div>
+          <div id="homeTopRatedGrid" class="lnori-catalog-grid"></div>
+        </section>
+
+      </div> <!-- END MODULE 0: HOME -->
+
+
+      <!-- ==================================================================== -->
+      <!-- MODULE 1 : CATALOGUE OFFICIEL LNORI (CLEAN, ADAPTATIF & TOOLS PANEL) -->
+      <!-- ==================================================================== -->
+      <div id="catalogModule" class="module-container catalog-container hidden">
+
+        <div class="catalog-lnori-header">
+          <!-- Barre d'état & actions du catalogue Lnori -->
+          <div class="catalog-subbar">
+            <div class="catalog-subbar-left">
+              <button id="catalogMobileFilterToggleBtn" class="catalog-mobile-filter-btn" title="Ouvrir les filtres">
+                <i class="fa-solid fa-sliders"></i> <span>Filtres</span>
+                <span id="catalogMobileFilterCountBadge" class="filter-count-badge hidden" style="background:#e11d48; color:#fff; border-radius:99px; padding:1px 6px; font-size:10px; margin-left:4px;">0</span>
+              </button>
+              <span id="catalogResultsCount" class="catalog-count-pill">Chargement du catalogue...</span>
+            </div>
+            <div class="catalog-subbar-right">
+              <button type="button" class="btn-hero-glass" id="catalogSurpriseBtn" style="padding: 8px 16px; border-radius: 12px; font-size: 13px;" title="Découvrir un roman au hasard !">
+                <i class="fa-solid fa-dice text-accent-rose"></i> <span>Surprise Me !</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Panneau d'outils déroulant (Tools Panel Accordion piloté par catalog_logic.js) -->
+          <div id="catalogToolsPanel" class="catalog-tools-panel">
+            <div class="catalog-tools-inner">
+              <div class="filter-item">
+                <label class="filter-label">Genre</label>
+                <select id="catalogGenreSelect" class="catalog-filter-select">
+                  <option value="all">Tous les genres</option>
+                  <option value="Action">Action</option>
+                  <option value="Aventure">Aventure</option>
+                  <option value="Comédie">Comédie</option>
+                  <option value="Drame">Drame</option>
+                  <option value="Ecchi">Ecchi</option>
+                  <option value="Fantaisie">Fantaisie</option>
+                  <option value="Historique">Historique</option>
+                  <option value="Horreur">Horreur</option>
+                  <option value="Isekai">Isekai</option>
+                  <option value="Magie">Magie</option>
+                  <option value="Mecha">Mecha</option>
+                  <option value="Mystère">Mystère</option>
+                  <option value="Psychologique">Psychologique</option>
+                  <option value="Romance">Romance</option>
+                  <option value="Science-Fiction">Science-Fiction</option>
+                  <option value="Seinen">Seinen</option>
+                  <option value="Surnaturel">Surnaturel</option>
+                  <option value="Thriller">Thriller</option>
+                  <option value="Tranche de vie">Tranche de vie</option>
+                  <option value="Vie scolaire">Vie scolaire</option>
+                  <option value="Yaoi">Yaoi</option>
+                </select>
+              </div>
+
+              <div class="filter-item">
+                <label class="filter-label">Origine</label>
+                <select id="catalogOriginSelect" class="catalog-filter-select">
+                  <option value="all">Toutes les origines</option>
+                  <option value="Japon">🇯🇵 Japon (Light Novel)</option>
+                  <option value="Corée">🇰🇷 Corée (Webnovel)</option>
+                  <option value="Chine">🇨🇳 Chine (Xianxia/Wuxia)</option>
+                </select>
+              </div>
+
+              <div class="filter-item">
+                <label class="filter-label">Format</label>
+                <select id="catalogFormatSelect" class="catalog-filter-select">
+                  <option value="all">Tous les formats</option>
+                  <option value="epub">EPUB</option>
+                  <option value="webnovel">Webnovel</option>
+                  <option value="pdf">PDF</option>
+                </select>
+              </div>
+
+              <div class="filter-item">
+                <label class="filter-label">Statut</label>
+                <select id="catalogStatusSelect" class="catalog-filter-select">
+                  <option value="all">Tous les statuts</option>
+                  <option value="releasing">En cours</option>
+                  <option value="completed">Terminé</option>
+                </select>
+              </div>
+
+              <div class="filter-item">
+                <label class="filter-label">Trier par</label>
+                <select id="catalogSortSelect" class="catalog-filter-select">
+                  <option value="popular">Popularité</option>
+                  <option value="rating">Mieux notés</option>
+                  <option value="latest">Dernières sorties</option>
+                  <option value="az">Titre (A-Z)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bandeau de Tags Actifs (Active Tags Rail) -->
+          <div id="catalogActiveRail" class="catalog-active-rail hidden">
+            <span class="active-rail-label"><i class="fa-solid fa-filter"></i> Filtres actifs :</span>
+            <div id="catalogActiveTags" style="display: flex; gap: 6px; flex-wrap: wrap;"></div>
+            <button type="button" id="catalogClearAllFiltersBtn" class="btn-clear-all-chips">Réinitialiser tout</button>
+          </div>
+        </div>
+
+        <!-- GRILLE LNORI ADAPTATIVE (ratio 2:3 & Flyout Popovers directionnels) -->
+        <div id="catalogGrid" class="lnori-catalog-grid"></div>
+
+      </div> <!-- END MODULE 1: CATALOG -->
+
+      <!-- ==================================================================== -->
+      <!-- MODULE CALENDRIER DES PARUTIONS (STYLE GRANDES MAISONS D'ÉDITION) -->
+      <!-- ==================================================================== -->
+      <!-- ==================================================================== -->
+      <!-- MODULE : CALENDRIER NOVELTRAD (SORTIES, TRADUCTIONS & ÉVÉNEMENTS)    -->
+      <!-- ==================================================================== -->
+      <div id="editorialModule" class="module-container cal-page-container hidden">
+        <div class="cal-wrapper">
+          
+          <!-- En-tête du Calendrier -->
+          <header class="cal-header">
+            <div class="cal-header-info">
+              <h1 class="cal-title">Calendrier</h1>
+              <p class="cal-subtitle">Retrouvez les prochaines sorties, traductions et mises à jour de NovelTrad.</p>
+            </div>
+
+            <!-- Barre de navigation des mois -->
+            <div class="cal-nav-bar">
+              <div class="cal-month-nav">
+                <button type="button" id="calPrevMonthBtn" class="cal-nav-btn" aria-label="Mois précédent" title="Mois précédent">
+                  <i class="fa-solid fa-chevron-left"></i>
+                  <span>Mois précédent</span>
+                </button>
+
+                <div class="cal-current-month-display" id="calCurrentMonthDisplay">
+                  <span id="calCurrentMonthName">Septembre</span>
+                  <span id="calCurrentYear" class="cal-year-tag">2026</span>
+                </div>
+
+                <button type="button" id="calNextMonthBtn" class="cal-nav-btn" aria-label="Mois suivant" title="Mois suivant">
+                  <span>Mois suivant</span>
+                  <i class="fa-solid fa-chevron-right"></i>
+                </button>
+              </div>
+
+              <div class="cal-nav-actions">
+                <button type="button" id="calTodayBtn" class="cal-today-btn" title="Revenir à la date d'aujourd'hui">
+                  <i class="fa-solid fa-calendar-day"></i>
+                  <span>Aujourd'hui</span>
+                </button>
+
+                <!-- Bascule Vue Grille / Vue Liste (mobile-friendly) -->
+                <div class="cal-view-switch" role="group" aria-label="Mode d'affichage">
+                  <button type="button" id="calViewGridBtn" class="cal-switch-btn active" title="Affichage Grille mensuelle" aria-pressed="true">
+                    <i class="fa-solid fa-calendar-days"></i>
+                    <span class="cal-btn-txt">Grille</span>
+                  </button>
+                  <button type="button" id="calViewAgendaBtn" class="cal-switch-btn" title="Affichage Liste / Agenda" aria-pressed="false">
+                    <i class="fa-solid fa-list-ul"></i>
+                    <span class="cal-btn-txt">Agenda</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </header>
+
+          <!-- Filtres Fonctionnels -->
+          <div class="cal-filters-bar" role="tablist" aria-label="Filtrer les événements">
+            <button type="button" class="cal-filter-btn active" data-filter="all" role="tab" aria-selected="true">
+              <span>Tous</span>
+              <span class="cal-filter-count" id="calCountAll">0</span>
+            </button>
+            <button type="button" class="cal-filter-btn" data-filter="translations" role="tab" aria-selected="false">
+              <span>📖 Traductions</span>
+              <span class="cal-filter-count" id="calCountTranslations">0</span>
+            </button>
+            <button type="button" class="cal-filter-btn" data-filter="volumes" role="tab" aria-selected="false">
+              <span>📚 Volumes</span>
+              <span class="cal-filter-count" id="calCountVolumes">0</span>
+            </button>
+            <button type="button" class="cal-filter-btn" data-filter="new" role="tab" aria-selected="false">
+              <span>🆕 Nouveautés</span>
+              <span class="cal-filter-count" id="calCountNew">0</span>
+            </button>
+            <button type="button" class="cal-filter-btn" data-filter="announcements" role="tab" aria-selected="false">
+              <span>📢 Annonces</span>
+              <span class="cal-filter-count" id="calCountAnnouncements">0</span>
+            </button>
+          </div>
+
+          <!-- Conteneur Principal du Calendrier -->
+          <div class="cal-main-content">
+            
+            <!-- VUE GRILLE (Desktop / Tablette) -->
+            <div id="calendarGridWrapper" class="cal-grid-wrapper">
+              <div class="cal-weekdays-header">
+                <div class="cal-weekday-cell">Lundi</div>
+                <div class="cal-weekday-cell">Mardi</div>
+                <div class="cal-weekday-cell">Mercredi</div>
+                <div class="cal-weekday-cell">Jeudi</div>
+                <div class="cal-weekday-cell">Vendredi</div>
+                <div class="cal-weekday-cell">Samedi</div>
+                <div class="cal-weekday-cell">Dimanche</div>
+              </div>
+
+              <div id="calendarMonthlyGrid" class="cal-monthly-grid" role="grid" aria-label="Grille mensuelle des parutions">
+                <!-- Cellules des 7 jours injectées par editorial_logic.js -->
+              </div>
+            </div>
+
+            <!-- VUE AGENDA / LISTE (Mobile & Bascule utilisateur) -->
+            <div id="calendarAgendaWrapper" class="cal-agenda-wrapper hidden">
+              <div id="calendarAgendaList" class="cal-agenda-list">
+                <!-- Événements groupés par date injectés par editorial_logic.js -->
+              </div>
+            </div>
+
+            <!-- État Vide -->
+            <div id="calendarEmptyState" class="cal-empty-state hidden">
+              <div class="cal-empty-icon">
+                <i class="fa-regular fa-calendar-xmark"></i>
+              </div>
+              <h3 class="cal-empty-title">Aucun événement pour ce mois</h3>
+              <p class="cal-empty-desc">Aucune sortie, traduction ou annonce ne correspond à votre filtre actuel.</p>
+              <button type="button" id="calResetFilterBtn" class="btn-secondary">Voir tous les événements</button>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Modale Détail Événement -->
+        <div id="calEventModal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="calModalTitle">
+          <div class="modal-content cal-event-modal-content">
+            <button type="button" id="calEventModalClose" class="modal-close-btn" aria-label="Fermer">&times;</button>
+            <div id="calEventModalBody" class="cal-event-modal-body">
+              <!-- Injecté dynamiquement par editorial_logic.js -->
+            </div>
+          </div>
+        </div>
+
+      </div> <!-- END MODULE: CALENDRIER -->
+
+      <!-- ==================================================================== -->
+      <!-- MODULE 2 : MA BIBLIOTHÈQUE COMPLÈTE AVEC SEARCH DROPDOWN & SMART ADD -->
+      <!-- ==================================================================== -->
+      <!-- ==================================================================== -->
+      <!-- MODULE 3 : BIBLIOTHÈQUE NOVELTRAD (DESIGN AUTHENTIQUE COMPLET) -->
+      <!-- ==================================================================== -->
+      <div id="libraryModule" class="module-container library-module-container hidden">
+        <!-- 1. HEADER & LIVE STATS SECTION (CONFORME PHOTO & DESIGN NOVELTRAD) -->
+        <div class="library-header-section">
+          <div class="library-title-group">
+            <div class="library-badge-pill">
+              <span class="pulse-dot"></span>
+              <span>Bibliothèque Personnelle</span>
+            </div>
+            <h1 class="library-main-title">Mes Séries & Romans</h1>
+            <p class="library-main-subtitle">Explorez vos Light Novels, mangas et lectures avec synchronisation en temps réel.</p>
+          </div>
+
+          <div class="library-stats-bar">
+            <div class="lib-stat-card">
+              <div class="lib-stat-icon stat-icon-series">
+                <i class="fa-solid fa-layer-group"></i>
+              </div>
+              <div class="lib-stat-info">
+                <span class="lib-stat-value" id="libTotalSeries">0</span>
+                <span class="lib-stat-label">Séries</span>
+              </div>
+            </div>
+
+            <div class="lib-stat-card">
+              <div class="lib-stat-icon stat-icon-vols">
+                <i class="fa-solid fa-book"></i>
+              </div>
+              <div class="lib-stat-info">
+                <span class="lib-stat-value" id="libTotalVolumes">0</span>
+                <span class="lib-stat-label">Volumes</span>
+              </div>
+            </div>
+
+            <div class="lib-stat-card">
+              <div class="lib-stat-icon stat-icon-reading">
+                <i class="fa-solid fa-fire"></i>
+              </div>
+              <div class="lib-stat-info">
+                <span class="lib-stat-value" id="libTotalReading">0</span>
+                <span class="lib-stat-label">En cours</span>
+              </div>
+            </div>
+
+            <div class="lib-stat-card">
+              <div class="lib-stat-icon stat-icon-completed">
+                <i class="fa-solid fa-circle-check"></i>
+              </div>
+              <div class="lib-stat-info">
+                <span class="lib-stat-value" id="libTotalCompleted">0</span>
+                <span class="lib-stat-label">Terminés</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. CONTINUE READING HERO SPOTLIGHT -->
+        <div id="continueReadingHero" class="continue-reading-spotlight hidden">
+          <div id="spotlightBackdrop" class="spotlight-backdrop"></div>
+          <div class="spotlight-content">
+            <div class="spotlight-cover-container">
+              <img id="heroCover" src="" alt="Cover" class="spotlight-cover">
+            </div>
+            <div class="spotlight-info">
+              <span class="spotlight-badge" id="heroFormat"><i class="fa-solid fa-book-open"></i> EPUB</span>
+              <h2 id="spotlightTitle" class="spotlight-title">Titre de lecture</h2>
+              <span class="spotlight-meta" id="heroLastRead">Dernière lecture récente</span>
+              <div class="spotlight-progress-wrap">
+                <div class="spotlight-progress-labels">
+                  <span>Progression globale</span>
+                  <span id="heroProgressText" class="progress-percent">0%</span>
+                </div>
+                <div class="spotlight-progress-bar">
+                  <div id="heroProgressFill" class="spotlight-progress-fill" style="width: 0%;"></div>
+                </div>
+              </div>
+              <button id="heroContinueBtn" class="btn btn-primary spotlight-btn">
+                <i class="fa-solid fa-play"></i> Continuer la lecture
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. TOOLBAR RECHERCHE & ACTIONS -->
+        <div class="library-toolbar">
+          <div class="library-search-wrapper">
+            <i class="fa-solid fa-magnifying-glass search-icon"></i>
+            <input type="text" id="librarySearchInput" placeholder="Rechercher un roman, une série, un auteur..." autocomplete="off">
+            <div id="librarySearchDropdown" class="search-dropdown hidden"></div>
+          </div>
+
+          <div class="library-toolbar-actions">
+            <!-- Inputs cachés pour import direct -->
+            <input type="file" id="importFolderInput" webkitdirectory directory multiple accept=".epub,.pdf" hidden>
+            <input type="file" id="importFilesInput" multiple accept=".epub,.pdf" hidden>
+
+            <button class="btn btn-primary library-add-btn" id="btnSmartAdd" title="Ajouter des livres ou connecter un dossier">
+              <i class="fa-solid fa-plus"></i> <span>Ajouter</span>
+            </button>
+            
+            <button class="btn-icon-glass" id="btnManageFolders" title="Gérer mes dossiers locaux connectés">
+              <i class="fa-solid fa-folder-tree"></i>
+            </button>
+
+            <div class="custom-select-glass">
+              <select id="librarySortSelect">
+                <option value="lastRead">Récemment lus</option>
+                <option value="title">Titre (A → Z)</option>
+                <option value="progress">Progression</option>
+                <option value="added">Date d'ajout</option>
+              </select>
+            </div>
+
+            <div class="view-mode-toggle">
+              <button type="button" id="btnViewGrid" class="view-btn active" title="Vue Grille"><i class="fa-solid fa-border-all"></i></button>
+              <button type="button" id="btnViewList" class="view-btn" title="Vue Liste"><i class="fa-solid fa-list-ul"></i></button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4. FILTER PILLS BAR -->
+        <div class="library-filter-pills" id="librarySubMenu">
+          <button class="lib-pill active" data-filter="all">Tous <span id="countAll" class="pill-count">0</span></button>
+          <button class="lib-pill" data-filter="reading"><i class="fa-solid fa-fire"></i> En cours <span id="countReading" class="pill-count">0</span></button>
+          <button class="lib-pill" data-filter="favorites"><i class="fa-solid fa-heart"></i> Favoris <span id="countFavorites" class="pill-count">0</span></button>
+          <button class="lib-pill" data-filter="completed"><i class="fa-solid fa-circle-check"></i> Terminés <span id="countCompleted" class="pill-count">0</span></button>
+          <button class="lib-pill" data-filter="epub"><i class="fa-solid fa-book"></i> EPUB <span id="countEpub" class="pill-count">0</span></button>
+          <button class="lib-pill" data-filter="pdf"><i class="fa-regular fa-file-pdf"></i> PDF <span id="countPdf" class="pill-count">0</span></button>
+        </div>
+
+        <!-- 5. GRID SHOWCASE -->
+        <div id="libraryGrid" class="library-grid-showcase"></div>
+      </div>
+
+      <!-- MODULE SÉRIE (CONTAINER SÉCURISÉ POUR COMPATIBILITÉ) -->
+      <div id="seriesModule" class="module-container series-module-full hidden"></div>
+      <div id="docModuleContainer" class="module-container hidden">
+        <div class="studio-header">
+          <h2>Traduction de Documents</h2>
+          <p>Glissez-déposez un fichier PDF ou EPUB. La mise en page sera strictement préservée.</p>
+        </div>
+
         <!-- DROPZONE -->
         <div class="dropzone" id="pdfDropzone">
           <input type="file" id="pdfFileInput" accept=".pdf,.epub,application/pdf,application/epub+zip" hidden>
           
           <div class="dropzone-empty" id="dropzoneEmpty">
             <div class="upload-icon-pulse">
-              <i class="fa-solid fa-cloud-arrow-up"></i>
+              <i class="fa-solid fa-arrow-up-from-bracket"></i>
             </div>
-            <h2>Glissez-déposez votre document ici</h2>
-            <p>Fichiers PDF ou EPUB (Romans, Livres illustrés, Manuels)</p>
-            <button class="btn btn-secondary" onclick="document.getElementById('pdfFileInput').click()">
-              <i class="fa-solid fa-folder-open"></i> Choisir un fichier (PDF / EPUB)
+            <h3>Sélectionnez un document</h3>
+            <p>Formats supportés : PDF, EPUB</p>
+            <button class="btn btn-secondary">
+              <i class="fa-regular fa-folder-open"></i> Parcourir
             </button>
           </div>
 
           <div class="file-loaded-info hidden" id="fileLoadedInfo">
             <div class="pdf-badge-icon">
-              <i class="fa-solid fa-file-pdf"></i>
+              <i class="fa-regular fa-file-pdf"></i>
             </div>
             <div class="pdf-meta">
               <h3 id="pdfFileName">document.pdf</h3>
@@ -198,147 +832,1898 @@
 
         <!-- CONTROLS FORM -->
         <div class="controls-grid">
-          
-          <!-- PROVIDER SELECTION -->
           <div class="control-field">
-            <label><i class="fa-solid fa-server"></i> Moteur de Traduction</label>
+            <label><i class="fa-solid fa-microchip"></i> Moteur de Traduction</label>
             <div class="select-box">
               <select id="providerSelect">
-                <option value="nllb" selected>🤖 NLLB Local (F:\Modèles Traduction - Local Offline)</option>
-                <option value="deepl">🔷 DeepL API (Clé requise)</option>
-                <option value="openai">🟢 OpenAI GPT (Clé requise)</option>
-                <option value="google">🟡 Google Translate</option>
+                
+                <option value="deepl">DeepL API</option>
+                <option value="gemini" selected>Google Gemini (Flash - Recommandé)</option>
+                <option value="openai">OpenAI GPT</option>
+                <option value="google">Google Translate</option>
               </select>
             </div>
           </div>
 
-          <!-- TARGET LANGUAGE -->
           <div class="control-field">
-            <label><i class="fa-solid fa-language"></i> Langue Cible (Traduction)</label>
+            <label><i class="fa-solid fa-earth-americas"></i> Langue Cible</label>
             <div class="select-box">
               <select id="targetLangSelect">
-                <option value="FR" selected>🇫🇷 Français (French)</option>
-                <option value="EN">🇺🇸 Anglais (English)</option>
-                <option value="ES">🇪🇸 Espagnol (Spanish)</option>
-                <option value="DE">🇩🇪 Allemand (German)</option>
-                <option value="IT">🇮🇹 Italien (Italian)</option>
-                <option value="PT">🇵🇹 Portugais (Portuguese)</option>
-                <option value="NL">🇳🇱 Néerlandais (Dutch)</option>
-                <option value="JA">🇯🇵 Japonais (Japanese)</option>
+                <option value="FR" selected>Français</option>
+                <option value="EN">Anglais</option>
+                <option value="ES">Espagnol</option>
+                <option value="DE">Allemand</option>
+                <option value="IT">Italien</option>
+                <option value="PT">Portugais</option>
+                <option value="NL">Néerlandais</option>
+                <option value="JA">Japonais</option>
               </select>
             </div>
           </div>
 
-          <!-- OPTIONAL DEEPL API KEY INPUT -->
           <div class="control-field" id="apiKeyFieldContainer">
-            <label><i class="fa-solid fa-key"></i> Clé API (Non requise pour NLLB Local)</label>
+            <label><i class="fa-solid fa-key"></i> Clé API (optionnelle)</label>
             <div class="input-box">
-              <input type="password" id="customApiKeyInput" placeholder="ex: xxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx:fx (DeepL/OpenAI)">
+              <input type="password" id="customApiKeyInput" placeholder="Saisir la clé API...">
               <button type="button" class="btn-toggle-pass" id="toggleApiKeyVisBtn"><i class="fa-regular fa-eye"></i></button>
             </div>
           </div>
-
         </div>
 
-        <!-- SUBMIT ACTION & SIMULATION -->
-        <div class="action-row" style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+        <div class="action-row">
           <button id="analyzeBtn" class="btn btn-secondary btn-lg" disabled>
-            <i class="fa-solid fa-magnifying-glass-chart"></i> Analyser avant traduction (0 char API)
+            Analyser
           </button>
           <button id="translateBtn" class="btn btn-primary btn-lg" disabled>
-            <i class="fa-solid fa-wand-magic-sparkles"></i> Traduire le Novel (DeepL API)
+            Traduire le Document
           </button>
         </div>
 
         <!-- DASHBOARD STATS SECTION -->
-        <div class="dashboard-stats-card" id="dashboardCard" style="margin-top: 25px; padding: 20px; background: rgba(255, 255, 255, 0.05); border-radius: 12px; border: 1fr solid rgba(255, 255, 255, 0.1);">
-          <h3 style="margin-top: 0; font-size: 1.1rem; color: #a78bfa;"><i class="fa-solid fa-gauge-high"></i> Consommation & Gain de Quota</h3>
-          <div class="stats-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-top: 15px;">
-            <div class="stat-box" style="background: rgba(0,0,0,0.2); padding: 12px; border-radius: 8px;">
-              <span style="font-size: 0.8rem; opacity: 0.8;">Caractères Utilisés DeepL</span>
-              <h4 id="statSent" style="margin: 5px 0 0; font-size: 1.2rem; color: #f43f5e;">0</h4>
+        <div class="dashboard-stats-card" id="dashboardCard">
+          <h3>Suivi du Quota DeepL</h3>
+          <div class="stats-grid">
+            <div class="stat-box">
+              <span>Caractères Consommés</span>
+              <h4 id="statSent">0</h4>
             </div>
-            <div class="stat-box" style="background: rgba(0,0,0,0.2); padding: 12px; border-radius: 8px;">
-              <span style="font-size: 0.8rem; opacity: 0.8;">Caractères Économisés</span>
-              <h4 id="statSaved" style="margin: 5px 0 0; font-size: 1.2rem; color: #10b981;">0</h4>
+            <div class="stat-box">
+              <span>Quota Limite</span>
+              <h4 id="statLimit">N/A</h4>
             </div>
-            <div class="stat-box" style="background: rgba(0,0,0,0.2); padding: 12px; border-radius: 8px;">
-              <span style="font-size: 0.8rem; opacity: 0.8;">Entrées Mémoire Cache</span>
-              <h4 id="statCacheEntries" style="margin: 5px 0 0; font-size: 1.2rem; color: #3b82f6;">0</h4>
+            <div class="stat-box">
+              <span>Caractères Restants</span>
+              <h4 id="statRemaining">N/A</h4>
             </div>
-            <div class="stat-box" style="background: rgba(0,0,0,0.2); padding: 12px; border-radius: 8px;">
-              <span style="font-size: 0.8rem; opacity: 0.8;">Taux de Réutilisation Cache</span>
-              <h4 id="statHitRate" style="margin: 5px 0 0; font-size: 1.2rem; color: #8b5cf6;">0.0 %</h4>
+            <div class="stat-box">
+              <span>Utilisation</span>
+              <h4 id="statHitRate">0.0%</h4>
             </div>
           </div>
         </div>
 
-        <!-- PROGRESS CONTAINER (Hidden by default) -->
+        <!-- PROGRESS CONTAINER -->
         <div class="progress-section hidden" id="progressSection">
           <div class="progress-header">
-            <span class="progress-label" id="progressLabel">Traitement en cours...</span>
-            <span class="progress-percentage" id="progressPercent">0%</span>
+            <span id="progressLabel">Traitement en cours...</span>
+            <span id="progressPercent">0%</span>
           </div>
           <div class="progress-track">
             <div class="progress-fill" id="progressFill" style="width: 0%;"></div>
           </div>
-          <p class="progress-subtext" id="progressSubtext">Optimisation et déduplication en cours...</p>
-          <div style="margin-top: 10px; text-align: center;">
-            <button id="pauseBtn" class="btn btn-warning btn-sm hidden"><i class="fa-solid fa-pause"></i> Pause</button>
-            <button id="resumeBtn" class="btn btn-success btn-sm hidden"><i class="fa-solid fa-play"></i> Reprendre</button>
+          <p class="progress-subtext" id="progressSubtext">Optimisation en cours...</p>
+          
+          <!-- Controls during progress -->
+          <div style="margin-top: 12px; display: flex; gap: 8px;">
+            <button id="changeKeyInProgressBtn" class="btn btn-secondary btn-sm"><i class="fa-solid fa-key"></i> Injecter nouvelle clé</button>
+          </div>
+          <div id="inlineKeyBox" class="hidden" style="margin-top: 8px; display: flex; gap: 8px;">
+            <input type="password" id="inlineApiKeyInput" placeholder="Nouvelle clé API..." style="padding: 6px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-color); background: var(--bg-main); color: var(--text-primary); font-size: 12px; width: 200px;">
+            <button id="applyInlineKeyBtn" class="btn btn-primary btn-sm">Appliquer</button>
           </div>
         </div>
 
-        <!-- SIMULATION MODAL -->
-        <div class="modal-overlay hidden" id="simulationModal" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.75); display: flex; align-items: center; justify-content: center; z-index: 9999;">
-          <div class="modal-card" style="background: #1e1b4b; border: 1px solid #6366f1; padding: 25px; border-radius: 16px; max-width: 550px; width: 90%; color: #fff;">
-            <h2 style="margin-top: 0; color: #818cf8;"><i class="fa-solid fa-chart-pie"></i> Estimation & Rapport de Simulation</h2>
-            <div id="simulationBody" style="margin: 20px 0; font-size: 0.95rem; line-height: 1.6;">
-              <!-- Dynamic simulation results inserted here -->
-            </div>
-            <div style="display: flex; gap: 10px; justify-content: flex-end;">
-              <button id="cancelSimBtn" class="btn btn-secondary"><i class="fa-solid fa-xmark"></i> Annuler</button>
-              <button id="confirmSimBtn" class="btn btn-primary"><i class="fa-solid fa-rocket"></i> Lancer la Traduction</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- RESULT CONTAINER (Hidden by default) -->
+        <!-- RESULT CONTAINER -->
         <div class="result-section hidden" id="resultSection">
           <div class="success-banner">
-            <div class="success-icon">
-              <i class="fa-solid fa-circle-check"></i>
-            </div>
+            <div class="success-icon"><i class="fa-regular fa-circle-check"></i></div>
             <div class="success-text">
-              <h3>Traduction Terminée avec Succès !</h3>
-              <p>Texte dédupliqué et sauvegardé dans votre mémoire de traduction persistante.</p>
+              <h3 id="resultBannerTitle">Traduction Terminée</h3>
+              <p id="resultBannerSubtitle">Le document traduit est prêt à être téléchargé.</p>
+            </div>
+          </div>
+          <div class="action-row">
+            <a id="downloadPdfBtn" class="btn btn-primary btn-lg" download>
+              <i class="fa-solid fa-download"></i> Télécharger
+            </a>
+            <button id="addToLibraryBtn" class="btn btn-secondary btn-lg" style="margin-left: 10px;">
+              <i class="fa-solid fa-bookmark"></i> Ajouter à ma bibliothèque
+            </button>
+          </div>
+
+          <!-- EPUB CONVERSION -->
+          <div id="convertPdfSection" class="hidden" style="margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--border-color);">
+            <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 12px;">Convertir l'EPUB généré en PDF ?</p>
+            <button id="convertPdfBtn" class="btn btn-secondary btn-md">
+              <i class="fa-regular fa-file-pdf"></i> Convertir en PDF
+            </button>
+            <div id="pdfDownloadRow" class="hidden" style="margin-top: 12px;">
+              <a id="downloadConvertedPdfBtn" class="btn btn-primary btn-md" download>
+                <i class="fa-solid fa-download"></i> Télécharger le PDF converti
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- ERROR CONTAINER -->
+        <div class="error-banner hidden" id="errorBanner">
+          <div class="error-banner-header">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <span id="errorMessage">Une erreur s'est produite.</span>
+          </div>
+
+          <!-- KEY RECOVERY & RESUME BOX -->
+          <div class="key-resume-box hidden" id="keyResumeBox">
+            <p style="font-size: 13px; font-weight: 500; margin-bottom: 4px; color: var(--text-primary);">Quota atteint. Reprendre avec une autre clé ?</p>
+            <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: 12px;">Saisissez une nouvelle clé API pour poursuivre la traduction sans perte de progression.</p>
+            <div style="display: flex; gap: 8px;">
+              <input type="password" id="resumeApiKeyInput" placeholder="Nouvelle clé API..." style="padding: 8px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-color); background: var(--bg-main); color: var(--text-primary); font-size: 13px; flex: 1; max-width: 300px;">
+              <button type="button" id="submitResumeKeyBtn" class="btn btn-primary">
+                Reprendre
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </div> <!-- END MODULE 1 -->
+
+      <!-- MODULE 2 (VIDEOS) REMOVED -->
+      
+      <!-- MODULE 4 : COMPTE UTILISATEUR & PROFIL -->
+      <div id="accountModuleContainer" class="module-container account-container hidden">
+        <div class="account-dashboard-wrapper">
+          
+          <!-- VUE 1 : VISITEUR / INVITÉ (GUEST FIRST) -->
+          <div id="accountGuestView" class="account-guest-banner hidden">
+            <div class="guest-banner-card">
+              <div class="guest-banner-icon">
+                <i class="fa-solid fa-user-ninja"></i>
+              </div>
+              <div class="guest-banner-content">
+                <h2>Mode Invité Actif</h2>
+                <p>Vos lectures, séries en cours et fichiers traduits sont stockés en sécurité dans votre navigateur (IndexedDB hors-ligne). Connectez-vous ou créez un compte gratuit pour synchroniser votre bibliothèque dans le Cloud et participer aux commentaires de communauté.</p>
+                <div class="guest-banner-actions">
+                  <button type="button" class="btn btn-primary" id="btnAccountOpenAuth">
+                    <i class="fa-solid fa-arrow-right-to-bracket"></i> Se connecter
+                  </button>
+                  <button type="button" class="btn btn-secondary" id="btnAccountOpenRegister">
+                    <i class="fa-solid fa-user-plus"></i> Créer un compte
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
 
-          <div class="download-action">
-            <a id="downloadPdfBtn" class="btn btn-success btn-lg" download>
-              <i class="fa-solid fa-download"></i> Télécharger le Texte Traduit
-            </a>
+          <!-- VUE 2 : UTILISATEUR CONNECTÉ (ESPACE PROFIL COMPLET) -->
+          <div id="accountAuthView" class="account-auth-view">
+            
+            <!-- HEADER DE PROFIL -->
+            <div class="account-profile-header-card">
+              <div class="profile-header-main">
+                <div class="profile-avatar-wrapper">
+                  <div class="profile-avatar-large" id="accountAvatarPreview">
+                    <i class="fa-solid fa-user"></i>
+                  </div>
+                  <div class="avatar-ring-pulse"></div>
+                </div>
+                <div class="profile-meta-info">
+                  <div class="profile-title-row">
+                    <h1 class="profile-display-name" id="accountDisplayNameTitle">Lecteur</h1>
+                    <span id="accountUserRoleBadge" class="role-badge role-user">Lecteur</span>
+                  </div>
+                  <p class="profile-email-subtitle" id="accountUserEmail">utilisateur@noveltrad.com</p>
+                  <div class="profile-meta-badges">
+                    <span class="meta-pill"><i class="fa-solid fa-shield-halved"></i> Données chiffrées</span>
+                    <span class="meta-pill"><i class="fa-solid fa-cloud-arrow-up"></i> Synchronisation Cloud</span>
+                  </div>
+                </div>
+              </div>
+              <div class="profile-header-actions">
+                <button type="button" id="btnAccountSignOut" class="btn-profile-signout" title="Déconnexion">
+                  <i class="fa-solid fa-arrow-right-from-bracket"></i> Déconnexion
+                </button>
+              </div>
+            </div>
+
+            <!-- GRILLE DE SECTIONS PROFIL -->
+            <div class="account-grid-layout">
+              
+              <!-- COLONNE GAUCHE : IDENTITÉ & AVATAR -->
+              <div class="account-column-left">
+                
+                <!-- CARTE 1 : PSEUDONYME PUBLIC -->
+                <div class="account-card">
+                  <div class="account-card-header-simple">
+                    <h3><i class="fa-solid fa-user-pen"></i> Identité Publique</h3>
+                    <p>Ce pseudonyme remplace votre adresse email lors de vos publications de commentaires et interactions.</p>
+                  </div>
+                  
+                  <div class="form-group-profile">
+                    <label for="accountInputPseudo">Votre Pseudonyme</label>
+                    <div class="input-with-button">
+                      <input type="text" id="accountInputPseudo" placeholder="Ex: Kirito99, ShadowMaster..." maxlength="32" autocomplete="off">
+                      <button type="button" id="btnSavePseudo" class="btn btn-primary btn-sm">
+                        <i class="fa-solid fa-floppy-disk"></i> Enregistrer
+                      </button>
+                    </div>
+                    <span class="field-hint">Visible par tous les lecteurs (2 à 32 caractères).</span>
+                  </div>
+                </div>
+
+                <!-- CARTE 2 : SÉLECTION D'AVATAR -->
+                <div class="account-card">
+                  <div class="account-card-header-simple">
+                    <h3><i class="fa-solid fa-wand-magic-sparkles"></i> Choisir un Avatar</h3>
+                    <p>Sélectionnez un avatar prédéfini ou renseignez le lien direct vers votre image.</p>
+                  </div>
+
+                  <!-- Galerie de Presets -->
+                  <div class="avatar-presets-grid">
+                    <button type="button" class="avatar-preset-btn" data-avatar-url="https://api.dicebear.com/7.x/lorelei/svg?seed=Shadow" title="Shadow">
+                      <img src="https://api.dicebear.com/7.x/lorelei/svg?seed=Shadow" alt="Preset Shadow" loading="lazy">
+                    </button>
+                    <button type="button" class="avatar-preset-btn" data-avatar-url="https://api.dicebear.com/7.x/lorelei/svg?seed=Phoenix" title="Phoenix">
+                      <img src="https://api.dicebear.com/7.x/lorelei/svg?seed=Phoenix" alt="Preset Phoenix" loading="lazy">
+                    </button>
+                    <button type="button" class="avatar-preset-btn" data-avatar-url="https://api.dicebear.com/7.x/lorelei/svg?seed=Sakura" title="Sakura">
+                      <img src="https://api.dicebear.com/7.x/lorelei/svg?seed=Sakura" alt="Preset Sakura" loading="lazy">
+                    </button>
+                    <button type="button" class="avatar-preset-btn" data-avatar-url="https://api.dicebear.com/7.x/lorelei/svg?seed=Kitsune" title="Kitsune">
+                      <img src="https://api.dicebear.com/7.x/lorelei/svg?seed=Kitsune" alt="Preset Kitsune" loading="lazy">
+                    </button>
+                    <button type="button" class="avatar-preset-btn" data-avatar-url="https://api.dicebear.com/7.x/lorelei/svg?seed=Valkyrie" title="Valkyrie">
+                      <img src="https://api.dicebear.com/7.x/lorelei/svg?seed=Valkyrie" alt="Preset Valkyrie" loading="lazy">
+                    </button>
+                    <button type="button" class="avatar-preset-btn" data-avatar-url="https://api.dicebear.com/7.x/lorelei/svg?seed=Chronos" title="Chronos">
+                      <img src="https://api.dicebear.com/7.x/lorelei/svg?seed=Chronos" alt="Preset Chronos" loading="lazy">
+                    </button>
+                    <button type="button" class="avatar-preset-btn" data-avatar-url="https://api.dicebear.com/7.x/lorelei/svg?seed=Aura" title="Aura">
+                      <img src="https://api.dicebear.com/7.x/lorelei/svg?seed=Aura" alt="Preset Aura" loading="lazy">
+                    </button>
+                    <button type="button" class="avatar-preset-btn" data-avatar-url="https://api.dicebear.com/7.x/lorelei/svg?seed=Zenith" title="Zenith">
+                      <img src="https://api.dicebear.com/7.x/lorelei/svg?seed=Zenith" alt="Preset Zenith" loading="lazy">
+                    </button>
+                  </div>
+
+                  <!-- Option URL Personnalisée -->
+                  <div class="form-group-profile" style="margin-top: 18px;">
+                    <label for="accountInputAvatarUrl">Ou URL personnalisée de votre image</label>
+                    <div class="input-with-button">
+                      <input type="url" id="accountInputAvatarUrl" placeholder="https://example.com/avatar.png" autocomplete="off">
+                      <button type="button" id="btnSaveAvatar" class="btn btn-secondary btn-sm">
+                        <i class="fa-solid fa-image"></i> Appliquer
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+
+              <!-- COLONNE DROITE : RACCOURCIS, LECTURE & SÉCURITÉ -->
+              <div class="account-column-right">
+                
+                <!-- CARTE 3 : ACCÈS RAPIDES & ESPACES DÉDIÉS -->
+                <div class="account-card">
+                  <div class="account-card-header-simple">
+                    <h3><i class="fa-solid fa-compass"></i> Raccourcis & Espaces</h3>
+                    <p>Accédez instantanément à vos sections de lecture et de contribution.</p>
+                  </div>
+                  <div class="account-shortcuts-grid">
+                    <button type="button" class="account-shortcut-box" id="accountShortcutLibrary">
+                      <div class="shortcut-icon icon-library"><i class="fa-solid fa-book-open"></i></div>
+                      <div class="shortcut-text">
+                        <strong>Ma Bibliothèque</strong>
+                        <span>Consulter vos séries et tomes locaux</span>
+                      </div>
+                      <i class="fa-solid fa-chevron-right shortcut-arrow"></i>
+                    </button>
+                    <button type="button" class="account-shortcut-box" id="accountShortcutContinue">
+                      <div class="shortcut-icon icon-continue"><i class="fa-solid fa-play"></i></div>
+                      <div class="shortcut-text">
+                        <strong>Reprendre la lecture</strong>
+                        <span>Revenir à votre dernier chapitre actif</span>
+                      </div>
+                      <i class="fa-solid fa-chevron-right shortcut-arrow"></i>
+                    </button>
+                    <button type="button" class="account-shortcut-box" id="accountShortcutFavorites">
+                      <div class="shortcut-icon icon-favorites"><i class="fa-solid fa-star"></i></div>
+                      <div class="shortcut-text">
+                        <strong>Favoris</strong>
+                        <span>Vos titres enregistrés</span>
+                      </div>
+                      <i class="fa-solid fa-chevron-right shortcut-arrow"></i>
+                    </button>
+                    
+                    <!-- Raccourcis conditionnels selon rôle -->
+                    <button type="button" class="account-shortcut-box contrib-box hidden" id="accountShortcutContrib" onclick="window.location.hash='#contributor'; if(window.openContributorTab) window.openContributorTab();">
+                      <div class="shortcut-icon icon-contrib" style="background: rgba(225,29,72,0.15); color: #fb7185;"><i class="fa-solid fa-feather-pointed"></i></div>
+                      <div class="shortcut-text">
+                        <strong style="color: #fb7185;">Studio Contributeur</strong>
+                        <span>Créer des romans & soumettre des tomes</span>
+                      </div>
+                      <i class="fa-solid fa-chevron-right shortcut-arrow"></i>
+                    </button>
+
+                    <button type="button" class="account-shortcut-box admin-box hidden" id="accountShortcutAdmin" onclick="window.location.hash='#admin'; if(window.openAdminTab) window.openAdminTab();">
+                      <div class="shortcut-icon icon-admin" style="background: rgba(239,68,68,0.15); color: #ef4444;"><i class="fa-solid fa-shield-halved"></i></div>
+                      <div class="shortcut-text">
+                        <strong style="color: #ef4444;">Panneau Administration</strong>
+                        <span>Modération du catalogue & gestion des utilisateurs</span>
+                      </div>
+                      <i class="fa-solid fa-chevron-right shortcut-arrow"></i>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- CARTE 4 : PRÉFÉRENCES DU LECTEUR -->
+                <div class="account-card settings-card">
+                  <div class="account-card-header-simple">
+                    <h3><i class="fa-solid fa-sliders"></i> Préférences de Lecture</h3>
+                    <p>Ces paramètres seront automatiquement appliqués à chaque ouverture du lecteur.</p>
+                  </div>
+                  <div class="account-settings-form">
+                    <div class="setting-item">
+                      <label for="accountSettingTheme"><i class="fa-solid fa-palette"></i> Thème par défaut</label>
+                      <select id="accountSettingTheme">
+                        <option value="dark">Sombre Cosmique (Par défaut)</option>
+                        <option value="midnight">Nuit Bleutée (OLED)</option>
+                        <option value="sepia">Sépia Papier Chaud</option>
+                        <option value="light">Clair Épuré</option>
+                      </select>
+                    </div>
+                    <div class="setting-item">
+                      <label for="accountSettingFontSize"><i class="fa-solid fa-text-height"></i> Taille de police</label>
+                      <select id="accountSettingFontSize">
+                        <option value="16px">Standard (16px)</option>
+                        <option value="18px">Confortable (18px)</option>
+                        <option value="20px">Grand (20px)</option>
+                        <option value="22px">Très Grand (22px)</option>
+                      </select>
+                    </div>
+                    <div class="setting-item">
+                      <label for="accountSettingFontFamily"><i class="fa-solid fa-font"></i> Typographie</label>
+                      <select id="accountSettingFontFamily">
+                        <option value="inter">Inter (Sans-Serif Moderne)</option>
+                        <option value="merriweather">Merriweather (Serif Roman)</option>
+                        <option value="lora">Lora (Éditorial Élégant)</option>
+                        <option value="jetbrains">JetBrains Mono (Monospace)</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- CARTE 5 : INFORMATIONS DE SESSION & SÉCURITÉ -->
+                <div class="account-card">
+                  <div class="account-card-header-simple">
+                    <h3><i class="fa-solid fa-lock"></i> Session & Sécurité</h3>
+                    <p>Informations relatives à votre compte authentifié.</p>
+                  </div>
+                  <div class="account-details-list">
+                    <div class="account-detail-item">
+                      <span class="detail-label"><i class="fa-solid fa-envelope"></i> Email du compte</span>
+                      <span class="detail-value" id="accountProfileEmail">-</span>
+                    </div>
+                    <div class="account-detail-item">
+                      <span class="detail-label"><i class="fa-solid fa-circle-check"></i> État de la session</span>
+                      <span class="detail-value text-success" id="accountProfileStatus">Actif</span>
+                    </div>
+                    <div class="account-detail-item">
+                      <span class="detail-label"><i class="fa-solid fa-calendar-plus"></i> Date d'inscription</span>
+                      <span class="detail-value" id="accountProfileCreatedAt">-</span>
+                    </div>
+                    <div class="account-detail-item">
+                      <span class="detail-label"><i class="fa-solid fa-clock"></i> Dernière connexion</span>
+                      <span class="detail-value" id="accountProfileLastSignIn">-</span>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+      <div id="contributorModuleContainer" class="module-container contributor-module-container hidden">
+        <div class="account-header-section">
+          <div class="account-title-group">
+            <div class="account-badge-pill">
+              <span class="pulse-dot"></span> Studio Contributeur
+            </div>
+            <h1 class="account-main-title">Espace Création & Contribution</h1>
+            <p class="account-main-subtitle">Créez et enrichissez les fiches de vos Light Novels préférés, organisez les tomes et participez à la communauté NovelTrad.</p>
+          </div>
+          <div class="contrib-top-actions">
+            <button class="btn-contrib-primary" id="btnContribNewNovel">
+              <i class="fa-solid fa-plus"></i> Nouveau Roman
+            </button>
           </div>
         </div>
 
-        <!-- ERROR CONTAINER (Hidden by default) -->
-        <div class="error-banner hidden" id="errorBanner">
-          <i class="fa-solid fa-triangle-exclamation"></i>
-          <span id="errorMessage">Une erreur s'est produite.</span>
+        <div class="contrib-subnav-bar">
+          <button class="contrib-subnav-btn active" id="contribTabOverviewBtn"><i class="fa-solid fa-chart-pie"></i> Vue d'ensemble</button>
+          <button class="contrib-subnav-btn" id="contribTabNovelsBtn"><i class="fa-solid fa-book-bookmark"></i> Mes Romans</button>
+          <button class="contrib-subnav-btn" id="contribTabCreateBtn"><i class="fa-solid fa-pen-to-square"></i> Formulaire de Création</button>
+          <button class="contrib-subnav-btn hidden" id="contribTabVolumesBtn"><i class="fa-solid fa-boxes-stacked"></i> Gestion des Tomes</button>
         </div>
 
+        <!-- VIEW 1: OVERVIEW -->
+        <div id="contribOverviewSection" class="contrib-section-view">
+          <div class="contrib-stats-grid">
+            <div class="contrib-stat-card">
+              <div class="contrib-stat-icon"><i class="fa-solid fa-book"></i></div>
+              <div class="contrib-stat-info">
+                <span class="stat-number" id="contribStatTotal">0</span>
+                <span class="stat-label">Mes Romans au total</span>
+              </div>
+            </div>
+            <div class="contrib-stat-card">
+              <div class="contrib-stat-icon draft"><i class="fa-solid fa-file-lines"></i></div>
+              <div class="contrib-stat-info">
+                <span class="stat-number" id="contribStatDrafts">0</span>
+                <span class="stat-label">Brouillons en cours</span>
+              </div>
+            </div>
+            <div class="contrib-stat-card">
+              <div class="contrib-stat-icon pending"><i class="fa-solid fa-hourglass-half"></i></div>
+              <div class="contrib-stat-info">
+                <span class="stat-number" id="contribStatPending">0</span>
+                <span class="stat-label">En attente de révision</span>
+              </div>
+            </div>
+            <div class="contrib-stat-card">
+              <div class="contrib-stat-icon published"><i class="fa-solid fa-circle-check"></i></div>
+              <div class="contrib-stat-info">
+                <span class="stat-number" id="contribStatPublished">0</span>
+                <span class="stat-label">Romans Publiés</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="contrib-overview-body">
+            <div class="contrib-block-card">
+              <h3><i class="fa-solid fa-clock-rotate-left"></i> Activité récente</h3>
+              <div id="contribRecentList" class="contrib-recent-list"></div>
+            </div>
+            <div class="contrib-block-card info-guide">
+              <h3><i class="fa-solid fa-circle-info"></i> Guide du Contributeur</h3>
+              <ul>
+                <li><strong>Statut Brouillon (DRAFT) :</strong> Votre roman est privé, vous seul pouvez le modifier.</li>
+                <li><strong>Soumission (PENDING_REVIEW) :</strong> Une fois prêt, soumettez-le pour qu'un modérateur le valide.</li>
+                <li><strong>Publication (PUBLISHED) :</strong> Le roman devient visible pour tous les lecteurs du catalogue.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- VIEW 2: MES ROMANS -->
+        <div id="contribNovelsSection" class="contrib-section-view hidden">
+          <div class="contrib-toolbar">
+            <div class="contrib-search-wrap">
+              <i class="fa-solid fa-magnifying-glass"></i>
+              <input type="text" id="contribSearchInput" placeholder="Rechercher parmi mes créations...">
+            </div>
+            <div class="contrib-filters-wrap">
+              <select id="contribStatusFilter" class="contrib-select">
+                <option value="ALL">Tous les statuts</option>
+                <option value="DRAFT">Brouillons</option>
+                <option value="PENDING_REVIEW">En attente de validation</option>
+                <option value="PUBLISHED">Publiés</option>
+                <option value="ARCHIVED">Archivés</option>
+              </select>
+            </div>
+          </div>
+          <div id="contribNovelsListGrid" class="contrib-novels-grid"></div>
+        </div>
+
+        <!-- VIEW 3: FORMULAIRE CREER / MODIFIER -->
+        <div id="contribFormSection" class="contrib-section-view hidden">
+          <div class="contrib-form-container dual-mode-container">
+            
+            <div class="contrib-form-topbar">
+              <div>
+                <h2 id="contribFormTitle" class="contrib-form-header-title">Créer une nouvelle fiche de Light Novel</h2>
+                <p class="contrib-form-header-desc">Choisissez votre mode de création : automatique via recherche d'APIs ou saisie manuelle libre.</p>
+              </div>
+
+              <!-- DUAL MODE SWITCHER -->
+              <div class="contrib-mode-switcher">
+                <button type="button" class="mode-btn active" id="btnModeAuto">
+                  <i class="fa-solid fa-wand-magic-sparkles"></i> Mode Automatique (API)
+                </button>
+                <button type="button" class="mode-btn" id="btnModeManual">
+                  <i class="fa-solid fa-pen-nib"></i> Mode Manuel
+                </button>
+              </div>
+            </div>
+
+            <!-- AUTO MODE SEARCH PANEL -->
+            <div id="contribAutoModePanel" class="contrib-auto-panel">
+              <div class="contrib-auto-search-box">
+                <div class="auto-search-input-wrap">
+                  <i class="fa-solid fa-magnifying-glass"></i>
+                  <input type="text" id="contribApiSearchInput" placeholder="Tapez le titre du Light Novel (ex: Mushoku Tensei, Solo Leveling, 86, Re:Zero...)">
+                  <button type="button" id="btnContribFetchApi" class="btn-contrib-primary search-action">
+                    <span id="btnFetchApiText"><i class="fa-solid fa-bolt"></i> Rechercher les infos</span>
+                    <span id="btnFetchApiSpinner" class="hidden"><i class="fa-solid fa-spinner fa-spin"></i> Recherche...</span>
+                  </button>
+                </div>
+                <p class="auto-search-hint"><i class="fa-solid fa-circle-info"></i> Recherche instantanée sur <strong>AniList, Kitsu et MangaDex</strong> avec traduction automatique du synopsis et des genres en français.</p>
+              </div>
+
+              <!-- API SEARCH RESULT PREVIEW CARD -->
+              <div id="contribApiResultCard" class="contrib-api-result-card hidden">
+                <div class="api-result-cover-wrap">
+                  <img id="apiResultCover" src="" alt="Cover preview">
+                </div>
+                <div class="api-result-details">
+                  <div class="api-result-header">
+                    <h3 id="apiResultTitle">Titre de l'œuvre</h3>
+                    <span class="api-provider-badge" id="apiResultProvider">Source: AniList</span>
+                  </div>
+                  <p class="api-result-meta">
+                    <span><strong>Auteur :</strong> <span id="apiResultAuthor">-</span></span> &bull; 
+                    <span><strong>Statut :</strong> <span id="apiResultStatus">En cours</span></span>
+                  </p>
+                  <div class="api-result-genres" id="apiResultGenres"></div>
+                  <p class="api-result-synopsis" id="apiResultSynopsis"></p>
+                  <div class="api-result-actions">
+                    <button type="button" class="btn-contrib-primary" id="btnApplyApiData">
+                      <i class="fa-solid fa-file-import"></i> Appliquer ces informations au formulaire
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- MAIN EDITABLE FORM (Used in both modes for review & manual edit) -->
+            <div class="contrib-main-form-layout">
+              
+              <!-- LEFT: FORM INPUTS -->
+              <form id="contribNovelForm" class="contrib-main-form">
+                
+                <div class="form-row two-cols">
+                  <div class="form-group">
+                    <label for="contribNovelTitle">Titre principal (Français / International) *</label>
+                    <input type="text" id="contribNovelTitle" required placeholder="Ex: Mushoku Tensei: Jobless Reincarnation">
+                  </div>
+                  <div class="form-group">
+                    <label for="contribNovelRomaji">Titre original / Romaji</label>
+                    <input type="text" id="contribNovelRomaji" placeholder="Ex: Mushoku Tensei: Isekai Ittara Honki Dasu">
+                  </div>
+                </div>
+
+                <div class="form-row two-cols">
+                  <div class="form-group">
+                    <label for="contribNovelAuthor">Auteur *</label>
+                    <input type="text" id="contribNovelAuthor" required placeholder="Ex: Rifujin na Magonote">
+                  </div>
+                  <div class="form-group">
+                    <label for="contribNovelIllustrator">Illustrateur</label>
+                    <input type="text" id="contribNovelIllustrator" placeholder="Ex: Shirotaka / Shoko Iwami">
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label for="contribNovelSynopsis">Synopsis / Résumé en français *</label>
+                  <textarea id="contribNovelSynopsis" rows="6" placeholder="Décrivez l'univers et le scénario du roman..."></textarea>
+                </div>
+
+                <!-- INTERACTIVE GENRE SELECTOR -->
+                <div class="form-group">
+                  <label>Genres (Cliquez pour sélectionner / désélectionner)</label>
+                  <div class="genre-chips-selector" id="contribGenreChipsSelector">
+                    <button type="button" class="genre-chip" data-genre="Action">Action</button>
+                    <button type="button" class="genre-chip" data-genre="Aventure">Aventure</button>
+                    <button type="button" class="genre-chip" data-genre="Fantaisie">Fantaisie</button>
+                    <button type="button" class="genre-chip" data-genre="Isekai">Isekai</button>
+                    <button type="button" class="genre-chip" data-genre="Magie">Magie</button>
+                    <button type="button" class="genre-chip" data-genre="Romance">Romance</button>
+                    <button type="button" class="genre-chip" data-genre="Drame">Drame</button>
+                    <button type="button" class="genre-chip" data-genre="Comédie">Comédie</button>
+                    <button type="button" class="genre-chip" data-genre="Mystère">Mystère</button>
+                    <button type="button" class="genre-chip" data-genre="Science-Fiction">Science-Fiction</button>
+                    <button type="button" class="genre-chip" data-genre="Psychologique">Psychologique</button>
+                    <button type="button" class="genre-chip" data-genre="Surnaturel">Surnaturel</button>
+                    <button type="button" class="genre-chip" data-genre="Tranche de vie">Tranche de vie</button>
+                    <button type="button" class="genre-chip" data-genre="Seinen">Seinen</button>
+                    <button type="button" class="genre-chip" data-genre="Shounen">Shounen</button>
+                  </div>
+                  <input type="hidden" id="contribNovelGenres" value="">
+                </div>
+
+                <div class="form-group">
+                  <label for="contribNovelTags">Tags / Thématiques (séparés par des virgules)</label>
+                  <input type="text" id="contribNovelTags" placeholder="Monstres, Donjons, Magie, Réincarnation, Épée">
+                </div>
+
+                <div class="form-row two-cols">
+                  <div class="form-group">
+                    <label for="contribNovelCoverUrl">URL de la Couverture</label>
+                    <input type="url" id="contribNovelCoverUrl" placeholder="https://exemple.com/cover.jpg">
+                  </div>
+                  <div class="form-group">
+                    <label for="contribNovelStatus">Statut de la fiche</label>
+                    <select id="contribNovelStatus" class="contrib-select">
+                      <option value="DRAFT">Brouillon privé (DRAFT)</option>
+                      <option value="PENDING_REVIEW">Soumettre directement (PENDING_REVIEW)</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="form-actions-bar">
+                  <button type="button" class="btn-contrib-cancel" onclick="window.contributorManager.showView('novels')">Annuler</button>
+                  <button type="submit" id="contribSaveNovelBtn" class="btn-contrib-primary">
+                    <i class="fa-solid fa-save"></i> Enregistrer le Roman
+                  </button>
+                </div>
+              </form>
+
+              <!-- RIGHT: LIVE COVER PREVIEW -->
+              <div class="contrib-form-live-preview">
+                <h4><i class="fa-solid fa-eye"></i> Aperçu de la fiche</h4>
+                <div class="live-preview-card">
+                  <div class="live-preview-cover-box">
+                    <img id="livePreviewCoverImg" src="https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=400" alt="Preview cover" onerror="this.src='https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=400'">
+                  </div>
+                  <h4 id="livePreviewTitle" class="live-preview-title">Titre du roman</h4>
+                  <p id="livePreviewAuthor" class="live-preview-author">Auteur</p>
+                  <div id="livePreviewGenres" class="live-preview-genres"></div>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+
+        <!-- VIEW 4: GESTION DES VOLUMES / TOMES (SECTION INLINE DÉDIÉE - PAS DE MODALE) -->
+        <div id="contribVolumesSection" class="contrib-section-view hidden">
+          <div class="contrib-volumes-container">
+            
+            <!-- TOP BAR / NAVIGATION DE LA SECTION -->
+            <div class="contrib-volumes-topbar">
+              <button type="button" class="btn-contrib-back" onclick="window.contributorManager.showView('novels')">
+                <i class="fa-solid fa-arrow-left"></i> Retour à mes romans
+              </button>
+              
+              <div class="vol-novel-banner">
+                <img id="volSectionNovelCover" src="" alt="Cover" class="vol-novel-banner-cover hidden">
+                <div class="vol-novel-banner-info">
+                  <div class="account-badge-pill" style="margin-bottom: 4px;">
+                    <span class="pulse-dot"></span> <span id="volSectionCountBadge">0 tome(s)</span>
+                  </div>
+                  <h3 id="volSectionNovelTitle">Titre du roman</h3>
+                  <div class="vol-novel-banner-meta">
+                    <span id="volSectionNovelAuthor"><i class="fa-solid fa-pen-nib"></i> Auteur</span>
+                    <span id="volSectionNovelStatus" class="status-badge draft">DRAFT</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- CORPS DE LA SECTION : GRILLE 2 COLONNES -->
+            <div class="contrib-volumes-grid">
+              
+              <!-- COLONNE GAUCHE : FORMULAIRE D'UPLOAD & METADATA DU TOME -->
+              <div class="vol-form-col">
+                <div class="vol-col-header">
+                  <h4><i class="fa-solid fa-cloud-arrow-up"></i> Importer un Tome</h4>
+                  <span class="badge-format-pill">EPUB & PDF</span>
+                </div>
+                <p class="vol-col-desc">Téléversez le fichier de votre tome et renseignez ses détails.</p>
+                
+                <form id="contribVolumeForm">
+                  <!-- DRAG & DROP / FILE PICKER -->
+                  <div class="vol-dropzone" id="volDropzone">
+                    <input type="file" id="contribVolFile" accept=".epub,.pdf" class="hidden">
+                    <div class="dropzone-content" id="volDropzonePrompt">
+                      <div class="dropzone-icon-circle">
+                        <i class="fa-solid fa-cloud-arrow-up"></i>
+                      </div>
+                      <p class="dropzone-main-text">Glissez-déposez le fichier du tome (.epub ou .pdf)</p>
+                      <p class="dropzone-sub-text">ou <span class="dropzone-browse-btn">parcourez votre ordinateur</span></p>
+                      <div class="dropzone-allowed-badges">
+                        <span class="badge-ext epub"><i class="fa-solid fa-book"></i> .EPUB</span>
+                        <span class="badge-ext pdf"><i class="fa-solid fa-file-pdf"></i> .PDF</span>
+                      </div>
+                    </div>
+
+                    <!-- Selected File Preview -->
+                    <div class="dropzone-selected-file hidden" id="volSelectedFilePreview">
+                      <div class="file-icon-box" id="volFileIconBox">
+                        <i class="fa-solid fa-file-lines"></i>
+                      </div>
+                      <div class="file-details">
+                        <div class="file-name" id="volSelectedFileName">tome-1.epub</div>
+                        <div class="file-meta" id="volSelectedFileSize">0 Mo • EPUB</div>
+                      </div>
+                      <button type="button" class="btn-remove-file" id="btnRemoveVolFile" title="Changer de fichier">
+                        <i class="fa-solid fa-trash-can"></i>
+                      </button>
+                    </div>
+                  </div>
+
+                  <div class="form-group" style="margin-bottom: 14px;">
+                    <label for="contribVolType">Type de Récit / Volume</label>
+                    <div class="input-with-icon">
+                      <i class="fa-solid fa-layer-group input-icon"></i>
+                      <select id="contribVolType" style="background:#141721; color:#fff; border:1px solid rgba(255,255,255,0.12); border-radius:8px; padding:10px 12px 10px 38px; width:100%; font-size:13.5px;">
+                        <option value="main">Histoire Principale (Canon)</option>
+                        <option value="side_story">Histoire Courte / Tome .5 (Side Story)</option>
+                        <option value="spinoff">Spin-off / Série Dérivée</option>
+                        <option value="alternative">Histoire Alternative / What-If</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div class="form-row-2col">
+                    <div class="form-group">
+                      <label for="contribVolNumber">Numéro du Tome *</label>
+                      <div class="input-with-icon">
+                        <i class="fa-solid fa-hashtag input-icon"></i>
+                        <input type="number" id="contribVolNumber" min="0" step="0.5" required value="1" placeholder="1">
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      <label for="contribVolReleaseDate">Date de Sortie</label>
+                      <div class="input-with-icon">
+                        <i class="fa-solid fa-calendar-day input-icon"></i>
+                        <input type="date" id="contribVolReleaseDate">
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="contribVolTitle">Titre du Tome (Optionnel)</label>
+                    <div class="input-with-icon">
+                      <i class="fa-solid fa-bookmark input-icon"></i>
+                      <input type="text" id="contribVolTitle" placeholder="Ex: L'Éveil des Ombres, Tome 1...">
+                    </div>
+                  </div>
+
+                  <!-- Upload Progress Bar -->
+                  <div class="vol-upload-progress hidden" id="volUploadProgress">
+                    <div class="progress-bar-track">
+                      <div class="progress-bar-fill" id="volProgressBarFill" style="width: 0%;"></div>
+                    </div>
+                    <div class="progress-status-text" id="volProgressText">Envoi du fichier en cours...</div>
+                  </div>
+
+                  <button type="submit" class="btn-contrib-primary full-width" id="btnSubmitVolume">
+                    <i class="fa-solid fa-cloud-arrow-up"></i> Téléverser & Ajouter ce Tome
+                  </button>
+                </form>
+              </div>
+
+              <!-- COLONNE DROITE : LISTE DES TOMES DE LA SÉRIE -->
+              <div class="vol-list-col">
+                <div class="vol-col-header">
+                  <h4><i class="fa-solid fa-list-check"></i> Tomes de la Série</h4>
+                  <span class="vol-count-badge" id="volModalCountBadge">0 tomes</span>
+                </div>
+                
+                <div id="contribVolListContainer" class="contrib-vols-list">
+                  <!-- Dynamiquement rempli par contributor_logic.js -->
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+      </div> <!-- END MODULE 5: CONTRIBUTOR -->
+      <div id="adminModuleContainer" class="module-container admin-module-container hidden">
+        <div class="account-header-section">
+          <div class="account-title-group">
+            <div class="account-badge-pill admin">
+              <span class="pulse-dot red"></span> Espace Administration & Modération
+            </div>
+            <h1 class="account-main-title">Panneau de Contrôle NovelTrad</h1>
+            <p class="account-main-subtitle">Supervisez l'intégralité du catalogue, validez les propositions des contributeurs et gérez les rôles d'accès des utilisateurs.</p>
+          </div>
+        </div>
+
+        <div class="contrib-subnav-bar">
+          <button class="contrib-subnav-btn active" id="adminTabDashBtn"><i class="fa-solid fa-gauge-high"></i> Dashboard</button>
+          <button class="contrib-subnav-btn" id="adminTabQueueBtn">
+            <i class="fa-solid fa-clock"></i> File de Modération 
+            <span class="admin-queue-pill" id="adminQueueCountBadge">0</span>
+          </button>
+          <button class="contrib-subnav-btn" id="adminTabCatalogBtn"><i class="fa-solid fa-book-open"></i> Catalogue Global</button>
+          <button class="contrib-subnav-btn" id="adminTabEditorialBtn"><i class="fa-solid fa-calendar-days"></i> <span>Planning & Annonces</span></button>
+          <button class="contrib-subnav-btn" id="adminTabUsersBtn"><i class="fa-solid fa-users-gear"></i> Utilisateurs & Rôles</button>
+        </div>
+
+        <!-- VIEW 1: DASHBOARD -->
+        <div id="adminDashboardSection" class="contrib-section-view">
+          <div class="contrib-stats-grid admin">
+            <div class="contrib-stat-card">
+              <div class="contrib-stat-icon"><i class="fa-solid fa-book-journal-whills"></i></div>
+              <div class="contrib-stat-info">
+                <span class="stat-number" id="adminStatNovels">0</span>
+                <span class="stat-label">Romans au Catalogue</span>
+              </div>
+            </div>
+            <div class="contrib-stat-card">
+              <div class="contrib-stat-icon pending"><i class="fa-solid fa-inbox"></i></div>
+              <div class="contrib-stat-info">
+                <span class="stat-number" id="adminStatQueue">0</span>
+                <span class="stat-label">En attente de révision</span>
+              </div>
+            </div>
+            <div class="contrib-stat-card">
+              <div class="contrib-stat-icon users"><i class="fa-solid fa-users"></i></div>
+              <div class="contrib-stat-info">
+                <span class="stat-number" id="adminStatUsers">0</span>
+                <span class="stat-label">Utilisateurs enregistrés</span>
+              </div>
+            </div>
+            <div class="contrib-stat-card">
+              <div class="contrib-stat-icon published"><i class="fa-solid fa-feather-pointed"></i></div>
+              <div class="contrib-stat-info">
+                <span class="stat-number" id="adminStatContributors">0</span>
+                <span class="stat-label">Contributeurs & Admins</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="contrib-overview-body">
+            <div class="contrib-block-card">
+              <h3><i class="fa-solid fa-bell"></i> Dernières soumissions à traiter</h3>
+              <div id="adminQueueRecentList" class="admin-recent-queue-list"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- VIEW 2: FILE DE MODERATION -->
+        <div id="adminQueueSection" class="contrib-section-view hidden">
+          <div class="admin-queue-container" id="adminQueueList"></div>
+        </div>
+
+        <!-- VIEW 3: GESTION DU CATALOGUE -->
+        <div id="adminCatalogSection" class="contrib-section-view hidden">
+          <div class="contrib-toolbar">
+            <div class="contrib-search-wrap">
+              <i class="fa-solid fa-magnifying-glass"></i>
+              <input type="text" id="adminCatalogSearchInp" placeholder="Filtrer les romans du catalogue...">
+            </div>
+          </div>
+          <div class="admin-table-wrapper" id="adminCatalogList"></div>
+        </div>
+
+        <!-- VIEW 4: GESTION DES UTILISATEURS -->
+        <div id="adminUsersSection" class="contrib-section-view hidden">
+          <div class="contrib-toolbar">
+            <div class="contrib-search-wrap">
+              <i class="fa-solid fa-magnifying-glass"></i>
+              <input type="text" id="adminUserSearchInp" placeholder="Rechercher un utilisateur par email...">
+            </div>
+          </div>
+          <div class="admin-table-wrapper" id="adminUsersList"></div>
+        </div>
+
+        <!-- VIEW 5: GESTION ÉDITORIALE (PLANNING & NEWS) -->
+        <div id="adminEditorialSection" class="contrib-section-view hidden">
+          
+          <!-- KPI SUMMARY STATS CARDS -->
+          <div class="admin-ed-stats-grid">
+            <div class="admin-ed-stat-card">
+              <div class="admin-ed-stat-icon icon-cyan"><i class="fa-solid fa-calendar-days"></i></div>
+              <div class="admin-ed-stat-info">
+                <span class="admin-ed-stat-val" id="adminKpiTotalSched">0</span>
+                <span class="admin-ed-stat-lbl">Sorties au Planning</span>
+              </div>
+            </div>
+            <div class="admin-ed-stat-card">
+              <div class="admin-ed-stat-icon icon-amber"><i class="fa-solid fa-clock"></i></div>
+              <div class="admin-ed-stat-info">
+                <span class="admin-ed-stat-val" id="adminKpiUpcomingSched">0</span>
+                <span class="admin-ed-stat-lbl">À paraître</span>
+              </div>
+            </div>
+            <div class="admin-ed-stat-card">
+              <div class="admin-ed-stat-icon icon-emerald"><i class="fa-solid fa-circle-check"></i></div>
+              <div class="admin-ed-stat-info">
+                <span class="admin-ed-stat-val" id="adminKpiReleasedSched">0</span>
+                <span class="admin-ed-stat-lbl">Disponibles</span>
+              </div>
+            </div>
+            <div class="admin-ed-stat-card">
+              <div class="admin-ed-stat-icon icon-rose"><i class="fa-solid fa-newspaper"></i></div>
+              <div class="admin-ed-stat-info">
+                <span class="admin-ed-stat-val" id="adminKpiTotalNews">0</span>
+                <span class="admin-ed-stat-lbl">Articles d'Actualité</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- SUB-NAVIGATION TABS -->
+          <div class="admin-ed-tabs-header">
+            <div class="admin-ed-subnav">
+              <button type="button" class="admin-ed-tab-btn active" id="adminEdTabSchedule">
+                <i class="fa-solid fa-calendar-days"></i>
+                <span>Planning des Sorties</span>
+                <span class="admin-ed-badge-count" id="adminEdBadgeSched">0</span>
+              </button>
+              <button type="button" class="admin-ed-tab-btn" id="adminEdTabNews">
+                <i class="fa-solid fa-newspaper"></i>
+                <span>Actualités & Communiqués</span>
+                <span class="admin-ed-badge-count" id="adminEdBadgeNews">0</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- SUB-VIEW 1 : PLANNING DES SORTIES -->
+          <div id="adminEdViewSchedule" class="admin-ed-view-pane">
+            <div class="admin-ed-pane-toolbar">
+              <div class="admin-ed-toolbar-filters">
+                <div class="admin-ed-search-box">
+                  <i class="fa-solid fa-magnifying-glass"></i>
+                  <input type="text" id="adminSchedSearchInput" placeholder="Filtrer par titre, tome ou traducteur...">
+                </div>
+                <select id="adminSchedFilterStatus" class="catalog-filter-select">
+                  <option value="all">Tous les statuts</option>
+                  <option value="upcoming">⏳ À paraître uniquement</option>
+                  <option value="released">✅ Disponibles uniquement</option>
+                </select>
+              </div>
+              <button type="button" class="btn-primary" id="btnAdminOpenAddSchedModal">
+                <i class="fa-solid fa-plus"></i> <span>Programmer une sortie</span>
+              </button>
+            </div>
+
+            <!-- TABLE DES SORTIES PROGRAMMÉES -->
+            <div class="admin-ed-table-wrap">
+              <table class="admin-table admin-ed-table">
+                <thead>
+                  <tr>
+                    <th style="width:50px;">Couv.</th>
+                    <th>Série & Tome</th>
+                    <th>Date & Heure Prévue</th>
+                    <th>Format</th>
+                    <th>Équipe / Trad.</th>
+                    <th>Statut (Cliquer pour basculer)</th>
+                    <th style="width:100px; text-align:right;">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="adminSchedTableBody">
+                  <!-- Injected by admin_logic.js -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- SUB-VIEW 2 : GESTION DES ACTUALITÉS -->
+          <div id="adminEdViewNews" class="admin-ed-view-pane hidden">
+            <div class="admin-ed-pane-toolbar">
+              <div class="admin-ed-toolbar-filters">
+                <div class="admin-ed-search-box">
+                  <i class="fa-solid fa-magnifying-glass"></i>
+                  <input type="text" id="adminNewsSearchInput" placeholder="Rechercher une annonce par titre ou contenu...">
+                </div>
+                <select id="adminNewsFilterCategory" class="catalog-filter-select">
+                  <option value="all">Toutes les catégories</option>
+                  <option value="Annonce">Annonces</option>
+                  <option value="Sortie">Sorties</option>
+                  <option value="Nouveauté">Nouveautés</option>
+                  <option value="Maintenance">Maintenance</option>
+                  <option value="Partenariat">Partenariat</option>
+                </select>
+              </div>
+              <button type="button" class="btn-primary" id="btnAdminOpenAddNewsModal">
+                <i class="fa-solid fa-pen-nib"></i> <span>Rédiger une actualité</span>
+              </button>
+            </div>
+
+            <!-- LISTE DES ARTICLES EN LIGNE -->
+            <div id="adminNewsCardsContainer" class="admin-ed-news-cards-grid">
+              <!-- Injected by admin_logic.js -->
+            </div>
+          </div>
+
+        </div></div> <!-- END MODULE 6: ADMIN -->
+
+        <!-- NOVELTRAD FOOTER MINIMALISTE (STYLE LNORI) -->
+  <footer class="noveltrad-main-footer" id="noveltradFooter" role="contentinfo">
+    <div class="footer-container">
+      <nav class="footer-nav-grid" aria-label="Navigation de pied de page">
+        <!-- 1. DÉCOUVERTE -->
+        <section class="footer-col" aria-labelledby="footer-col-discovery">
+          <h3 id="footer-col-discovery" class="footer-col-heading">DÉCOUVERTE</h3>
+          <ul class="footer-links">
+            <li><a href="/index.html#catalog?sort=latest">Dernières sorties</a></li>
+            <li><a href="/index.html#catalog?sort=popular">Tendances & Populaires</a></li>
+            <li><a href="/index.html#catalog?sort=rating">Mieux notés</a></li>
+            <li><a href="/index.html#catalog">Tous les romans</a></li>
+          </ul>
+        </section>
+
+        <!-- 2. MA LISEUSE -->
+        <section class="footer-col" aria-labelledby="footer-col-reader">
+          <h3 id="footer-col-reader" class="footer-col-heading">MA LISEUSE</h3>
+          <ul class="footer-links">
+            <li><a href="/index.html#library">Ma Bibliothèque</a></li>
+            <li><a href="/index.html#continue">Continuer la lecture</a></li>
+            <li><a href="/index.html#docs">Traducteur de documents</a></li>
+            <li><a href="/index.html#favorites">Favoris</a></li>
+          </ul>
+        </section>
+
+        <!-- 3. COMMUNAUTÉ & SUPPORT -->
+        <section class="footer-col" aria-labelledby="footer-col-community">
+          <h3 id="footer-col-community" class="footer-col-heading">COMMUNAUTÉ</h3>
+          <ul class="footer-links">
+            <li><a href="https://discord.gg" target="_blank" rel="noopener noreferrer">Rejoindre Discord</a></li>
+            <li><a href="/index.html#contributor">Studio Contributeur</a></li>
+            <li><a href="mailto:contact@noveltrad.com">Contact & Support</a></li>
+            <li><a href="/index.html#ethics">Charte du traducteur</a></li>
+          </ul>
+        </section>
+
+        <!-- 4. LÉGAL & ÉTHIQUE -->
+        <section class="footer-col" aria-labelledby="footer-col-legal">
+          <h3 id="footer-col-legal" class="footer-col-heading">LÉGAL</h3>
+          <ul class="footer-links">
+            <li><a href="/index.html#privacy">Confidentialité</a></li>
+            <li><a href="/index.html#terms">Conditions d'utilisation</a></li>
+            <li><a href="mailto:dmca@noveltrad.com">Signaler un contenu (DMCA)</a></li>
+          </ul>
+        </section>
+      </nav>
+
+      <!-- SOUTIEN AUX CRÉATEURS ORIGINAUX : LIGNE ÉPURÉE & DISCRÈTE -->
+      <div class="footer-creator-support-line">
+        <i class="fa-solid fa-heart" style="color: #f43f5e; font-size: 11px;"></i>
+        <span>NovelTrad est un projet bénévole francophone. Soutenez les créateurs en achetant les œuvres originales sur <a href="https://bookwalker.jp" target="_blank" rel="noopener noreferrer">BookWalker JP</a>, <a href="https://global.bookwalker.jp" target="_blank" rel="noopener noreferrer">BookWalker Global</a> ou auprès des <a href="https://www.ofelbe.com" target="_blank" rel="noopener noreferrer">éditeurs francophones</a>.</span>
       </div>
+
+      <!-- SUB-FOOTER : COPYRIGHT & ICÔNES SOCIALES -->
+      <div class="footer-subbar">
+        <span class="footer-copy">&copy; 2026 NovelTrad. Fait avec passion pour la communauté francophone.</span>
+        <div class="footer-social-icons">
+          <a href="https://discord.gg" target="_blank" rel="noopener noreferrer" aria-label="Discord" title="Discord"><i class="fa-brands fa-discord"></i></a>
+          <a href="#" aria-label="Twitter / X" title="Twitter / X"><i class="fa-brands fa-x-twitter"></i></a>
+          <a href="#" aria-label="GitHub" title="GitHub"><i class="fa-brands fa-github"></i></a>
+        </div>
+      </div>
+    </div>
+  </footer>
     </main>
 
 
-    <!-- FOOTER -->
-    <footer class="app-footer">
-      <p>NovelTrad PDF Service • Traitement éphémère sécurisé en mémoire sans conservation des fichiers</p>
-    </footer>
+  </div> <!-- END .app-container -->
 
+
+  <!-- ═════════════════════════════════════════════════════════════════════ -->
+  <!-- MODALES & OVERLAYS SYSTÈME -->
+  <!-- ═════════════════════════════════════════════════════════════════════ -->
+
+  <!-- SMART ADD OPTIONS MODAL (BIBLIOTHÈQUE) -->
+  <div class="modal-overlay hidden" id="smartAddModal">
+    <div class="modal modal-card" style="max-width: 480px; width: 92%;">
+      <div class="modal-header">
+        <h2 style="display: flex; align-items: center; gap: 8px;"><i class="fa-solid fa-cloud-arrow-up"></i> Ajouter des Livres</h2>
+        <button class="close-modal" id="closeSmartAddModal">&times;</button>
+      </div>
+      <div class="modal-body" style="display: flex; flex-direction: column; gap: 12px; padding: 16px 0;">
+        <button type="button" id="actionBrowseNative" class="smart-add-option-btn">
+          <div class="smart-add-icon"><i class="fa-solid fa-folder-tree"></i></div>
+          <div class="smart-add-text">
+            <strong>Connecter un dossier de mon PC</strong>
+            <span>Liaison instantanée sans copie (Lecture directe)</span>
+          </div>
+          <i class="fa-solid fa-chevron-right arrow-icon"></i>
+        </button>
+
+        <button type="button" id="actionPickFiles" class="smart-add-option-btn">
+          <div class="smart-add-icon"><i class="fa-solid fa-file-circle-plus"></i></div>
+          <div class="smart-add-text">
+            <strong>Sélectionner des fichiers EPUB / PDF</strong>
+            <span>Idéal pour ajouter quelques tomes spécifiques</span>
+          </div>
+          <i class="fa-solid fa-chevron-right arrow-icon"></i>
+        </button>
+
+        <button type="button" id="actionPickFolder" class="smart-add-option-btn">
+          <div class="smart-add-icon"><i class="fa-solid fa-folder-gear"></i></div>
+          <div class="smart-add-text">
+            <strong>Gérer mes dossiers liés</strong>
+            <span>Voir les dossiers connectés et synchroniser</span>
+          </div>
+          <i class="fa-solid fa-chevron-right arrow-icon"></i>
+        </button>
+      </div>
+    </div>
   </div>
 
-  <script src="js/app.js"></script>
+  <!-- FOLDERS MANAGEMENT MODAL (BIBLIOTHÈQUE) -->
+  <div class="modal-overlay hidden" id="foldersModal">
+    <div class="modal modal-card" style="max-width: 600px; width: 92%;">
+      <div class="modal-header">
+        <h2 style="display: flex; align-items: center; gap: 8px;"><i class="fa-solid fa-folder-tree"></i> Dossiers Connectés</h2>
+        <button class="close-modal" id="closeFoldersModal">&times;</button>
+      </div>
+      <div class="modal-body" style="padding: 16px 0; display: flex; flex-direction: column; gap: 14px;">
+        <!-- Explorateur Visuel Intégré (Zéro Copie) -->
+        <div class="fs-explorer-card" style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px; display: flex; flex-direction: column; gap: 10px;">
+          <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-size: 11px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em;"><i class="fa-solid fa-hard-drive"></i> Disques :</span>
+              <div id="fsDriveButtons" style="display: flex; gap: 6px; flex-wrap: wrap;"></div>
+            </div>
+            <button type="button" id="btnFsParentDir" class="btn btn-secondary btn-sm" style="font-size: 11px; padding: 4px 10px;">
+              <i class="fa-solid fa-arrow-turn-up"></i> Dossier parent
+            </button>
+          </div>
+
+          <!-- Grille des dossiers interactifs -->
+          <div id="fsFolderGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(135px, 1fr)); gap: 8px; max-height: 220px; min-height: 120px; overflow-y: auto; padding: 6px; background: rgba(0,0,0,0.2); border-radius: 6px; border: 1px solid rgba(255,255,255,0.06);">
+            <!-- Injecté dynamiquement par navigateFs() -->
+          </div>
+
+          <!-- Barre d'état & Détection de livres -->
+          <div style="display: flex; align-items: center; justify-content: space-between; font-size: 11px; color: var(--text-secondary); padding: 0 4px;">
+            <span id="fsFolderCountBadge"><i class="fa-regular fa-folder"></i> 0 sous-dossier(s)</span>
+            <span id="fsBookCountBadge" style="font-weight: 600;"><i class="fa-solid fa-book"></i> 0 livre détecté</span>
+          </div>
+        </div>
+
+        <div>
+          <label style="font-size: 11px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em;">Dossier sélectionné à connecter</label>
+          <div style="display: flex; gap: 8px; margin-top: 6px;">
+            <input type="text" id="inputFolderPath" class="form-control" placeholder="Cliquez sur un dossier ci-dessus ou collez son chemin" style="flex: 1;">
+            <button type="button" id="btnAddFolderPath" class="btn btn-primary btn-md" style="white-space: nowrap;">
+              <i class="fa-solid fa-link"></i> Lier ce dossier
+            </button>
+          </div>
+          <p id="folderAddFeedback" class="hidden" style="font-size: 12px; margin-top: 8px;"></p>
+        </div>
+
+        <!-- Liste des dossiers connectés -->
+        <div>
+          <label style="font-size: 11px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em;">Dossiers connectés (<span id="foldersCount">0</span>)</label>
+          <div id="linkedFoldersList" class="linked-folders-list" style="margin-top: 10px; display: flex; flex-direction: column; gap: 10px;">
+            <!-- Injecté dynamiquement par library_logic.js -->
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer" style="display: flex; justify-content: flex-end; padding-top: 16px; border-top: 1px solid var(--border-color);">
+        <button type="button" class="btn btn-secondary" id="btnDoneFoldersModal">Fermer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- READER OVERLAY (PDF & EPUB) -->
+  <!-- READER OVERLAY (PDF & EPUB UNIFIED) -->
+  <div id="readerOverlay" class="premium-reader-overlay" style="display: none;">
+    <header class="premium-reader-toolbar">
+      <div class="toolbar-left">
+        <button id="closeReaderBtn" class="toolbar-btn" title="Fermer">
+          <i class="fa-solid fa-arrow-left"></i>
+        </button>
+        <button id="toggleSidebarBtn" class="toolbar-btn" title="Sommaire">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+        <div class="toolbar-title" id="readerTitle"></div>
+      </div>
+      <div class="toolbar-center">
+        <button id="readerPrevBtn" class="toolbar-btn nav-arrow" title="Précédent (←)"><i class="fa-solid fa-chevron-left"></i></button>
+        <div class="reader-progress-indicator">
+          <span id="readerProgressText">-- / --</span>
+        </div>
+        <button id="readerNextBtn" class="toolbar-btn nav-arrow" title="Suivant (→)"><i class="fa-solid fa-chevron-right"></i></button>
+      </div>
+      <div class="toolbar-right">
+        <button id="readerDownloadBtn" class="toolbar-btn" title="Télécharger le volume" aria-label="Télécharger">
+          <i class="fa-solid fa-download"></i>
+        </button>
+        <div class="dropdown-container">
+          <button id="readerSettingsToggle" class="toolbar-btn" title="Apparence (Aa)">Aa</button>
+          <div id="readerSettingsMenu" class="premium-popover hidden">
+            <div class="popover-header">APPARENCE</div>
+            
+            <div class="popover-row" id="popoverPdfModeSwitchRow" style="display:none;">
+              <label>Lecture</label>
+              <button id="btnTogglePdfMode" class="btn-popover-action" onclick="window.togglePdfRawMode && window.togglePdfRawMode()" title="Changer le mode de rendu">
+                <i id="iconTogglePdfMode" class="fa-solid fa-arrows-rotate" style="color:var(--primary, #e11d48);"></i> <span id="textTogglePdfMode">Mode Roman Fluide</span>
+              </button>
+            </div>
+            
+            <div class="popover-row" id="popoverPdfIllustrationsRow" style="display:none;">
+              <label>Galerie</label>
+              <button id="btnMenuPdfGallery" class="btn-popover-action" title="Voir les illustrations du volume">
+                <i class="fa-solid fa-images" style="color:#e11d48;"></i> Illustrations du LN
+              </button>
+            </div>
+
+            <div class="popover-row" id="popoverPdfFitRow" style="display:none;">
+              <label>Cadrage</label>
+              <div class="segmented-control">
+                <button id="btnPdfFitWidth" class="active" title="Ajuster à la largeur"><i class="fa-solid fa-arrows-left-right"></i> Largeur</button>
+                <button id="btnPdfFitPage" title="Afficher la page entière"><i class="fa-solid fa-arrows-up-down"></i> Entière</button>
+              </div>
+            </div>
+
+            <div class="popover-row" id="popoverPdfSpreadRow" style="display:none;">
+              <label>Pages</label>
+              <div class="segmented-control">
+                <button id="btnPdfSpreadAuto" class="active" title="Auto (Double sur PC, simple sur mobile)"><i class="fa-solid fa-arrows-split-up-and-left"></i> Auto</button>
+                <button id="btnPdfSpreadSingle" title="Page simple"><i class="fa-solid fa-file"></i> 1 Page</button>
+                <button id="btnPdfSpreadDouble" title="Double page"><i class="fa-solid fa-book-open"></i> 2 Pages</button>
+              </div>
+            </div>
+
+            <div class="popover-row" id="popoverFontRow">
+              <label>Taille</label>
+              <div class="segmented-control">
+                <button id="btnTextMinus">A-</button>
+                <span id="textPercent">100%</span>
+                <button id="btnTextPlus">A+</button>
+              </div>
+            </div>
+
+            <div class="popover-row" id="popoverMarginRow">
+              <label>Marges</label>
+              <div class="segmented-control">
+                <button class="margin-btn" data-margin="0%">-</button>
+                <button class="margin-btn active" data-margin="5%">O</button>
+                <button class="margin-btn" data-margin="15%">+</button>
+              </div>
+            </div>
+
+            <div class="popover-row">
+              <label>Thème</label>
+              <div class="theme-control">
+                <button class="theme-btn" data-theme="light" style="background:#fff; color:#000;">Clair</button>
+                <button class="theme-btn" data-theme="sepia" style="background:#f4ecd8; color:#5b4636;">Sépia</button>
+                <button class="theme-btn active" data-theme="dark" style="background:#111; color:#eee;">Sombre</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <button id="readerFullscreenBtn" class="toolbar-btn" title="Plein Écran (F)">
+          <i class="fa-solid fa-expand"></i>
+        </button>
+      </div>
+    </header>
+    
+    <!-- Light Novel Illustrations Gallery Drawer -->
+    <div id="pdfGalleryBackdrop" class="pdf-gallery-backdrop"></div>
+    <aside id="pdfGalleryDrawer" class="pdf-gallery-drawer" aria-label="Galerie d'illustrations">
+      <div class="pdf-gallery-header">
+        <h3><i class="fa-solid fa-images" style="color:#e11d48;"></i> Illustrations du Volume</h3>
+        <button id="pdfGalleryCloseBtn" class="pdf-gallery-close-btn" aria-label="Fermer"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div id="pdfGalleryBody" class="pdf-gallery-body">
+        <div style="grid-column: 1 / -1; padding: 24px; text-align: center; color: #94a3b8; font-size: 13px;">
+          <i class="fa-solid fa-spinner fa-spin" style="margin-right: 6px;"></i> Recherche des illustrations...
+        </div>
+      </div>
+    </aside>
+
+    <div id="readerSearchOverlay" class="reader-search-bar hidden">
+      <input type="search" name="search_reader" id="readerSearchInput" placeholder="Rechercher dans le livre..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" role="searchbox" aria-autocomplete="none" data-form-type="other" data-lpignore="true" data-1p-ignore="true" data-bwignore="true" />
+      <span id="readerSearchCount" class="search-count"></span>
+      <button id="readerSearchPrev" class="toolbar-btn"><i class="fa-solid fa-arrow-up"></i></button>
+      <button id="readerSearchNext" class="toolbar-btn"><i class="fa-solid fa-arrow-down"></i></button>
+      <button id="readerSearchClose" class="toolbar-btn"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+
+    <div class="premium-reader-body">
+      <aside class="premium-reader-sidebar hidden" id="readerSidebar">
+        <div class="sidebar-header"><h3>CONTENU</h3></div>
+        <ul id="readerTocList" class="premium-toc-list"></ul>
+      </aside>
+      <main class="premium-reader-main" id="readerMainContainer">
+        <div class="premium-reader-page" id="readerPage">
+          <div id="readerViewer" class="epub-viewer-container"></div>
+        </div>
+      </main>
+    </div>
+      <!-- Floating Ambient Audio Widget -->
+    <div id="readerAudioFloatingWidget" class="reader-audio-fab-container">
+      <button id="readerAudioToggle" class="reader-audio-fab-btn" title="Ambiance sonore" aria-label="Ambiance sonore">
+        <i class="fa-solid fa-headphones"></i>
+      </button>
+
+      <div id="readerAudioMenu" class="premium-popover audio-fab-popover hidden">
+        <div class="popover-header" style="display:flex; justify-content:space-between; align-items:center;">
+          <span>AMBIANCE SONORE</span>
+          <span id="readerAudioStatus" style="font-size:10px; font-weight:600; text-transform:uppercase; color:var(--text-secondary);">Désactivé</span>
+        </div>
+        <div class="popover-row">
+          <button id="readerAudioPlayBtn" class="reader-audio-master-btn">
+            <i class="fa-solid fa-play"></i> <span id="readerAudioPlayText">Lancer la mélodie</span>
+          </button>
+        </div>
+        <div class="popover-row">
+          <label style="font-size:11px; text-transform:uppercase; color:var(--text-muted); font-weight:700; letter-spacing:0.04em;">Musiques Anime</label>
+          <div class="reader-audio-grid">
+            <button class="audio-preset-btn active" data-preset="piano_nostalgia">
+              <span class="preset-icon">🎹</span>
+              <span class="preset-name">Piano Nostalgie</span>
+            </button>
+            <button class="audio-preset-btn" data-preset="tokyo_lofi">
+              <span class="preset-icon">☕</span>
+              <span class="preset-name">Tokyo Lofi Chill</span>
+            </button>
+            <button class="audio-preset-btn" data-preset="zen_japan" style="grid-column: span 2;">
+              <span class="preset-icon">🌸</span>
+              <span class="preset-name">Koto & Zen Japonais</span>
+            </button>
+          </div>
+        </div>
+        <div class="popover-row">
+          <label style="font-size:11px; text-transform:uppercase; color:var(--text-muted); font-weight:700; letter-spacing:0.04em;">Atmosphères Nature</label>
+          <div class="reader-audio-grid">
+            <button class="audio-preset-btn" data-preset="rain">
+              <span class="preset-icon">🌧️</span>
+              <span class="preset-name">Pluie douce</span>
+            </button>
+            <button class="audio-preset-btn" data-preset="campfire">
+              <span class="preset-icon">🪵</span>
+              <span class="preset-name">Feu de bois</span>
+            </button>
+          </div>
+        </div>
+        <div class="popover-row">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <label for="readerAudioVolume">Volume</label>
+            <span id="readerAudioVolumeVal" style="font-size:12px; color:var(--text-secondary);">30%</span>
+          </div>
+          <input type="range" id="readerAudioVolume" min="0" max="100" value="30" class="reader-audio-slider">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AUTH MODAL -->
+  <div class="modal-overlay hidden" id="authModal">
+    <div class="modal modal-card auth-modal-card">
+      <div class="modal-header auth-modal-header">
+        <div class="auth-header-logo">
+          <div class="logo-icon"><i class="fa-solid fa-language"></i></div>
+          <span>Novel<strong>Trad</strong></span>
+        </div>
+        <button class="close-modal" id="closeAuthModal">&times;</button>
+      </div>
+
+      <div class="auth-tabs">
+        <button class="auth-tab-btn active" id="authTabLogin">Connexion</button>
+        <button class="auth-tab-btn" id="authTabRegister">Inscription</button>
+      </div>
+
+      <div id="authFeedback" class="auth-feedback hidden"></div>
+
+      <form id="authLoginForm" class="auth-form">
+        <div class="auth-input-group">
+          <label for="loginEmail"><i class="fa-solid fa-envelope"></i> Email</label>
+          <input type="email" id="loginEmail" placeholder="votre@email.com" required autocomplete="email">
+        </div>
+        <div class="auth-input-group">
+          <label for="loginPassword"><i class="fa-solid fa-lock"></i> Mot de passe</label>
+          <input type="password" id="loginPassword" placeholder="••••••••" required autocomplete="current-password">
+        </div>
+        <button type="submit" id="btnLoginSubmit" class="btn btn-primary btn-lg auth-submit-btn">
+          <i class="fa-solid fa-right-to-bracket"></i> Se connecter
+        </button>
+        <p class="auth-switch-text">
+          Pas encore de compte ? <a href="#" id="switchRegisterLink">Créer un compte</a>
+        </p>
+      </form>
+
+      <form id="authRegisterForm" class="auth-form hidden">
+        <div class="auth-input-group">
+          <label for="regEmail"><i class="fa-solid fa-envelope"></i> Email</label>
+          <input type="email" id="regEmail" placeholder="votre@email.com" required autocomplete="email">
+        </div>
+        <div class="auth-input-group">
+          <label for="regPassword"><i class="fa-solid fa-lock"></i> Mot de passe</label>
+          <input type="password" id="regPassword" placeholder="Au moins 6 caractères" minlength="6" required autocomplete="new-password">
+        </div>
+        <div class="auth-input-group">
+          <label for="regConfirmPassword"><i class="fa-solid fa-shield-halved"></i> Confirmer le mot de passe</label>
+          <input type="password" id="regConfirmPassword" placeholder="Répétez le mot de passe" minlength="6" required autocomplete="new-password">
+        </div>
+        <button type="submit" id="btnRegisterSubmit" class="btn btn-primary btn-lg auth-submit-btn">
+          <i class="fa-solid fa-user-plus"></i> Créer mon compte
+        </button>
+        <p class="auth-switch-text">
+          Déjà un compte ? <a href="#" id="switchLoginLink">Se connecter</a>
+        </p>
+      </form>
+    </div>
+  </div>
+
+  <!-- SIMULATION MODAL -->
+  <div class="modal-overlay hidden" id="simulationModal">
+    <div class="modal modal-card">
+      <div class="modal-header" style="border: none; padding: 0 0 16px 0;">
+        <h2>Simulation & Estimation</h2>
+      </div>
+      <div id="simulationBody" style="font-size: 14px; color: var(--text-secondary); margin-bottom: 24px;"></div>
+      <div style="display: flex; gap: 12px; justify-content: flex-end;">
+        <button id="cancelSimBtn" class="btn btn-secondary">Annuler</button>
+        <button id="confirmSimBtn" class="btn btn-primary">Confirmer & Traduire</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- HISTORY MODAL -->
+  <div class="modal-overlay hidden" id="historyModal">
+    <div class="modal history-modal-card">
+      <div class="modal-header">
+        <h2>Traductions en attente</h2>
+        <button class="close-modal" id="closeHistoryModal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div id="historyList" style="display:flex; flex-direction:column; gap:12px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODALE : SOUMETTRE AU CATALOGUE PUBLIC -->
+  <div id="submitToCatalogModal" class="modal-overlay hidden">
+    <div class="modal-content submit-catalog-modal">
+      <button class="close-modal" id="submitCatalogCloseBtn" aria-label="Fermer">&times;</button>
+      <div class="modal-header">
+        <div class="modal-icon-badge"><i class="fa-solid fa-cloud-arrow-up"></i></div>
+        <div>
+          <h2>Partager avec la communauté</h2>
+          <p class="modal-subtitle">Proposez ce roman de votre bibliothèque pour publication dans le catalogue NovelTrad.</p>
+        </div>
+      </div>
+      
+      <form id="submitCatalogForm" class="submit-catalog-form">
+        <div class="submit-novel-preview-card">
+          <img id="submitModalCover" src="" alt="Cover" class="submit-preview-cover">
+          <div class="submit-preview-info">
+            <h3 id="submitModalTitle">Titre du Roman</h3>
+            <p id="submitModalAuthor"><i class="fa-solid fa-pen-nib"></i> Auteur</p>
+            <p id="submitModalVolCount"><i class="fa-solid fa-book"></i> <span>0 volume(s)</span></p>
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-top: 16px;">
+          <label class="form-label"><i class="fa-solid fa-list-check"></i> Tomes à inclure dans la proposition</label>
+          <div id="submitVolumesChecklist" class="submit-volumes-checklist"></div>
+        </div>
+
+        <div class="form-group">
+          <label for="submitReviewNotes" class="form-label"><i class="fa-solid fa-message"></i> Notes pour l'équipe de modération (optionnel)</label>
+          <textarea id="submitReviewNotes" class="auth-input" rows="3" placeholder="Ex: Traduction française intégrale faite par mes soins..."></textarea>
+        </div>
+
+        <div class="submit-info-box">
+          <i class="fa-solid fa-circle-info"></i>
+          <p>Votre proposition sera examinée par un modérateur. Dès approbation, elle sera accessible publiquement à tous les lecteurs de NovelTrad.</p>
+        </div>
+
+        <div id="submitCatalogError" class="auth-error-msg hidden"></div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn-cancel" id="btnCancelSubmitCatalog">Annuler</button>
+          <button type="submit" class="btn-primary" id="btnConfirmSubmitCatalog">
+            <i class="fa-solid fa-paper-plane"></i> <span>Envoyer pour validation</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+
+  
+  <!-- ==================================================================== -->
+  <!-- MODAL: PROGRAMMER / MODIFIER UNE PARUTION (ADMIN) -->
+  <!-- ==================================================================== -->
+  <div class="modal-overlay hidden" id="addScheduleModal">
+    <div class="modal modal-card admin-ed-modal-content" style="max-width: 600px; width: 92%;">
+      <div class="modal-header">
+        <div class="modal-icon-badge" style="background: rgba(225, 29, 72, 0.15); color: #e11d48;">
+          <i class="fa-solid fa-calendar-plus"></i>
+        </div>
+        <div style="flex:1;">
+          <h3 id="schedModalHeaderTitle" style="margin:0; font-size:18px; color:#fff;">Programmer une nouvelle parution</h3>
+          <p class="modal-subtitle" style="margin:4px 0 0 0; font-size:13px; color:#94a3b8;">Ajoutez ou modifiez une sortie officielle dans le calendrier public.</p>
+        </div>
+        <button type="button" class="modal-close-btn" id="schedModalCloseBtn" aria-label="Fermer">&times;</button>
+      </div>
+
+      <form id="addScheduleForm" style="display:flex; flex-direction:column; gap:16px; padding:20px 0 0 0;">
+        <input type="hidden" id="schedEditId" value="">
+
+        <!-- Auto-remplissage depuis le catalogue -->
+        <div class="form-group">
+          <label for="schedSeriesSelect" class="form-label">
+            <i class="fa-solid fa-wand-magic-sparkles" style="color:#e11d48;"></i> Choisir une œuvre du catalogue (auto-remplissage)
+          </label>
+          <select id="schedSeriesSelect" class="auth-input">
+            <option value="">-- Sélectionner une œuvre existante ou saisie libre --</option>
+          </select>
+          <span style="font-size:11.5px; color:#64748b; margin-top:4px; display:block;">Sélectionnez une œuvre pour pré-remplir le titre, la couverture et le format automatiquement.</span>
+        </div>
+
+        <!-- Titre de l'œuvre -->
+        <div class="form-group">
+          <label for="schedSeriesTitle" class="form-label">
+            <i class="fa-solid fa-heading"></i> Titre de l'œuvre *
+          </label>
+          <input type="text" id="schedSeriesTitle" class="auth-input" placeholder="Ex: Mushoku Tensei: Jobless Reincarnation" required>
+        </div>
+
+        <!-- Tome / Chapitre et Format -->
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:14px;">
+          <div class="form-group">
+            <label for="schedVolumeOrChapter" class="form-label">
+              <i class="fa-solid fa-bookmark"></i> Tome / Volume / Chapitre
+            </label>
+            <input type="text" id="schedVolumeOrChapter" class="auth-input" placeholder="Ex: Volume 16 ou Tome 3">
+          </div>
+          <div class="form-group">
+            <label for="schedType" class="form-label">
+              <i class="fa-solid fa-layer-group"></i> Format
+            </label>
+            <select id="schedType" class="auth-input">
+              <option value="light_novel">Light Novel</option>
+              <option value="web_novel">Webnovel</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Date de sortie & Heure -->
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:14px;">
+          <div class="form-group">
+            <label for="schedInputDate" class="form-label">
+              <i class="fa-solid fa-calendar-day"></i> Date officielle de parution *
+            </label>
+            <input type="date" id="schedInputDate" class="auth-input" required>
+          </div>
+          <div class="form-group">
+            <label for="schedInputTime" class="form-label">
+              <i class="fa-solid fa-clock"></i> Heure de sortie
+            </label>
+            <input type="time" id="schedInputTime" class="auth-input" value="18:00">
+          </div>
+        </div>
+
+        <!-- Équipe & Statut -->
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:14px;">
+          <div class="form-group">
+            <label for="schedTeam" class="form-label">
+              <i class="fa-solid fa-users"></i> Équipe de traduction
+            </label>
+            <input type="text" id="schedTeam" class="auth-input" placeholder="Ex: Team NovelTrad">
+          </div>
+          <div class="form-group">
+            <label for="schedStatus" class="form-label">
+              <i class="fa-solid fa-toggle-on"></i> Statut de départ
+            </label>
+            <select id="schedStatus" class="auth-input">
+              <option value="upcoming">⏳ À paraître</option>
+              <option value="released">✅ Déjà disponible</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Image de couverture avec prévisualisation 2:3 -->
+        <div class="form-group">
+          <label for="schedCoverUrl" class="form-label">
+            <i class="fa-solid fa-image"></i> Affiche / Couverture (URL)
+          </label>
+          <div style="display:flex; gap:14px; align-items:center;">
+            <input type="url" id="schedCoverUrl" class="auth-input" placeholder="https://..." style="flex:1;">
+            <div class="admin-ed-cover-preview-box" id="schedCoverPreviewContainer" title="Aperçu du format 2:3">
+              <img id="schedCoverPreviewImg" class="hidden" src="" alt="Aperçu">
+              <i id="schedCoverPreviewPlaceholder" class="fa-regular fa-image"></i>
+            </div>
+          </div>
+        </div>
+
+        <div id="schedFormError" class="auth-error-msg hidden"></div>
+
+        <div class="modal-actions" style="margin-top: 10px; display:flex; justify-content:flex-end; gap:12px;">
+          <button type="button" class="btn-cancel" id="btnCancelSchedModal">Annuler</button>
+          <button type="submit" class="btn-primary" id="btnSubmitSchedModal">
+            <i class="fa-solid fa-check"></i> <span id="schedSubmitBtnText">Enregistrer la parution</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================================================================== -->
+  <!-- MODAL: RÉDIGER UNE ACTUALITÉ / ANNONCE (ADMIN) -->
+  <!-- ==================================================================== -->
+  <div class="modal-overlay hidden" id="adminAddNewsModal">
+    <div class="modal modal-card admin-ed-modal-content" style="max-width: 600px; width: 92%;">
+      <div class="modal-header">
+        <div class="modal-icon-badge" style="background: rgba(244, 63, 94, 0.15); color: #f43f5e;">
+          <i class="fa-solid fa-newspaper"></i>
+        </div>
+        <div style="flex:1;">
+          <h3 style="margin:0; font-size:18px; color:#fff;">Rédiger une actualité ou annonce</h3>
+          <p class="modal-subtitle" style="margin:4px 0 0 0; font-size:13px; color:#94a3b8;">Diffusez une information officielle auprès des lecteurs et contributeurs.</p>
+        </div>
+        <button type="button" class="modal-close-btn" id="adminAddNewsCloseBtn" aria-label="Fermer">&times;</button>
+      </div>
+
+      <form id="adminAddNewsForm" style="display:flex; flex-direction:column; gap:16px; padding:20px 0 0 0;">
+        <!-- Titre -->
+        <div class="form-group">
+          <label for="adminModalNewsTitle" class="form-label">
+            <i class="fa-solid fa-heading"></i> Titre de l'article *
+          </label>
+          <input type="text" id="adminModalNewsTitle" class="auth-input" placeholder="Ex: Lancement des parutions de l'automne 2026..." required>
+        </div>
+
+        <!-- Catégorie et Série liée -->
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:14px;">
+          <div class="form-group">
+            <label for="adminModalNewsCategory" class="form-label">
+              <i class="fa-solid fa-tag"></i> Catégorie *
+            </label>
+            <select id="adminModalNewsCategory" class="auth-input">
+              <option value="Annonce">Annonce</option>
+              <option value="Sortie">Sortie</option>
+              <option value="Nouveauté">Nouveauté</option>
+              <option value="Maintenance">Maintenance</option>
+              <option value="Partenariat">Partenariat</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="adminModalNewsSeriesSelect" class="form-label">
+              <i class="fa-solid fa-book"></i> Série associée (optionnel)
+            </label>
+            <select id="adminModalNewsSeriesSelect" class="auth-input">
+              <option value="">Aucune</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Bannière image avec prévisualisation -->
+        <div class="form-group">
+          <label for="adminModalNewsImage" class="form-label">
+            <i class="fa-solid fa-image"></i> Bannière d'illustration (URL optionnelle)
+          </label>
+          <div style="display:flex; gap:14px; align-items:center;">
+            <input type="url" id="adminModalNewsImage" class="auth-input" placeholder="https://..." style="flex:1;">
+            <div class="admin-ed-banner-preview-box" title="Aperçu bannière">
+              <img id="newsImagePreviewImg" class="hidden" src="" alt="Aperçu">
+              <i id="newsImagePreviewPlaceholder" class="fa-regular fa-image"></i>
+            </div>
+          </div>
+        </div>
+
+        <!-- Chapeau / Résumé court -->
+        <div class="form-group">
+          <label for="adminModalNewsExcerpt" class="form-label">
+            <i class="fa-solid fa-quote-left"></i> Chapeau / Résumé court
+          </label>
+          <input type="text" id="adminModalNewsExcerpt" class="auth-input" placeholder="Bref aperçu affiché sur la carte d'actualité...">
+        </div>
+
+        <!-- Contenu complet -->
+        <div class="form-group">
+          <label for="adminModalNewsContent" class="form-label">
+            <i class="fa-solid fa-align-left"></i> Contenu de l'actualité *
+          </label>
+          <textarea id="adminModalNewsContent" class="auth-input" rows="5" placeholder="Rédigez ici le texte complet du communiqué..." required></textarea>
+        </div>
+
+        <!-- Épinglé -->
+        <div class="form-group" style="margin-top:-4px;">
+          <label style="display:inline-flex; align-items:center; gap:10px; cursor:pointer; color:#e2e8f0; font-size:13.5px;">
+            <input type="checkbox" id="adminModalNewsPinned" style="width:16px; height:16px; accent-color:#e11d48; cursor:pointer;">
+            <span><i class="fa-solid fa-thumbtack" style="color:#fbbf24;"></i> Épingler cet article en tête</span>
+          </label>
+        </div>
+
+        <div class="modal-actions" style="margin-top: 10px; display:flex; justify-content:flex-end; gap:12px;">
+          <button type="button" class="btn-cancel" id="btnCancelNewsModal">Annuler</button>
+          <button type="submit" class="btn-primary" id="btnSubmitNewsModal">
+            <i class="fa-solid fa-paper-plane"></i> <span>Publier l'actualité</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+
+  <!-- ═════════════════════════════════════════════════════════════════════ -->
+  <!-- SCRIPTS & LIBRAIRIES NOVELTRAD -->
+  <!-- ═════════════════════════════════════════════════════════════════════ -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+  <script src="js/jszip.min.js?v=1789351336060"></script>
+  <script src="js/epub.min.js?v=1789351336060"></script>
+  <script src="js/api-client.js?v=1789351336060"></script>
+  <script src="js/library_db.js?v=1789351336060"></script>
+  <script src="js/supabase_auth.js?v=1790960543692"></script>
+  <script src="js/sync_engine.js?v=1790725844546"></script>
+  <script src="js/library_logic.js?v=1790725844546"></script>
+  <script src="js/reader_audio.js"></script>
+  <script src="js/inline_comments.js?v=1790962117112"></script>
+  <script src="js/quote_card_generator.js?v=1790962388662"></script>
+  <script src="js/pdf_reader.js?v=1790900961187"></script>
+  <script src="js/webnovel_reader.js?v=1789752407265"></script>
+  <script src="js/home_lnori_logic.js?v=1790725844546"></script>
+  <script src="js/catalog_logic.js?v=1790725844546"></script>
+  <script src="js/editorial_logic.js?v=1790771297989"></script>
+  <script src="js/series_logic.js?v=1790898934336"></script>
+  <script src="js/contributor_logic.js?v=1790266838034"></script>
+  <script src="js/admin_logic.js?v=1790772173968"></script>
+  <script src="js/pwa_manager.js?v=1790841520734"></script>
+  <script src="js/app.js?v=1790769743386"></script>
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').catch(function(err) {
+        console.log('[SW] Registration failed:', err);
+      });
+    }
+  </script>
+
+  <!-- IN-LINE PARAGRAPH COMMENTS DRAWER (PHASE 2) -->
+  <div id="paraCommentsBackdrop" class="para-comments-backdrop hidden"></div>
+  <aside id="paraCommentsDrawer" class="para-comments-drawer hidden" aria-label="Commentaires par paragraphe">
+    <div class="para-comments-header">
+      <div class="para-comments-header-title">
+        <i class="fa-solid fa-comments" style="color: #fb7185;"></i>
+        <span>Commentaires du passage</span>
+      </div>
+      <button id="paraCommentsCloseBtn" class="para-comments-close-btn" aria-label="Fermer">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+    
+    <!-- Citation / Extrait du paragraphe -->
+    <div class="para-quote-box">
+      <i class="fa-solid fa-quote-left quote-mark"></i>
+      <p id="paraQuoteText">...</p>
+      <button type="button" id="btnQuoteToCard" class="btn-para-quote-share" title="Générer une carte visuelle à partager"><i class="fa-solid fa-camera"></i> Créer une Carte</button>
+    </div>
+
+    <!-- Liste des commentaires -->
+    <div id="paraCommentsList" class="para-comments-list">
+      <!-- Rempli dynamiquement -->
+    </div>
+
+    <!-- Formulaire d'ajout de commentaire -->
+    <div class="para-comment-form-container">
+      <div class="comment-author-badge" id="commentAuthorBadge">
+        <div class="comment-author-avatar" id="commentAuthorAvatar"><i class="fa-solid fa-user"></i></div>
+        <span class="comment-author-name" id="commentAuthorName">Lecteur</span>
+      </div>
+      <textarea id="paraCommentInput" placeholder="Réagir à cette phrase ou partager une théorie..." rows="3" maxlength="1000"></textarea>
+      <div class="comment-form-footer">
+        <label class="spoiler-toggle-label">
+          <input type="checkbox" id="paraCommentSpoilerCheck">
+          <span><i class="fa-solid fa-triangle-exclamation"></i> Spoiler</span>
+        </label>
+        <button type="button" id="btnSubmitParaComment" class="btn btn-primary btn-sm">
+          <i class="fa-solid fa-paper-plane"></i> Publier
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  
+  <!-- QUOTE CARD GENERATOR MODAL (PHASE 3) -->
+  <div id="quoteCardModal" class="quote-card-modal-overlay hidden">
+    <div id="quoteCardBackdrop" class="quote-card-backdrop"></div>
+    <div class="quote-card-modal-container">
+      
+      <div class="quote-modal-header">
+        <div class="quote-modal-title">
+          <i class="fa-solid fa-wand-magic-sparkles" style="color: #fb7185;"></i>
+          <span>Générateur de Citations Graphiques</span>
+        </div>
+        <button id="quoteCardCloseBtn" class="quote-modal-close-btn" aria-label="Fermer"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div class="quote-modal-body">
+        
+        <!-- VISUAL CANVAS PREVIEW -->
+        <div class="quote-preview-column">
+          <div class="canvas-aspect-wrapper">
+            <canvas id="quoteCardCanvas" width="1080" height="1080"></canvas>
+          </div>
+        </div>
+
+        <!-- CONTROLS COLUMN -->
+        <div class="quote-controls-column">
+          
+          <!-- Format / Ratio Switcher -->
+          <div class="control-group">
+            <label class="control-label"><i class="fa-solid fa-crop-simple"></i> Format d'export</label>
+            <div class="aspect-ratio-selector">
+              <button type="button" class="aspect-ratio-btn active" data-ratio="1:1">
+                <i class="fa-regular fa-square"></i> Carré (1:1)
+              </button>
+              <button type="button" class="aspect-ratio-btn" data-ratio="9:16">
+                <i class="fa-solid fa-mobile-screen"></i> Story (9:16)
+              </button>
+              <button type="button" class="aspect-ratio-btn" data-ratio="16:9">
+                <i class="fa-solid fa-display"></i> Paysage (16:9)
+              </button>
+            </div>
+          </div>
+
+          <!-- Theme / Style Switcher -->
+          <div class="control-group">
+            <label class="control-label"><i class="fa-solid fa-palette"></i> Style & Ambiance</label>
+            <div class="quote-theme-selector">
+              <button type="button" class="quote-theme-btn active" data-theme="neon">
+                <span class="theme-dot neon-dot"></span> Néon Obscur
+              </button>
+              <button type="button" class="quote-theme-btn" data-theme="sepia">
+                <span class="theme-dot sepia-dot"></span> Papier Roman
+              </button>
+              <button type="button" class="quote-theme-btn" data-theme="cyberpunk">
+                <span class="theme-dot cyber-dot"></span> Cyberpunk
+              </button>
+              <button type="button" class="quote-theme-btn" data-theme="cinematic">
+                <span class="theme-dot cinema-dot"></span> Cinématique
+              </button>
+            </div>
+          </div>
+
+          <!-- Quote Text Editor -->
+          <div class="control-group">
+            <div class="control-header-row">
+              <label class="control-label" for="quoteCardTextInput"><i class="fa-solid fa-quote-left"></i> Texte de la citation</label>
+              <div class="quote-font-size-adjuster">
+                <button type="button" id="btnQuoteFontMinus" title="Diminuer la police">A-</button>
+                <button type="button" id="btnQuoteFontPlus" title="Augmenter la police">A+</button>
+              </div>
+            </div>
+            <textarea id="quoteCardTextInput" rows="4" placeholder="Saisissez ou modifiez la citation..."></textarea>
+          </div>
+
+          <!-- Toggles -->
+          <div class="control-group-toggles">
+            <label class="toggle-checkbox">
+              <input type="checkbox" id="quoteCardCheckCover" checked>
+              <span>Afficher la couverture du roman</span>
+            </label>
+            <label class="toggle-checkbox">
+              <input type="checkbox" id="quoteCardCheckWatermark" checked>
+              <span>Filigrane NovelTrad officiel</span>
+            </label>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="quote-modal-actions">
+            <button type="button" id="btnCopyQuoteCard" class="btn btn-secondary">
+              <i class="fa-regular fa-copy"></i> Copier l'image
+            </button>
+            <button type="button" id="btnDownloadQuoteCard" class="btn btn-primary">
+              <i class="fa-solid fa-download"></i> Télécharger HD
+            </button>
+            <button type="button" id="btnShareQuoteCard" class="btn btn-primary hidden">
+              <i class="fa-solid fa-share-nodes"></i> Partager
+            </button>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
 </body>
 </html>

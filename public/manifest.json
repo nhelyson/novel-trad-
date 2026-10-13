@@ -1,0 +1,123 @@
+{
+  "name": "NovelTrad - Light Novels & Traductions",
+  "short_name": "NovelTrad",
+  "description": "Découvrez, lisez et traduisez vos Light Novels en français avec une expérience immersive hors-ligne.",
+  "start_url": "/index.html?source=pwa",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#080a12",
+  "theme_color": "#e11d48",
+  "lang": "fr-FR",
+  "categories": [
+    "books",
+    "entertainment",
+    "lifestyle",
+    "utilities"
+  ],
+  "icons": [
+    {
+      "src": "/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-maskable-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Continuer la lecture",
+      "short_name": "Reprendre",
+      "description": "Reprendre directement vos lectures en cours",
+      "url": "/index.html#continue",
+      "icons": [
+        {
+          "src": "/icons/icon-192x192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Ma Bibliothèque",
+      "short_name": "Bibliothèque",
+      "description": "Accéder à vos séries et tomes enregistrés hors-ligne",
+      "url": "/index.html#library",
+      "icons": [
+        {
+          "src": "/icons/icon-192x192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Catalogue des Romans",
+      "short_name": "Catalogue",
+      "description": "Explorer toutes les œuvres et parutions",
+      "url": "/index.html#catalog",
+      "icons": [
+        {
+          "src": "/icons/icon-192x192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Calendrier des Sorties",
+      "short_name": "Calendrier",
+      "description": "Consulter les prochaines sorties officielles",
+      "url": "/index.html#planning",
+      "icons": [
+        {
+          "src": "/icons/icon-192x192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    }
+  ],
+  "id": "/index.html",
+  "screenshots": [
+    {
+      "src": "/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "NovelTrad Mobile"
+    },
+    {
+      "src": "/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "NovelTrad Desktop"
+    }
+  ],
+  "related_applications": [
+    {
+      "platform": "webapp",
+      "url": "/manifest.json",
+      "id": "/index.html"
+    }
+  ],
+  "prefer_related_applications": false
+}

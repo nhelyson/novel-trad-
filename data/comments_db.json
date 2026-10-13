@@ -1,0 +1,153 @@
+{
+  "comments": [
+    {
+      "id": "cmt_1790961795039_22bwo",
+      "book_key": "test_integration_novel",
+      "paragraph_id": "c1_p5",
+      "user_id": "guest_3a31",
+      "user_name": "TesteurLnori",
+      "user_avatar": "",
+      "user_role": "GUEST",
+      "content": "Cette réplique est vraiment mémorable !",
+      "is_spoiler": true,
+      "likes": 0,
+      "liked_by": [],
+      "created_at": "2026-10-02T17:23:15.039Z"
+    },
+    {
+      "id": "cmt_1790962031813_icxwo",
+      "book_key": "test_integration_novel",
+      "paragraph_id": "c1_p5",
+      "user_id": "guest_3a31",
+      "user_name": "TesteurLnori",
+      "user_avatar": "",
+      "user_role": "GUEST",
+      "content": "Cette réplique est vraiment mémorable !",
+      "is_spoiler": true,
+      "likes": 1,
+      "liked_by": [
+        "::1"
+      ],
+      "created_at": "2026-10-02T17:27:11.813Z"
+    },
+    {
+      "id": "cmt_1790963611999_if41s",
+      "book_key": "love-unseen-beneath-the-clear-night-sky-mu7qqco5_vol_2_1789783287257",
+      "paragraph_id": "c13_p3",
+      "user_id": "cb8aa125-85b7-4279-8f48-9f5086f2b565",
+      "user_name": "rudeusman",
+      "user_avatar": "",
+      "user_role": "USER",
+      "content": "j'adore",
+      "is_spoiler": false,
+      "likes": 0,
+      "liked_by": [],
+      "created_at": "2026-10-02T17:53:31.999Z"
+    },
+    {
+      "id": "cmt_1790967066380_2bxcd",
+      "book_key": "josee-the-tiger-and-the-fish-mupbltjt_vol_1_1790846595891",
+      "paragraph_id": "c6_p16",
+      "user_id": "guest_3336",
+      "user_name": "Lecteur#3336",
+      "user_avatar": "",
+      "user_role": "GUEST",
+      "content": "J'ai adoré ce passage 🤧🤧🤧🤧🤧",
+      "is_spoiler": false,
+      "likes": 0,
+      "liked_by": [],
+      "created_at": "2026-10-02T18:51:06.380Z"
+    },
+    {
+      "id": "cmt_1790971029175_acq77",
+      "book_key": "the-tunnel-to-summer-the-exit-of-goodbyes-muppodfl_vol_1_1790870184281",
+      "paragraph_id": "c9_p2",
+      "user_id": "5657d33e-952c-43d6-a222-8842b026699b",
+      "user_name": "admin",
+      "user_avatar": "https://api.dicebear.com/7.x/lorelei/svg?seed=Aura",
+      "user_role": "ADMIN",
+      "content": "vraiement j'adore",
+      "is_spoiler": false,
+      "likes": 0,
+      "liked_by": [],
+      "created_at": "2026-10-02T19:57:09.175Z"
+    },
+    {
+      "id": "cmt_1790974291285_ftzbt",
+      "book_key": "mushoku_tensei_vol_1",
+      "paragraph_id": "c1_p3",
+      "excerpt": "Je me suis réincarné dans un monde fantastique...",
+      "user_id": "5657d33e-952c-43d6-a222-8842b026699b",
+      "user_name": "rudeusman",
+      "user_avatar": "https://api.dicebear.com/7.x/lorelei/svg?seed=Aura",
+      "user_role": "ADMIN",
+      "content": "Premier commentaire synchronisé en direct sur Supabase Cloud !",
+      "is_spoiler": false,
+      "likes": 1,
+      "liked_by": [
+        "user_test_liker"
+      ],
+      "created_at": "2026-10-02T20:51:31.285Z"
+    },
+    {
+      "id": "cmt_1790974660657_rp1p0",
+      "book_key": "the-tunnel-to-summer-the-exit-of-goodbyes-muppodfl_vol_1_1790870184281",
+      "paragraph_id": "c9_p2",
+      "excerpt": "",
+      "user_id": "cb8aa125-85b7-4279-8f48-9f5086f2b565",
+      "user_name": "rudeusman",
+      "user_avatar": "",
+      "user_role": "USER",
+      "content": "c'est beau",
+      "is_spoiler": false,
+      "likes": 0,
+      "liked_by": [],
+      "created_at": "2026-10-02T20:57:40.657Z"
+    },
+    {
+      "id": "cmt_1790988588522_z2whm",
+      "book_key": "external_QzpcVXNlcnNcamFwaGV0XERvd25sb2Fkc1xsaWdodCBub3ZlbFxZb3UgTGlrZSBNZSwgTm90IE15IERhdWdodGVyIC0gVm9sdW1lIDA2IFtKLU5vdmVsIENsdWJdW1ByZW1pdW1dICgxKS5lcHVi",
+      "paragraph_id": "c13_p131",
+      "excerpt": "",
+      "user_id": "5657d33e-952c-43d6-a222-8842b026699b",
+      "user_name": "acrome",
+      "user_avatar": "https://api.dicebear.com/7.x/lorelei/svg?seed=Chronos",
+      "user_role": "ADMIN",
+      "content": "yaah c'est epqiue ahhh",
+      "is_spoiler": false,
+      "likes": 0,
+      "liked_by": [],
+      "created_at": "2026-10-03T00:49:48.522Z"
+    },
+    {
+      "id": "cmt_1790989173691_isdic",
+      "book_key": "the-tunnel-to-summer-the-exit-of-goodbyes-muppodfl",
+      "paragraph_id": "c1_p5",
+      "excerpt": "Kaoru regarda le ciel bleu d été avec nostalgie...",
+      "user_id": "guest_3a31",
+      "user_name": "TesteurExtrait",
+      "user_avatar": "",
+      "user_role": "GUEST",
+      "content": "Test automatique extrait sauvegardé",
+      "is_spoiler": false,
+      "likes": 0,
+      "liked_by": [],
+      "created_at": "2026-10-03T00:59:33.691Z"
+    },
+    {
+      "id": "cmt_1790990412764_kk99e",
+      "book_key": "you-like-me-not-my-daughter-mu5d87rh_vol_6_1789639792854",
+      "paragraph_id": "c14_p0",
+      "excerpt": "Pour le grand public, avoir des relations sexuelles était peut-être considéré comme un tournant dans la vie — ou, enfin, peut-être n’était-ce pas perç...",
+      "user_id": "5657d33e-952c-43d6-a222-8842b026699b",
+      "user_name": "acrome",
+      "user_avatar": "https://api.dicebear.com/7.x/lorelei/svg?seed=Shadow",
+      "user_role": "ADMIN",
+      "content": "j'adore vraiment",
+      "is_spoiler": false,
+      "likes": 0,
+      "liked_by": [],
+      "created_at": "2026-10-03T01:20:12.764Z"
+    }
+  ]
+}

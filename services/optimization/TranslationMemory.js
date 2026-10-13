@@ -1,16 +1,13 @@
 const TextNormalizer = require('./TextNormalizer');
-const InMemoryJobStore = require('../storage/InMemoryJobStore');
+const DiskJobStore = require('../storage/DiskJobStore');
 
 class TranslationMemory {
-  /**
-   * Recherche un segment dans la mémoire de traduction éphémère (RAM uniquement)
-   */
   static async lookup(sourceText, targetLang) {
     if (!sourceText || typeof sourceText !== 'string') return null;
     const normalized = TextNormalizer.normalize(sourceText);
     const hash = TextNormalizer.hash(sourceText);
 
-    const match = InMemoryJobStore.findInMemory(hash, targetLang);
+    const match = DiskJobStore.findInMemory(hash, targetLang);
     if (match) {
       return {
         sourceText,
@@ -23,20 +20,16 @@ class TranslationMemory {
     return null;
   }
 
-  /**
-   * Sauvegarde une nouvelle traduction dans la mémoire éphémère de session
-   */
-  static async save(sourceText, sourceLang, targetLang, translatedText, provider) {
+  static async save(jobId, sourceText, sourceLang, targetLang, translatedText, provider) {
     if (!sourceText || !translatedText) return;
     const hash = TextNormalizer.hash(sourceText);
-    InMemoryJobStore.saveToMemory(hash, translatedText, targetLang);
+    if (jobId) {
+      await DiskJobStore.saveJobTranslation(jobId, hash, translatedText, targetLang);
+    } else {
+      DiskJobStore.saveToMemory(hash, translatedText, targetLang);
+    }
   }
 
-  /**
-   * Déduplique un lot de segments avant envoi à DeepL :
-   * Separe les segments déjà en mémoire des nouveaux segments.
-   * Retourne { cachedSegments, newSegments, charactersSaved }
-   */
   static async deduplicateBatch(segments, targetLang) {
     const cachedSegments = [];
     const newSegments = [];
@@ -57,11 +50,7 @@ class TranslationMemory {
       }
     }
 
-    return {
-      cachedSegments,
-      newSegments,
-      charactersSaved
-    };
+    return { cachedSegments, newSegments, charactersSaved };
   }
 }
 

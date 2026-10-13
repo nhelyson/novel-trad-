@@ -1,7 +1,7 @@
 const DeepLProvider = require('./DeepLProvider');
 const GoogleProvider = require('./GoogleProvider');
 const OpenAIProvider = require('./OpenAIProvider');
-const NLLBProvider = require('./NLLBProvider');
+const GeminiProvider = require('./GeminiProvider');
 
 class TranslationFactory {
   static customProviders = new Map();
@@ -11,29 +11,24 @@ class TranslationFactory {
   }
 
   static getProvider(providerName = null) {
-    const name = (providerName || process.env.DEFAULT_PROVIDER || 'deepl').toLowerCase();
+    const name = (providerName || process.env.DEFAULT_PROVIDER || 'gemini').toLowerCase();
 
     if (this.customProviders.has(name)) {
       return this.customProviders.get(name);
     }
 
     switch (name) {
+      case 'gemini':
+      case 'gemini-api':
+        return new GeminiProvider();
       case 'deepl':
         return new DeepLProvider();
       case 'google':
         return new GoogleProvider();
       case 'openai':
         return new OpenAIProvider();
-      case 'nllb':
-      case 'nllblocal':
-      case 'nllb local':
-      case 'nllb-local':
-        return new NLLBProvider();
       default:
-        if (process.env.DEFAULT_PROVIDER === 'nllb') {
-          return new NLLBProvider();
-        }
-        return new DeepLProvider();
+                return new DeepLProvider();
     }
   }
 }

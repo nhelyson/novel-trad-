@@ -1,0 +1,294 @@
+{
+  "users": {
+    "user_test_uuid_aaa_111": {
+      "folders": [],
+      "files": []
+    },
+    "user_test_uuid_bbb_222": {
+      "folders": [],
+      "files": []
+    },
+    "5657d33e-952c-43d6-a222-8842b026699b": {
+      "folders": [
+        "C:\\Users\\japhet\\Downloads\\light novel"
+      ],
+      "files": [
+        "C:\\Users\\japhet\\Downloads\\trad\\86_Volume_14_FR.epub"
+      ]
+    },
+    "cb8aa125-85b7-4279-8f48-9f5086f2b565": {
+      "folders": [],
+      "files": []
+    },
+    "1f0798ee-0dfe-4ef6-9a90-b7a85e2b5507": {
+      "folders": [],
+      "files": []
+    },
+    "1bf8dcbd-1ea4-4df4-8b2b-31ee1760b49f": {
+      "folders": [],
+      "files": []
+    },
+    "0bd6b8c4-a87a-4f84-9f04-80aa9a864f1d": {
+      "folders": [],
+      "files": []
+    },
+    "guest_phone_abc12345": {
+      "folders": [],
+      "files": []
+    },
+    "guest_pc_xyz98765": {
+      "folders": [],
+      "files": []
+    },
+    "guest_ae7a39d0-0eb7-48a2-9cbe-67b446bb8d23": {
+      "folders": [],
+      "files": []
+    },
+    "guest_4cf8e329-1236-4a62-b7ba-2da6a634df34": {
+      "folders": [],
+      "files": []
+    },
+    "guest_fb1c6bb2-28e7-4753-ba47-39aae02447e6": {
+      "folders": [],
+      "files": []
+    },
+    "guest_f3022b14-bc78-4c85-9487-5c283284d34b": {
+      "folders": [],
+      "files": []
+    },
+    "guest_de48b743-dca8-4f14-b5e1-b8d192c573f2": {
+      "folders": [],
+      "files": []
+    },
+    "guest_71815ae7-2e71-4a0f-a157-8ef177c57a68": {
+      "folders": [],
+      "files": []
+    },
+    "guest_1c0ae477-1ceb-4b3b-b553-39d93f1f76dd": {
+      "folders": [],
+      "files": []
+    },
+    "guest_ba2838e3-f914-4151-9492-6227503087df": {
+      "folders": [
+        "C:\\Users\\japhet\\Downloads\\trad"
+      ],
+      "files": []
+    },
+    "guest_f5753e5c-8e53-47c3-b726-3fe924df1be6": {
+      "folders": [],
+      "files": []
+    },
+    "guest_ec7ae061-39ff-4e4e-840b-1cd5be8549e5": {
+      "folders": [],
+      "files": []
+    },
+    "guest_34c30c80-2443-4e1f-a658-560975d75346": {
+      "folders": [],
+      "files": []
+    },
+    "fbc204ff-aebc-46d3-a759-831752d6be33": {
+      "folders": [],
+      "files": []
+    },
+    "guest_ee253900-61bd-4f47-9639-d6cea0fcbcef": {
+      "folders": [],
+      "files": []
+    },
+    "guest_67333f14-8b06-4a50-8aea-e5195bfa05b3": {
+      "folders": [],
+      "files": []
+    },
+    "guest_e104d9b0-70d2-430c-bc18-5e9c82cbf841": {
+      "folders": [],
+      "files": []
+    },
+    "guest_03282782-e9fc-40fb-bc83-aec18b262d12": {
+      "folders": [],
+      "files": []
+    },
+    "guest_ceadbe1d-797a-4ee9-9106-aa2acf829c33": {
+      "folders": [],
+      "files": []
+    },
+    "guest_4cdab108-0b91-43ef-8ed6-d05a184f2441": {
+      "folders": [],
+      "files": []
+    },
+    "guest_1e4a4df1-59a2-4209-9b5f-fdf8d71552d6": {
+      "folders": [],
+      "files": []
+    },
+    "guest_da0c1e6d-81bd-4e84-a2be-0bd22957859a": {
+      "folders": [],
+      "files": []
+    },
+    "guest_971e6bb3-e3fb-4707-90a3-38d3723b152c": {
+      "folders": [],
+      "files": []
+    },
+    "guest_a9ab37e4-64f7-41de-b0b4-e91e0f807d51": {
+      "folders": [],
+      "files": []
+    },
+    "guest_b999bfab-1ea4-4441-85ce-309129de7196": {
+      "folders": [],
+      "files": []
+    },
+    "guest_c15753e0-3c1f-4e5e-9ced-8f75e0e77f23": {
+      "folders": [],
+      "files": []
+    },
+    "guest_b841c39f-0141-4feb-8fbc-b1666ca78814": {
+      "folders": [],
+      "files": []
+    },
+    "guest_324ed0ec-d309-42d8-a060-a11f76b2b814": {
+      "folders": [],
+      "files": []
+    },
+    "guest_8ec8cab0-f2e2-47c9-973c-b5dc0f7515b9": {
+      "folders": [],
+      "files": []
+    },
+    "25913677-eb8c-47fd-a767-74bdc983df18": {
+      "folders": [],
+      "files": []
+    },
+    "guest_679e52fa-406d-4a56-b323-811fc17931a8": {
+      "folders": [],
+      "files": []
+    },
+    "guest_19b9f78d-d499-4cec-8916-f1d3005c3149": {
+      "folders": [],
+      "files": []
+    },
+    "guest_38b1f33f-3ae8-406d-941e-b43ed4913aef": {
+      "folders": [],
+      "files": []
+    },
+    "guest_e76db194-7af7-4797-ae44-a63a61b87446": {
+      "folders": [],
+      "files": []
+    },
+    "guest_ae79c652-abd4-4ffe-815f-2a28fb444ab9": {
+      "folders": [],
+      "files": []
+    },
+    "guest_1ed684ab-7029-462d-a683-fee77c3ecca5": {
+      "folders": [],
+      "files": []
+    },
+    "guest_bcbdf48e-0db4-4b03-bc79-056720196931": {
+      "folders": [],
+      "files": []
+    },
+    "guest_ef854b63-6b37-42a2-8f6f-a41e0bcdf68d": {
+      "folders": [],
+      "files": []
+    },
+    "guest_7a662402-3844-478f-a289-6ed59cee50ee": {
+      "folders": [],
+      "files": []
+    },
+    "guest_b00e5cfe-b102-4c9b-8361-679028ea7732": {
+      "folders": [],
+      "files": []
+    },
+    "guest_a9f76cc4-c94b-484b-b89a-6b215396811d": {
+      "folders": [],
+      "files": []
+    },
+    "guest_087082c3-b6e1-4c69-9ce9-1b8848db0ca6": {
+      "folders": [],
+      "files": []
+    },
+    "guest_5149a12b-275c-4be4-87d8-eb134c00f48d": {
+      "folders": [],
+      "files": []
+    },
+    "guest_dd5c1c01-14c7-4cc6-8d94-2a49f143ae63": {
+      "folders": [],
+      "files": []
+    },
+    "guest_8d1fc7d8-6aab-40e0-99d8-3a3e68a7c901": {
+      "folders": [],
+      "files": []
+    },
+    "guest_84cba340-04e7-4b3c-a2be-ffaf16cebd7e": {
+      "folders": [],
+      "files": []
+    },
+    "guest_aaaddc7b-beda-4071-a8a5-e00a1e604487": {
+      "folders": [],
+      "files": []
+    },
+    "guest_74752b01-80f2-4fff-9fbf-747671e8c326": {
+      "folders": [],
+      "files": []
+    },
+    "guest_8a005983-b659-41af-af33-3e6c3a0fb121": {
+      "folders": [],
+      "files": []
+    },
+    "guest_baf5a426-8819-42ca-99c8-075f8c13f173": {
+      "folders": [],
+      "files": []
+    },
+    "guest_ac127b6d-9e11-47b0-9eb4-5c05ec4bb81c": {
+      "folders": [],
+      "files": []
+    },
+    "guest_af7c50a1-14a1-4b42-a92a-d189eefb18fa": {
+      "folders": [],
+      "files": []
+    },
+    "guest_b0d395d4-72bb-4c06-965d-2ccb2ef5512e": {
+      "folders": [],
+      "files": []
+    },
+    "guest_76485f6a-8b4d-453f-aebc-db51ef6d2284": {
+      "folders": [],
+      "files": []
+    },
+    "guest_80a4becc-bb7a-4f7e-8415-e3248f98f647": {
+      "folders": [],
+      "files": []
+    },
+    "guest_67717c86-e449-436e-b153-a3bed086f052": {
+      "folders": [],
+      "files": []
+    },
+    "guest_5e8c333d-529d-4779-8cde-6feea389b118": {
+      "folders": [],
+      "files": []
+    },
+    "guest_mur9ke404gzuvz6z4cz": {
+      "folders": [],
+      "files": []
+    },
+    "guest_b3fcabd2-19e3-4510-952a-31182a90a89c": {
+      "folders": [],
+      "files": []
+    },
+    "guest_c5b8e03d-3e7b-4f7b-9fb2-d66c88cf777f": {
+      "folders": [],
+      "files": []
+    },
+    "guest_3470933a-df7b-4488-a1f1-0b70b47220da": {
+      "folders": [],
+      "files": []
+    },
+    "guest_b0c67e52-567b-4fc3-adec-e8fc783a190c": {
+      "folders": [],
+      "files": []
+    },
+    "guest_f6f402a9-9315-45b8-9d82-bb7ce0e6c1f9": {
+      "folders": [],
+      "files": []
+    },
+    "guest_b3e60d64-71ff-4ae2-a48c-423653430d42": {
+      "folders": [],
+      "files": []
+    }
+  }
+}

@@ -6,7 +6,7 @@ const DocumentAnalyzer = require('../services/pdf/DocumentAnalyzer');
 const PdfOptimizer = require('../services/pdf/PdfOptimizer');
 const TranslationFactory = require('../services/translation/TranslationFactory');
 const DocumentProcessor = require('../services/pdf/DocumentProcessor');
-const InMemoryJobStore = require('../services/storage/InMemoryJobStore');
+const DiskJobStore = require('../services/storage/DiskJobStore');
 
 // Helper pour créer un PDF de test
 async function createTestPdfOfSize(pageCount = 10, targetSizeMB = 0.5) {
@@ -91,7 +91,7 @@ async function runLargePdfTests() {
     // -----------------------------------------------------------------
     // TEST 3: Pipeline PDF complet & enregistrement éphémère
     // -----------------------------------------------------------------
-    console.log('[RUNNING] TEST 3: PDF > 10 Mo -> Traduction & InMemoryJobStore progress...');
+    console.log('[RUNNING] TEST 3: PDF > 10 Mo -> Traduction & DiskJobStore progress...');
     const mockProvider3 = new MockDeepLProvider();
     TranslationFactory.registerProvider('mock_deepl_3', mockProvider3);
 
@@ -107,10 +107,10 @@ async function runLargePdfTests() {
     );
 
     const finalDoc3 = await PDFDocument.load(finalBuffer3, { ignoreEncryption: true });
-    const jobState = InMemoryJobStore.getJob(docId3);
+    const jobState = DiskJobStore.getJob(docId3);
 
     if (finalDoc3.getPageCount() === 3 && jobState && jobState.status === 'COMPLETED') {
-      console.log(` [✅ PASS] TEST 3: PDF traduit, assemblé (${finalDoc3.getPageCount()} pages) et statut COMPLETED dans InMemoryJobStore.\n`);
+      console.log(` [✅ PASS] TEST 3: PDF traduit, assemblé (${finalDoc3.getPageCount()} pages) et statut COMPLETED dans DiskJobStore.\n`);
       passedTests++;
     }
 
@@ -124,3 +124,4 @@ async function runLargePdfTests() {
 }
 
 runLargePdfTests();
+

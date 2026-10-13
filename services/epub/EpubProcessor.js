@@ -1,8 +1,10 @@
+const path = require('path');
 const JSZip = require('jszip');
 const { DOMParser, XMLSerializer } = require('@xmldom/xmldom');
 const QuotaGuard = require('../optimization/QuotaGuard');
 const PerformanceProfiler = require('../optimization/PerformanceProfiler');
-const InMemoryJobStore = require('../storage/InMemoryJobStore');
+const TranslationMemory = require('../optimization/TranslationMemory');
+const DiskJobStore = require('../storage/DiskJobStore');
 
 class EpubProcessor {
   /**
@@ -137,39 +139,39 @@ class EpubProcessor {
    */
   static async processEpubDocument(docId, epubBuffer, filename, targetLang = 'FR', sourceLang = 'auto', apiKey = null, provider = null, onProgress = null) {
     const profiler = new PerformanceProfiler(docId);
-    InMemoryJobStore.createJob(docId, filename, 'epub');
+    DiskJobStore.createJob(docId, filename, 'epub');
 
     // 1. Analyse préalable
-    InMemoryJobStore.setPhase(docId, 'ANALYSIS', 'Analyse de la structure EPUB...');
+    DiskJobStore.setPhase(docId, 'ANALYSIS', 'Analyse de la structure EPUB...');
     if (onProgress) onProgress('Analyse de la structure EPUB...', 2);
     
     const analysis = await this.analyze(epubBuffer, filename);
     profiler.endStep('1. Analyse EPUB');
 
     // 2. Vérification du Quota DeepL (Si provider === 'deepl')
-    InMemoryJobStore.setPhase(docId, 'QUOTA_CHECK', 'Vérification du quota de traduction...');
+    DiskJobStore.setPhase(docId, 'QUOTA_CHECK', 'Vérification du quota de traduction...');
     const quotaCheck = await QuotaGuard.checkPreTranslationQuota(
-      provider ? provider.getName() : 'nllb',
+      provider ? provider.getName() : 'gemini',
       apiKey,
       analysis.totalCharacters,
       'epub'
     );
 
     if (!quotaCheck.canProceed) {
-      InMemoryJobStore.failJob(docId, quotaCheck.message);
+      DiskJobStore.failJob(docId, quotaCheck.message);
       throw new Error(quotaCheck.message);
     }
     profiler.endStep('2. Vérification Quota');
 
     // 3. Chargement de l'archive EPUB (JSZip)
-    InMemoryJobStore.setPhase(docId, 'EXTRACTION', 'Extraction du contenu XHTML...');
+    DiskJobStore.setPhase(docId, 'EXTRACTION', 'Extraction du contenu XHTML...');
     const zip = await JSZip.loadAsync(epubBuffer);
     const { chapterPaths } = analysis;
     const totalChapters = chapterPaths.length;
     profiler.endStep('3. Extraction XHTML');
 
     // 4. Extraction de tous les nœuds textuels et préparation des blocs
-    InMemoryJobStore.setPhase(docId, 'SEGMENTATION', 'Découpage des nœuds textuels...');
+    DiskJobStore.setPhase(docId, 'SEGMENTATION', 'Découpage des nœuds textuels...');
     const chapterData = [];
     let grandTotalBlocks = 0;
 
@@ -196,34 +198,76 @@ class EpubProcessor {
     profiler.endStep('4. Découpage Blocs');
 
     // 5. Traduction Bloc par Bloc
-    InMemoryJobStore.setPhase(docId, 'TRANSLATION', `Traduction de ${grandTotalBlocks} blocs textuels...`, {
+    DiskJobStore.setPhase(docId, 'TRANSLATION', `Traduction de ${grandTotalBlocks} blocs textuels...`, {
       totalBlocks: grandTotalBlocks,
       totalChapters
     });
 
     let translatedBlocksCount = 0;
-    const batchSize = 25;
+    const isGemini = provider && (provider.getName() || '').toLowerCase().includes('gemini');
+    const batchSize = isGemini ? 75 : 25;
 
     for (let cIdx = 0; cIdx < chapterData.length; cIdx++) {
       const { validNodes } = chapterData[cIdx];
       if (validNodes.length === 0) continue;
 
       for (let i = 0; i < validNodes.length; i += batchSize) {
+        const currentJobState = DiskJobStore.getJob(docId);
+        const activeApiKey = currentJobState?.apiKey || apiKey;
+
         const nodeBatch = validNodes.slice(i, i + batchSize);
         const sourceTexts = nodeBatch.map(n => n.nodeValue.trim());
+        const translatedTexts = new Array(sourceTexts.length);
+        const toTranslateIndices = [];
+        const toTranslateTexts = [];
 
-        let translatedTexts = sourceTexts;
-        if (provider) {
+        // 1. Recherche dans la mémoire éphémère (0 caractère API consommé sur le repêchage)
+        for (let idx = 0; idx < sourceTexts.length; idx++) {
+          const cached = await TranslationMemory.lookup(sourceTexts[idx], targetLang);
+          if (cached) {
+            translatedTexts[idx] = cached.translatedText;
+          } else {
+            toTranslateIndices.push(idx);
+            toTranslateTexts.push(sourceTexts[idx]);
+          }
+        }
+
+        // 2. Envoi uniquement des segments manquants à l'API
+        if (toTranslateTexts.length > 0 && provider) {
           try {
-            translatedTexts = await provider.translateBatch(sourceTexts, targetLang, sourceLang, apiKey);
+            const batchResults = await provider.translateBatch(toTranslateTexts, targetLang, sourceLang, activeApiKey);
+            for (let k = 0; k < toTranslateIndices.length; k++) {
+              const originalIdx = toTranslateIndices[k];
+              const transResult = batchResults[k] || toTranslateTexts[k];
+              translatedTexts[originalIdx] = transResult;
+              await TranslationMemory.save(docId, sourceTexts[originalIdx], sourceLang, targetLang, transResult, provider.getName());
+            }
           } catch (err) {
-            console.error(`[EpubProcessor] ERREUR TRADUCTION SUR UN LOT : ${err.message}`);
-            InMemoryJobStore.failJob(docId, err.message);
+            console.error(`[EpubProcessor] ERREUR TRADUCTION LOT : ${err.message}`);
+            const isQuota = Boolean(err.isQuotaExceeded || err.message?.includes('Quota') || err.message?.includes('456'));
+            if (isQuota) {
+              console.warn(`[EpubProcessor] Quota clé atteint à ${translatedBlocksCount} / ${grandTotalBlocks} blocs. Pause pour relais...`);
+              DiskJobStore.setWaitingForKey(
+                docId,
+                translatedBlocksCount,
+                grandTotalBlocks,
+                `Quota de la clé 1 atteint à ${translatedBlocksCount}/${grandTotalBlocks} blocs. Entrez la clé 2 pour poursuivre...`
+              );
+              
+              const partialErr = new Error(`Quota de la clé 1 épuisé (${translatedBlocksCount} / ${grandTotalBlocks} blocs traduits). Saisissez la clé 2 pour continuer.`);
+              partialErr.isQuotaExceeded = true;
+              partialErr.isPartial = true;
+              partialErr.currentBlock = translatedBlocksCount;
+              partialErr.totalBlocks = grandTotalBlocks;
+              throw partialErr;
+            }
+            const isAuth = Boolean(err.isAuthError || err.message?.includes('403') || err.message?.includes('invalide'));
+            DiskJobStore.failJob(docId, err.message, isQuota, isAuth);
             throw new Error(`Erreur lors de la traduction par DeepL/Moteur : ${err.message}`);
           }
         }
 
-        // Ré-injection dans les nœuds textuels DOM exacts sans modifier les balises HTML
+        // 3. Ré-injection dans les nœuds textuels DOM exacts
         for (let j = 0; j < nodeBatch.length; j++) {
           const originalText = nodeBatch[j].nodeValue;
           const leadingSpace = (originalText.match(/^\s*/) || [''])[0];
@@ -235,7 +279,7 @@ class EpubProcessor {
 
         translatedBlocksCount += nodeBatch.length;
 
-        InMemoryJobStore.setTranslationProgress(
+        DiskJobStore.setTranslationProgress(
           docId,
           translatedBlocksCount,
           grandTotalBlocks,
@@ -249,8 +293,59 @@ class EpubProcessor {
     }
     profiler.endStep('5. Traduction Moteur');
 
+    // 5b. Traduction des planches Manga (si le moteur le supporte, ex: Gemini Vision)
+    if (provider && typeof provider.translateMangaPage === 'function') {
+      try {
+        const MangaPipeline = require('../manga/MangaPipeline');
+        const processedImages = new Set();
+        const currentJob = DiskJobStore.getJob(docId);
+        const mangaApiKey = currentJob?.apiKey || apiKey;
+
+        for (let cIdx = 0; cIdx < chapterData.length; cIdx++) {
+          const { chPath, doc, validNodes } = chapterData[cIdx];
+          const imgEls = doc.getElementsByTagName('img');
+          const svgImgEls = doc.getElementsByTagName('image');
+          const allImgEls = [...Array.from(imgEls || []), ...Array.from(svgImgEls || [])];
+
+          // Détection d'une page principalement graphique (peu de texte DOM mais avec illustration)
+          if (allImgEls.length > 0 && validNodes.length <= 8) {
+            for (const el of allImgEls) {
+              const src = el.getAttribute('src') || el.getAttribute('xlink:href') || el.getAttribute('href');
+              if (!src) continue;
+              const cleanSrc = src.split('#')[0].split('?')[0];
+              const imgFullPath = path.posix.normalize(path.posix.join(path.posix.dirname(chPath), cleanSrc));
+
+              if (processedImages.has(imgFullPath)) continue;
+              processedImages.add(imgFullPath);
+
+              const imgFile = this.getZipFile(zip, imgFullPath);
+              if (imgFile) {
+                const origBuffer = await imgFile.async('nodebuffer');
+                if (origBuffer && origBuffer.length > 15000) {
+                  DiskJobStore.updateJobProgress(docId, {
+                    statusMessage: `Analyse & lettrage Manga : ${path.posix.basename(imgFullPath)}...`
+                  });
+                  const translatedImgBuffer = await MangaPipeline.processMangaPage(
+                    origBuffer,
+                    sourceLang,
+                    targetLang,
+                    mangaApiKey
+                  );
+                  if (translatedImgBuffer && translatedImgBuffer.length > 0 && translatedImgBuffer !== origBuffer) {
+                    zip.file(imgFile.name, translatedImgBuffer);
+                  }
+                }
+              }
+            }
+          }
+        }
+      } catch (errManga) {
+        console.warn('[EpubProcessor] Avertissement non-bloquant analyse manga vision:', errManga.message);
+      }
+    }
+
     // 6. Reconstruction de l'EPUB (Chapitre par Chapitre)
-    InMemoryJobStore.setPhase(docId, 'RECONSTRUCTION', 'Reconstruction du fichier EPUB final...', {
+    DiskJobStore.setPhase(docId, 'RECONSTRUCTION', 'Reconstruction du fichier EPUB final...', {
       totalChapters
     });
 
@@ -264,7 +359,7 @@ class EpubProcessor {
       zip.file(chPath, serializedXml);
 
       const chNum = cIdx + 1;
-      InMemoryJobStore.setEpubReconstructionProgress(
+      DiskJobStore.setEpubReconstructionProgress(
         docId,
         chNum,
         totalChapters,
@@ -278,7 +373,7 @@ class EpubProcessor {
     profiler.endStep('6. Reconstruction EPUB');
 
     // 7. Génération de l'archive EPUB finale
-    InMemoryJobStore.setPhase(docId, 'FINALIZATION', 'Packaging du document EPUB final...');
+    DiskJobStore.setPhase(docId, 'FINALIZATION', 'Packaging du document EPUB final...');
     const finalEpubBuffer = await zip.generateAsync({
       type: 'nodebuffer',
       compression: 'DEFLATE',
@@ -289,7 +384,7 @@ class EpubProcessor {
     const summary = profiler.getSummary();
     profiler.printSummaryConsole();
 
-    InMemoryJobStore.completeJob(docId, summary);
+    DiskJobStore.completeJob(docId, summary);
     return finalEpubBuffer;
   }
 
@@ -319,6 +414,161 @@ class EpubProcessor {
     }
 
     return textNodes;
+  }
+
+  /**
+   * Extrait la couverture (cover image) d'un fichier EPUB
+   * @param {Buffer} epubBuffer
+   * @returns {Promise<{ buffer: Buffer, mediaType: string, path: string } | null>}
+   */
+    static async extractCover(epubBuffer) {
+    if (!epubBuffer || epubBuffer.length === 0) return null;
+    try {
+      const zip = await JSZip.loadAsync(epubBuffer);
+
+      // Helper pour trouver un fichier dans le zip (insensible à la casse et tolérant aux slashes)
+      const findZipFile = (targetPath) => {
+        if (!targetPath) return null;
+        if (zip.file(targetPath)) return zip.file(targetPath);
+        const clean = targetPath.toLowerCase().replace(/^\/+|\/+$/g, '');
+        return Object.values(zip.files).find(f => {
+          const fn = f.name.toLowerCase().replace(/^\/+|\/+$/g, '');
+          return fn === clean;
+        }) || null;
+      };
+
+      // 1. Trouver container.xml -> chemin OPF
+      let opfPath = 'content.opf';
+      const containerFile = findZipFile('META-INF/container.xml');
+      if (containerFile) {
+        const containerXml = await containerFile.async('text');
+        const cDoc = new DOMParser({ onError: () => {} }).parseFromString(containerXml, 'text/xml');
+        const rootfile = cDoc.getElementsByTagName('rootfile')[0];
+        if (rootfile && rootfile.getAttribute('full-path')) {
+          opfPath = rootfile.getAttribute('full-path');
+        }
+      }
+
+      const opfDir = opfPath.includes('/') ? opfPath.substring(0, opfPath.lastIndexOf('/')) : '';
+      const opfFile = findZipFile(opfPath);
+
+      // Collecte multi-critères des candidats pour la couverture
+      const candidates = [];
+
+      if (opfFile) {
+        const opfXml = await opfFile.async('text');
+        const opfDoc = new DOMParser({ onError: () => {} }).parseFromString(opfXml, 'text/xml');
+
+        const items = {};
+        const itemEls = opfDoc.getElementsByTagName('item');
+        for (let i = 0; i < itemEls.length; i++) {
+          const el = itemEls[i];
+          const id = el.getAttribute('id') || '';
+          const href = el.getAttribute('href') || '';
+          const mediaType = el.getAttribute('media-type') || '';
+          const properties = el.getAttribute('properties') || '';
+          items[id] = { href, mediaType, properties };
+
+          // Priorité 1 : EPUB 3 properties="cover-image"
+          if (properties.includes('cover-image')) {
+            candidates.push({ href, priority: 1, mediaType });
+          }
+        }
+
+        // Priorité 2 : EPUB 2 <meta name="cover" content="item_id"/>
+        const metaEls = opfDoc.getElementsByTagName('meta');
+        for (let i = 0; i < metaEls.length; i++) {
+          if (metaEls[i].getAttribute('name') === 'cover') {
+            const coverId = metaEls[i].getAttribute('content');
+            if (coverId && items[coverId]) {
+              candidates.push({ href: items[coverId].href, priority: 2, mediaType: items[coverId].mediaType });
+            }
+          }
+        }
+
+        // Priorité 3 & 4 : Items manifest contenant "cover", "front" ou "title"
+        for (const id of Object.keys(items)) {
+          const it = items[id];
+          if (it.mediaType.startsWith('image/')) {
+            if (/cover/i.test(id) || /cover/i.test(it.href)) {
+              candidates.push({ href: it.href, priority: 3, mediaType: it.mediaType });
+            } else if (/front/i.test(id) || /front/i.test(it.href) || /title/i.test(it.href)) {
+              candidates.push({ href: it.href, priority: 4, mediaType: it.mediaType });
+            }
+          }
+        }
+      }
+
+      // Priorité 5 : Fichiers image du ZIP contenant cover/front/titlepage
+      const zipImgNames = Object.keys(zip.files).filter(name => {
+        const l = name.toLowerCase();
+        return (l.endsWith('.jpg') || l.endsWith('.jpeg') || l.endsWith('.png') || l.endsWith('.webp')) && !zip.files[name].dir;
+      });
+
+      for (const name of zipImgNames) {
+        const l = name.toLowerCase();
+        if (l.includes('cover')) {
+          candidates.push({ href: name, priority: 5 });
+        } else if (l.includes('front') || l.includes('titlepage')) {
+          candidates.push({ href: name, priority: 6 });
+        }
+      }
+
+      // Priorité 7 : Premier fichier image quelconque dans l'EPUB
+      if (zipImgNames.length > 0) {
+        candidates.push({ href: zipImgNames[0], priority: 7 });
+      }
+
+      // Trier les candidats par priorité croissante
+      candidates.sort((a, b) => a.priority - b.priority);
+
+      // Helper pour résoudre le vrai fichier dans le zip (essaie chemin relatif OPF, brut, et basename)
+      const resolveFileInZip = (rawHref) => {
+        if (!rawHref) return null;
+        // 1. Essai brut
+        let f = findZipFile(rawHref);
+        if (f && !f.dir) return f;
+
+        // 2. Essai avec opfDir
+        if (opfDir) {
+          const full = (opfDir + '/' + rawHref).replace(/\/+/g, '/');
+          f = findZipFile(full);
+          if (f && !f.dir) return f;
+        }
+
+        // 3. Essai par nom de base (ex: Cover1.png)
+        const baseName = path.basename(rawHref).toLowerCase();
+        return Object.values(zip.files).find(entry => {
+          if (entry.dir) return false;
+          const en = entry.name.toLowerCase();
+          return en === baseName || en.endsWith('/' + baseName);
+        }) || null;
+      };
+
+      // Parcourir les candidats jusqu'à trouver le premier fichier réel existant
+      for (const cand of candidates) {
+        const zipEntry = resolveFileInZip(cand.href);
+        if (zipEntry) {
+          const buffer = await zipEntry.async('nodebuffer');
+          if (buffer && buffer.length > 500) {
+            let mediaType = cand.mediaType || 'image/jpeg';
+            const lower = zipEntry.name.toLowerCase();
+            if (lower.endsWith('.png')) mediaType = 'image/png';
+            else if (lower.endsWith('.webp')) mediaType = 'image/webp';
+            else if (lower.endsWith('.gif')) mediaType = 'image/gif';
+            else if (lower.endsWith('.svg')) mediaType = 'image/svg+xml';
+            else mediaType = 'image/jpeg';
+
+            return { buffer, mediaType, path: zipEntry.name };
+          }
+        }
+      }
+
+      return null;
+    } catch (e) {
+      console.warn('[EpubProcessor.extractCover] Erreur:', e.message);
+      return null;
+    }
   }
 }
 

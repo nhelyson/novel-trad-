@@ -1,0 +1,1005 @@
+﻿<!DOCTYPE html>
+<html lang="fr" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="google-site-verification" content="google183318dfed3f9f37">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <!-- PWA & Mobile Web App Meta -->
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#080a12">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="NovelTrad">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <title>NovelTrad - Série</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,opsz,wght@0,6..12,300;0,6..12,400;0,6..12,600;0,6..12,700;0,6..12,800;1,6..12,400&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="css/style.css?v=1790900961187">
+  <link rel="stylesheet" href="css/home_lnori.css?v=1790264262558">
+  <!-- Coupe-circuit de production pour console propre & anti-fuite -->
+  <script>
+    if (window.location.hostname !== 'localhost' && !window.location.search.includes('debug=true')) {
+      console.log = function() {};
+      console.debug = function() {};
+      console.info = function() {};
+    }
+  </script>
+</head>
+<body>
+  <div class="app-container">
+    <!-- TOPNAV -->
+    <!-- TOPNAV -->
+    <!-- TOPNAV CENTRÉE & GLASSMORPHISM PREMIUM (INSPIRÉE DE LNORI.COM) -->
+    <nav class="topnav" id="mainHeader" role="banner">
+      <div class="topnav-container">
+        
+        <!-- ZONE GAUCHE : LOGO NOVELTRAD + LIENS PRINCIPAUX -->
+        <div class="topnav-left-group">
+          <!-- Logo interactif NovelTrad -->
+          <a class="topnav-logo" href="/index.html" aria-label="NovelTrad Accueil">
+            <div class="logo-icon"><i class="fa-solid fa-language"></i></div>
+            <span class="logo-text">Novel<strong>Trad</strong></span>
+          </a>
+
+          <!-- Liens de navigation épurés et directement accessibles (Style Lnori) -->
+          <div class="topnav-nav-links" id="topnavCenter">
+            <!-- Accueil -->
+            <button id="tabHomeBtn" class="nav-item-btn active" title="Accueil">
+              <span>Accueil</span>
+            </button>
+
+            <!-- Catalogue (Direct comme sur Lnori /library) -->
+            <!-- Catalogue -->
+            <button id="tabCatalogBtn" class="nav-item-btn" title="Explorer le catalogue" onclick="window.location.href='index.html#catalog'">
+              <span>Catalogue</span>
+            </button>
+
+            <!-- Calendrier -->
+            <button id="tabPlanningBtn" class="nav-item-btn" title="Calendrier des parutions" onclick="window.location.href='index.html#planning'">
+              <span>Calendrier</span>
+            </button>
+
+            <!-- Éléments masqués temporairement (préservés pour éviter erreurs JS) -->
+            <div style="display:none !important;" hidden>
+              <button id="tabNewsBtn"></button>
+            </div>
+
+            <!-- Menu Déroulant Bibliothèque -->
+            <div class="nav-dropdown" data-nav="library">
+              <button class="nav-item-btn nav-dropdown-trigger" id="navLibraryTrigger">
+                <span>Bibliothèque</span> <i class="fa-solid fa-chevron-down nav-caret"></i>
+              </button>
+              <div class="nav-dropdown-menu">
+                <button id="tabContinueBtn" class="nav-dropdown-link">
+                  <i class="fa-solid fa-play"></i>
+                  <div class="nav-link-text">
+                    <span class="nav-link-title">Continuer la lecture</span>
+                    <span class="nav-link-desc">Reprendre vos lectures en cours</span>
+                  </div>
+                </button>
+                <button id="tabLibraryBtn" class="nav-dropdown-link">
+                  <i class="fa-solid fa-book-open"></i>
+                  <div class="nav-link-text">
+                    <span class="nav-link-title">Ma bibliothèque</span>
+                    <span class="nav-link-desc">Toutes vos séries & volumes</span>
+                  </div>
+                </button>
+                <button id="tabFavoritesBtn" class="nav-dropdown-link">
+                  <i class="fa-solid fa-star"></i>
+                  <div class="nav-link-text">
+                    <span class="nav-link-title">Favoris</span>
+                    <span class="nav-link-desc">Vos titres favoris</span>
+                  </div>
+                </button>
+                <button id="tabReadingHistoryBtn" class="nav-dropdown-link">
+                  <i class="fa-solid fa-book-bookmark"></i>
+                  <div class="nav-link-text">
+                    <span class="nav-link-title">Historique de lecture</span>
+                    <span class="nav-link-desc">Dernières lectures et chapitres</span>
+                  </div>
+                </button>
+              </div>
+            </div>
+
+            <!-- Menu Déroulant Traduction -->
+            <div class="nav-dropdown" data-nav="trad">
+              <button class="nav-item-btn nav-dropdown-trigger" id="navTradTrigger">
+                <span>Traduction</span> <i class="fa-solid fa-chevron-down nav-caret"></i>
+              </button>
+              <div class="nav-dropdown-menu">
+                <button id="tabDocsBtn" class="nav-dropdown-link">
+                  <i class="fa-solid fa-file-pdf"></i>
+                  <div class="nav-link-text">
+                    <span class="nav-link-title">Documents</span>
+                    <span class="nav-link-desc">Traduction de fichiers EPUB & PDF</span>
+                  </div>
+                </button>
+                <button id="historyBtn" class="nav-dropdown-link">
+                  <i class="fa-solid fa-clock-rotate-left"></i>
+                  <div class="nav-link-text">
+                    <span class="nav-link-title">Historique des traductions</span>
+                    <span class="nav-link-desc">Tâches en cours et terminées</span>
+                  </div>
+                  <span id="historyBadge" class="hidden history-badge">0</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ZONE DROITE : RECHERCHE INTÉGRÉE (LNORI STYLE) + PROFIL & MOBILE -->
+        <div class="topnav-right-group">
+          <!-- Barre de recherche intégrée avec glassmorphism -->
+          <div class="nav-search-wrapper search-input-wrapper" id="navSearchWrapper">
+            <i class="fa-solid fa-magnifying-glass nav-search-icon"></i>
+            <input type="search" name="search_global" id="navGlobalSearchInput" class="nav-search-input" placeholder="Rechercher un roman, auteur..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" role="searchbox" aria-autocomplete="none" data-form-type="other" data-lpignore="true" data-1p-ignore="true" data-bwignore="true">
+            <button id="navSearchClearBtn" class="nav-search-clear hidden" title="Effacer"><i class="fa-solid fa-xmark"></i></button>
+          </div>
+
+          <!-- Actions de droite : Loupe mobile, Auth pill, Hamburger -->
+          <div class="topnav-actions-wrapper">
+            <!-- Loupe Mobile -->
+            <button id="navMobileSearchToggle" class="nav-icon-btn nav-mobile-search-toggle" aria-label="Recherche">
+              <i class="fa-solid fa-magnifying-glass"></i>
+            </button>
+
+            <!-- Auth Container / Menu Utilisateur Popover -->
+            <div id="navAuthContainer" class="nav-auth-container">
+              <button id="navLoginBtn" class="btn-nav-auth-pill">
+                <i class="fa-solid fa-user"></i> <span>Connexion</span>
+              </button>
+              
+              <div id="navUserMenu" class="nav-user-menu hidden">
+                <div class="nav-user-pill" id="navUserPill" title="Mon Compte">
+                  <div class="nav-user-avatar" id="navUserAvatar"><i class="fa-solid fa-user-check"></i></div>
+                  <span class="nav-user-email" id="navUserEmail"></span>
+                  <i class="fa-solid fa-chevron-down nav-user-arrow"></i>
+                </div>
+                
+                <!-- Popover flottant type Lnori -->
+                <div class="nav-user-dropdown avatar-popover hidden" id="navUserDropdown" role="menu">
+                  <div class="nav-user-dropdown-header">
+                    <span class="user-dropdown-label">Connecté en tant que</span>
+                    <strong class="user-dropdown-email" id="dropdownUserEmail"></strong>
+                  </div>
+                  <div class="nav-user-dropdown-divider"></div>
+                  <button class="nav-dropdown-item hidden" id="btnNavContributorStudio" role="menuitem">
+                    <i class="fa-solid fa-feather-pointed"></i> Studio Contributeur
+                  </button>
+                  <button class="nav-dropdown-item hidden" id="btnNavAdminPanel" role="menuitem">
+                    <i class="fa-solid fa-shield-halved"></i> Panneau Administration
+                  </button>
+                  <button class="nav-dropdown-item" id="btnNavOpenAccount" role="menuitem">
+                    <i class="fa-solid fa-user-gear"></i> Mon Profil & Compte
+                  </button>
+                  <button class="nav-dropdown-item" id="btnNavLibrary" role="menuitem">
+                    <i class="fa-solid fa-book-open"></i> Ma Bibliothèque
+                  </button>
+                  <button class="nav-dropdown-item" id="btnNavContinue" role="menuitem">
+                    <i class="fa-solid fa-play"></i> Continuer la lecture
+                  </button>
+                  <button class="nav-dropdown-item" id="btnNavFavorites" role="menuitem">
+                    <i class="fa-solid fa-star"></i> Mes Favoris
+                  </button>
+                  <button class="nav-dropdown-item" id="btnNavHistory" role="menuitem">
+                    <i class="fa-solid fa-clock-rotate-left"></i> Historique
+                  </button>
+                  <button class="nav-dropdown-item" id="btnNavSettings" role="menuitem">
+                    <i class="fa-solid fa-sliders"></i> Paramètres
+                  </button>
+                  <div class="nav-user-dropdown-divider"></div>
+                  <button class="nav-dropdown-item nav-dropdown-danger" id="btnNavSignOut" role="menuitem">
+                    <i class="fa-solid fa-right-from-bracket"></i> Déconnexion
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Hamburger mobile moderne -->
+            <button class="topnav-hamburger" id="topnavHamburger" aria-label="Menu de navigation">
+              <i class="fa-solid fa-bars"></i>
+            </button>
+
+            <!-- Éléments préservés pour compatibilité logique sans impact visuel -->
+            <div class="status-badge hidden" id="apiStatusBadge">
+              <span class="status-dot warning" id="statusDot"></span>
+              <span id="statusText">Vérification...</span>
+            </div>
+            <button id="tabAccountBtn" class="btn-sidebar hidden" title="Espace Compte">
+              <i class="fa-solid fa-user-circle"></i> Compte
+            </button>
+            <button id="tabSettingsBtn" class="btn-sidebar hidden" title="Paramètres">
+              <i class="fa-solid fa-gear"></i>
+            </button>
+            <div class="sync-status-badge" id="syncStatusBadge" style="display:none;">● Synchronisé</div>
+          </div>
+        </div>
+
+      </div>
+    </nav>
+
+    <!-- MOBILE DRAWER NAVIGATION -->
+    <div id="navMobileDrawer" class="nav-mobile-drawer">
+      <div class="nav-mobile-backdrop" id="navMobileBackdrop"></div>
+      <div class="nav-mobile-panel">
+        <div class="nav-mobile-header">
+          <div class="topnav-logo">
+            <div class="logo-icon"><i class="fa-solid fa-language"></i></div>
+            <h2 style="font-size:16px;font-weight:700;color:#fff;margin:0;">NovelTrad</h2>
+          </div>
+          <button id="navMobileCloseBtn" class="nav-mobile-close-btn" aria-label="Fermer"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+
+                <div class="nav-mobile-body">
+          <!-- Barre de recherche Mobile intégrée dans le Drawer -->
+          <div class="nav-mobile-search-box">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="search" name="search_mobile" id="navMobileSearchInput" placeholder="Rechercher par titre, auteur, genre..." autocomplete="off">
+          </div>
+
+          <div class="nav-mobile-group">
+            <button class="nav-mobile-btn" id="mobileHomeBtn">
+              <i class="fa-solid fa-house"></i> <span>Accueil</span>
+            </button>
+            <button class="nav-mobile-btn" id="mobileCatalogBtn">
+              <i class="fa-solid fa-compass"></i> <span>Catalogue</span>
+            </button>
+            <button class="nav-mobile-btn" id="mobilePlanningBtn">
+              <i class="fa-solid fa-calendar-days"></i> <span>Calendrier</span>
+            </button>
+          </div>
+
+          <div class="nav-mobile-group">
+            <div class="nav-mobile-label">Bibliothèque</div>
+            <button class="nav-mobile-btn" id="mobileContinueBtn">
+              <i class="fa-solid fa-play"></i> <span>Continuer la lecture</span>
+            </button>
+            <button class="nav-mobile-btn" id="mobileLibraryBtn">
+              <i class="fa-solid fa-book-open"></i> <span>Ma bibliothèque</span>
+            </button>
+            <button class="nav-mobile-btn" id="mobileFavoritesBtn">
+              <i class="fa-solid fa-star"></i> <span>Favoris</span>
+            </button>
+            <button class="nav-mobile-btn" id="mobileReadingHistoryBtn">
+              <i class="fa-solid fa-book-bookmark"></i> <span>Historique de lecture</span>
+            </button>
+          </div>
+
+          <div class="nav-mobile-group">
+            <div class="nav-mobile-label">Studio Traduction</div>
+            <button class="nav-mobile-btn" id="mobileDocsBtn">
+              <i class="fa-solid fa-file-pdf"></i> <span>Documents (PDF/EPUB)</span>
+            </button>
+            <button class="nav-mobile-btn" id="mobileHistoryBtn">
+              <i class="fa-solid fa-clock-rotate-left"></i> <span>Historique des traductions</span>
+              <span id="mobileHistoryBadge" class="hidden history-badge">0</span>
+            </button>
+          </div>
+
+          <div class="nav-mobile-group">
+            <button class="nav-mobile-btn pwa-install-mobile-btn" id="mobilePwaInstallBtn">
+              <i class="fa-solid fa-download"></i> <span>Installer l'application</span>
+            </button>
+          </div>
+
+          <div class="nav-mobile-group nav-mobile-auth-group">
+            <button class="nav-mobile-btn nav-mobile-login-btn" id="mobileLoginBtn">
+              <i class="fa-solid fa-user"></i> <span>Connexion / Mon Compte</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <main class="main-content" style="padding: 0; overflow-x: hidden;">
+      <!-- MODULE: SERIES INFO PAGE -->
+      <div id="seriesModule" class="module-container series-module-full">
+        
+        <div class="series-page-banner" id="seriesBanner"></div>
+        
+        <div class="series-page-content">
+          <div class="series-page-top">
+            <div class="series-page-cover-wrap">
+              <div class="series-cover-ambient-glow" id="seriesCoverGlow"></div>
+              <img src="" alt="Cover" id="seriesCover" class="series-page-cover">
+            </div>
+            <div class="series-page-meta">
+              <!-- Titre principal, badge de catalogue & sous-titre romaji/japonais alternatif -->
+              <div class="series-title-row">
+                <h2 id="seriesTitle">Titre de la série</h2>
+                <div id="seriesCatalogBadge" class="series-catalog-badge"></div>
+              </div>
+              <div class="series-subtitle-editorial hidden" id="seriesSubtitle"></div>
+
+              <!-- Tags / Genres minimalistes (Pastels / Monochromes) -->
+              <div class="series-tags" id="seriesTags"></div>
+
+              <!-- Grille aérée de métadonnées éditoriales -->
+              <div class="series-details-grid" id="seriesDetailsGrid">
+                <div class="series-meta-item">
+                  <span class="series-meta-label">Auteur</span>
+                  <span class="series-meta-val" id="seriesAuthor">Inconnu</span>
+                </div>
+                <div class="series-meta-item hidden" id="seriesIllustratorItem">
+                  <span class="series-meta-label">Illustration</span>
+                  <span class="series-meta-val" id="seriesIllustrator">Inconnu</span>
+                </div>
+                <div class="series-meta-item">
+                  <span class="series-meta-label">Statut</span>
+                  <span class="series-meta-val status-val" id="seriesStatus">
+                    <span class="status-indicator-dot"></span>
+                    <span id="seriesStatusText">En cours</span>
+                  </span>
+                </div>
+                <div class="series-meta-item">
+                  <span class="series-meta-label">Volumes</span>
+                  <span class="series-meta-val" id="seriesVolCount">Volumes disponibles</span>
+                </div>
+              </div>
+
+              <!-- Actions du Hero (Lecture rapide, Favoris, Soumission) -->
+              <div class="series-action-bar" id="seriesActionBar">
+                <button id="btnOpenSubmitCatalog" class="btn-primary btn-submit-catalog hidden">
+                  <i class="fa-solid fa-cloud-arrow-up"></i> <span>Proposer au Catalogue Public</span>
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <div class="series-page-body">
+            <div class="series-synopsis-section" id="seriesSynopsisSection">
+              <div class="series-section-header">
+                <h3>Synopsis</h3>
+              </div>
+              <div class="series-synopsis-wrapper" id="seriesSynopsisWrapper">
+                <div class="series-synopsis-content" id="seriesSynopsis">
+                  <p>Chargement des informations...</p>
+                </div>
+                <button type="button" class="btn-synopsis-expand hidden" id="btnSynopsisExpand" aria-expanded="false">
+                  <span>Lire la suite</span> <i class="fa-solid fa-chevron-down"></i>
+                </button>
+              </div>
+            </div>
+            
+            <div class="series-volumes-section">
+              <div class="series-section-header">
+                <h3>Volumes disponibles</h3>
+              </div>
+              <div class="series-volumes-grid" id="seriesVolumesGrid">
+                <!-- Volumes injected here -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+        <!-- NOVELTRAD FOOTER MINIMALISTE (STYLE LNORI) -->
+  <footer class="noveltrad-main-footer" id="noveltradFooter" role="contentinfo">
+    <div class="footer-container">
+      <nav class="footer-nav-grid" aria-label="Navigation de pied de page">
+        <!-- 1. DÉCOUVERTE -->
+        <section class="footer-col" aria-labelledby="footer-col-discovery">
+          <h3 id="footer-col-discovery" class="footer-col-heading">DÉCOUVERTE</h3>
+          <ul class="footer-links">
+            <li><a href="/index.html#catalog?sort=latest">Dernières sorties</a></li>
+            <li><a href="/index.html#catalog?sort=popular">Tendances & Populaires</a></li>
+            <li><a href="/index.html#catalog?sort=rating">Mieux notés</a></li>
+            <li><a href="/index.html#catalog">Tous les romans</a></li>
+          </ul>
+        </section>
+
+        <!-- 2. MA LISEUSE -->
+        <section class="footer-col" aria-labelledby="footer-col-reader">
+          <h3 id="footer-col-reader" class="footer-col-heading">MA LISEUSE</h3>
+          <ul class="footer-links">
+            <li><a href="/index.html#library">Ma Bibliothèque</a></li>
+            <li><a href="/index.html#continue">Continuer la lecture</a></li>
+            <li><a href="/index.html#docs">Traducteur de documents</a></li>
+            <li><a href="/index.html#favorites">Favoris</a></li>
+          </ul>
+        </section>
+
+        <!-- 3. COMMUNAUTÉ & SUPPORT -->
+        <section class="footer-col" aria-labelledby="footer-col-community">
+          <h3 id="footer-col-community" class="footer-col-heading">COMMUNAUTÉ</h3>
+          <ul class="footer-links">
+            <li><a href="https://discord.gg" target="_blank" rel="noopener noreferrer">Rejoindre Discord</a></li>
+            <li><a href="/index.html#contributor">Studio Contributeur</a></li>
+            <li><a href="mailto:contact@noveltrad.com">Contact & Support</a></li>
+            <li><a href="/index.html#ethics">Charte du traducteur</a></li>
+          </ul>
+        </section>
+
+        <!-- 4. LÉGAL & ÉTHIQUE -->
+        <section class="footer-col" aria-labelledby="footer-col-legal">
+          <h3 id="footer-col-legal" class="footer-col-heading">LÉGAL</h3>
+          <ul class="footer-links">
+            <li><a href="/index.html#privacy">Confidentialité</a></li>
+            <li><a href="/index.html#terms">Conditions d'utilisation</a></li>
+            <li><a href="mailto:dmca@noveltrad.com">Signaler un contenu (DMCA)</a></li>
+          </ul>
+        </section>
+      </nav>
+
+      <!-- SOUTIEN AUX CRÉATEURS ORIGINAUX : LIGNE ÉPURÉE & DISCRÈTE -->
+      <div class="footer-creator-support-line">
+        <i class="fa-solid fa-heart" style="color: #f43f5e; font-size: 11px;"></i>
+        <span>NovelTrad est un projet bénévole francophone. Soutenez les créateurs en achetant les œuvres originales sur <a href="https://bookwalker.jp" target="_blank" rel="noopener noreferrer">BookWalker JP</a>, <a href="https://global.bookwalker.jp" target="_blank" rel="noopener noreferrer">BookWalker Global</a> ou auprès des <a href="https://www.ofelbe.com" target="_blank" rel="noopener noreferrer">éditeurs francophones</a>.</span>
+      </div>
+
+      <!-- SUB-FOOTER : COPYRIGHT & ICÔNES SOCIALES -->
+      <div class="footer-subbar">
+        <span class="footer-copy">&copy; 2026 NovelTrad. Fait avec passion pour la communauté francophone.</span>
+        <div class="footer-social-icons">
+          <a href="https://discord.gg" target="_blank" rel="noopener noreferrer" aria-label="Discord" title="Discord"><i class="fa-brands fa-discord"></i></a>
+          <a href="#" aria-label="Twitter / X" title="Twitter / X"><i class="fa-brands fa-x-twitter"></i></a>
+          <a href="#" aria-label="GitHub" title="GitHub"><i class="fa-brands fa-github"></i></a>
+        </div>
+      </div>
+    </div>
+  </footer>
+    </main>
+
+  </div>
+  
+  <!-- READER OVERLAY (same as index.html but without mode btn for simplicity) -->
+  <div id="readerOverlay" class="premium-reader-overlay" style="display: none;">
+    <header class="premium-reader-toolbar">
+      <div class="toolbar-left">
+        <button id="closeReaderBtn" class="toolbar-btn" title="Fermer">
+          <i class="fa-solid fa-arrow-left"></i>
+        </button>
+        <button id="toggleSidebarBtn" class="toolbar-btn" title="Sommaire">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+        <div class="toolbar-title" id="readerTitle"></div>
+      </div>
+      <div class="toolbar-center">
+        <button id="readerPrevBtn" class="toolbar-btn nav-arrow" title="Précédent (←)"><i class="fa-solid fa-chevron-left"></i></button>
+        <div class="reader-progress-indicator">
+          <span id="readerProgressText">-- / --</span>
+        </div>
+        <button id="readerNextBtn" class="toolbar-btn nav-arrow" title="Suivant (→)"><i class="fa-solid fa-chevron-right"></i></button>
+      </div>
+      <div class="toolbar-right">
+        <button id="readerDownloadBtn" class="toolbar-btn" title="Télécharger le volume" aria-label="Télécharger">
+          <i class="fa-solid fa-download"></i>
+        </button>
+        <div class="dropdown-container">
+          <button id="readerSettingsToggle" class="toolbar-btn" title="Apparence (Aa)">Aa</button>
+          <div id="readerSettingsMenu" class="premium-popover hidden">
+            <div class="popover-header">APPARENCE</div>
+            
+            <div class="popover-row" id="popoverPdfModeSwitchRow" style="display:none;">
+              <label>Lecture</label>
+              <button id="btnTogglePdfMode" class="btn-popover-action" onclick="window.togglePdfRawMode && window.togglePdfRawMode()" title="Changer le mode de rendu">
+                <i id="iconTogglePdfMode" class="fa-solid fa-arrows-rotate" style="color:var(--primary, #e11d48);"></i> <span id="textTogglePdfMode">Mode Roman Fluide</span>
+              </button>
+            </div>
+            
+            <div class="popover-row" id="popoverPdfIllustrationsRow" style="display:none;">
+              <label>Galerie</label>
+              <button id="btnMenuPdfGallery" class="btn-popover-action" title="Voir les illustrations du volume">
+                <i class="fa-solid fa-images" style="color:#e11d48;"></i> Illustrations du LN
+              </button>
+            </div>
+
+            <div class="popover-row" id="popoverPdfFitRow" style="display:none;">
+              <label>Cadrage</label>
+              <div class="segmented-control">
+                <button id="btnPdfFitWidth" class="active" title="Ajuster à la largeur"><i class="fa-solid fa-arrows-left-right"></i> Largeur</button>
+                <button id="btnPdfFitPage" title="Afficher la page entière"><i class="fa-solid fa-arrows-up-down"></i> Entière</button>
+              </div>
+            </div>
+
+            <div class="popover-row" id="popoverPdfSpreadRow" style="display:none;">
+              <label>Pages</label>
+              <div class="segmented-control">
+                <button id="btnPdfSpreadAuto" class="active" title="Auto (Double sur PC, simple sur mobile)"><i class="fa-solid fa-arrows-split-up-and-left"></i> Auto</button>
+                <button id="btnPdfSpreadSingle" title="Page simple"><i class="fa-solid fa-file"></i> 1 Page</button>
+                <button id="btnPdfSpreadDouble" title="Double page"><i class="fa-solid fa-book-open"></i> 2 Pages</button>
+              </div>
+            </div>
+
+            <div class="popover-row" id="popoverFontRow">
+              <label>Taille</label>
+              <div class="segmented-control">
+                <button id="btnTextMinus">A-</button>
+                <span id="textPercent">100%</span>
+                <button id="btnTextPlus">A+</button>
+              </div>
+            </div>
+
+            <div class="popover-row" id="popoverMarginRow">
+              <label>Marges</label>
+              <div class="segmented-control">
+                <button class="margin-btn" data-margin="0%">-</button>
+                <button class="margin-btn active" data-margin="5%">O</button>
+                <button class="margin-btn" data-margin="15%">+</button>
+              </div>
+            </div>
+
+            <div class="popover-row">
+              <label>Thème</label>
+              <div class="theme-control">
+                <button class="theme-btn" data-theme="light" style="background:#fff; color:#000;">Clair</button>
+                <button class="theme-btn" data-theme="sepia" style="background:#f4ecd8; color:#5b4636;">Sépia</button>
+                <button class="theme-btn active" data-theme="dark" style="background:#111; color:#eee;">Sombre</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <button id="readerFullscreenBtn" class="toolbar-btn" title="Plein Écran (F)">
+          <i class="fa-solid fa-expand"></i>
+        </button>
+      </div>
+    </header>
+    
+    <!-- Light Novel Illustrations Gallery Drawer -->
+    <div id="pdfGalleryBackdrop" class="pdf-gallery-backdrop"></div>
+    <aside id="pdfGalleryDrawer" class="pdf-gallery-drawer" aria-label="Galerie d'illustrations">
+      <div class="pdf-gallery-header">
+        <h3><i class="fa-solid fa-images" style="color:#e11d48;"></i> Illustrations du Volume</h3>
+        <button id="pdfGalleryCloseBtn" class="pdf-gallery-close-btn" aria-label="Fermer"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div id="pdfGalleryBody" class="pdf-gallery-body">
+        <div style="grid-column: 1 / -1; padding: 24px; text-align: center; color: #94a3b8; font-size: 13px;">
+          <i class="fa-solid fa-spinner fa-spin" style="margin-right: 6px;"></i> Recherche des illustrations...
+        </div>
+      </div>
+    </aside>
+
+    <div id="readerSearchOverlay" class="reader-search-bar hidden">
+      <input type="search" name="search_reader" id="readerSearchInput" placeholder="Rechercher dans le livre..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" role="searchbox" aria-autocomplete="none" data-form-type="other" data-lpignore="true" data-1p-ignore="true" data-bwignore="true" />
+      <span id="readerSearchCount" class="search-count"></span>
+      <button id="readerSearchPrev" class="toolbar-btn"><i class="fa-solid fa-arrow-up"></i></button>
+      <button id="readerSearchNext" class="toolbar-btn"><i class="fa-solid fa-arrow-down"></i></button>
+      <button id="readerSearchClose" class="toolbar-btn"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+
+    <div class="premium-reader-body">
+      <aside class="premium-reader-sidebar" id="readerSidebar">
+        <div class="sidebar-header"><h3>CONTENU</h3></div>
+        <ul id="readerTocList" class="premium-toc-list"></ul>
+      </aside>
+      <main class="premium-reader-main" id="readerMainContainer">
+        <div class="premium-reader-page" id="readerPage">
+          <div id="readerViewer" class="epub-viewer-container"></div>
+        </div>
+      </main>
+    </div>
+      <!-- Floating Ambient Audio Widget -->
+    <div id="readerAudioFloatingWidget" class="reader-audio-fab-container">
+      <button id="readerAudioToggle" class="reader-audio-fab-btn" title="Ambiance sonore" aria-label="Ambiance sonore">
+        <i class="fa-solid fa-headphones"></i>
+      </button>
+
+      <div id="readerAudioMenu" class="premium-popover audio-fab-popover hidden">
+        <div class="popover-header" style="display:flex; justify-content:space-between; align-items:center;">
+          <span>AMBIANCE SONORE</span>
+          <span id="readerAudioStatus" style="font-size:10px; font-weight:600; text-transform:uppercase; color:var(--text-secondary);">Désactivé</span>
+        </div>
+        <div class="popover-row">
+          <button id="readerAudioPlayBtn" class="reader-audio-master-btn">
+            <i class="fa-solid fa-play"></i> <span id="readerAudioPlayText">Lancer la mélodie</span>
+          </button>
+        </div>
+        <div class="popover-row">
+          <label style="font-size:11px; text-transform:uppercase; color:var(--text-muted); font-weight:700; letter-spacing:0.04em;">Musiques Anime</label>
+          <div class="reader-audio-grid">
+            <button class="audio-preset-btn active" data-preset="piano_nostalgia">
+              <span class="preset-icon">🎹</span>
+              <span class="preset-name">Piano Nostalgie</span>
+            </button>
+            <button class="audio-preset-btn" data-preset="tokyo_lofi">
+              <span class="preset-icon">☕</span>
+              <span class="preset-name">Tokyo Lofi Chill</span>
+            </button>
+            <button class="audio-preset-btn" data-preset="zen_japan" style="grid-column: span 2;">
+              <span class="preset-icon">🌸</span>
+              <span class="preset-name">Koto & Zen Japonais</span>
+            </button>
+          </div>
+        </div>
+        <div class="popover-row">
+          <label style="font-size:11px; text-transform:uppercase; color:var(--text-muted); font-weight:700; letter-spacing:0.04em;">Atmosphères Nature</label>
+          <div class="reader-audio-grid">
+            <button class="audio-preset-btn" data-preset="rain">
+              <span class="preset-icon">🌧️</span>
+              <span class="preset-name">Pluie douce</span>
+            </button>
+            <button class="audio-preset-btn" data-preset="campfire">
+              <span class="preset-icon">🪵</span>
+              <span class="preset-name">Feu de bois</span>
+            </button>
+          </div>
+        </div>
+        <div class="popover-row">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <label for="readerAudioVolume">Volume</label>
+            <span id="readerAudioVolumeVal" style="font-size:12px; color:var(--text-secondary);">30%</span>
+          </div>
+          <input type="range" id="readerAudioVolume" min="0" max="100" value="30" class="reader-audio-slider">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WEBNOVEL READER OVERLAY (GUEST FIRST) -->
+  <div id="webnovelReaderOverlay" class="webnovel-reader-overlay" data-theme="dark">
+    <header class="wn-toolbar">
+      <div class="wn-toolbar-left">
+        <button id="wnCloseBtn" class="wn-tool-btn" title="Fermer la liseuse"><i class="fa-solid fa-arrow-left"></i></button>
+        <div class="wn-toolbar-center">
+          <h4 id="wnReaderTitle">Titre du Webnovel</h4>
+          <span id="wnChapterTitle">Chapitre 1</span>
+        </div>
+      </div>
+
+      <div class="wn-toolbar-right">
+        <button id="wnTopPrevBtn" class="wn-tool-btn" title="Chapitre Précédent"><i class="fa-solid fa-backward-step"></i></button>
+        <button id="wnTopNextBtn" class="wn-tool-btn" title="Chapitre Suivant"><i class="fa-solid fa-forward-step"></i></button>
+
+        <div class="wn-font-controls">
+          <button id="wnFontMinusBtn" class="wn-tool-btn" title="Diminuer la police"><i class="fa-solid fa-font"></i>-</button>
+          <span id="wnFontSizeDisplay" class="wn-font-size-text">18px</span>
+          <button id="wnFontPlusBtn" class="wn-tool-btn" title="Augmenter la police"><i class="fa-solid fa-font"></i>+</button>
+        </div>
+
+        <div class="wn-theme-group">
+          <button class="wn-theme-btn light" data-theme="light" title="Thème Clair"></button>
+          <button class="wn-theme-btn sepia" data-theme="sepia" title="Thème Sépia"></button>
+          <button class="wn-theme-btn dark active" data-theme="dark" title="Thème Sombre"></button>
+        </div>
+
+        <button id="wnTocBtn" class="wn-tool-btn" title="Sommaire des Chapitres"><i class="fa-solid fa-list"></i></button>
+        <span id="wnProgressText" class="history-badge" style="display:inline-block; font-size:0.75rem;">0%</span>
+      </div>
+    </header>
+
+    <div id="wnTocPopover" class="wn-toc-popover hidden">
+      <div class="wn-toc-header"><i class="fa-solid fa-list-ol"></i> Sommaire des Chapitres</div>
+      <ul id="wnTocList" class="wn-toc-list"></ul>
+    </div>
+
+    <main class="wn-scroll-container" id="wnScrollContainer">
+      <div id="wnLoader" style="display:none; flex-direction:column; align-items:center; justify-content:center; height:300px; color:var(--text-secondary);">
+        <i class="fa-solid fa-circle-notch fa-spin fa-2x" style="margin-bottom:12px;"></i>
+        <p>Chargement du chapitre...</p>
+      </div>
+      <div class="wn-content-wrap" id="webnovelContent"></div>
+    </main>
+  </div>
+
+  <div id="seriesToast" class="catalog-toast"></div>
+
+
+  <!-- SUPABASE AUTH MODAL (GLASSMORPHIC & RESPONSIVE) -->
+  <div id="authModal" class="modal-overlay hidden">
+    <div class="modal auth-modal-card">
+      <button class="close-modal" id="authModalClose" aria-label="Fermer">&times;</button>
+      
+      <div class="auth-modal-header">
+        <div class="auth-logo-badge"><i class="fa-solid fa-language"></i></div>
+        <h2 id="authModalTitle">Espace Compte NovelTrad</h2>
+        <p class="auth-modal-subtitle">Lecture libre & Guest First. Le compte permet de synchroniser vos favoris ultérieurement.</p>
+      </div>
+
+      <div class="auth-tabs">
+        <button class="auth-tab-btn active" id="authTabLogin">Connexion</button>
+        <button class="auth-tab-btn" id="authTabRegister">Inscription</button>
+      </div>
+
+      <div id="authFeedback" class="auth-feedback hidden"></div>
+
+      <!-- Formulaire Connexion -->
+      <form id="authLoginForm" class="auth-form">
+        <div class="auth-input-group">
+          <label for="loginEmail"><i class="fa-solid fa-envelope"></i> Email</label>
+          <input type="email" id="loginEmail" placeholder="votre@email.com" required autocomplete="email">
+        </div>
+        <div class="auth-input-group">
+          <label for="loginPassword"><i class="fa-solid fa-lock"></i> Mot de passe</label>
+          <input type="password" id="loginPassword" placeholder="••••••••" required autocomplete="current-password">
+        </div>
+        <button type="submit" id="btnLoginSubmit" class="btn btn-primary btn-lg auth-submit-btn">
+          <i class="fa-solid fa-right-to-bracket"></i> Se connecter
+        </button>
+        <p class="auth-switch-text">
+          Pas encore de compte ? <a href="#" id="switchRegisterLink">Créer un compte</a>
+        </p>
+      </form>
+
+      <!-- Formulaire Inscription -->
+      <form id="authRegisterForm" class="auth-form hidden">
+        <div class="auth-input-group">
+          <label for="regEmail"><i class="fa-solid fa-envelope"></i> Email</label>
+          <input type="email" id="regEmail" placeholder="votre@email.com" required autocomplete="email">
+        </div>
+        <div class="auth-input-group">
+          <label for="regPassword"><i class="fa-solid fa-lock"></i> Mot de passe</label>
+          <input type="password" id="regPassword" placeholder="Au moins 6 caractères" minlength="6" required autocomplete="new-password">
+        </div>
+        <div class="auth-input-group">
+          <label for="regConfirmPassword"><i class="fa-solid fa-shield-halved"></i> Confirmer le mot de passe</label>
+          <input type="password" id="regConfirmPassword" placeholder="Répétez le mot de passe" minlength="6" required autocomplete="new-password">
+        </div>
+        <button type="submit" id="btnRegisterSubmit" class="btn btn-primary btn-lg auth-submit-btn">
+          <i class="fa-solid fa-user-plus"></i> Créer mon compte
+        </button>
+        <p class="auth-switch-text">
+          Déjà un compte ? <a href="#" id="switchLoginLink">Se connecter</a>
+        </p>
+      </form>
+    </div>
+  </div>
+
+
+    <!-- External Vendor CDN Libraries -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+  <script src="js/jszip.min.js?v=1789351336060"></script>
+  <script src="js/epub.min.js?v=1789351336060"></script>
+
+  <!-- Core NovelTrad Application Scripts -->
+  <script src="js/api-client.js?v=1789351336060"></script>
+  <script src="js/library_db.js?v=1789351336060"></script>
+  <script src="js/supabase_auth.js?v=1790960543692"></script>
+  <script src="/js/sync_engine.js?v=1790725844546"></script>
+  <script src="js/library_logic.js?v=1790725844546"></script>
+  <script src="js/reader_audio.js"></script>
+  <script src="js/inline_comments.js?v=1790962117112"></script>
+  <script src="js/quote_card_generator.js?v=1790962388664"></script>
+  <script src="js/pdf_reader.js?v=1790900961187"></script>
+  <script src="js/webnovel_reader.js?v=1790249188293"></script>
+  <script src="js/pwa_manager.js?v=1790841520734"></script>
+  <script src="js/series_logic.js?v=1790898934336"></script>
+  <!-- PWA Service Worker -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').catch(function(err) {
+        console.log('[SW] Registration failed:', err);
+      });
+    }
+  </script>
+  <!-- Synopsis Expand Logic (inspired by Lnori, safe non-breaking) -->
+  <script>
+    (function() {
+      const synEl = document.getElementById('seriesSynopsis');
+      const wrapper = document.getElementById('seriesSynopsisWrapper');
+      const btn = document.getElementById('btnSynopsisExpand');
+      if (!synEl || !wrapper || !btn) return;
+
+      function updateSynopsisState() {
+        if (wrapper.classList.contains('is-expanded')) return;
+        // Check if synopsis text exceeds clamped threshold (~78px)
+        const isOverflowing = synEl.scrollHeight > 80;
+        if (isOverflowing) {
+          btn.classList.remove('hidden');
+        } else {
+          btn.classList.add('hidden');
+        }
+      }
+
+      btn.addEventListener('click', function(e) {
+        e.preventDefault();
+        const expanded = wrapper.classList.toggle('is-expanded');
+        btn.setAttribute('aria-expanded', String(expanded));
+        btn.querySelector('span').textContent = expanded ? 'Moins' : 'Lire la suite';
+      });
+
+      const observer = new MutationObserver(function() {
+        setTimeout(updateSynopsisState, 60);
+      });
+      observer.observe(synEl, { childList: true, subtree: true, characterData: true });
+      window.addEventListener('resize', updateSynopsisState);
+      setTimeout(updateSynopsisState, 350);
+    })();
+  </script>
+
+  <!-- MODALE : SOUMETTRE AU CATALOGUE PUBLIC -->
+  <div id="submitToCatalogModal" class="modal-overlay hidden">
+    <div class="modal-content submit-catalog-modal">
+      <button class="close-modal" id="submitCatalogCloseBtn" aria-label="Fermer">&times;</button>
+      <div class="modal-header">
+        <div class="modal-icon-badge"><i class="fa-solid fa-cloud-arrow-up"></i></div>
+        <div>
+          <h2>Partager avec la communauté</h2>
+          <p class="modal-subtitle">Proposez ce roman de votre bibliothèque pour publication dans le catalogue NovelTrad.</p>
+        </div>
+      </div>
+      
+      <form id="submitCatalogForm" class="submit-catalog-form">
+        <div class="submit-novel-preview-card">
+          <img id="submitModalCover" src="" alt="Cover" class="submit-preview-cover">
+          <div class="submit-preview-info">
+            <h3 id="submitModalTitle">Titre du Roman</h3>
+            <p id="submitModalAuthor"><i class="fa-solid fa-pen-nib"></i> Auteur</p>
+            <p id="submitModalVolCount"><i class="fa-solid fa-book"></i> <span>0 volume(s)</span></p>
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-top: 16px;">
+          <label class="form-label"><i class="fa-solid fa-list-check"></i> Volumes à inclure dans la proposition</label>
+          <div id="submitVolumesChecklist" class="submit-volumes-checklist">
+            <!-- Injected dynamically -->
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="submitReviewNotes" class="form-label"><i class="fa-solid fa-message"></i> Notes pour l'équipe de modération (optionnel)</label>
+          <textarea id="submitReviewNotes" class="auth-input" rows="3" placeholder="Ex: Traduction française intégrale faite par mes soins, vérifiée sans coquilles..."></textarea>
+        </div>
+
+        <div class="submit-info-box">
+          <i class="fa-solid fa-circle-info"></i>
+          <p>Votre proposition sera examinée par un modérateur. Dès approbation, elle sera accessible publiquement à tous les lecteurs de NovelTrad.</p>
+        </div>
+
+        <div id="submitCatalogError" class="auth-error-msg hidden"></div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn-cancel" id="btnCancelSubmitCatalog">Annuler</button>
+          <button type="submit" class="btn-primary" id="btnConfirmSubmitCatalog">
+            <i class="fa-solid fa-paper-plane"></i> <span>Envoyer pour validation</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+
+  <!-- IN-LINE PARAGRAPH COMMENTS DRAWER (PHASE 2) -->
+  <div id="paraCommentsBackdrop" class="para-comments-backdrop hidden"></div>
+  <aside id="paraCommentsDrawer" class="para-comments-drawer hidden" aria-label="Commentaires par paragraphe">
+    <div class="para-comments-header">
+      <div class="para-comments-header-title">
+        <i class="fa-solid fa-comments" style="color: #fb7185;"></i>
+        <span>Commentaires du passage</span>
+      </div>
+      <button id="paraCommentsCloseBtn" class="para-comments-close-btn" aria-label="Fermer">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+    
+    <!-- Citation / Extrait du paragraphe -->
+    <div class="para-quote-box">
+      <i class="fa-solid fa-quote-left quote-mark"></i>
+      <p id="paraQuoteText">...</p>
+      <button type="button" id="btnQuoteToCard" class="btn-para-quote-share" title="Générer une carte visuelle à partager"><i class="fa-solid fa-camera"></i> Créer une Carte</button>
+    </div>
+
+    <!-- Liste des commentaires -->
+    <div id="paraCommentsList" class="para-comments-list">
+      <!-- Rempli dynamiquement -->
+    </div>
+
+    <!-- Formulaire d'ajout de commentaire -->
+    <div class="para-comment-form-container">
+      <div class="comment-author-badge" id="commentAuthorBadge">
+        <div class="comment-author-avatar" id="commentAuthorAvatar"><i class="fa-solid fa-user"></i></div>
+        <span class="comment-author-name" id="commentAuthorName">Lecteur</span>
+      </div>
+      <textarea id="paraCommentInput" placeholder="Réagir à cette phrase ou partager une théorie..." rows="3" maxlength="1000"></textarea>
+      <div class="comment-form-footer">
+        <label class="spoiler-toggle-label">
+          <input type="checkbox" id="paraCommentSpoilerCheck">
+          <span><i class="fa-solid fa-triangle-exclamation"></i> Spoiler</span>
+        </label>
+        <button type="button" id="btnSubmitParaComment" class="btn btn-primary btn-sm">
+          <i class="fa-solid fa-paper-plane"></i> Publier
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  
+  <!-- QUOTE CARD GENERATOR MODAL (PHASE 3) -->
+  <div id="quoteCardModal" class="quote-card-modal-overlay hidden">
+    <div id="quoteCardBackdrop" class="quote-card-backdrop"></div>
+    <div class="quote-card-modal-container">
+      
+      <div class="quote-modal-header">
+        <div class="quote-modal-title">
+          <i class="fa-solid fa-wand-magic-sparkles" style="color: #fb7185;"></i>
+          <span>Générateur de Citations Graphiques</span>
+        </div>
+        <button id="quoteCardCloseBtn" class="quote-modal-close-btn" aria-label="Fermer"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div class="quote-modal-body">
+        
+        <!-- VISUAL CANVAS PREVIEW -->
+        <div class="quote-preview-column">
+          <div class="canvas-aspect-wrapper">
+            <canvas id="quoteCardCanvas" width="1080" height="1080"></canvas>
+          </div>
+        </div>
+
+        <!-- CONTROLS COLUMN -->
+        <div class="quote-controls-column">
+          
+          <!-- Format / Ratio Switcher -->
+          <div class="control-group">
+            <label class="control-label"><i class="fa-solid fa-crop-simple"></i> Format d'export</label>
+            <div class="aspect-ratio-selector">
+              <button type="button" class="aspect-ratio-btn active" data-ratio="1:1">
+                <i class="fa-regular fa-square"></i> Carré (1:1)
+              </button>
+              <button type="button" class="aspect-ratio-btn" data-ratio="9:16">
+                <i class="fa-solid fa-mobile-screen"></i> Story (9:16)
+              </button>
+              <button type="button" class="aspect-ratio-btn" data-ratio="16:9">
+                <i class="fa-solid fa-display"></i> Paysage (16:9)
+              </button>
+            </div>
+          </div>
+
+          <!-- Theme / Style Switcher -->
+          <div class="control-group">
+            <label class="control-label"><i class="fa-solid fa-palette"></i> Style & Ambiance</label>
+            <div class="quote-theme-selector">
+              <button type="button" class="quote-theme-btn active" data-theme="neon">
+                <span class="theme-dot neon-dot"></span> Néon Obscur
+              </button>
+              <button type="button" class="quote-theme-btn" data-theme="sepia">
+                <span class="theme-dot sepia-dot"></span> Papier Roman
+              </button>
+              <button type="button" class="quote-theme-btn" data-theme="cyberpunk">
+                <span class="theme-dot cyber-dot"></span> Cyberpunk
+              </button>
+              <button type="button" class="quote-theme-btn" data-theme="cinematic">
+                <span class="theme-dot cinema-dot"></span> Cinématique
+              </button>
+            </div>
+          </div>
+
+          <!-- Quote Text Editor -->
+          <div class="control-group">
+            <div class="control-header-row">
+              <label class="control-label" for="quoteCardTextInput"><i class="fa-solid fa-quote-left"></i> Texte de la citation</label>
+              <div class="quote-font-size-adjuster">
+                <button type="button" id="btnQuoteFontMinus" title="Diminuer la police">A-</button>
+                <button type="button" id="btnQuoteFontPlus" title="Augmenter la police">A+</button>
+              </div>
+            </div>
+            <textarea id="quoteCardTextInput" rows="4" placeholder="Saisissez ou modifiez la citation..."></textarea>
+          </div>
+
+          <!-- Toggles -->
+          <div class="control-group-toggles">
+            <label class="toggle-checkbox">
+              <input type="checkbox" id="quoteCardCheckCover" checked>
+              <span>Afficher la couverture du roman</span>
+            </label>
+            <label class="toggle-checkbox">
+              <input type="checkbox" id="quoteCardCheckWatermark" checked>
+              <span>Filigrane NovelTrad officiel</span>
+            </label>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="quote-modal-actions">
+            <button type="button" id="btnCopyQuoteCard" class="btn btn-secondary">
+              <i class="fa-regular fa-copy"></i> Copier l'image
+            </button>
+            <button type="button" id="btnDownloadQuoteCard" class="btn btn-primary">
+              <i class="fa-solid fa-download"></i> Télécharger HD
+            </button>
+            <button type="button" id="btnShareQuoteCard" class="btn btn-primary hidden">
+              <i class="fa-solid fa-share-nodes"></i> Partager
+            </button>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+</body>
+</html>

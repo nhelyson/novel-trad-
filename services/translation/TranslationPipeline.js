@@ -6,7 +6,7 @@ const QuotaGuard = require('../optimization/QuotaGuard');
 const BatchEngine = require('../optimization/BatchEngine');
 const TranslationFactory = require('./TranslationFactory');
 const PerformanceProfiler = require('../optimization/PerformanceProfiler');
-const InMemoryJobStore = require('../storage/InMemoryJobStore');
+const DiskJobStore = require('../storage/DiskJobStore');
 
 class TranslationPipeline {
   /**
@@ -65,7 +65,7 @@ class TranslationPipeline {
    */
   static async processNovel(docId, rawText, filename, targetLang, sourceLang = 'auto', apiKey = null, providerName = 'deepl', onProgress = null) {
     const profiler = new PerformanceProfiler(docId);
-    InMemoryJobStore.createJob(docId, filename, 'text');
+    DiskJobStore.createJob(docId, filename, 'text');
 
     const provider = TranslationFactory.getProvider(providerName);
     if (!provider.isAvailable()) {
@@ -73,17 +73,17 @@ class TranslationPipeline {
     }
 
     // 1. Segmentation
-    InMemoryJobStore.setPhase(docId, 'SEGMENTATION', 'Découpage du texte en chapitres et segments...');
+    DiskJobStore.setPhase(docId, 'SEGMENTATION', 'Découpage du texte en chapitres et segments...');
     const { chapters, segments: rawSegs } = TextSegmenter.segmentText(rawText, docId);
     profiler.endStep('1. Découpage');
 
     // 2. Nettoyage & Filtrage
-    InMemoryJobStore.setPhase(docId, 'EXTRACTION', 'Nettoyage et normalisation des segments...');
+    DiskJobStore.setPhase(docId, 'EXTRACTION', 'Nettoyage et normalisation des segments...');
     const { cleanedSegments, skippedSegments, charactersSaved: cleanSaved } = DocumentCleaner.cleanDocumentSegments(rawSegs);
     profiler.endStep('2. Nettoyage');
 
     // 3. Vérification du Quota DeepL (Si provider === 'deepl')
-    InMemoryJobStore.setPhase(docId, 'QUOTA_CHECK', 'Vérification du quota de traduction...');
+    DiskJobStore.setPhase(docId, 'QUOTA_CHECK', 'Vérification du quota de traduction...');
     const quotaCheck = await QuotaGuard.checkPreTranslationQuota(
       provider.getName(),
       apiKey,
@@ -92,7 +92,7 @@ class TranslationPipeline {
     );
 
     if (!quotaCheck.canProceed) {
-      InMemoryJobStore.failJob(docId, quotaCheck.message);
+      DiskJobStore.failJob(docId, quotaCheck.message);
       throw new Error(quotaCheck.message);
     }
     profiler.endStep('3. Vérification Quota');
@@ -107,7 +107,7 @@ class TranslationPipeline {
     }
 
     // 5. Traitement des nouveaux segments par lots
-    InMemoryJobStore.setPhase(docId, 'TRANSLATION', `Traduction de ${newSegments.length} segments...`, {
+    DiskJobStore.setPhase(docId, 'TRANSLATION', `Traduction de ${newSegments.length} segments...`, {
       totalBlocks: newSegments.length
     });
 
@@ -116,7 +116,7 @@ class TranslationPipeline {
     let translatedCount = cachedSegments.length;
 
     for (let bIndex = 0; bIndex < totalBatches; bIndex++) {
-      const currentJobState = InMemoryJobStore.getJob(docId);
+      const currentJobState = DiskJobStore.getJob(docId);
       if (currentJobState && currentJobState.status === 'PAUSED') {
         console.log(`[Pipeline] Job ${docId} mis en pause.`);
         return null;
@@ -126,7 +126,9 @@ class TranslationPipeline {
       const sourceTexts = batch.map(s => s.source_text || s.text || '');
 
       try {
-        const translatedTexts = await provider.translateBatch(sourceTexts, targetLang, sourceLang, apiKey);
+        const currentJobState = DiskJobStore.getJob(docId);
+        const activeApiKey = currentJobState?.apiKey || apiKey;
+        const translatedTexts = await provider.translateBatch(sourceTexts, targetLang, sourceLang, activeApiKey);
 
         for (let i = 0; i < batch.length; i++) {
           const seg = batch[i];
@@ -134,11 +136,11 @@ class TranslationPipeline {
           const transText = translatedTexts[i] || srcText;
 
           translatedResultsMap.set(seg.id, transText);
-          await TranslationMemory.save(srcText, sourceLang, targetLang, transText, provider.getName());
+          await TranslationMemory.save(docId, srcText, sourceLang, targetLang, transText, provider.getName());
           translatedCount++;
         }
 
-        InMemoryJobStore.setTranslationProgress(
+        DiskJobStore.setTranslationProgress(
           docId,
           translatedCount,
           rawSegs.length,
@@ -151,16 +153,25 @@ class TranslationPipeline {
 
       } catch (batchErr) {
         console.error(`[Pipeline] Échec lot ${bIndex + 1}: ${batchErr.message}`);
-        if (batchErr.isQuotaExceeded) {
-          InMemoryJobStore.failJob(docId, batchErr.message);
-          throw batchErr;
+        const isQuota = Boolean(batchErr.isQuotaExceeded || batchErr.message?.includes('456'));
+        if (isQuota) {
+          DiskJobStore.setWaitingForKey(docId, translatedCount, rawSegs.length, `Quota clé 1 atteint (${translatedCount}/${rawSegs.length} blocs). En attente de la clé 2...`);
+          const partialErr = new Error(`Quota de la clé 1 épuisé (${translatedCount} / ${rawSegs.length} blocs traduits). Saisissez la clé 2 pour continuer.`);
+          partialErr.isQuotaExceeded = true;
+          partialErr.isPartial = true;
+          partialErr.currentBlock = translatedCount;
+          partialErr.totalBlocks = rawSegs.length;
+          throw partialErr;
         }
+        const isAuth = Boolean(batchErr.isAuthError || batchErr.message?.includes('403'));
+        DiskJobStore.failJob(docId, batchErr.message, isQuota, isAuth);
+        throw batchErr;
       }
     }
     profiler.endStep('4. Traduction Moteur');
 
     // 6. Reconstruction du texte final traduit
-    InMemoryJobStore.setPhase(docId, 'FINALIZATION', 'Reconstruction du roman final...');
+    DiskJobStore.setPhase(docId, 'FINALIZATION', 'Reconstruction du roman final...');
     const translatedLines = [];
     for (const seg of rawSegs) {
       if (skippedSegments.some(s => s.id === seg.id)) {
@@ -175,9 +186,11 @@ class TranslationPipeline {
     const summary = profiler.getSummary();
     profiler.printSummaryConsole();
 
-    InMemoryJobStore.completeJob(docId, summary);
+    DiskJobStore.completeJob(docId, summary);
     return finalResultText;
   }
 }
 
 module.exports = TranslationPipeline;
+
+

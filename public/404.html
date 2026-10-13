@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="fr" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <title>404 - Chapitre Introuvable | NovelTrad</title>
+  <meta name="description" content="Oups ! La page ou le roman que vous cherchez s'est perdu dans une faille spatio-temporelle sur NovelTrad.">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Nunito+Sans:ital,opsz,wght@0,6..12,300;0,6..12,400;0,6..12,600;0,6..12,700;0,6..12,800;1,6..12,400&family=Outfit:wght@500;600;700;800;900&family=Playfair+Display:ital,wght@0,600;1,400&display=swap" rel="stylesheet">
+
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <style>
+    /* ── RESET & BASE VARS AUX COULEURS EXACTES DE NOVELTRAD ── */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg-deep: #09090b;
+      --bg-surface: rgba(18, 18, 24, 0.7);
+      --bg-surface-hover: rgba(28, 28, 38, 0.85);
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      
+      /* CHARTE NOVELTRAD (Signature Rose / Crimson & Rubis) */
+      --accent-rose: #f43f5e;
+      --accent-crimson: #e11d48;
+      --accent-light-rose: #fb7185;
+      --accent-deep-rose: #be123c;
+      --accent-glow: rgba(225, 29, 72, 0.35);
+
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+      --font-display: 'Outfit', 'Nunito Sans', sans-serif;
+      --font-body: 'Nunito Sans', 'Inter', sans-serif;
+      --font-serif: 'Playfair Display', serif;
+    }
+
+    body {
+      background-color: var(--bg-deep);
+      color: var(--text-main);
+      font-family: var(--font-body);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* ── AMBIENT AURORA NOVELTRAD ── */
+    .ambient-bg {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    .aurora-sphere {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(120px);
+      opacity: 0.22;
+      animation: floatPulse 14s infinite alternate ease-in-out;
+    }
+
+    .aurora-1 {
+      top: -10%;
+      left: 15%;
+      width: 550px;
+      height: 550px;
+      background: radial-gradient(circle, var(--accent-crimson) 0%, transparent 70%);
+    }
+
+    .aurora-2 {
+      bottom: 5%;
+      right: 10%;
+      width: 650px;
+      height: 650px;
+      background: radial-gradient(circle, var(--accent-rose) 0%, transparent 70%);
+      animation-delay: -5s;
+    }
+
+    .aurora-3 {
+      top: 40%;
+      left: 45%;
+      width: 450px;
+      height: 450px;
+      background: radial-gradient(circle, var(--accent-deep-rose) 0%, transparent 70%);
+      opacity: 0.15;
+      animation-delay: -9s;
+    }
+
+    @keyframes floatPulse {
+      0% { transform: translate(0, 0) scale(1); }
+      50% { transform: translate(30px, -40px) scale(1.12); }
+      100% { transform: translate(-25px, 25px) scale(0.95); }
+    }
+
+    /* Motif de grille discret */
+    .grid-overlay {
+      position: absolute;
+      inset: 0;
+      background-image: 
+        linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+      background-size: 48px 48px;
+      mask-image: radial-gradient(ellipse at center, rgba(0,0,0,0.8) 0%, transparent 75%);
+    }
+
+    /* ── HEADER / TOPNAV NOVELTRAD ── */
+    .topnav-404 {
+      position: relative;
+      z-index: 10;
+      width: 100%;
+      padding: 1rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border-subtle);
+      background: rgba(9, 9, 11, 0.75);
+      backdrop-filter: blur(12px);
+    }
+
+    .logo-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+      color: var(--text-main);
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 1.35rem;
+      letter-spacing: -0.02em;
+      transition: transform 0.2s ease;
+    }
+
+    .logo-link:hover {
+      transform: scale(1.02);
+    }
+
+    .logo-icon-box {
+      width: 38px;
+      height: 38px;
+      background: linear-gradient(135deg, var(--accent-crimson), var(--accent-rose));
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 1.1rem;
+      box-shadow: 0 4px 14px var(--accent-glow);
+    }
+
+    .logo-text strong {
+      background: linear-gradient(135deg, var(--accent-light-rose), var(--accent-crimson));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .nav-link {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.92rem;
+      font-weight: 500;
+      padding: 0.5rem 0.85rem;
+      border-radius: 8px;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .nav-link:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    /* ── MAIN 404 WRAPPER ── */
+    .error-main {
+      position: relative;
+      z-index: 10;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2.5rem 1.5rem;
+      text-align: center;
+      max-width: 860px;
+      margin: 0 auto;
+    }
+
+    /* ── PORTAL & FLOATING BOOK AUX COULEURS NOVELTRAD ── */
+    .portal-scene {
+      position: relative;
+      width: 260px;
+      height: 220px;
+      margin: 0 auto 1.5rem auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .portal-ring {
+      position: absolute;
+      width: 220px;
+      height: 220px;
+      border-radius: 50%;
+      border: 2px dashed rgba(244, 63, 94, 0.4);
+      animation: spinPortal 22s linear infinite;
+      box-shadow: 0 0 35px rgba(225, 29, 72, 0.22), inset 0 0 35px rgba(244, 63, 94, 0.15);
+    }
+
+    .portal-ring-inner {
+      position: absolute;
+      width: 170px;
+      height: 170px;
+      border-radius: 50%;
+      border: 1px solid rgba(251, 113, 133, 0.45);
+      animation: spinPortalReverse 16s linear infinite;
+    }
+
+    @keyframes spinPortal {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes spinPortalReverse {
+      from { transform: rotate(360deg); }
+      to { transform: rotate(0deg); }
+    }
+
+    /* Grimoire Light Novel Holographique */
+    .floating-book {
+      position: relative;
+      z-index: 2;
+      width: 90px;
+      height: 115px;
+      background: linear-gradient(135deg, rgba(38, 8, 18, 0.92), rgba(76, 12, 33, 0.88));
+      border: 1px solid rgba(244, 63, 94, 0.45);
+      border-radius: 8px 12px 12px 8px;
+      box-shadow: 
+        0 15px 35px rgba(0, 0, 0, 0.7),
+        0 0 25px rgba(225, 29, 72, 0.4),
+        inset -4px 0 8px rgba(0,0,0,0.5);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      animation: floatBook 4s ease-in-out infinite alternate;
+      transform-style: preserve-3d;
+      perspective: 600px;
+    }
+
+    .book-spine-line {
+      position: absolute;
+      left: 10px;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .book-icon {
+      font-size: 2.2rem;
+      background: linear-gradient(135deg, #ffffff, var(--accent-light-rose));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 2px 8px rgba(244, 63, 94, 0.5));
+    }
+
+    .book-star {
+      position: absolute;
+      font-size: 0.75rem;
+      color: var(--accent-light-rose);
+      animation: starTwinkle 2s infinite ease-in-out alternate;
+    }
+    .star-1 { top: 10px; right: 12px; }
+    .star-2 { bottom: 12px; left: 18px; color: var(--accent-rose); animation-delay: 1s; }
+
+    @keyframes floatBook {
+      0% { transform: translateY(0px) rotate(-4deg); }
+      50% { transform: translateY(-16px) rotate(3deg); }
+      100% { transform: translateY(0px) rotate(-4deg); }
+    }
+
+    @keyframes starTwinkle {
+      0% { opacity: 0.3; transform: scale(0.8); }
+      100% { opacity: 1; transform: scale(1.2); }
+    }
+
+    /* ── BADGE ET CODE 404 NOVELTRAD ── */
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.4rem 1rem;
+      border-radius: 9999px;
+      background: rgba(225, 29, 72, 0.12);
+      border: 1px solid rgba(225, 29, 72, 0.35);
+      color: var(--accent-light-rose);
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      margin-bottom: 0.75rem;
+    }
+
+    .error-code {
+      font-family: var(--font-display);
+      font-size: clamp(5rem, 14vw, 9.5rem);
+      font-weight: 900;
+      line-height: 0.95;
+      letter-spacing: -0.05em;
+      background: linear-gradient(135deg, #ffffff 0%, #fb7185 45%, #e11d48 85%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 10px 30px var(--accent-glow));
+      user-select: none;
+      margin-bottom: 0.5rem;
+    }
+
+    .error-title {
+      font-family: var(--font-display);
+      font-size: clamp(1.4rem, 4vw, 2.2rem);
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 1rem;
+      letter-spacing: -0.02em;
+    }
+
+    .error-desc {
+      font-size: 1.05rem;
+      line-height: 1.65;
+      color: var(--text-muted);
+      max-width: 580px;
+      margin: 0 auto 2rem auto;
+    }
+
+    /* ── BARRE DE RECHERCHE ── */
+    .search-container-404 {
+      width: 100%;
+      max-width: 520px;
+      margin: 0 auto 2.25rem auto;
+    }
+
+    .search-form-404 {
+      position: relative;
+      display: flex;
+      align-items: center;
+      background: rgba(24, 24, 32, 0.75);
+      border: 1px solid var(--border-subtle);
+      border-radius: 14px;
+      padding: 0.4rem 0.5rem 0.4rem 1.1rem;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    }
+
+    .search-form-404:focus-within {
+      border-color: var(--accent-rose);
+      box-shadow: 0 0 0 3px rgba(244, 63, 94, 0.18), 0 10px 30px rgba(0, 0, 0, 0.4);
+      background: rgba(28, 28, 38, 0.95);
+    }
+
+    .search-icon {
+      color: var(--text-dim);
+      font-size: 1rem;
+      margin-right: 0.75rem;
+    }
+
+    .search-input-404 {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--text-main);
+      font-family: var(--font-body);
+      font-size: 0.95rem;
+    }
+
+    .search-input-404::placeholder {
+      color: var(--text-dim);
+    }
+
+    .btn-search-submit {
+      background: linear-gradient(135deg, var(--accent-crimson), var(--accent-rose));
+      border: none;
+      color: #fff;
+      padding: 0.6rem 1.2rem;
+      border-radius: 10px;
+      font-family: var(--font-display);
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 14px var(--accent-glow);
+    }
+
+    .btn-search-submit:hover {
+      background: linear-gradient(135deg, var(--accent-rose), var(--accent-light-rose));
+      transform: translateY(-1px);
+      box-shadow: 0 6px 18px var(--accent-glow);
+    }
+
+    /* ── BOUTONS D'ACTION AUX COULEURS NOVELTRAD ── */
+    .actions-grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.85rem;
+      margin-bottom: 2.5rem;
+      width: 100%;
+    }
+
+    .btn-action-primary {
+      background: linear-gradient(135deg, var(--accent-crimson) 0%, var(--accent-rose) 100%);
+      color: #ffffff;
+      text-decoration: none;
+      padding: 0.8rem 1.6rem;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 4px 20px rgba(225, 29, 72, 0.32);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+
+    .btn-action-primary:hover {
+      background: linear-gradient(135deg, var(--accent-rose) 0%, var(--accent-light-rose) 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(225, 29, 72, 0.48);
+    }
+
+    .btn-action-glass {
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--text-main);
+      text-decoration: none;
+      padding: 0.8rem 1.4rem;
+      border-radius: 12px;
+      font-weight: 500;
+      font-size: 0.95rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      border: 1px solid var(--border-subtle);
+      transition: all 0.25s ease;
+      cursor: pointer;
+    }
+
+    .btn-action-glass:hover {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(244, 63, 94, 0.4);
+      transform: translateY(-2px);
+      color: #fff;
+    }
+
+    /* ── RACCOURCIS DE DESTINATION ── */
+    .shortcuts-box {
+      border-top: 1px solid var(--border-subtle);
+      padding-top: 1.75rem;
+      width: 100%;
+      max-width: 620px;
+    }
+
+    .shortcuts-title {
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-dim);
+      margin-bottom: 0.85rem;
+      font-weight: 600;
+    }
+
+    .shortcuts-list {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .shortcut-chip {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.85rem;
+      padding: 0.4rem 0.85rem;
+      border-radius: 9999px;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .shortcut-chip:hover {
+      color: var(--accent-light-rose);
+      border-color: rgba(244, 63, 94, 0.4);
+      background: rgba(244, 63, 94, 0.08);
+    }
+
+    /* ── FOOTER OFFICIEL ── */
+    .footer-404 {
+      position: relative;
+      z-index: 10;
+      padding: 1.5rem;
+      text-align: center;
+      color: var(--text-dim);
+      font-size: 0.85rem;
+      border-top: 1px solid var(--border-subtle);
+    }
+
+    @media (max-width: 640px) {
+      .topnav-404 {
+        padding: 0.85rem 1rem;
+      }
+      .nav-link span {
+        display: none;
+      }
+      .error-main {
+        padding: 1.5rem 1rem;
+      }
+      .actions-grid {
+        flex-direction: column;
+        width: 100%;
+      }
+      .btn-action-primary, .btn-action-glass {
+        width: 100%;
+        justify-content: center;
+      }
+      .portal-scene {
+        width: 200px;
+        height: 180px;
+      }
+      .portal-ring {
+        width: 180px;
+        height: 180px;
+      }
+      .floating-book {
+        width: 75px;
+        height: 95px;
+      }
+      .book-icon {
+        font-size: 1.8rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Ambient Background Effect aux teintes NovelTrad -->
+  <div class="ambient-bg">
+    <div class="aurora-sphere aurora-1"></div>
+    <div class="aurora-sphere aurora-2"></div>
+    <div class="aurora-sphere aurora-3"></div>
+    <div class="grid-overlay"></div>
+  </div>
+
+  <!-- Header Navigation NovelTrad -->
+  <header class="topnav-404">
+    <a href="/index.html" class="logo-link" title="Retourner sur NovelTrad">
+      <div class="logo-icon-box"><i class="fa-solid fa-language"></i></div>
+      <span class="logo-text">Novel<strong>Trad</strong></span>
+    </a>
+
+    <nav class="nav-actions">
+      <a href="/index.html" class="nav-link"><i class="fa-solid fa-house"></i> <span>Accueil</span></a>
+      <a href="/index.html?tab=catalog" class="nav-link"><i class="fa-solid fa-compass"></i> <span>Catalogue</span></a>
+      <a href="/index.html?tab=library" class="nav-link"><i class="fa-solid fa-book-open"></i> <span>Bibliothèque</span></a>
+      <a href="/index.html?tab=docs" class="nav-link"><i class="fa-solid fa-file-pdf"></i> <span>Traduction</span></a>
+    </nav>
+  </header>
+
+  <!-- Error Content -->
+  <main class="error-main">
+    
+    <!-- Faille dimensionnelle & Grimoire flottant aux couleurs NovelTrad -->
+    <div class="portal-scene" aria-hidden="true">
+      <div class="portal-ring"></div>
+      <div class="portal-ring-inner"></div>
+      <div class="floating-book">
+        <div class="book-spine-line"></div>
+        <i class="fa-solid fa-book-open book-icon"></i>
+        <i class="fa-solid fa-star book-star star-1"></i>
+        <i class="fa-solid fa-wand-magic-sparkles book-star star-2"></i>
+      </div>
+    </div>
+
+    <!-- Status badge -->
+    <div class="status-pill">
+      <i class="fa-solid fa-triangle-exclamation"></i>
+      <span>Erreur 404 &bull; Faille Spatio-Temporelle</span>
+    </div>
+
+    <!-- Main Heading -->
+    <h1 class="error-code">404</h1>
+    <h2 class="error-title">Chapitre Introuvable dans cette Dimension</h2>
+    
+    <p class="error-desc">
+      Le roman, le chapitre ou le volume que vous recherchez semble s'être volatilisé ou n'a pas encore été invoqué dans notre catalogue.
+    </p>
+
+    <!-- Interactive Search Form -->
+    <div class="search-container-404">
+      <form class="search-form-404" id="search404Form" onsubmit="handle404Search(event)">
+        <i class="fa-solid fa-magnifying-glass search-icon"></i>
+        <input 
+          type="text" 
+          id="search404Input" 
+          class="search-input-404" 
+          placeholder="Rechercher un Light Novel, auteur, genre..." 
+          autocomplete="off"
+          required
+        >
+        <button type="submit" class="btn-search-submit">
+          <span>Rechercher</span>
+          <i class="fa-solid fa-arrow-right"></i>
+        </button>
+      </form>
+    </div>
+
+    <!-- Quick Action Buttons aux couleurs de NovelTrad -->
+    <div class="actions-grid">
+      <a href="/index.html" class="btn-action-primary">
+        <i class="fa-solid fa-house"></i>
+        <span>Retour à l'Accueil</span>
+      </a>
+
+      <a href="/index.html?tab=catalog" class="btn-action-glass">
+        <i class="fa-solid fa-compass"></i>
+        <span>Explorer le Catalogue</span>
+      </a>
+
+      <a href="/index.html?tab=library" class="btn-action-glass">
+        <i class="fa-solid fa-book-open"></i>
+        <span>Ma Bibliothèque</span>
+      </a>
+
+      <button type="button" onclick="history.back()" class="btn-action-glass">
+        <i class="fa-solid fa-arrow-left"></i>
+        <span>Page précédente</span>
+      </button>
+    </div>
+
+    <!-- Shortcuts -->
+    <div class="shortcuts-box">
+      <div class="shortcuts-title">Destinations Recommandées</div>
+      <div class="shortcuts-list">
+        <a href="/index.html?tab=home" class="shortcut-chip"><i class="fa-solid fa-fire"></i> Romans Populaires</a>
+        <a href="/index.html?tab=catalog" class="shortcut-chip"><i class="fa-solid fa-layer-group"></i> Tout le Catalogue</a>
+        <a href="/index.html?tab=docs" class="shortcut-chip"><i class="fa-solid fa-file-pdf"></i> Studio de Traduction IA</a>
+        <a href="https://discord.gg" target="_blank" rel="noopener noreferrer" class="shortcut-chip"><i class="fa-brands fa-discord"></i> Rejoindre Discord</a>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Sleek Footer -->
+  <footer class="footer-404">
+    <p>&copy; 2026 NovelTrad &bull; Fait avec passion pour la communauté francophone</p>
+  </footer>
+
+  <script>
+    function handle404Search(e) {
+      e.preventDefault();
+      const input = document.getElementById('search404Input');
+      const val = input ? input.value.trim() : '';
+      if (val) {
+        window.location.href = '/index.html?tab=catalog&search=' + encodeURIComponent(val);
+      }
+    }
+  </script>
+</body>
+</html>

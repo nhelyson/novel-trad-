@@ -1,0 +1,1181 @@
+// ==========================================================================
+// NOVELTRAD D4 - CONTRIBUTOR STUDIO LOGIC (DUAL MODE: AUTO API & MANUAL)
+// ==========================================================================
+
+class ContributorManager {
+  constructor() {
+    this.novels = [];
+    this.myNovels = [];
+    this.currentEditingNovelId = null;
+    this.selectedNovelForVolumes = null;
+    this.selectedVolumeFile = null;
+    this.selectedGenres = new Set();
+    this.currentMode = 'auto'; // 'auto' | 'manual'
+    this.fetchedApiData = null;
+
+    this.initElements();
+    this.bindEvents();
+  }
+
+  initElements() {
+    this.container = document.getElementById('contributorModuleContainer');
+    this.viewOverview = document.getElementById('contribOverviewSection');
+    this.viewNovels = document.getElementById('contribNovelsSection');
+    this.viewForm = document.getElementById('contribFormSection');
+    this.viewVolumes = document.getElementById('contribVolumesSection');
+    this.modalVolume = document.getElementById('contribVolumeModal');
+
+    this.tabOverviewBtn = document.getElementById('contribTabOverviewBtn');
+    this.tabNovelsBtn = document.getElementById('contribTabNovelsBtn');
+    this.tabCreateBtn = document.getElementById('contribTabCreateBtn');
+    this.tabVolumesBtn = document.getElementById('contribTabVolumesBtn');
+
+    // Dual mode elements
+    this.btnModeAuto = document.getElementById('btnModeAuto');
+    this.btnModeManual = document.getElementById('btnModeManual');
+    this.autoPanel = document.getElementById('contribAutoModePanel');
+    this.inpApiSearch = document.getElementById('contribApiSearchInput');
+    this.btnFetchApi = document.getElementById('btnContribFetchApi');
+    this.apiResultCard = document.getElementById('contribApiResultCard');
+    this.btnApplyApiData = document.getElementById('btnApplyApiData');
+
+    // API Result Card preview
+    this.apiResultCover = document.getElementById('apiResultCover');
+    this.apiResultTitle = document.getElementById('apiResultTitle');
+    this.apiResultAuthor = document.getElementById('apiResultAuthor');
+    this.apiResultStatus = document.getElementById('apiResultStatus');
+    this.apiResultGenres = document.getElementById('apiResultGenres');
+    this.apiResultSynopsis = document.getElementById('apiResultSynopsis');
+    this.apiResultProvider = document.getElementById('apiResultProvider');
+
+    // Form elements
+    this.novelForm = document.getElementById('contribNovelForm');
+    this.novelFormTitle = document.getElementById('contribFormTitle');
+    this.inpTitle = document.getElementById('contribNovelTitle');
+    this.inpRomaji = document.getElementById('contribNovelRomaji');
+    this.inpAuthor = document.getElementById('contribNovelAuthor');
+    this.inpIllustrator = document.getElementById('contribNovelIllustrator');
+    this.inpSynopsis = document.getElementById('contribNovelSynopsis');
+    this.inpGenres = document.getElementById('contribNovelGenres');
+    this.inpTags = document.getElementById('contribNovelTags');
+    this.inpCoverUrl = document.getElementById('contribNovelCoverUrl');
+    this.inpStatus = document.getElementById('contribNovelStatus');
+    this.novelSubmitBtn = document.getElementById('contribSaveNovelBtn');
+
+    // Live preview elements
+    this.previewCover = document.getElementById('livePreviewCoverImg');
+    this.previewTitle = document.getElementById('livePreviewTitle');
+    this.previewAuthor = document.getElementById('livePreviewAuthor');
+    this.previewGenres = document.getElementById('livePreviewGenres');
+
+    // Volume modal elements
+    this.volNovelTitleSpan = document.getElementById('volModalNovelTitle');
+    this.volForm = document.getElementById('contribVolumeForm');
+    this.inpVolNumber = document.getElementById('contribVolNumber');
+    this.inpVolTitle = document.getElementById('contribVolTitle');
+    this.inpVolReleaseDate = document.getElementById('contribVolReleaseDate');
+    this.volListContainer = document.getElementById('contribVolListContainer');
+
+    this.searchInp = document.getElementById('contribSearchInput');
+    this.statusFilter = document.getElementById('contribStatusFilter');
+  }
+
+  bindEvents() {
+    if (this.tabOverviewBtn) this.tabOverviewBtn.addEventListener('click', () => this.showView('overview'));
+    if (this.tabNovelsBtn) this.tabNovelsBtn.addEventListener('click', () => this.showView('novels'));
+    if (this.tabCreateBtn) this.tabCreateBtn.addEventListener('click', () => this.openCreateForm());
+    if (this.tabVolumesBtn) this.tabVolumesBtn.addEventListener('click', () => this.showView('volumes'));
+
+    const btnNewNovel = document.getElementById('btnContribNewNovel');
+    if (btnNewNovel) btnNewNovel.addEventListener('click', () => this.openCreateForm());
+
+    // Dual mode switchers
+    if (this.btnModeAuto) {
+      this.btnModeAuto.addEventListener('click', () => this.switchMode('auto'));
+    }
+    if (this.btnModeManual) {
+      this.btnModeManual.addEventListener('click', () => this.switchMode('manual'));
+    }
+
+    // API Search
+    if (this.btnFetchApi) {
+      this.btnFetchApi.addEventListener('click', () => this.searchApiMetadata());
+    }
+    if (this.inpApiSearch) {
+      this.inpApiSearch.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          this.searchApiMetadata();
+        }
+      });
+    }
+    if (this.btnApplyApiData) {
+      this.btnApplyApiData.addEventListener('click', () => this.applyApiDataToForm());
+    }
+
+    // Interactive Genre chips
+    this.setupGenreChips();
+
+    // Live preview update on inputs
+    if (this.inpTitle) this.inpTitle.addEventListener('input', () => this.updateLivePreview());
+    if (this.inpAuthor) this.inpAuthor.addEventListener('input', () => this.updateLivePreview());
+    if (this.inpCoverUrl) {
+      this.inpCoverUrl.addEventListener('input', () => this.updateLivePreview());
+      this.inpCoverUrl.addEventListener('change', () => this.updateLivePreview());
+    }
+
+    if (this.novelForm) {
+      this.novelForm.addEventListener('submit', (e) => this.handleNovelSubmit(e));
+    }
+
+    if (this.volForm) {
+      this.volForm.addEventListener('submit', (e) => this.handleVolumeSubmit(e));
+    }
+
+    const btnCloseVolModal = document.getElementById('btnCloseContribVolModal');
+    if (btnCloseVolModal && this.modalVolume) {
+      btnCloseVolModal.addEventListener('click', () => {
+        this.modalVolume.classList.add('hidden');
+      });
+    }
+
+    if (this.searchInp) this.searchInp.addEventListener('input', () => this.renderNovelsList());
+    if (this.statusFilter) this.statusFilter.addEventListener('change', () => this.renderNovelsList());
+
+    // Setup Volume Dropzone
+    this.setupVolumeDropzone();
+
+    // Auto-reload novels when contributor/admin logs in
+    const auth = window.authManager || window.supabaseAuthManager;
+    if (auth && typeof auth.onAuthStateChange === 'function') {
+      auth.onAuthStateChange((event, session) => {
+        if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'INITIAL_SESSION') {
+          this.loadMyNovels();
+        }
+      });
+    }
+  }
+
+  setupGenreChips() {
+    document.querySelectorAll('#contribGenreChipsSelector .genre-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        const genre = chip.getAttribute('data-genre');
+        if (this.selectedGenres.has(genre)) {
+          this.selectedGenres.delete(genre);
+          chip.classList.remove('selected');
+        } else {
+          this.selectedGenres.add(genre);
+          chip.classList.add('selected');
+        }
+        this.updateGenresField();
+        this.updateLivePreview();
+      });
+    });
+  }
+
+  setupVolumeDropzone() {
+    const dropzone = document.getElementById('volDropzone');
+    const fileInput = document.getElementById('contribVolFile');
+    const prompt = document.getElementById('volDropzonePrompt');
+    const preview = document.getElementById('volSelectedFilePreview');
+    const fileNameEl = document.getElementById('volSelectedFileName');
+    const fileSizeEl = document.getElementById('volSelectedFileSize');
+    const fileIconBox = document.getElementById('volFileIconBox');
+    const btnRemove = document.getElementById('btnRemoveVolFile');
+
+    if (!dropzone || !fileInput) return;
+
+    this.selectedVolumeFile = null;
+
+    const handleFileSelect = (file) => {
+      if (!file) return;
+      const ext = file.name.split('.').pop().toLowerCase();
+      if (!['epub', 'pdf', 'zip'].includes(ext)) {
+        alert('Veuillez sélectionner un fichier .epub ou .pdf valide.');
+        return;
+      }
+
+      this.selectedVolumeFile = file;
+      if (prompt) prompt.classList.add('hidden');
+      if (preview) preview.classList.remove('hidden');
+      if (fileNameEl) fileNameEl.textContent = file.name;
+      
+      const sizeMb = (file.size / (1024 * 1024)).toFixed(2);
+      if (fileSizeEl) fileSizeEl.textContent = `${sizeMb} Mo • ${ext.toUpperCase()}`;
+      
+      if (fileIconBox) {
+        fileIconBox.innerHTML = ext === 'pdf' 
+          ? '<i class="fa-solid fa-file-pdf" style="color: #f87171;"></i>' 
+          : '<i class="fa-solid fa-book" style="color: #60a5fa;"></i>';
+      }
+
+      // Auto-extract volume number from filename if possible
+      const match = file.name.match(/(?:vol(?:ume)?|tome|t)[._\s-]*(\d+)/i);
+      if (match && match[1] && this.inpVolNumber) {
+        this.inpVolNumber.value = parseInt(match[1], 10);
+      }
+    };
+
+    dropzone.addEventListener('click', (e) => {
+      if (e.target.closest('#btnRemoveVolFile')) return;
+      fileInput.click();
+    });
+
+    fileInput.addEventListener('change', (e) => {
+      if (e.target.files && e.target.files[0]) {
+        handleFileSelect(e.target.files[0]);
+      }
+    });
+
+    dropzone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropzone.classList.add('drag-over');
+    });
+
+    dropzone.addEventListener('dragleave', (e) => {
+      e.preventDefault();
+      dropzone.classList.remove('drag-over');
+    });
+
+    dropzone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropzone.classList.remove('drag-over');
+      if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+        handleFileSelect(e.dataTransfer.files[0]);
+      }
+    });
+
+    if (btnRemove) {
+      btnRemove.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.resetVolumeFilePicker();
+      });
+    }
+  }
+
+  resetVolumeFilePicker() {
+    this.selectedVolumeFile = null;
+    const fileInput = document.getElementById('contribVolFile');
+    const prompt = document.getElementById('volDropzonePrompt');
+    const preview = document.getElementById('volSelectedFilePreview');
+    const progress = document.getElementById('volUploadProgress');
+    
+    if (fileInput) fileInput.value = '';
+    if (prompt) prompt.classList.remove('hidden');
+    if (preview) preview.classList.add('hidden');
+    if (progress) progress.classList.add('hidden');
+  }
+
+  switchMode(mode) {
+    this.currentMode = mode;
+    if (mode === 'auto') {
+      if (this.btnModeAuto) this.btnModeAuto.classList.add('active');
+      if (this.btnModeManual) this.btnModeManual.classList.remove('active');
+      if (this.autoPanel) this.autoPanel.classList.remove('hidden');
+    } else {
+      if (this.btnModeAuto) this.btnModeAuto.classList.remove('active');
+      if (this.btnModeManual) this.btnModeManual.classList.add('active');
+      if (this.autoPanel) this.autoPanel.classList.add('hidden');
+    }
+  }
+
+  async getHeaders() {
+    const auth = window.authManager || window.supabaseAuthManager;
+    const token = auth ? await auth.getAccessToken() : null;
+    const headers = { 'Content-Type': 'application/json' };
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+    return headers;
+  }
+
+  async initStudio() {
+    const auth = window.authManager || window.supabaseAuthManager;
+    if (!auth || !auth.isContributor()) {
+      alert('Accès réservé : Vous devez être connecté avec un compte Contributeur ou Administrateur pour accéder au Studio.');
+      if (typeof setActiveTab === 'function') {
+        const catBtn = document.getElementById('tabCatalogBtn');
+        const catMod = document.getElementById('catalogModule');
+        if (catBtn && catMod) setActiveTab(catBtn, catMod);
+      }
+      return;
+    }
+    await this.loadMyNovels();
+    this.showView('overview');
+  }
+
+  showView(viewName) {
+    const auth = window.authManager || window.supabaseAuthManager;
+    if (!auth || !auth.isContributor()) {
+      if (this.container) this.container.classList.add('hidden');
+      return;
+    }
+    [this.viewOverview, this.viewNovels, this.viewForm, this.viewVolumes].forEach(v => {
+      if (v) v.classList.add('hidden');
+    });
+
+    [this.tabOverviewBtn, this.tabNovelsBtn, this.tabCreateBtn, this.tabVolumesBtn].forEach(b => {
+      if (b) b.classList.remove('active');
+    });
+
+    if (viewName === 'overview') {
+      if (this.viewOverview) this.viewOverview.classList.remove('hidden');
+      if (this.tabOverviewBtn) this.tabOverviewBtn.classList.add('active');
+      if (this.tabVolumesBtn) this.tabVolumesBtn.classList.add('hidden');
+      this.updateStats();
+      this.loadMyNovels();
+    } else if (viewName === 'novels') {
+      if (this.viewNovels) this.viewNovels.classList.remove('hidden');
+      if (this.tabNovelsBtn) this.tabNovelsBtn.classList.add('active');
+      if (this.tabVolumesBtn) this.tabVolumesBtn.classList.add('hidden');
+      this.renderNovelsList();
+      this.loadMyNovels();
+    } else if (viewName === 'form') {
+      if (this.viewForm) this.viewForm.classList.remove('hidden');
+      if (this.tabCreateBtn) this.tabCreateBtn.classList.add('active');
+      if (this.tabVolumesBtn) this.tabVolumesBtn.classList.add('hidden');
+      this.updateLivePreview();
+    } else if (viewName === 'volumes') {
+      if (this.viewVolumes) this.viewVolumes.classList.remove('hidden');
+      if (this.tabVolumesBtn) {
+        this.tabVolumesBtn.classList.remove('hidden');
+        this.tabVolumesBtn.classList.add('active');
+      }
+    }
+  }
+
+  async searchApiMetadata() {
+    const query = (this.inpApiSearch?.value || '').trim();
+    if (!query) {
+      alert('Veuillez entrer le nom d\'un Light Novel à rechercher.');
+      return;
+    }
+
+    const textSpan = document.getElementById('btnFetchApiText');
+    const spinSpan = document.getElementById('btnFetchApiSpinner');
+    if (textSpan) textSpan.classList.add('hidden');
+    if (spinSpan) spinSpan.classList.remove('hidden');
+    if (this.btnFetchApi) this.btnFetchApi.disabled = true;
+
+    try {
+      const res = await fetch(`/api/metadata/search?q=${encodeURIComponent(query)}`);
+      const contentType = res.headers.get('content-type') || '';
+      if (!contentType.includes('application/json')) {
+        throw new Error('Le serveur backend doit être redémarré (npm start) pour charger la route API.');
+      }
+      const data = await res.json();
+      if (!res.ok || !data.success || !data.metadata) {
+        throw new Error(data.error || 'Aucun Light Novel trouvé sur les APIs pour cette recherche.');
+      }
+
+      this.fetchedApiData = data.metadata;
+      this.candidates = data.candidates || [data.metadata];
+      this.renderApiResultCard(data.metadata);
+      this.renderCandidatesSelector(this.candidates, data.metadata.id || (data.metadata.title));
+    } catch (err) {
+      console.error('[Contributor] Erreur API search:', err);
+      alert(`Recherche API : ${err.message}`);
+    } finally {
+      if (textSpan) textSpan.classList.remove('hidden');
+      if (spinSpan) spinSpan.classList.add('hidden');
+      if (this.btnFetchApi) this.btnFetchApi.disabled = false;
+    }
+  }
+
+  renderCandidatesSelector(candidates, activeId) {
+    const container = document.getElementById('contribApiCandidatesContainer');
+    const chipsBox = document.getElementById('contribApiCandidatesChips');
+    if (!container || !chipsBox) return;
+
+    if (!candidates || candidates.length <= 1) {
+      container.classList.add('hidden');
+      return;
+    }
+
+    chipsBox.innerHTML = '';
+    candidates.forEach((cand, idx) => {
+      const chip = document.createElement('div');
+      const candId = cand.id || cand.title;
+      const isActive = (candId === activeId) || (idx === 0 && !activeId);
+      const isNovel = (cand.format === 'NOVEL');
+
+      chip.className = `api-candidate-chip ${isActive ? 'active' : ''} ${isNovel ? 'format-novel' : 'format-manga'}`;
+      chip.innerHTML = `
+        <span class="chip-format">${cand.format_label || (isNovel ? 'Light Novel' : 'Manga')}</span>
+        <span class="chip-title" title="${cand.title}">${cand.title}</span>
+        ${cand.year ? `<span class="chip-year">(${cand.year})</span>` : ''}
+      `;
+
+      chip.addEventListener('click', () => {
+        document.querySelectorAll('.api-candidate-chip').forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+        this.fetchedApiData = cand;
+        this.renderApiResultCard(cand);
+      });
+
+      chipsBox.appendChild(chip);
+    });
+
+    container.classList.remove('hidden');
+  }
+
+  renderApiResultCard(meta) {
+    if (!this.apiResultCard) return;
+
+    const cover = meta.cover || 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=400';
+    if (this.apiResultCover) this.apiResultCover.src = cover;
+    if (this.apiResultTitle) this.apiResultTitle.textContent = meta.title || 'Sans titre';
+    if (this.apiResultAuthor) this.apiResultAuthor.textContent = meta.author || 'Inconnu';
+    if (this.apiResultStatus) this.apiResultStatus.textContent = meta.status_fr || meta.status || 'En cours';
+    if (this.apiResultProvider) this.apiResultProvider.textContent = `Source : ${(meta.provider || 'AniList').toUpperCase()}`;
+
+    if (this.apiResultSynopsis) {
+      const syn = meta.synopsis_fr || meta.synopsis || 'Aucun synopsis disponible.';
+      this.apiResultSynopsis.textContent = syn.length > 250 ? syn.substring(0, 250) + '...' : syn;
+    }
+
+    if (this.apiResultGenres) {
+      const genres = meta.genres_fr || meta.genres || [];
+      this.apiResultGenres.innerHTML = genres.map(g => `<span class="tag-chip">${g}</span>`).join('');
+    }
+
+    this.apiResultCard.classList.remove('hidden');
+    this.apiResultCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  applyApiDataToForm() {
+    if (!this.fetchedApiData) return;
+    const meta = this.fetchedApiData;
+
+    if (this.inpTitle) this.inpTitle.value = meta.title || '';
+    if (this.inpRomaji) this.inpRomaji.value = meta.title_romaji || meta.originalTitle || '';
+    if (this.inpAuthor) this.inpAuthor.value = meta.author || '';
+    if (this.inpIllustrator) this.inpIllustrator.value = meta.illustrator || '';
+    if (this.inpSynopsis) this.inpSynopsis.value = meta.synopsis_fr || meta.synopsis || '';
+    if (this.inpCoverUrl) this.inpCoverUrl.value = meta.cover || '';
+
+    // Apply genres
+    this.selectedGenres.clear();
+    const genres = meta.genres_fr || meta.genres || [];
+    genres.forEach(g => this.selectedGenres.add(g));
+
+    document.querySelectorAll('#contribGenreChipsSelector .genre-chip').forEach(chip => {
+      const g = chip.getAttribute('data-genre');
+      if (this.selectedGenres.has(g)) {
+        chip.classList.add('selected');
+      } else {
+        chip.classList.remove('selected');
+      }
+    });
+    this.updateGenresField();
+
+    // Apply tags
+    if (meta.tags && Array.isArray(meta.tags) && this.inpTags) {
+      this.inpTags.value = meta.tags.join(', ');
+    }
+
+    this.updateLivePreview();
+    alert('Informations appliquées avec succès ! Vous pouvez les ajuster avant d\'enregistrer.');
+    if (this.novelForm) this.novelForm.scrollIntoView({ behavior: 'smooth' });
+  }
+
+  updateGenresField() {
+    if (this.inpGenres) {
+      this.inpGenres.value = Array.from(this.selectedGenres).join(', ');
+    }
+  }
+
+  updateLivePreview() {
+    const title = this.inpTitle?.value.trim() || 'Titre du roman';
+    const author = this.inpAuthor?.value.trim() || 'Auteur inconnu';
+    const cover = this.inpCoverUrl?.value.trim() || 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=400';
+
+    if (this.previewTitle) this.previewTitle.textContent = title;
+    if (this.previewAuthor) this.previewAuthor.textContent = author;
+    if (this.previewCover) this.previewCover.src = cover;
+
+    if (this.previewGenres) {
+      this.previewGenres.innerHTML = Array.from(this.selectedGenres).slice(0, 4).map(g => `
+        <span class="tag-chip">${g}</span>
+      `).join('');
+    }
+  }
+
+  async toggleFeatured(novelId) {
+    try {
+      const auth = window.authManager || window.supabaseAuthManager;
+      const token = auth ? await auth.getAccessToken() : null;
+      const res = await fetch(`/api/catalog/series/${encodeURIComponent(novelId)}/toggle-featured`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+        }
+      });
+      const data = await res.json();
+      if (data.success) {
+        if (window.toastManager && typeof window.toastManager.show === 'function') {
+          window.toastManager.show(data.featured ? '⭐ Roman mis à la une sur le slider !' : 'Roman retiré de la une', 'success');
+        }
+        await this.loadMyNovels();
+        // Si la vitrine d'accueil est chargée, rafraîchir le hero
+        if (window.HomeLnoriManager && typeof window.HomeLnoriManager.loadHeroData === 'function') {
+          window.HomeLnoriManager.loadHeroData();
+        }
+      } else {
+        alert(data.message || 'Erreur lors de la mise à la une');
+      }
+    } catch (e) {
+      console.error('Erreur toggleFeatured:', e);
+    }
+  }
+
+  async loadMyNovels() {
+    try {
+      const auth = window.authManager || window.supabaseAuthManager;
+      if (!auth || !auth.isContributor()) {
+        this.novels = [];
+        this.myNovels = [];
+        return;
+      }
+      const token = auth ? await auth.getAccessToken() : null;
+      if (!token) {
+        // Guest mode: no request needed until user logs in
+        this.novels = [];
+        this.myNovels = [];
+        this.updateStats();
+        this.renderNovelsList();
+        return;
+      }
+      const headers = { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` };
+      const res = await fetch('/api/contributor/novels', { headers });
+      if (!res.ok) throw new Error('Erreur chargement romans');
+      const data = await res.json();
+      this.novels = data.novels || [];
+      this.myNovels = this.novels;
+      this.updateStats();
+      this.renderNovelsList();
+    } catch (err) {
+      console.error('[ContributorManager] Erreur loadMyNovels:', err);
+    }
+  }
+
+  updateStats() {
+    const total = this.novels.length;
+    const drafts = this.novels.filter(n => (n.publication_status || 'DRAFT').toUpperCase() === 'DRAFT').length;
+    const pending = this.novels.filter(n => (n.publication_status || '').toUpperCase() === 'PENDING_REVIEW').length;
+    const published = this.novels.filter(n => (n.publication_status || '').toUpperCase() === 'PUBLISHED').length;
+
+    const elTotal = document.getElementById('contribStatTotal');
+    const elDrafts = document.getElementById('contribStatDrafts');
+    const elPending = document.getElementById('contribStatPending');
+    const elPublished = document.getElementById('contribStatPublished');
+
+    if (elTotal) elTotal.textContent = total;
+    if (elDrafts) elDrafts.textContent = drafts;
+    if (elPending) elPending.textContent = pending;
+    if (elPublished) elPublished.textContent = published;
+
+    const recentContainer = document.getElementById('contribRecentList');
+    if (recentContainer) {
+      if (this.novels.length === 0) {
+        recentContainer.innerHTML = `
+          <div class="contrib-empty-state">
+            <i class="fa-solid fa-feather"></i>
+            <p>Vous n'avez pas encore créé de roman. Commencez dès aujourd'hui !</p>
+            <button class="btn-contrib-primary" onclick="window.contributorManager.openCreateForm()">
+              <i class="fa-solid fa-plus"></i> Créer mon premier Roman
+            </button>
+          </div>`;
+      } else {
+        const recents = [...this.novels].reverse().slice(0, 4);
+        recentContainer.innerHTML = recents.map(n => this.renderNovelRow(n)).join('');
+      }
+    }
+  }
+
+  renderNovelsList() {
+    const listContainer = document.getElementById('contribNovelsListGrid');
+    if (!listContainer) return;
+
+    let filtered = [...this.novels];
+    const q = (this.searchInp?.value || '').trim().toLowerCase();
+    const st = (this.statusFilter?.value || 'ALL').toUpperCase();
+
+    if (q) {
+      filtered = filtered.filter(n => 
+        (n.title || '').toLowerCase().includes(q) ||
+        (n.author || '').toLowerCase().includes(q)
+      );
+    }
+
+    if (st !== 'ALL') {
+      filtered = filtered.filter(n => (n.publication_status || 'DRAFT').toUpperCase() === st);
+    }
+
+    if (filtered.length === 0) {
+      listContainer.innerHTML = `
+        <div class="contrib-empty-state full-width">
+          <i class="fa-solid fa-folder-open"></i>
+          <p>Aucun roman ne correspond à votre recherche.</p>
+        </div>`;
+      return;
+    }
+
+    listContainer.innerHTML = filtered.map(novel => {
+      const status = (novel.publication_status || 'DRAFT').toUpperCase();
+      const isRejected = (status === 'DRAFT' && Boolean(novel.rejection_reason && novel.rejection_reason.trim()));
+
+      let badgeClass = 'badge-draft';
+      let badgeText = 'Brouillon';
+      if (isRejected) {
+        badgeClass = 'badge-rejected';
+        badgeText = 'Rejeté (À corriger)';
+      } else if (status === 'PENDING_REVIEW') {
+        badgeClass = 'badge-pending';
+        badgeText = 'En attente de validation';
+      } else if (status === 'PUBLISHED') {
+        badgeClass = 'badge-published';
+        badgeText = 'Publié';
+      } else if (status === 'ARCHIVED') {
+        badgeClass = 'badge-archived';
+        badgeText = 'Archivé';
+      }
+
+      const cover = novel.cover || novel.cover_url || 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=400';
+      const volCount = novel.volumes ? novel.volumes.length : (novel.volume_count || 0);
+      const safeReason = (novel.rejection_reason || '').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+      return `
+        <div class="contrib-novel-card ${isRejected ? 'is-rejected-card' : ''}">
+          <div class="contrib-card-cover-wrap">
+            <img src="${cover}" alt="${novel.title}" class="contrib-card-cover" onerror="this.src='https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=400'">
+            <span class="contrib-status-badge ${badgeClass}">${badgeText}</span>
+          </div>
+          <div class="contrib-card-body">
+            <h4 class="contrib-card-title" title="${novel.title}">${novel.title}</h4>
+            <p class="contrib-card-author"><i class="fa-solid fa-pen-nib"></i> ${novel.author || 'Auteur inconnu'}</p>
+            <div class="contrib-card-meta">
+              <span><i class="fa-solid fa-book"></i> ${volCount} Tome${volCount > 1 ? 's' : ''}</span>
+              <span><i class="fa-solid fa-calendar"></i> ${new Date(novel.created_at || Date.now()).toLocaleDateString('fr-FR')}</span>
+            </div>
+
+            ${isRejected ? `
+              <div class="contrib-rejection-box">
+                <div class="contrib-rejection-title">
+                  <i class="fa-solid fa-triangle-exclamation"></i>
+                  <span>Motif du rejet par la modération :</span>
+                </div>
+                <div class="contrib-rejection-msg">"${safeReason}"</div>
+                <div class="contrib-rejection-hint">
+                  <i class="fa-solid fa-lightbulb"></i> Modifiez la fiche ou les tomes, puis cliquez sur <b>Re-soumettre</b>.
+                </div>
+              </div>
+            ` : ''}
+            
+            <div class="contrib-card-actions">
+              <button type="button" class="btn-contrib-action" onclick="window.contributorManager.openEditForm('${novel.id}')" title="Modifier la fiche">
+                <i class="fa-solid fa-edit"></i> Modifier
+              </button>
+              <button type="button" class="btn-contrib-action" onclick="window.contributorManager.openVolumesModal('${novel.id}')" title="Gérer les tomes">
+                <i class="fa-solid fa-boxes-stacked"></i> Volumes
+              </button>
+
+              ${status === 'DRAFT' ? (
+                isRejected ? `
+                  <button type="button" class="btn-contrib-action primary btn-resubmit-accent" onclick="window.contributorManager.submitForReview('${novel.id}')" title="Re-soumettre pour validation">
+                    <i class="fa-solid fa-rotate-right"></i> Re-soumettre
+                  </button>
+                ` : `
+                  <button type="button" class="btn-contrib-action primary" onclick="window.contributorManager.submitForReview('${novel.id}')" title="Soumettre pour validation">
+                    <i class="fa-solid fa-paper-plane"></i> Soumettre
+                  </button>
+                `
+              ) : ''}
+
+              <button type="button" class="btn-contrib-action danger" onclick="window.contributorManager.deleteNovel('${novel.id}')" title="Supprimer ce roman">
+                <i class="fa-solid fa-trash"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  renderNovelRow(novel) {
+    const status = (novel.publication_status || 'DRAFT').toUpperCase();
+    const isRejected = (status === 'DRAFT' && Boolean(novel.rejection_reason && novel.rejection_reason.trim()));
+    let badgeClass = 'badge-draft';
+    let badgeText = 'Brouillon';
+    if (isRejected) {
+      badgeClass = 'badge-rejected';
+      badgeText = 'Rejeté';
+    } else if (status === 'PENDING_REVIEW') {
+      badgeClass = 'badge-pending';
+      badgeText = 'En attente';
+    } else if (status === 'PUBLISHED') {
+      badgeClass = 'badge-published';
+      badgeText = 'Publié';
+    }
+
+    return `
+      <div class="contrib-recent-row">
+        <div class="contrib-row-info">
+          <strong>${novel.title}</strong>
+          <span>${novel.author || 'Auteur non précisé'} &bull; ${new Date(novel.created_at || Date.now()).toLocaleDateString('fr-FR')}</span>
+        </div>
+        <div class="contrib-row-meta">
+          <span class="contrib-status-badge ${badgeClass}">${badgeText}</span>
+          <button type="button" class="btn-contrib-mini" onclick="window.contributorManager.openEditForm('${novel.id}')" title="Modifier">
+            <i class="fa-solid fa-pen"></i>
+          </button>
+          <button type="button" class="btn-contrib-mini danger" onclick="window.contributorManager.deleteNovel('${novel.id}')" title="Supprimer">
+            <i class="fa-solid fa-trash"></i>
+          </button>
+        </div>
+      </div>
+    `;
+  }
+
+  openCreateForm() {
+    this.currentEditingNovelId = null;
+    this.selectedGenres.clear();
+    document.querySelectorAll('#contribGenreChipsSelector .genre-chip').forEach(c => c.classList.remove('selected'));
+    
+    if (this.novelFormTitle) this.novelFormTitle.textContent = "Créer une nouvelle fiche de Light Novel";
+    if (this.novelSubmitBtn) this.novelSubmitBtn.innerHTML = '<i class="fa-solid fa-save"></i> Enregistrer le Roman';
+    if (this.novelForm) this.novelForm.reset();
+    if (this.apiResultCard) this.apiResultCard.classList.add('hidden');
+    const candContainer = document.getElementById('contribApiCandidatesContainer');
+    if (candContainer) candContainer.classList.add('hidden');
+    if (this.inpApiSearch) this.inpApiSearch.value = '';
+
+    this.switchMode('auto');
+    this.showView('form');
+    this.updateLivePreview();
+  }
+
+  openEditForm(novelId) {
+    const novel = (this.novels || []).find(n => n.id === novelId);
+    if (!novel) return;
+
+    this.currentEditingNovelId = novelId;
+    if (this.novelFormTitle) this.novelFormTitle.textContent = `Modifier : ${novel.title}`;
+    if (this.novelSubmitBtn) this.novelSubmitBtn.innerHTML = '<i class="fa-solid fa-check"></i> Mettre à jour la fiche';
+
+    if (this.inpTitle) this.inpTitle.value = novel.title || '';
+    if (this.inpRomaji) this.inpRomaji.value = novel.title_romaji || novel.originalTitle || '';
+    if (this.inpAuthor) this.inpAuthor.value = novel.author || '';
+    if (this.inpIllustrator) this.inpIllustrator.value = novel.illustrator || '';
+    if (this.inpSynopsis) this.inpSynopsis.value = novel.synopsis_fr || novel.synopsis || novel.description || '';
+    if (this.inpCoverUrl) this.inpCoverUrl.value = novel.cover || novel.cover_url || '';
+    if (this.inpStatus) this.inpStatus.value = novel.publication_status || 'DRAFT';
+
+    this.selectedGenres.clear();
+    const gList = Array.isArray(novel.genres_fr) ? novel.genres_fr : (Array.isArray(novel.genres) ? novel.genres : (novel.genres || '').split(',').map(s => s.trim()));
+    gList.forEach(g => { if (g) this.selectedGenres.add(g); });
+
+    document.querySelectorAll('#contribGenreChipsSelector .genre-chip').forEach(chip => {
+      if (this.selectedGenres.has(chip.getAttribute('data-genre'))) {
+        chip.classList.add('selected');
+      } else {
+        chip.classList.remove('selected');
+      }
+    });
+    this.updateGenresField();
+
+    if (this.inpTags) {
+      this.inpTags.value = Array.isArray(novel.tags) ? novel.tags.join(', ') : (novel.tags || '');
+    }
+
+    this.switchMode('manual');
+    this.showView('form');
+    this.updateLivePreview();
+  }
+
+  async handleNovelSubmit(e) {
+    e.preventDefault();
+    const title = this.inpTitle?.value.trim();
+    if (!title) {
+      alert('Veuillez renseigner au minimum le titre du roman.');
+      return;
+    }
+
+    const author = this.inpAuthor?.value.trim();
+    if (!author) {
+      alert('Veuillez renseigner le nom de l\'auteur.');
+      return;
+    }
+
+    if (this.isSubmittingNovel) return;
+    this.isSubmittingNovel = true;
+    const submitBtn = this.novelSubmitBtn;
+    const originalBtnHtml = submitBtn ? submitBtn.innerHTML : '';
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Enregistrement en cours...';
+    }
+
+    const payload = {
+      title,
+      title_romaji: this.inpRomaji?.value.trim() || '',
+      author,
+      illustrator: this.inpIllustrator?.value.trim() || '',
+      synopsis: this.inpSynopsis?.value.trim() || '',
+      cover: this.inpCoverUrl?.value.trim() || '',
+      genres: Array.from(this.selectedGenres),
+      tags: (this.inpTags?.value || '').split(',').map(s => s.trim()).filter(Boolean),
+      publication_status: this.inpStatus?.value || 'DRAFT'
+    };
+
+    try {
+      const headers = await this.getHeaders();
+      let res;
+      if (this.currentEditingNovelId) {
+        res = await fetch(`/api/contributor/novels/${this.currentEditingNovelId}`, {
+          method: 'PUT',
+          headers,
+          body: JSON.stringify(payload)
+        });
+      } else {
+        res = await fetch('/api/contributor/novels', {
+          method: 'POST',
+          headers,
+          body: JSON.stringify(payload)
+        });
+      }
+
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || 'Erreur lors de l\'enregistrement du roman.');
+      }
+
+      // Live sync catalog & home
+      if (window.HomeLnoriManager && typeof window.HomeLnoriManager.reloadAllData === 'function') {
+        window.HomeLnoriManager.reloadAllData();
+      }
+      if (typeof window.reloadCatalog === 'function') {
+        window.reloadCatalog();
+      }
+      alert(this.currentEditingNovelId ? 'Roman mis à jour avec succès !' : 'Roman créé avec succès !');
+      await this.loadMyNovels();
+      this.showView('novels');
+    } catch (err) {
+      console.error('[ContributorManager] Erreur sauvegarde:', err);
+      alert(`Erreur : ${err.message}`);
+    } finally {
+      this.isSubmittingNovel = false;
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalBtnHtml;
+      }
+    }
+  }
+
+  async submitForReview(novelId) {
+    if (!confirm('Souhaitez-vous soumettre ce roman pour validation par l\'équipe de modération ?')) {
+      return;
+    }
+
+    try {
+      const headers = await this.getHeaders();
+      const res = await fetch(`/api/contributor/novels/${novelId}/submit`, {
+        method: 'POST',
+        headers
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || 'Erreur lors de la soumission.');
+      }
+
+      alert('Roman soumis avec succès pour validation !');
+      await this.loadMyNovels();
+      this.renderNovelsList();
+    } catch (err) {
+      console.error('[ContributorManager] Erreur soumission:', err);
+      alert(`Erreur : ${err.message}`);
+    }
+  }
+
+  async deleteNovel(novelId) {
+    const novel = (this.novels || []).find(n => n.id === novelId);
+    const title = novel ? novel.title : 'ce roman';
+    if (!confirm(`Êtes-vous sûr de vouloir supprimer définitivement "${title}" ?\nCette action supprimera également tous ses tomes et fichiers associés.`)) {
+      return;
+    }
+
+    try {
+      const headers = await this.getHeaders();
+      const res = await fetch(`/api/contributor/novels/${novelId}`, {
+        method: 'DELETE',
+        headers
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || 'Erreur lors de la suppression du roman.');
+      }
+
+      // Live sync catalog & home
+      if (window.HomeLnoriManager && typeof window.HomeLnoriManager.reloadAllData === 'function') {
+        window.HomeLnoriManager.reloadAllData();
+      }
+      if (typeof window.reloadCatalog === 'function') {
+        window.reloadCatalog();
+      }
+
+      alert('Le roman a été supprimé avec succès.');
+      await this.loadMyNovels();
+    } catch (err) {
+      console.error('[ContributorManager] Erreur suppression:', err);
+      alert(`Erreur : ${err.message}`);
+    }
+  }
+
+
+  openVolumesModal(novelId) {
+    const list = this.novels || this.myNovels || [];
+    const novel = list.find(n => n.id === novelId);
+    if (!novel) return;
+
+    this.selectedNovelForVolumes = novel;
+    
+    // Update headers and novel banner
+    const titleEl = document.getElementById('volSectionNovelTitle') || document.getElementById('volModalNovelTitle');
+    if (titleEl) titleEl.textContent = novel.title || 'Sans titre';
+
+    const authorEl = document.getElementById('volSectionNovelAuthor');
+    if (authorEl) authorEl.innerHTML = `<i class="fa-solid fa-pen-nib"></i> ${novel.author || 'Inconnu'}`;
+
+    const coverEl = document.getElementById('volSectionNovelCover');
+    if (coverEl) {
+      if (novel.cover_url) {
+        coverEl.src = novel.cover_url;
+        coverEl.classList.remove('hidden');
+      } else {
+        coverEl.classList.add('hidden');
+      }
+    }
+
+    const statusEl = document.getElementById('volSectionNovelStatus');
+    if (statusEl) {
+      statusEl.textContent = novel.publication_status || 'DRAFT';
+      statusEl.className = `status-badge ${(novel.publication_status || 'DRAFT').toLowerCase()}`;
+    }
+
+    this.resetVolumeFilePicker();
+    if (this.volForm) this.volForm.reset();
+
+    // Auto calculate next volume number
+    const vols = novel.volumes || [];
+    const maxNum = vols.reduce((max, v) => Math.max(max, v.volume_number || v.number || 0), 0);
+    if (this.inpVolNumber) this.inpVolNumber.value = maxNum + 1;
+
+    // Set today date
+    const releaseDateInp = document.getElementById('contribVolReleaseDate');
+    if (releaseDateInp) releaseDateInp.value = new Date().toISOString().split('T')[0];
+
+    this.renderVolumesListModal();
+
+    // Switch to dedicated non-modal full section view
+    this.showView('volumes');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // Alias
+  openManageVolumes(novelId) {
+    this.openVolumesModal(novelId);
+  }
+
+  renderVolumesListModal() {
+    if (!this.volListContainer || !this.selectedNovelForVolumes) return;
+    const volumes = this.selectedNovelForVolumes.volumes || [];
+
+    const badgeCount = document.getElementById('volModalCountBadge');
+    if (badgeCount) badgeCount.textContent = `${volumes.length} tome${volumes.length > 1 ? 's' : ''}`;
+    const badgeSection = document.getElementById('volSectionCountBadge');
+    if (badgeSection) badgeSection.textContent = `${volumes.length} tome${volumes.length > 1 ? 's' : ''}`;
+
+    if (volumes.length === 0) {
+      this.volListContainer.innerHTML = `
+        <div class="vol-empty-state">
+          <div class="vol-empty-icon"><i class="fa-solid fa-box-open"></i></div>
+          <h5>Aucun tome téléversé</h5>
+          <p>Utilisez le panneau de gauche pour ajouter le premier tome (.epub ou .pdf) de ce roman.</p>
+        </div>
+      `;
+      return;
+    }
+
+    this.volListContainer.innerHTML = volumes.map(v => {
+      const volNum = v.volume_number || v.number || 1;
+      const fileType = (v.file_type || (v.file_name ? v.file_name.split('.').pop() : 'EPUB')).toUpperCase();
+      const fileSize = v.file_size ? `${(v.file_size / (1024 * 1024)).toFixed(1)} Mo` : '';
+      const releaseDate = v.release_date ? new Date(v.release_date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
+      
+      return `
+        <div class="vol-card-item">
+          <div class="vol-card-main">
+            <div class="vol-badge-number">TOME ${String(volNum).padStart(2, '0')}</div>
+            <div class="vol-info-wrap">
+              <div class="vol-title-text">${v.title || `Volume ${volNum}`}</div>
+              <div class="vol-meta-tags">
+                <span class="vol-pill-type ${fileType.toLowerCase()}"><i class="fa-solid ${fileType === 'PDF' ? 'fa-file-pdf' : 'fa-book'}"></i> ${fileType}</span>
+                ${fileSize ? `<span class="vol-meta-item"><i class="fa-solid fa-hard-drive"></i> ${fileSize}</span>` : ''}
+                ${releaseDate ? `<span class="vol-meta-item"><i class="fa-solid fa-calendar"></i> ${releaseDate}</span>` : ''}
+              </div>
+            </div>
+          </div>
+          <div class="vol-card-actions">
+            ${v.file_path ? `
+              <a href="${v.file_path}" download="${v.file_name || `Tome_${volNum}.${fileType.toLowerCase()}`}" class="btn-vol-download" title="Télécharger le fichier">
+                <i class="fa-solid fa-download"></i>
+              </a>
+            ` : ''}
+            <button type="button" class="btn-vol-delete" onclick="window.contributorManager.handleDeleteVolume('${this.selectedNovelForVolumes.id}', ${volNum})" title="Supprimer ce tome">
+              <i class="fa-solid fa-trash-can"></i>
+            </button>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  async handleDeleteVolume(novelId, volNum) {
+    if (!confirm(`Êtes-vous sûr de vouloir supprimer définitivement le Tome ${volNum} ?`)) {
+      return;
+    }
+
+    try {
+      const headers = await this.getHeaders();
+      const res = await fetch(`/api/contributor/novels/${novelId}/volumes/${volNum}`, {
+        method: 'DELETE',
+        headers
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || 'Erreur lors de la suppression du volume.');
+      }
+
+      if (this.selectedNovelForVolumes) {
+        this.selectedNovelForVolumes.volumes = data.volumes || [];
+        this.selectedNovelForVolumes.volume_count = this.selectedNovelForVolumes.volumes.length;
+      }
+
+      this.renderVolumesListModal();
+      this.loadMyNovels();
+    } catch (err) {
+      console.error('[ContributorManager] Erreur suppression volume:', err);
+      alert(`Erreur: ${err.message}`);
+    }
+  }
+
+  async handleVolumeSubmit(e) {
+    e.preventDefault();
+    if (!this.selectedNovelForVolumes) return;
+
+    const volume_number = parseFloat(this.inpVolNumber?.value || '1');
+    const volume_type = document.getElementById('contribVolType')?.value || 'main';
+    const volume_group = document.getElementById('contribVolGroup')?.value.trim() || '';
+    const title = this.inpVolTitle?.value.trim() || (volume_type === 'spinoff' ? (volume_group ? `${volume_group} - Tome ${volume_number}` : `Spin-off Tome ${volume_number}`) : `Volume ${volume_number}`);
+    const release_date = document.getElementById('contribVolReleaseDate')?.value;
+
+    const btnSubmit = document.getElementById('btnSubmitVolume');
+    const progress = document.getElementById('volUploadProgress');
+    const progressBar = document.getElementById('volProgressBarFill');
+    const progressText = document.getElementById('volProgressText');
+
+    try {
+      if (btnSubmit) {
+        btnSubmit.disabled = true;
+        btnSubmit.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Téléversement en cours...';
+      }
+      if (progress) progress.classList.remove('hidden');
+      if (progressBar) progressBar.style.width = '40%';
+      if (progressText) progressText.textContent = 'Téléversement du fichier sur le serveur...';
+
+      const formData = new FormData();
+      formData.append('volume_number', volume_number);
+      formData.append('title', title);
+      formData.append('volume_type', volume_type);
+      if (volume_group) formData.append('volume_group', volume_group);
+      if (release_date) formData.append('release_date', release_date);
+
+      if (this.selectedVolumeFile) {
+        formData.append('file', this.selectedVolumeFile);
+      }
+
+      if (progressBar) progressBar.style.width = '75%';
+
+      const auth = window.authManager || window.supabaseAuthManager;
+      const token = auth ? await auth.getAccessToken() : null;
+      const headers = {};
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+
+      const res = await fetch(`/api/contributor/novels/${this.selectedNovelForVolumes.id}/volumes`, {
+        method: 'POST',
+        headers,
+        body: formData
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || 'Erreur lors de l\'ajout du volume.');
+      }
+
+      if (progressBar) progressBar.style.width = '100%';
+      if (progressText) progressText.textContent = 'Volume importé avec succès !';
+
+      if (!this.selectedNovelForVolumes.volumes) this.selectedNovelForVolumes.volumes = [];
+      this.selectedNovelForVolumes.volumes = data.volumes || this.selectedNovelForVolumes.volumes;
+      this.selectedNovelForVolumes.volume_count = this.selectedNovelForVolumes.volumes.length;
+
+      setTimeout(() => {
+        this.resetVolumeFilePicker();
+        if (this.volForm) this.volForm.reset();
+        
+        // Auto increment for next volume
+        const vols = this.selectedNovelForVolumes.volumes;
+        const maxNum = vols.reduce((max, v) => Math.max(max, v.volume_number || v.number || 0), 0);
+        if (this.inpVolNumber) this.inpVolNumber.value = maxNum + 1;
+        
+        const releaseDateInp = document.getElementById('contribVolReleaseDate');
+        if (releaseDateInp) releaseDateInp.value = new Date().toISOString().split('T')[0];
+
+        if (btnSubmit) {
+          btnSubmit.disabled = false;
+          btnSubmit.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> Téléverser & Ajouter ce Tome';
+        }
+        if (progress) progress.classList.add('hidden');
+
+        this.renderVolumesListModal();
+        this.loadMyNovels();
+      }, 500);
+
+    } catch (err) {
+      console.error('[ContributorManager] Erreur volume:', err);
+      alert(`Erreur: ${err.message}`);
+      if (btnSubmit) {
+        btnSubmit.disabled = false;
+        btnSubmit.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> Téléverser & Ajouter ce Tome';
+      }
+      if (progress) progress.classList.add('hidden');
+    }
+  }
+}
+
+// Instanciation globale et résiliente
+function initContributorStudio() {
+  if (!window.contributorManager) {
+    window.contributorManager = new ContributorManager();
+  }
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initContributorStudio);
+} else {
+  initContributorStudio();
+}

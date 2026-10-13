@@ -34,6 +34,11 @@ class DeepLProvider extends TranslationProvider {
 
   formatDeepLError(err, context = 'DeepL API') {
     const statusCode = err.response?.status;
+    if (statusCode === 413 || err.message?.includes('413')) {
+      const sizeErr = new Error("Taille du fichier excessive pour DeepL (Limite 10 Mo)");
+      sizeErr.isPayloadTooLarge = true;
+      return sizeErr;
+    }
     if (statusCode === 456 || err.message.includes('456')) {
       const quotaErr = new Error("Quota DeepL dépassé (Erreur 456) : Votre clé API DeepL a atteint sa limite mensuelle. Veuillez vérifier votre compte DeepL.");
       quotaErr.isQuotaExceeded = true;
@@ -130,7 +135,7 @@ class DeepLProvider extends TranslationProvider {
     try {
       return await this.translateSingleDocumentChunk(pdfBuffer, targetLang, sourceLang, customApiKey, onProgress);
     } catch (err) {
-      if (err.message && (err.message.toLowerCase().includes('size limit') || err.message.toLowerCase().includes('exceeds'))) {
+      if (err.isPayloadTooLarge || (err.message && (err.message.toLowerCase().includes('size limit') || err.message.toLowerCase().includes('exceeds') || err.message.includes('413')))) {
         return await this.splitAndTranslateLargePdf(pdfBuffer, targetLang, sourceLang, customApiKey, onProgress);
       }
       throw err;
@@ -256,7 +261,7 @@ class DeepLProvider extends TranslationProvider {
 
     let isDone = false;
     let attempts = 0;
-    const maxAttempts = 120;
+    const maxAttempts = 800; // Jusqu'à 40 minutes pour les gros volumes de 200+ pages
 
     while (!isDone && attempts < maxAttempts) {
       attempts++;
@@ -276,18 +281,31 @@ class DeepLProvider extends TranslationProvider {
       }
 
       const status = statusRes.data.status;
+      const secondsRemaining = statusRes.data.seconds_remaining;
+
       if (status === 'done') {
         isDone = true;
-        if (onProgress) onProgress('Traduction terminée chez DeepL. Téléchargement du PDF...', 90);
+        if (onProgress) onProgress('Traduction terminée chez DeepL. Téléchargement du document...', 92);
       } else if (status === 'error') {
         throw new Error(`La traduction du document a échoué chez DeepL : ${statusRes.data.error_message || 'Erreur interne'}`);
       } else if (status === 'translating') {
-        const progressPercent = Math.min(85, 30 + (attempts * 3));
-        if (onProgress) onProgress('Traduction en cours par DeepL...', progressPercent);
+        let msg = 'Traduction en cours par DeepL...';
+        if (typeof secondsRemaining === 'number' && secondsRemaining > 0) {
+          if (secondsRemaining > 60) {
+            msg = `Traduction par DeepL (~ ${Math.ceil(secondsRemaining / 60)} min restantes)...`;
+          } else {
+            msg = `Traduction par DeepL (~ ${secondsRemaining}s restantes)...`;
+          }
+        }
+        // Progression fluide de 20% à 90%
+        const progressPercent = Math.min(90, 20 + Math.round((attempts / 120) * 70));
+        if (onProgress) onProgress(msg, progressPercent);
+      } else if (status === 'queued') {
+        if (onProgress) onProgress('Document placé en file d\'attente DeepL...', 15);
       }
     }
 
-    if (!isDone) throw new Error("Délai d'attente dépassé pour la traduction DeepL.");
+    if (!isDone) throw new Error("Délai d'attente dépassé pour la traduction DeepL (document volumineux).");
 
     const resultFormData = new FormData();
     resultFormData.append('document_key', document_key);

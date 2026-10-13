@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const assert = require('assert');
-const InMemoryJobStore = require('../services/storage/InMemoryJobStore');
+const DiskJobStore = require('../services/storage/DiskJobStore');
 
 function runEphemeralCleanupTests() {
   console.log('--- TEST 3: Nettoyage Éphémère & Validation Absence SQLite ---');
@@ -18,13 +18,13 @@ function runEphemeralCleanupTests() {
   assert.strictEqual(dbServiceExists, false, 'Le fichier DatabaseService.js ne doit pas exister.');
   console.log('✓ Test 3.2 Réussi: Dépendance et service SQLite supprimés.');
 
-  // Test 3.3: Les jobs temporaires dans InMemoryJobStore sont purgés après fin/TTL
+  // Test 3.3: Les jobs temporaires dans DiskJobStore sont purgés après fin/TTL
   const testJobId = 'job_temp_test';
-  InMemoryJobStore.createJob(testJobId, 'novel.pdf', 'pdf');
-  assert(InMemoryJobStore.getJob(testJobId) !== null);
+  DiskJobStore.createJob(testJobId, 'novel.pdf', 'pdf');
+  assert(DiskJobStore.getJob(testJobId) !== null);
 
-  InMemoryJobStore.removeJob(testJobId);
-  assert.strictEqual(InMemoryJobStore.getJob(testJobId), null, 'Le job doit être supprimé de la mémoire RAM.');
+  DiskJobStore.removeJob(testJobId);
+  assert.strictEqual(DiskJobStore.getJob(testJobId), null, 'Le job doit être supprimé de la mémoire RAM.');
   console.log('✓ Test 3.3 Réussi: Libération des données temporaires en RAM.');
 
   // Test 3.4: Fichiers de code et de configuration préservés
@@ -41,3 +41,4 @@ try {
   console.error('❌ ÉCHEC TEST NETTOYAGE:', err);
   process.exit(1);
 }
+

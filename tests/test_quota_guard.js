@@ -16,7 +16,7 @@ async function runQuotaGuardTests() {
   console.log('✓ Test 1.2 Réussi: Détection de la clé API manquante.');
 
   // Test 1.3: Verification Marge de Sécurité (PDF: +10%)
-  const mockUsage = { characterCount: 400000, characterLimit: 500000, charactersRemaining: 100000 };
+  const mockUsage = { error: false, characterCount: 400000, characterLimit: 500000, charactersRemaining: 100000 };
   const originalGetDeepLUsage = QuotaGuard.getDeepLUsage;
   QuotaGuard.getDeepLUsage = async () => mockUsage;
 

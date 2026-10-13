@@ -6,7 +6,7 @@ const TranslationMemory = require('../services/optimization/TranslationMemory');
 const QuotaGuard = require('../services/optimization/QuotaGuard');
 const TextSegmenter = require('../services/optimization/TextSegmenter');
 const BatchEngine = require('../services/optimization/BatchEngine');
-const InMemoryJobStore = require('../services/storage/InMemoryJobStore');
+const DiskJobStore = require('../services/storage/DiskJobStore');
 
 async function runTests() {
   console.log('====================================================');
@@ -55,12 +55,12 @@ async function runTests() {
   });
 
   // --- TEST 3: Gestion des jobs éphémères ---
-  await test('Test 3: InMemoryJobStore enregistre et met à jour l\'état temporaire', async () => {
+  await test('Test 3: DiskJobStore enregistre et met à jour l\'état temporaire', async () => {
     const testDocId = 'job_test_resume_99';
-    InMemoryJobStore.createJob(testDocId, 'test_novel.txt', 'text');
-    InMemoryJobStore.updateJob(testDocId, { status: 'PAUSED', currentBlock: 3, totalBlocks: 5 });
+    DiskJobStore.createJob(testDocId, 'test_novel.txt', 'text');
+    DiskJobStore.updateJob(testDocId, { status: 'PAUSED', currentBlock: 3, totalBlocks: 5 });
     
-    const loadedJob = InMemoryJobStore.getJob(testDocId);
+    const loadedJob = DiskJobStore.getJob(testDocId);
     assert.strictEqual(loadedJob.status, 'PAUSED');
     assert.strictEqual(loadedJob.currentBlock, 3);
   });
@@ -73,13 +73,13 @@ async function runTests() {
     assert.strictEqual(evalStatus.warningLevel, 'AUTO_STOP_99');
   });
 
-  // --- TEST 5: Gestion d'erreur et Statut FAILED dans InMemoryJobStore ---
+  // --- TEST 5: Gestion d'erreur et Statut FAILED dans DiskJobStore ---
   await test('Test 5: Erreur réseau -> Job marqué FAILED', async () => {
     const testJobId = 'job_err_test_1';
-    InMemoryJobStore.createJob(testJobId, 'doc_test.pdf', 'pdf');
-    InMemoryJobStore.failJob(testJobId, 'Connection timeout');
+    DiskJobStore.createJob(testJobId, 'doc_test.pdf', 'pdf');
+    DiskJobStore.failJob(testJobId, 'Connection timeout');
 
-    const job = InMemoryJobStore.getJob(testJobId);
+    const job = DiskJobStore.getJob(testJobId);
     assert.strictEqual(job.status, 'FAILED');
     assert.strictEqual(job.error, 'Connection timeout');
   });
@@ -101,3 +101,4 @@ async function runTests() {
 }
 
 runTests();
+
