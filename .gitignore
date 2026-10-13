@@ -24,3 +24,7 @@ bin/*.zip
 
 public/audio/*.mp3
 public/audio/
+
+volumes.tar
+*.tar
+*.tar.gz
