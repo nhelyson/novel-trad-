@@ -8,11 +8,10 @@ document.addEventListener('DOMContentLoaded', async function() {
     // Without this guard, seriesModule gets shown on every page (index.html, etc.).
     var params = new URLSearchParams(window.location.search);
     var seriesId = params.get('id');
-    if (!seriesId) {
-        var pathParts = window.location.pathname.split('/');
-        var lastPart = pathParts[pathParts.length - 1];
-        if (lastPart && lastPart !== 'series.html' && lastPart !== 'series' && lastPart !== '') {
-            seriesId = decodeURIComponent(lastPart);
+    if (!seriesId && window.location.pathname.startsWith('/series/')) {
+        var pathParts = window.location.pathname.split('/').filter(Boolean);
+        if (pathParts.length >= 2 && pathParts[0] === 'series') {
+            seriesId = decodeURIComponent(pathParts[1]);
         }
     }
 
