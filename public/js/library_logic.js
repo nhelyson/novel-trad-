@@ -292,8 +292,45 @@ async function connectLocalFolderNative() {
             await window.libraryDB.saveBook(volObj);
         }
 
+        // Nettoyer les anciennes entrées de ce dossier pour éviter les doublons ou anciens découpages
+        try {
+            const oldSeries = await window.libraryDB.getAllLocalSeries();
+            for (const s of oldSeries) {
+                if (s && (s.folderId === folderId || s.folderName === dirHandle.name)) {
+                    await window.libraryDB._delete('local_library', s.id);
+                }
+            }
+        } catch(e) {}
+
+        // Récupération cascade AniList pour chaque série détectée (Couverture HD, auteur et synopsis)
         for (const [sId, sData] of seriesGroups) {
             sData.volumes.sort((a, b) => (a.volumeNumber || 0) - (b.volumeNumber || 0));
+
+            try {
+                const metaRes = await fetch('/api/series/' + encodeURIComponent(sId) + '/metadata?title=' + encodeURIComponent(sData.title));
+                if (metaRes.ok) {
+                    const metaData = await metaRes.json();
+                    if (metaData && metaData.success && metaData.metadata) {
+                        sData.metadata = metaData.metadata;
+                        if (metaData.metadata.cover) {
+                            sData.cover = metaData.metadata.cover;
+                        }
+                        if (metaData.metadata.banner) {
+                            sData.banner = metaData.metadata.banner;
+                        }
+                        if (metaData.metadata.author) {
+                            sData.author = metaData.metadata.author;
+                        }
+                        if (metaData.metadata.synopsis_fr || metaData.metadata.synopsis) {
+                            sData.synopsis = metaData.metadata.synopsis_fr || metaData.metadata.synopsis;
+                            sData.synopsis_fr = metaData.metadata.synopsis_fr || metaData.metadata.synopsis;
+                        }
+                    }
+                }
+            } catch(metaErr) {
+                console.warn('[MetadataCascade] Erreur métadonnées API pour ' + sData.title + ':', metaErr);
+            }
+
             await window.libraryDB.saveLocalSeries(sData);
         }
 

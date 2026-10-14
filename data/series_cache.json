@@ -8083,5 +8083,174 @@
     ],
     "status_fr": "Terminé",
     "synopsis_fr": "Les pays de Mephius et Garbera sont en guerre depuis dix ans et tentent de mettre fin à ce long combat par un mariage politique entre les deux familles royales.\nOrba, qui a été chassé de chez lui à cause de la guerre et contraint de devenir gladiateur, ressemble exactement au prince héritier de Mephius, et il a été décidé qu'il le remplacerait lors de la cérémonie de mariage. De son côté, Vileena, la princesse de Garbera, a secrètement décidé de piéger le prince héritier pour les intérêts de son propre pays.\n(Source : Baka-Tsuki)"
+  },
+  "test_series": {
+    "id": "anilist-54380",
+    "rating": 3.9,
+    "averageScore": 78,
+    "popularity": 3774,
+    "provider": "anilist",
+    "format": "NOVEL",
+    "format_label": "Light Novel",
+    "title": "Kokoro Connect",
+    "author": "Sadanatsu Anda",
+    "genres": [
+      "Comedy",
+      "Drama",
+      "Romance",
+      "Slice of Life",
+      "Supernatural"
+    ],
+    "status": "FINISHED",
+    "synopsis": "5 boys and girls full-shuffled! 5-way love pentagon comedy! At clubhouse room 401, there gathers \"anything goes\" members of the culture study society. Pro-wrestling otaku Taichi Yaegashi, mysterious beauty Iori Nagase, cool Himeko Inaba, the clown Yoshifumi Aoki and fancy-loving Yui Kiriyama found the noisy but calm days suddenly come to a halt. The personality switched among the members--. The unnatural days of changinging into \"someone\" by getting back to \"themselves\" by becoming \"someone else\" has started!",
+    "cover": "https://s4.anilist.co/file/anilistcdn/media/manga/cover/large/bx54380-J4ayyutGfRXr.jpg",
+    "banner": "https://s4.anilist.co/file/anilistcdn/media/manga/banner/54380-JQ1hKgeVkd9c.jpg",
+    "volumes": 11,
+    "year": 2010,
+    "matchScore": 1,
+    "totalScore": 1.23774,
+    "isSpinOff": false,
+    "updatedAt": 1791941985491,
+    "candidates": [
+      {
+        "id": "anilist-54380",
+        "rating": 3.9,
+        "averageScore": 78,
+        "popularity": 3774,
+        "provider": "anilist",
+        "format": "NOVEL",
+        "format_label": "Light Novel",
+        "title": "Kokoro Connect",
+        "author": "Sadanatsu Anda",
+        "genres": [
+          "Comedy",
+          "Drama",
+          "Romance",
+          "Slice of Life",
+          "Supernatural"
+        ],
+        "status": "FINISHED",
+        "synopsis": "5 boys and girls full-shuffled! 5-way love pentagon comedy! At clubhouse room 401, there gathers \"anything goes\" members of the culture study society. Pro-wrestling otaku Taichi Yaegashi, mysterious beauty Iori Nagase, cool Himeko Inaba, the clown Yoshifumi Aoki and fancy-loving Yui Kiriyama found the noisy but calm days suddenly come to a halt. The personality switched among the members--. The unnatural days of changinging into \"someone\" by getting back to \"themselves\" by becoming \"someone else\" has started!",
+        "cover": "https://s4.anilist.co/file/anilistcdn/media/manga/cover/large/bx54380-J4ayyutGfRXr.jpg",
+        "banner": "https://s4.anilist.co/file/anilistcdn/media/manga/banner/54380-JQ1hKgeVkd9c.jpg",
+        "volumes": 11,
+        "year": 2010,
+        "matchScore": 1,
+        "totalScore": 1.23774,
+        "isSpinOff": false,
+        "updatedAt": 1791941985491,
+        "status_fr": "Terminé",
+        "genres_fr": [
+          "Comédie",
+          "Drame",
+          "Romance",
+          "Tranche de vie",
+          "Surnaturel"
+        ]
+      },
+      {
+        "id": "anilist-54489",
+        "rating": 3.5,
+        "averageScore": 71,
+        "popularity": 2895,
+        "provider": "anilist",
+        "format": "MANGA",
+        "format_label": "Manga",
+        "title": "Kokoro Connect",
+        "author": "Sadanatsu Anda",
+        "genres": [
+          "Comedy",
+          "Slice of Life"
+        ],
+        "status": "FINISHED",
+        "synopsis": "Yamaboshi Academy’s Student Cultural Society consists of five weirdos (Himeko, Iori, Yui, Aoki, and Taichi) who just don’t fit in anywhere else. While they seem as close as friends can be, when they mysteriously start swapping bodies with one another, their bond is put to the test. Now the five friends must figure out not only why this is happening to them, but come to terms with each other’s innermost secrets, fears, and hidden crushes. Can they possibly stay friends while retaining their sanity?\n\n(Source: Seven Seas Entertainment)",
+        "cover": "https://s4.anilist.co/file/anilistcdn/media/manga/cover/medium/24489.jpg",
+        "banner": null,
+        "volumes": 5,
+        "year": 2010,
+        "matchScore": 1,
+        "totalScore": 1.07895,
+        "isSpinOff": false,
+        "updatedAt": 1791941985491,
+        "status_fr": "Terminé",
+        "genres_fr": [
+          "Comédie",
+          "Tranche de vie"
+        ]
+      },
+      {
+        "id": "anilist-93132",
+        "rating": 3.4,
+        "averageScore": 67,
+        "popularity": 224,
+        "provider": "anilist",
+        "format": "MANGA",
+        "format_label": "Manga",
+        "title": "Kokoro Connect: On Air",
+        "author": "Sadanatsu Anda",
+        "genres": [
+          "Comedy",
+          "Romance",
+          "Slice of Life",
+          "Supernatural"
+        ],
+        "status": "FINISHED",
+        "synopsis": "Kokoro Connect: On Air is a 1-volume manga adaptation of the series's anime, covering story plot up to Kako Random.",
+        "cover": "https://s4.anilist.co/file/anilistcdn/media/manga/cover/medium/93132-N3Bw57kAhOJu.jpg",
+        "banner": null,
+        "volumes": 1,
+        "year": 2012,
+        "matchScore": 0.95,
+        "totalScore": 1.00224,
+        "isSpinOff": false,
+        "updatedAt": 1791941985491,
+        "status_fr": "Terminé",
+        "genres_fr": [
+          "Comédie",
+          "Romance",
+          "Tranche de vie",
+          "Surnaturel"
+        ]
+      },
+      {
+        "id": "anilist-82323",
+        "rating": 3,
+        "averageScore": 60,
+        "popularity": 74,
+        "provider": "anilist",
+        "format": "MANGA",
+        "format_label": "Manga",
+        "title": "Majikyu 4-koma Kokoro Connect",
+        "author": "Inconnu",
+        "genres": [
+          "Slice of Life",
+          "Supernatural"
+        ],
+        "status": "RELEASING",
+        "synopsis": "5 boys and girls full-shuffled! 5-way love pentagon comedy! At clubhouse room 401, there gathers \"anything goes\" members of the culture study society. Pro-wrestling otaku Taichi Yaegashi, mysterious beauty Iori Nagase, cool Himeko Inaba, the clown Yoshifumi Aoki and fancy-loving Yui Kiriyama found the noisy but calm days suddenly come to a halt. The personality switched among the members--. The unnatural days of changinging into \"someone\" by getting back to \"themselves\" by becoming \"someone else\" has started!",
+        "cover": "https://s4.anilist.co/file/anilistcdn/media/manga/cover/medium/52323.jpg",
+        "banner": null,
+        "volumes": null,
+        "year": 2012,
+        "matchScore": 0.8400000000000001,
+        "totalScore": 0.5407400000000001,
+        "isSpinOff": true,
+        "updatedAt": 1791941985491,
+        "status_fr": "En cours",
+        "genres_fr": [
+          "Tranche de vie",
+          "Surnaturel"
+        ]
+      }
+    ],
+    "genres_fr": [
+      "Comédie",
+      "Drame",
+      "Romance",
+      "Tranche de vie",
+      "Surnaturel"
+    ],
+    "status_fr": "Terminé",
+    "synopsis_fr": "5 garçons et filles complètement mélangés ! Comédie amoureuse à 5 sur le Pentagone ! Dans la salle 401 du club-house, se rassemblent les membres « tout est permis » de la société d'étude culturelle. L'otaku Taichi Yaegashi, la mystérieuse beauté Iori Nagase, le cool Himeko Inaba, le clown Yoshifumi Aoki et l'amoureux Yui Kiriyama ont vu les journées bruyantes mais calmes s'arrêter soudainement. La personnalité a changé parmi les membres.... L’époque contre nature où l’on se transforme en « quelqu’un » en revenant à « soi-même » en devenant « quelqu’un d’autre » a commencé !"
   }
 }
