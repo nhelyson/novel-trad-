@@ -103,6 +103,22 @@ document.addEventListener('DOMContentLoaded', async function() {
 async function renderSeries(series) {
     if (series.title) {
         document.title = series.title + ' - Light Novel en Français | NovelTrad';
+        try {
+          const descEl = document.getElementById('metaSeriesDescription') || document.querySelector('meta[name="description"]');
+          const cleanDesc = (series.synopsis || '').replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
+          const shortDesc = cleanDesc.length > 155 ? (cleanDesc.substring(0, 152) + '...') : (cleanDesc || 'Lisez ' + series.title + ' en français sur NovelTrad.');
+          if (descEl) descEl.setAttribute('content', shortDesc);
+          
+          const ogDesc = document.getElementById('ogSeriesDescription');
+          if (ogDesc) ogDesc.setAttribute('content', shortDesc);
+          const twDesc = document.getElementById('twSeriesDescription');
+          if (twDesc) twDesc.setAttribute('content', shortDesc);
+          
+          const ogTitle = document.getElementById('ogSeriesTitle');
+          if (ogTitle) ogTitle.setAttribute('content', series.title + ' | NovelTrad');
+          const twTitle = document.getElementById('twSeriesTitle');
+          if (twTitle) twTitle.setAttribute('content', series.title + ' | NovelTrad');
+        } catch(e) {}
     }
     document.getElementById('seriesTitle').textContent = series.title;
     checkAndRenderCatalogStatus(series);
