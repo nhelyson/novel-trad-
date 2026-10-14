@@ -1265,18 +1265,7 @@ function setupFoldersModal() {
         modal.classList.remove('hidden');
         if (feedback) feedback.classList.add('hidden');
         loadLinkedFoldersList();
-
-        const isLocalHost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-        const fsCard = modal.querySelector('.fs-explorer-card');
-        const manualBox = document.getElementById('inputFolderPath')?.closest('div');
-        if (!isLocalHost) {
-            if (fsCard) fsCard.style.display = 'none';
-            if (manualBox) manualBox.style.display = 'none';
-        } else {
-            if (fsCard) fsCard.style.display = 'flex';
-            if (manualBox) manualBox.style.display = 'block';
-            navigateFs(currentExplorePath || '');
-        }
+        navigateFs(currentExplorePath || '');
     }
 
     function closeModal() {
