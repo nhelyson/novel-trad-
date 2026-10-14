@@ -13,6 +13,8 @@
     let searchDebounce = null;
     const exploreCache = new Map();
     const CACHE_TTL = 60000; // 60 secondes de validité cache
+    let sentinelObserver = null;
+    let controlsInitialized = false;
 
     let catalogState = {
         q: '',
@@ -22,14 +24,23 @@
         origin: 'all',
         sort: 'popular',
         page: 1,
-        limit: 40
+        limit: 30,
+        totalPages: 1,
+        total: 0,
+        isLoading: false,
+        hasMore: true
     };
 
     window.initCatalog = async function() {
-        // log silenced
-        setupCatalogControls();
+        if (!controlsInitialized) {
+            setupCatalogControls();
+            setupInfiniteScrollObserver();
+            controlsInitialized = true;
+        }
         readParamsFromHash();
-        await loadCatalogExplore();
+        catalogState.page = 1;
+        catalogState.hasMore = true;
+        await loadCatalogExplore(false);
     };
 
     window.applyCatalogFilters = function(filters = {}) {
@@ -64,7 +75,9 @@
             const sel = document.getElementById('catalogSortSelect');
             if (sel) sel.value = (s === 'title' ? 'az' : s);
         }
-        return loadCatalogExplore();
+        catalogState.page = 1;
+        catalogState.hasMore = true;
+        return loadCatalogExplore(false);
     };
 
     function readParamsFromHash() {
@@ -119,7 +132,9 @@
     window.addEventListener('hashchange', () => {
         if (window.location.hash.startsWith('#catalog')) {
             readParamsFromHash();
-            loadCatalogExplore();
+            catalogState.page = 1;
+            catalogState.hasMore = true;
+            loadCatalogExplore(false);
         }
     });
 
@@ -154,6 +169,8 @@
             searchInput.oninput = () => {
                 const q = searchInput.value.trim();
                 catalogState.q = q;
+                catalogState.page = 1;
+                catalogState.hasMore = true;
                 if (searchClearBtn) {
                     searchClearBtn.classList.toggle('hidden', q.length === 0);
                 }
@@ -167,7 +184,7 @@
 
                 clearTimeout(searchDebounce);
                 searchDebounce = setTimeout(() => {
-                    loadCatalogExplore();
+                    loadCatalogExplore(false);
                 }, 200);
             };
         }
@@ -177,8 +194,10 @@
             searchClearBtn.onclick = () => {
                 searchInput.value = '';
                 catalogState.q = '';
+                catalogState.page = 1;
+                catalogState.hasMore = true;
                 searchClearBtn.classList.add('hidden');
-                loadCatalogExplore();
+                loadCatalogExplore(false);
             };
         }
 
@@ -210,37 +229,57 @@
         if (el) {
             el.onchange = () => {
                 catalogState[stateKey] = el.value;
-                loadCatalogExplore();
+                catalogState.page = 1;
+                catalogState.hasMore = true;
+                loadCatalogExplore(false);
             };
         }
     }
 
     window.reloadCatalog = function(forceRefresh = false) { 
         if (forceRefresh) exploreCache.clear();
-        return loadCatalogExplore(); 
+        catalogState.page = 1;
+        catalogState.hasMore = true;
+        return loadCatalogExplore(false); 
     };
 
-    async function loadCatalogExplore() {
+    async function loadCatalogExplore(append = false) {
         const grid = document.getElementById('catalogGrid');
         const countEl = document.getElementById('catalogResultsCount');
+        const sentinelEl = document.getElementById('catalogInfiniteSentinel');
+        const endNoticeEl = document.getElementById('catalogEndOfResults');
+        const endNoticeText = document.getElementById('catalogEndNoticeText');
 
-        renderActiveFilters();
+        if (catalogState.isLoading) return;
+        if (append && !catalogState.hasMore) return;
 
-        // Sync URL with active filters for shareable/bookmarkable links
-        try {
-            const urlParams = new URLSearchParams();
-            if (catalogState.q) urlParams.set('q', catalogState.q);
-            if (catalogState.genre !== 'all') urlParams.set('genre', catalogState.genre);
-            if (catalogState.origin !== 'all') urlParams.set('origin', catalogState.origin);
-            if (catalogState.format !== 'all') urlParams.set('format', catalogState.format);
-            if (catalogState.status !== 'all') urlParams.set('status', catalogState.status);
-            if (catalogState.sort !== 'popular') urlParams.set('sort', catalogState.sort);
-            const qStr = urlParams.toString();
-            const newHash = '#catalog' + (qStr ? '?' + qStr : '');
-            if (window.location.hash.startsWith('#catalog') && window.location.hash !== newHash) {
-                history.replaceState(null, '', newHash);
-            }
-        } catch (_) {}
+        catalogState.isLoading = true;
+
+        if (!append) {
+            renderActiveFilters();
+
+            // Sync URL with active filters for shareable/bookmarkable links
+            try {
+                const urlParams = new URLSearchParams();
+                if (catalogState.q) urlParams.set('q', catalogState.q);
+                if (catalogState.genre !== 'all') urlParams.set('genre', catalogState.genre);
+                if (catalogState.origin !== 'all') urlParams.set('origin', catalogState.origin);
+                if (catalogState.format !== 'all') urlParams.set('format', catalogState.format);
+                if (catalogState.status !== 'all') urlParams.set('status', catalogState.status);
+                if (catalogState.sort !== 'popular') urlParams.set('sort', catalogState.sort);
+                const qStr = urlParams.toString();
+                const newHash = '#catalog' + (qStr ? '?' + qStr : '');
+                if (window.location.hash.startsWith('#catalog') && window.location.hash !== newHash) {
+                    history.replaceState(null, '', newHash);
+                }
+            } catch (_) {}
+
+            if (endNoticeEl) endNoticeEl.style.display = 'none';
+            if (sentinelEl) sentinelEl.style.display = 'none';
+        } else {
+            // Affichage du loader dans la sentinelle pendant la pagination
+            if (sentinelEl) sentinelEl.style.display = 'block';
+        }
 
         const params = new URLSearchParams({
             q: catalogState.q,
@@ -254,28 +293,33 @@
         });
         const cacheKey = params.toString();
 
-        // 1. VÉRIFICATION DU CACHE SESSION CLIENT (Affichage 0 ms)
+        // 1. VÉRIFICATION DU CACHE SESSION CLIENT (Affichage 0 ms pour la première page)
         const cached = exploreCache.get(cacheKey);
         const now = Date.now();
         let renderedFromCache = false;
 
-        if (cached && cached.data && cached.data.success) {
+        if (!append && cached && cached.data && cached.data.success) {
             allExploreList = cached.data.series || [];
-            if (countEl) countEl.textContent = `${cached.data.total} roman${cached.data.total > 1 ? 's' : ''}`;
+            catalogState.total = cached.data.total || 0;
+            catalogState.totalPages = cached.data.totalPages || Math.ceil(catalogState.total / catalogState.limit) || 1;
+            catalogState.hasMore = catalogState.page < catalogState.totalPages;
+
+            if (countEl) countEl.textContent = `${catalogState.total} roman${catalogState.total > 1 ? 's' : ''}`;
             if (grid) renderCatalogGrid(allExploreList, grid);
+            updateInfiniteScrollUI(sentinelEl, endNoticeEl, endNoticeText);
             renderedFromCache = true;
 
             // Si les données en cache sont encore très fraîches (< 60s), pas besoin de refaire de requête
             if (now - cached.timestamp < CACHE_TTL) {
+                catalogState.isLoading = false;
                 return;
             }
         }
 
-        // 2. ÉTAT DE CHARGEMENT SANS FLICKER
-        if (!renderedFromCache && grid) {
-            // Affichage de cartes skeletons élégantes plutôt qu'un spinner bloquant
+        // 2. ÉTAT DE CHARGEMENT INITIAL SANS FLICKER
+        if (!append && !renderedFromCache && grid) {
             let skeletons = '';
-            for (let i = 0; i < 12; i++) {
+            for (let i = 0; i < 15; i++) {
                 skeletons += '<div class="catalog-skeleton-card" style="aspect-ratio: 2/3; border-radius: 14px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);"></div>';
             }
             grid.innerHTML = skeletons;
@@ -289,23 +333,171 @@
             if (data.success) {
                 exploreCache.set(cacheKey, { data, timestamp: Date.now() });
                 const list = data.series || [];
-                allExploreList = list;
+                catalogState.total = data.total || 0;
+                catalogState.totalPages = data.totalPages || Math.ceil(catalogState.total / catalogState.limit) || 1;
+                catalogState.hasMore = catalogState.page < catalogState.totalPages;
+
                 if (countEl) countEl.textContent = `${data.total} roman${data.total > 1 ? 's' : ''}`;
-                if (grid) renderCatalogGrid(list, grid);
+
+                if (!append) {
+                    allExploreList = list;
+                    if (grid) renderCatalogGrid(list, grid);
+                } else {
+                    allExploreList = allExploreList.concat(list);
+                    if (grid) appendCardsToGrid(list, grid);
+                }
+
+                updateInfiniteScrollUI(sentinelEl, endNoticeEl, endNoticeText);
             }
         } catch (e) {
             console.error('[Catalog] Erreur chargement catalogue:', e);
-            if (!renderedFromCache && grid) {
+            if (!renderedFromCache && !append && grid) {
                 grid.innerHTML = '<p class="text-danger" style="grid-column: 1/-1; text-align: center; padding: 40px;">Erreur de connexion au catalogue.</p>';
             }
+        } finally {
+            catalogState.isLoading = false;
         }
+    }
+
+    function updateInfiniteScrollUI(sentinelEl, endNoticeEl, endNoticeText) {
+        if (!sentinelEl) return;
+        if (catalogState.hasMore) {
+            sentinelEl.style.display = 'block';
+            if (endNoticeEl) endNoticeEl.style.display = 'none';
+        } else {
+            sentinelEl.style.display = 'none';
+            if (endNoticeEl) {
+                if (catalogState.total > catalogState.limit) {
+                    if (endNoticeText) {
+                        endNoticeText.textContent = `Vous avez exploré l'ensemble des ${catalogState.total} œuvres disponibles.`;
+                    }
+                    endNoticeEl.style.display = 'block';
+                } else {
+                    endNoticeEl.style.display = 'none';
+                }
+            }
+        }
+    }
+
+    function setupInfiniteScrollObserver() {
+        const sentinel = document.getElementById('catalogInfiniteSentinel');
+        if (!sentinel) return;
+
+        if (sentinelObserver) {
+            sentinelObserver.disconnect();
+        }
+
+        sentinelObserver = new IntersectionObserver((entries) => {
+            const entry = entries[0];
+            if (entry && entry.isIntersecting) {
+                if (!catalogState.isLoading && catalogState.hasMore) {
+                    catalogState.page += 1;
+                    loadCatalogExplore(true);
+                }
+            }
+        }, {
+            root: null,
+            rootMargin: '400px 0px',
+            threshold: 0.05
+        });
+
+        sentinelObserver.observe(sentinel);
+    }
+
+    function createCardElement(series) {
+        const cardWrap = document.createElement('div');
+        cardWrap.className = 'lnori-card-wrapper';
+
+        const rawCover = series.cover || '';
+        const coverSrc = rawCover ? (rawCover.startsWith('http') ? `/api/cover-proxy?url=${encodeURIComponent(rawCover)}&w=360` : rawCover) : 'https://placehold.co/400x600/18181b/ffffff?text=Cover';
+        const isWebnovel = series.type === 'webnovel' || (series.formats || []).includes('webnovel');
+        const formatBadge = isWebnovel ? 'Webnovel' : (series.formats ? series.formats.join('/') : 'EPUB');
+        const volCount = series.volume_count || (series.volumes ? series.volumes.length : 1);
+        const genres = (series.genres_fr || series.genres || []).slice(0, 3);
+
+        let originTag = 'JP';
+        if ((series.origin || '').includes('Corée')) originTag = 'KR';
+        else if ((series.origin || '').includes('Chine')) originTag = 'CN';
+
+        cardWrap.innerHTML = `
+            <div class="lnori-card">
+                <div class="lnori-card-cover-box">
+                    <span class="lnori-card-format-tag">${originTag}</span>
+                    <img src="${coverSrc}" alt="${series.title}" loading="lazy" decoding="async" onload="this.classList.add('loaded')" onerror="this.onerror=null;this.src='https://placehold.co/400x600/18181b/ffffff?text=${encodeURIComponent(series.title)}'">
+                    <span class="lnori-card-vol-badge">${volCount} Vol.</span>
+                </div>
+                <div class="lnori-card-info">
+                    <div class="lnori-card-title" title="${series.title}">${series.title}</div>
+                    <div class="lnori-card-sub">${series.author || 'Auteur Inconnu'}</div>
+                </div>
+            </div>
+
+            <!-- POPOVER FLOTTANT DIRECTIONNEL LNORI -->
+            <div class="lnori-card-popup">
+                <div class="popup-header">
+                    <div class="popup-tags-row">
+                        <span class="popup-pill">${originTag}</span>
+                        <span class="popup-pill popup-vol-pill"><i class="fa-solid fa-book"></i> ${volCount} Vol.</span>
+                    </div>
+                    <h4 class="popup-title">${series.title}</h4>
+                    <span class="popup-author">${series.author || 'Auteur Inconnu'}</span>
+                </div>
+
+                <div class="popup-genres">
+                    ${genres.map(g => `<span class="popup-genre-badge">${g}</span>`).join('')}
+                </div>
+
+                <p class="popup-synopsis">${series.synopsis_fr || series.synopsis || 'Découvrez cette histoire captivante sur NovelTrad.'}</p>
+
+                <div class="popup-actions">
+                    <button type="button" class="popup-btn-primary btn-open-series">
+                        <i class="fa-solid fa-book-open"></i> Lire maintenant
+                    </button>
+                    <button type="button" class="popup-btn-icon btn-popup-bookmark" title="Ajouter à mes favoris">
+                        <i class="fa-solid fa-bookmark"></i>
+                    </button>
+                </div>
+            </div>
+        `;
+
+        // Détection automatique de direction gauche/droite pour éviter tout débordement d'écran
+        cardWrap.addEventListener('mouseenter', () => {
+            const rect = cardWrap.getBoundingClientRect();
+            const center = rect.left + rect.width / 2;
+            if (center > window.innerWidth / 2) {
+                cardWrap.classList.add('popup-right');
+                cardWrap.classList.remove('popup-left');
+            } else {
+                cardWrap.classList.add('popup-left');
+                cardWrap.classList.remove('popup-right');
+            }
+        });
+
+        const openAction = () => {
+            window.location.href = `/series.html?id=${encodeURIComponent(series.id)}`;
+        };
+
+        const cardEl = cardWrap.querySelector('.lnori-card');
+        const openBtn = cardWrap.querySelector('.btn-open-series');
+        if (cardEl) cardEl.onclick = openAction;
+        if (openBtn) openBtn.onclick = openAction;
+
+        const bookmarkBtn = cardWrap.querySelector('.btn-popup-bookmark');
+        if (bookmarkBtn) {
+            bookmarkBtn.onclick = (e) => {
+                e.stopPropagation();
+                quickBookmarkSeries(series, bookmarkBtn);
+            };
+        }
+
+        return cardWrap;
     }
 
     function renderCatalogGrid(list, container) {
         if (!container) return;
         container.innerHTML = '';
 
-        if (list.length === 0) {
+        if (!list || list.length === 0) {
             container.innerHTML = `
                 <div style="grid-column: 1/-1; text-align: center; padding: 60px 20px;">
                     <div style="font-size: 36px; color: #64748b; margin-bottom: 12px;"><i class="fa-solid fa-book-open"></i></div>
@@ -321,92 +513,20 @@
             return;
         }
 
+        const frag = document.createDocumentFragment();
         list.forEach(series => {
-            const cardWrap = document.createElement('div');
-            cardWrap.className = 'lnori-card-wrapper';
-
-            const rawCover = series.cover || '';
-            const coverSrc = rawCover ? (rawCover.startsWith('http') ? `/api/cover-proxy?url=${encodeURIComponent(rawCover)}&w=360` : rawCover) : 'https://placehold.co/400x600/18181b/ffffff?text=Cover';
-            const isWebnovel = series.type === 'webnovel' || (series.formats || []).includes('webnovel');
-            const formatBadge = isWebnovel ? 'Webnovel' : (series.formats ? series.formats.join('/') : 'EPUB');
-            const volCount = series.volume_count || (series.volumes ? series.volumes.length : 1);
-            const genres = (series.genres_fr || series.genres || []).slice(0, 3);
-
-            let originTag = 'JP';
-            if ((series.origin || '').includes('Corée')) originTag = 'KR';
-            else if ((series.origin || '').includes('Chine')) originTag = 'CN';
-
-            cardWrap.innerHTML = `
-                <div class="lnori-card">
-                    <div class="lnori-card-cover-box">
-                        <span class="lnori-card-format-tag">${originTag}</span>
-                        <img src="${coverSrc}" alt="${series.title}" loading="lazy" decoding="async" onload="this.classList.add('loaded')" onerror="this.onerror=null;this.src='https://placehold.co/400x600/18181b/ffffff?text=${encodeURIComponent(series.title)}'">
-                        <span class="lnori-card-vol-badge">${volCount} Vol.</span>
-                    </div>
-                    <div class="lnori-card-info">
-                        <div class="lnori-card-title" title="${series.title}">${series.title}</div>
-                        <div class="lnori-card-sub">${series.author || 'Auteur Inconnu'}</div>
-                    </div>
-                </div>
-
-                <!-- POPOVER FLOTTANT DIRECTIONNEL LNORI -->
-                <div class="lnori-card-popup">
-                    <div class="popup-header">
-                        <div class="popup-tags-row">
-                            <span class="popup-pill">${originTag}</span>
-                            <span class="popup-pill popup-vol-pill"><i class="fa-solid fa-book"></i> ${volCount} Vol.</span>
-                        </div>
-                        <h4 class="popup-title">${series.title}</h4>
-                        <span class="popup-author">${series.author || 'Auteur Inconnu'}</span>
-                    </div>
-
-                    <div class="popup-genres">
-                        ${genres.map(g => `<span class="popup-genre-badge">${g}</span>`).join('')}
-                    </div>
-
-                    <p class="popup-synopsis">${series.synopsis_fr || series.synopsis || 'Découvrez cette histoire captivante sur NovelTrad.'}</p>
-
-                    <div class="popup-actions">
-                        <button type="button" class="popup-btn-primary btn-open-series">
-                            <i class="fa-solid fa-book-open"></i> Lire maintenant
-                        </button>
-                        <button type="button" class="popup-btn-icon btn-popup-bookmark" title="Ajouter à mes favoris">
-                            <i class="fa-solid fa-bookmark"></i>
-                        </button>
-                    </div>
-                </div>
-            `;
-
-            // Détection automatique de direction gauche/droite pour éviter tout débordement d'écran
-            cardWrap.addEventListener('mouseenter', () => {
-                const rect = cardWrap.getBoundingClientRect();
-                const center = rect.left + rect.width / 2;
-                if (center > window.innerWidth / 2) {
-                    cardWrap.classList.add('popup-right');
-                    cardWrap.classList.remove('popup-left');
-                } else {
-                    cardWrap.classList.add('popup-left');
-                    cardWrap.classList.remove('popup-right');
-                }
-            });
-
-            const openAction = () => {
-                window.location.href = `/series.html?id=${encodeURIComponent(series.id)}`;
-            };
-
-            cardWrap.querySelector('.lnori-card').onclick = openAction;
-            cardWrap.querySelector('.btn-open-series').onclick = openAction;
-
-            const bookmarkBtn = cardWrap.querySelector('.btn-popup-bookmark');
-            if (bookmarkBtn) {
-                bookmarkBtn.onclick = (e) => {
-                    e.stopPropagation();
-                    quickBookmarkSeries(series, bookmarkBtn);
-                };
-            }
-
-            container.appendChild(cardWrap);
+            frag.appendChild(createCardElement(series));
         });
+        container.appendChild(frag);
+    }
+
+    function appendCardsToGrid(newSeriesList, container) {
+        if (!container || !newSeriesList || newSeriesList.length === 0) return;
+        const frag = document.createDocumentFragment();
+        newSeriesList.forEach(series => {
+            frag.appendChild(createCardElement(series));
+        });
+        container.appendChild(frag);
     }
 
     function renderActiveFilters() {
@@ -508,6 +628,8 @@
         catalogState.format = 'all';
         catalogState.status = 'all';
         catalogState.sort = 'popular';
+        catalogState.page = 1;
+        catalogState.hasMore = true;
 
         const inp = document.getElementById('navGlobalSearchInput');
         if (inp) inp.value = '';
@@ -521,7 +643,7 @@
         const sortSel = document.getElementById('catalogSortSelect');
         if (sortSel) sortSel.value = 'popular';
 
-        loadCatalogExplore();
+        loadCatalogExplore(false);
     }
 
     async function quickBookmarkSeries(series, buttonEl) {

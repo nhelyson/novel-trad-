@@ -522,6 +522,22 @@
         <!-- GRILLE LNORI ADAPTATIVE (ratio 2:3 & Flyout Popovers directionnels) -->
         <div id="catalogGrid" class="lnori-catalog-grid"></div>
 
+        <!-- SENTINELLE INFINITE SCROLL & LOADER -->
+        <div id="catalogInfiniteSentinel" class="catalog-infinite-sentinel" style="text-align: center; padding: 40px 20px 20px; display: none; width: 100%;">
+          <div class="catalog-infinite-loader" style="display: inline-flex; align-items: center; gap: 10px; color: #94a3b8; font-size: 14px; background: rgba(255,255,255,0.04); padding: 10px 22px; border-radius: 9999px; border: 1px solid rgba(255,255,255,0.06); backdrop-filter: blur(8px);">
+            <i class="fa-solid fa-spinner fa-spin" style="color: #6366f1;"></i>
+            <span>Chargement d'autres romans...</span>
+          </div>
+        </div>
+
+        <!-- MESSAGE DE FIN DU CATALOGUE -->
+        <div id="catalogEndOfResults" class="catalog-end-notice" style="text-align: center; padding: 30px 20px 40px; color: #64748b; font-size: 13px; display: none; width: 100%;">
+          <div style="display: inline-flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.02); padding: 8px 18px; border-radius: 9999px; border: 1px solid rgba(255,255,255,0.04);">
+            <i class="fa-solid fa-circle-check" style="color: #10b981;"></i>
+            <span id="catalogEndNoticeText">Vous avez exploré l'ensemble des œuvres disponibles.</span>
+          </div>
+        </div>
+
       </div> <!-- END MODULE 1: CATALOG -->
 
       <!-- ==================================================================== -->
