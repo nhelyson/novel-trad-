@@ -2159,7 +2159,9 @@
     const downloadBtn = document.getElementById("readerDownloadBtn");
     if (downloadBtn) {
       downloadBtn.addEventListener("click", function() {
-        if (typeof window.downloadCurrentVolume === "function") {
+        if (typeof window.openDownloadSponsorModal === "function") {
+          window.openDownloadSponsorModal();
+        } else if (typeof window.downloadCurrentVolume === "function") {
           window.downloadCurrentVolume();
         }
       });
@@ -2814,3 +2816,146 @@
   });
 
 })();
+
+
+  // Download Sponsor Modal (Rewarded Step)
+  let _downloadCountdownInterval = null;
+
+  window.openDownloadSponsorModal = function () {
+    if (!currentBookRef) {
+      alert("Aucun volume actif à télécharger.");
+      return;
+    }
+
+    let modal = document.getElementById("downloadSponsorModal");
+    if (!modal) {
+      modal = document.createElement("div");
+      modal.id = "downloadSponsorModal";
+      modal.className = "download-sponsor-overlay";
+      modal.innerHTML = `
+        <div class="download-sponsor-card" role="dialog" aria-modal="true" aria-labelledby="downloadSponsorBookTitle">
+          <button class="download-sponsor-close" id="closeDownloadSponsorBtn" title="Fermer" aria-label="Fermer">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+          
+          <div class="download-sponsor-header">
+            <div class="download-sponsor-badge">
+              <i class="fa-solid fa-file-arrow-down"></i> TÉLÉCHARGEMENT HORS-LIGNE
+            </div>
+            <h3 class="download-sponsor-title" id="downloadSponsorBookTitle">Tome Complet</h3>
+            <p class="download-sponsor-desc">
+              NovelTrad est <strong>gratuit et sans pub</strong> pendant la lecture. Soutenez la plateforme quelques secondes pour débloquer votre téléchargement.
+            </p>
+          </div>
+
+          <div class="download-sponsor-ad-frame">
+            <iframe id="adsterraIframeSlot" width="300" height="250" frameborder="0" scrolling="no" style="border:none;border-radius:8px;overflow:hidden;background:#090a0d;display:block;margin:0 auto;"></iframe>
+          </div>
+
+          <div class="download-sponsor-footer">
+            <div class="download-timer-pill" id="downloadTimerPill">
+              <i class="fa-solid fa-clock"></i> Déblocage dans <span id="downloadTimerSec">5</span>s...
+            </div>
+            <button id="downloadConfirmBtn" class="download-sponsor-btn" disabled>
+              <i class="fa-solid fa-spinner fa-spin"></i> Préparation (5s)...
+            </button>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(modal);
+
+      // Close handlers
+      const closeBtn = modal.querySelector("#closeDownloadSponsorBtn");
+      if (closeBtn) {
+        closeBtn.addEventListener("click", window.closeDownloadSponsorModal);
+      }
+      modal.addEventListener("click", function(e) {
+        if (e.target === modal) window.closeDownloadSponsorModal();
+      });
+      document.addEventListener("keydown", function(e) {
+        if (e.key === "Escape" && modal.classList.contains("active")) {
+          window.closeDownloadSponsorModal();
+        }
+      });
+    }
+
+    const titleEl = modal.querySelector("#downloadSponsorBookTitle");
+    const safeTitle = (currentBookRef && currentBookRef.title) || "Volume";
+    const ext = (currentFormat === 'pdf' || (currentBookRef && currentBookRef.format === 'pdf')) ? 'PDF' : 'EPUB';
+    if (titleEl) {
+      titleEl.textContent = safeTitle + ' (' + ext + ')';
+    }
+
+    // Refresh Adsterra iframe to trigger a fresh view
+    const adIframe = modal.querySelector("#adsterraIframeSlot");
+    if (adIframe) {
+      adIframe.src = "/ads/adsterra_300x250.html?t=" + Date.now();
+    }
+
+    // Reset button & timer state
+    const timerPill = modal.querySelector("#downloadTimerPill");
+    const confirmBtn = modal.querySelector("#downloadConfirmBtn");
+    if (timerPill) {
+      timerPill.innerHTML = '<i class="fa-solid fa-clock"></i> Déblocage dans <span id="downloadTimerSec">5</span>s...';
+    }
+    if (confirmBtn) {
+      confirmBtn.disabled = true;
+      confirmBtn.className = "download-sponsor-btn";
+      confirmBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Préparation (5s)...';
+      confirmBtn.onclick = null;
+    }
+
+    // Show modal
+    modal.style.display = "flex";
+    requestAnimationFrame(() => modal.classList.add("active"));
+
+    // Start 5 second countdown
+    if (_downloadCountdownInterval) clearInterval(_downloadCountdownInterval);
+    let secondsLeft = 5;
+
+    _downloadCountdownInterval = setInterval(() => {
+      secondsLeft--;
+      const secSpan = modal.querySelector("#downloadTimerSec");
+      if (secSpan) secSpan.textContent = secondsLeft;
+
+      if (confirmBtn && secondsLeft > 0) {
+        confirmBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Préparation (${secondsLeft}s)...`;
+      }
+
+      if (secondsLeft <= 0) {
+        clearInterval(_downloadCountdownInterval);
+        _downloadCountdownInterval = null;
+
+        if (timerPill) {
+          timerPill.innerHTML = '<i class="fa-solid fa-circle-check" style="color:#10b981;"></i> Fichier prêt au téléchargement !';
+        }
+        if (confirmBtn) {
+          confirmBtn.disabled = false;
+          confirmBtn.className = "download-sponsor-btn ready";
+          confirmBtn.innerHTML = '<i class="fa-solid fa-download"></i> Lancer le Téléchargement';
+          confirmBtn.onclick = function() {
+            window.closeDownloadSponsorModal();
+            if (typeof window.downloadCurrentVolume === "function") {
+              window.downloadCurrentVolume();
+            }
+          };
+        }
+      }
+    }, 1000);
+  };
+
+  window.closeDownloadSponsorModal = function () {
+    const modal = document.getElementById("downloadSponsorModal");
+    if (modal) {
+      modal.classList.remove("active");
+      setTimeout(() => {
+        if (!modal.classList.contains("active")) {
+          modal.style.display = "none";
+        }
+      }, 250);
+    }
+    if (_downloadCountdownInterval) {
+      clearInterval(_downloadCountdownInterval);
+      _downloadCountdownInterval = null;
+    }
+  };
