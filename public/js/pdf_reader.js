@@ -313,6 +313,9 @@
             }
             if (perm === 'granted') {
               const fileObj = await fileRecord.handle.getFile();
+              try {
+                book.arrayBuffer = await fileObj.arrayBuffer();
+              } catch(e) {}
               const blobUrl = URL.createObjectURL(fileObj);
               book.file_path = blobUrl;
               book.filePath = blobUrl;
@@ -741,7 +744,7 @@
       }
 
       // 1. Vérifier le Cache Local (0 ms si déjà préchargé ou déjà lu)
-      let bookData = await getVolumeFromCache(fileUrl);
+      let bookData = book.arrayBuffer || await getVolumeFromCache(fileUrl);
 
       if (bookData) {
         if (status) status.textContent = "Chargement instantané depuis le cache local...";

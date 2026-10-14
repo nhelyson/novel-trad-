@@ -457,7 +457,7 @@ async function renderSeries(series) {
 
                     // Direct cover resolution: extracted cover -> novel cover -> placeholder
                     var volCoverUrl = vol.cover || vol.cover_url || vol.coverUrl;
-                    if (!volCoverUrl && vol.id && !vol.id.includes('_vol_')) {
+                    if (!volCoverUrl && vol.id && !vol.id.includes('_vol_') && !vol.id.startsWith('local_')) {
                         volCoverUrl = '/api/download-job/' + encodeURIComponent(vol.id) + '/cover';
                     }
                     if (!volCoverUrl) {
@@ -525,6 +525,7 @@ async function renderSeries(series) {
                         var rawPath = vol.file_path || vol.filePath || '';
                         var fileKey = rawPath.replace(/^.*[\/\\]/, '').replace(/\.(epub|pdf)$/i, '');
                         var bookPayload = {
+                            ...vol,
                             id: vol.id || (`${series.id}_vol_${volNum}`),
                             title: `${series.title} - ${labelText}`,
                             seriesId: series.id,
@@ -534,7 +535,8 @@ async function renderSeries(series) {
                             file_path: vol.file_path || vol.filePath,
                             filePath: vol.file_path || vol.filePath,
                             fullPath: vol.fullPath || null,
-                            cover: volCoverUrl
+                            cover: volCoverUrl || vol.cover || series.cover,
+                            isLocalFsBook: vol.isLocalFsBook || series.isLocalFsSeries || (vol.id && vol.id.startsWith('local_'))
                         };
 
                         if (typeof window.openBookReader === 'function') {

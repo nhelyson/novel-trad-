@@ -1,33 +1,143 @@
 
+
 // ═══════════════════════════════════════════════════════════════════════════
-// NATIVE FILE SYSTEM ACCESS API & LOCAL FOLDER ZERO-COPY ENGINE
+// NATIVE FILE SYSTEM ACCESS API, TEXT NORMALIZER & CLIENT-SIDE COVER ENGINE
 // ═══════════════════════════════════════════════════════════════════════════
 
-function parseLocalFilename(filename) {
-    let name = filename.replace(/\.(epub|pdf)$/i, '');
-    name = name.replace(/\s*\(\d+\)\s*$/, '').trim();
-    name = name.replace(/[\s_-]*(?:_fr|-fr|\[fr\]|\(fr\)|vf|french)[\s_-]*/ig, ' ').trim();
-    name = name.replace(/\[[^\]]+\]|\([^\)]+\)/g, ' ').replace(/\s{2,}/g, ' ').trim();
+const SUBSERIES_PATTERNS = [
+    /[\s\-_:]+(?:year|arc|season|part|phase|saga|serie|series|arc)\s*\d+\s*$/i,
+    /[\s\-_]+[YS]\d+V\d*\s*$/i,
+    /[\s\-_]+[YS]\d+\s*$/i,
+];
 
-    let volumeNumber = null;
-    let seriesTitle = name;
+const SPINOFF_SUFFIXES = /[\s\-_]+(alter|side[\s\-_]*stor(?:y|ies)|extra[\s\-_]*stor(?:y|ies)|hiden|gaiden|special|light[\s\-_]*novel|redundant[\s\-_]*reincarnation)$/i;
 
-    const volMatch = name.match(/[\s\-_]+(?:vol(?:ume)?|tome|v)\.?\s*(\d+(?:\.\d+)?)/i) ||
-                     name.match(/[\s\-_]+0*(\d+)\s*$/);
-    if (volMatch) {
-        volumeNumber = parseFloat(volMatch[1]);
-        seriesTitle = name.slice(0, volMatch.index).trim();
+const ClientTextNormalizer = {
+    cleanMojibake(str) {
+        if (!str) return '';
+        return str
+            .replace(/\u00E2\u0080\u0093|\u00E2\u0080\u0094|\u00E2\u20AC[\u2013\u2014\u201C\u201D]|\u2013|\u2014|\uFFFD|\?{2,}/g, ' - ')
+            .replace(/\u00E2\u0080\u0099|\u00E2\u20AC\u2122|\u2019|\u2018/g, "'")
+            .replace(/[\u00C0-\u00C3][\u0080-\u00BF]*__s|ǽ__s/gi, "'s")
+            .replace(/â[€“”’™\s]*/g, ' ')
+            .replace(/[\u0080-\u009F]/g, ' ')
+            .replace(/\s*-\s*-\s*/g, ' - ')
+            .replace(/\s{2,}/g, ' ')
+            .trim();
+    },
+
+    parseFilename(filename) {
+        let name = filename.replace(/\.(epub|pdf)$/i, '');
+        name = this.cleanMojibake(name);
+        name = name.replace(/\s*\(\d+\)\s*$/, '').trim();
+        name = name.replace(/[\s_-]*(?:_fr|-fr|\[fr\]|\(fr\)|vf|french)[\s_-]*/ig, ' ').replace(/\s{2,}/g, ' ').trim();
+        name = name.replace(/[\s\-_]*(?:traduction[\s\-_]*officielle|traduction|traduit|traduc|translation|translated)[\s\-_]*/ig, ' ').replace(/\s{2,}/g, ' ').trim();
+        name = name.replace(/[\s\-_]*(?:pdf-room|pdf)[\s\-_]*/ig, ' ').replace(/\s{2,}/g, ' ').trim();
+        name = name.replace(/^\d{5,}[\s\-_]+/, '').trim();
+        name = name.replace(/[-_]{2,}/g, '-').replace(/\s{2,}/g, ' ').trim();
+
+        let volumeNumber = null;
+        let seriesTitle = name;
+
+        const volRegexes = [
+            /[\s\-_]+v0*(\d+(\.\d+)?)\b/i,
+            /\bv0*(\d+(\.\d+)?)\b/i,
+            /[\s\-_]+(?:volume|vol|tome|book|t)\.?\s*0*(\d+(\.\d+)?)\b/i,
+            /\b(?:volume|vol|tome|book|t)\.?\s*0*(\d+(\.\d+)?)\b/i,
+            /[\s\-_]+0*(\d+(\.\d+)?)\s*$/i,
+            /\(\s*0*(\d+(\.\d+)?)\s*\)\s*$/i,
+        ];
+
+        for (const regex of volRegexes) {
+            const match = name.match(regex);
+            if (match) {
+                volumeNumber = parseFloat(match[1]);
+                seriesTitle = name.substring(0, match.index).trim();
+                break;
+            }
+        }
+
+        seriesTitle = seriesTitle.replace(/[\s\-_:]+$/, '').trim();
+        seriesTitle = seriesTitle.replace(/\s{2,}/g, ' ');
+        seriesTitle = seriesTitle.replace(/[\s\-_]+(volume|vol|tome|book|t)\.?\s*$/i, '').replace(/[\s\-_]+$/, '').trim();
+        seriesTitle = seriesTitle.replace(/_/g, ' ').replace(/\s{2,}/g, ' ').trim();
+
+        for (const pattern of SUBSERIES_PATTERNS) {
+            const match = seriesTitle.match(pattern);
+            if (match) {
+                seriesTitle = seriesTitle.substring(0, match.index).replace(/[\s\-_:]+$/, '').trim();
+                break;
+            }
+        }
+
+        const spinoffMatch = seriesTitle.match(SPINOFF_SUFFIXES);
+        const baseSeriesTitle = spinoffMatch
+            ? seriesTitle.replace(SPINOFF_SUFFIXES, '').replace(/[\s\-_]+$/, '').trim()
+            : seriesTitle;
+
+        return {
+            seriesTitle: baseSeriesTitle || name,
+            volumeNumber,
+            volumeTitle: volumeNumber !== null ? ('Volume ' + volumeNumber) : name,
+            cleanName: name
+        };
+    },
+
+    generateSeriesId(title) {
+        return title
+            .toLowerCase()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .replace(/[''`]/g, '')
+            .replace(/[^a-z0-9]+/g, '-')
+            .replace(/^-|-$/g, '');
     }
+};
 
-    if (!seriesTitle) seriesTitle = name;
-    seriesTitle = seriesTitle.replace(/[\s\-_]+$/, '').trim();
+async function extractEpubCoverFromBlob(fileBlob) {
+    try {
+        if (typeof window.JSZip === 'undefined' && typeof JSZip === 'undefined') return null;
+        const ZipClass = window.JSZip || JSZip;
+        const zip = await ZipClass.loadAsync(fileBlob);
 
-    return {
-        seriesTitle: seriesTitle || name,
-        volumeNumber: volumeNumber,
-        volumeTitle: volumeNumber !== null ? ('Volume ' + volumeNumber) : name,
-        cleanName: name
-    };
+        const imageFiles = Object.keys(zip.files).filter(fn =>
+            /\.(jpe?g|png|webp)$/i.test(fn) && !fn.startsWith('__MACOSX') && !fn.includes('/.')
+        );
+
+        let coverEntry = imageFiles.find(fn => /cover/i.test(fn));
+
+        if (!coverEntry && zip.file('META-INF/container.xml')) {
+            try {
+                const containerXml = await zip.file('META-INF/container.xml').async('text');
+                const opfMatch = containerXml.match(/full-path=["']([^"']+\.opf)["']/i);
+                const opfPath = opfMatch ? opfMatch[1] : null;
+                if (opfPath && zip.file(opfPath)) {
+                    const opfContent = await zip.file(opfPath).async('text');
+                    const opfDir = opfPath.includes('/') ? opfPath.substring(0, opfPath.lastIndexOf('/') + 1) : '';
+                    const itemMatch = opfContent.match(/<item[^>]+id=["'][^"']*cover[^"']*["'][^>]+href=["']([^"']+)["']/i) ||
+                                     opfContent.match(/<item[^>]+href=["']([^"']+)["'][^>]+id=["'][^"']*cover[^"']*["']/i);
+                    if (itemMatch) {
+                        const resolved = opfDir + itemMatch[1];
+                        if (zip.file(resolved)) coverEntry = resolved;
+                    }
+                }
+            } catch(e) {}
+        }
+
+        if (!coverEntry && imageFiles.length > 0) {
+            coverEntry = imageFiles[0];
+        }
+
+        if (coverEntry && zip.file(coverEntry)) {
+            const base64 = await zip.file(coverEntry).async('base64');
+            const ext = coverEntry.split('.').pop().toLowerCase();
+            const mime = ext === 'png' ? 'image/png' : (ext === 'webp' ? 'image/webp' : 'image/jpeg');
+            return 'data:' + mime + ';base64,' + base64;
+        }
+    } catch (e) {
+        console.warn('[EpubCover] Notice extraction couverture locale:', e);
+    }
+    return null;
 }
 
 async function connectLocalFolderNative() {
@@ -46,7 +156,7 @@ async function connectLocalFolderNative() {
     try {
         dirHandle = await window.showDirectoryPicker({ mode: 'read' });
     } catch (err) {
-        if (err.name === 'AbortError') return; // L'utilisateur a cliqué sur Annuler
+        if (err.name === 'AbortError') return;
         console.error('[FolderPicker] Erreur:', err);
         alert("Impossible d'accéder au dossier : " + err.message);
         return;
@@ -108,7 +218,7 @@ async function connectLocalFolderNative() {
 
         const seriesGroups = new Map();
         for (const item of foundFiles) {
-            const parsed = parseLocalFilename(item.filename);
+            const parsed = ClientTextNormalizer.parseFilename(item.filename);
             let sTitle = parsed.seriesTitle;
             if (item.subPath) {
                 const subParts = item.subPath.split('/');
@@ -117,7 +227,7 @@ async function connectLocalFolderNative() {
                 }
             }
 
-            const seriesKey = sTitle.toLowerCase().replace(/[^a-z0-9_-]/g, '_');
+            const seriesKey = ClientTextNormalizer.generateSeriesId(sTitle);
             const seriesId = 'local_series_' + seriesKey;
 
             if (!seriesGroups.has(seriesId)) {
@@ -125,7 +235,7 @@ async function connectLocalFolderNative() {
                     id: seriesId,
                     title: sTitle,
                     author: 'Dossier Local : ' + dirHandle.name,
-                    cover: '/favicon.svg',
+                    cover: '',
                     isLocalFsSeries: true,
                     folderId: folderId,
                     folderName: dirHandle.name,
@@ -137,6 +247,22 @@ async function connectLocalFolderNative() {
             const sObj = seriesGroups.get(seriesId);
             const bookId = 'local_book_' + encodeURIComponent(folderId + '_' + (item.subPath ? item.subPath + '/' : '') + item.filename);
 
+            // Extraction de la vraie couverture EPUB en local (0 ms de serveur)
+            let volCover = '';
+            if (item.format === 'epub') {
+                try {
+                    const fileObj = await item.entry.getFile();
+                    volCover = await extractEpubCoverFromBlob(fileObj);
+                } catch(e) {}
+            }
+            if (!volCover) {
+                volCover = 'https://placehold.co/400x600/18181b/ffffff?text=' + encodeURIComponent(sTitle);
+            }
+
+            if (!sObj.cover || sObj.cover.includes('placehold.co')) {
+                sObj.cover = volCover;
+            }
+
             const volObj = {
                 id: bookId,
                 seriesId: seriesId,
@@ -147,7 +273,7 @@ async function connectLocalFolderNative() {
                 isLocalFsBook: true,
                 folderId: folderId,
                 folderName: dirHandle.name,
-                cover: '/favicon.svg',
+                cover: volCover,
                 progress: 0,
                 lastReadDate: 0
             };
@@ -174,7 +300,7 @@ async function connectLocalFolderNative() {
         await initLibrary(true);
         if (typeof loadLinkedFoldersList === 'function') await loadLinkedFoldersList();
 
-        alert('Dossier "' + dirHandle.name + '" connecté avec succès !\n' + foundFiles.length + ' livre(s) détecté(s) dans ' + seriesGroups.size + ' série(s).');
+        alert('Dossier "' + dirHandle.name + '" connecté avec succès !\n' + foundFiles.length + ' livre(s) regroupé(s) en ' + seriesGroups.size + ' série(s).');
 
     } catch (scanErr) {
         console.error('[FolderScan] Erreur scan:', scanErr);
@@ -520,7 +646,7 @@ function renderLibrary(seriesList) {
         let coverUrl = series.cover || series.cover_url || series.coverImage || series.metadata?.cover || '';
         if (!coverUrl && series.volumes && series.volumes.length > 0) {
             const v0 = series.volumes[0];
-            coverUrl = v0.cover || v0.cover_url || `/api/download-job/${encodeURIComponent(v0.id)}/cover`;
+            coverUrl = v0.cover || v0.cover_url || (v0.id && !v0.id.startsWith('local_') ? `/api/download-job/${encodeURIComponent(v0.id)}/cover` : 'https://placehold.co/400x600/18181b/ffffff?text=' + encodeURIComponent(series.title));
         }
         if (!coverUrl) {
             coverUrl = `https://placehold.co/400x600/18181b/ffffff?text=${encodeURIComponent(series.title)}`;
