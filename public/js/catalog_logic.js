@@ -419,8 +419,6 @@
         if ((series.origin || '').includes('Corée')) originTag = 'KR';
         else if ((series.origin || '').includes('Chine')) originTag = 'CN';
 
-        const isNew = series.is_new || ((Date.now() - (series.release_time || 0)) < (7 * 24 * 60 * 60 * 1000));
-
         cardWrap.innerHTML = `
             <div class="lnori-card">
                 <div class="lnori-card-cover-box">
