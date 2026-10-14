@@ -218,9 +218,22 @@ class CatalogService {
 
         // 5. Sort Order (popular, rating, latest, az / title, za)
         if (sort === 'popular') {
+            const now = Date.now();
+            const getScore = (s) => {
+                const views = s.views || 0;
+                const relTime = getReleaseTime(s);
+                const daysAgo = Math.max(0, (now - relTime) / (1000 * 60 * 60 * 24));
+                // Bonus de visibilité pour les nouveautés : +35 points aujourd'hui, dégressif sur 14 jours
+                const recencyBoost = daysAgo < 14 ? Math.round((14 - daysAgo) * 2.5) : 0;
+                return views + recencyBoost;
+            };
+
             list.sort((a, b) => {
-                const diff = (b.views || 0) - (a.views || 0);
+                const diff = getScore(b) - getScore(a);
                 if (diff !== 0) return diff;
+                // En cas d'égalité, les parutions récentes passent systématiquement DEVANT
+                const timeDiff = getReleaseTime(b) - getReleaseTime(a);
+                if (timeDiff !== 0) return timeDiff;
                 const rA = (parseFloat(a.rating) || 4.0) * 10 + ((a.volumes || []).length * 2);
                 const rB = (parseFloat(b.rating) || 4.0) * 10 + ((b.volumes || []).length * 2);
                 return rB - rA;
@@ -269,6 +282,7 @@ class CatalogService {
             approved_at: s.approved_at || 0,
             releaseDate: s.releaseDate || '',
             release_time: getReleaseTime(s),
+            is_new: (Date.now() - getReleaseTime(s)) < (7 * 24 * 60 * 60 * 1000),
             volumes: Array.isArray(s.volumes) ? s.volumes.map(v => ({
                 id: v.id,
                 volume_number: v.volume_number || v.volumeNumber || 1,

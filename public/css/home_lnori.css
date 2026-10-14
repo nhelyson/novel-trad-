@@ -4276,3 +4276,32 @@
   50% { opacity: 0.95; transform: translateY(-50%) scale(1.08); }
   100% { opacity: 0; transform: translateY(-50%) scale(1); }
 }
+
+/* --------------------------------------------------------------------------
+   NOUVEAU BADGE - CATALOGUE LNORI
+   -------------------------------------------------------------------------- */
+.lnori-card-new-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  padding: 3px 8px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  border-radius: 6px;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: #ffffff;
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.45);
+  backdrop-filter: blur(8px);
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.popup-new-pill {
+  background: rgba(16, 185, 129, 0.2) !important;
+  color: #34d399 !important;
+  border: 1px solid rgba(16, 185, 129, 0.4) !important;
+}
