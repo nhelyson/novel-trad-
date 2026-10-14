@@ -2852,10 +2852,10 @@
 
           <div class="download-sponsor-footer">
             <div class="download-timer-pill" id="downloadTimerPill">
-              <i class="fa-solid fa-clock"></i> Déblocage dans <span id="downloadTimerSec">5</span>s...
+              <i class="fa-solid fa-clock"></i> Déblocage dans <span id="downloadTimerSec">8</span>s...
             </div>
             <button id="downloadConfirmBtn" class="download-sponsor-btn" disabled>
-              <i class="fa-solid fa-spinner fa-spin"></i> Préparation (5s)...
+              <i class="fa-solid fa-spinner fa-spin"></i> Préparation (8s)...
             </button>
           </div>
         </div>
@@ -2894,12 +2894,12 @@
     const timerPill = modal.querySelector("#downloadTimerPill");
     const confirmBtn = modal.querySelector("#downloadConfirmBtn");
     if (timerPill) {
-      timerPill.innerHTML = '<i class="fa-solid fa-clock"></i> Déblocage dans <span id="downloadTimerSec">5</span>s...';
+      timerPill.innerHTML = '<i class="fa-solid fa-clock"></i> Déblocage dans <span id="downloadTimerSec">8</span>s...';
     }
     if (confirmBtn) {
       confirmBtn.disabled = true;
       confirmBtn.className = "download-sponsor-btn";
-      confirmBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Préparation (5s)...';
+      confirmBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Préparation (8s)...';
       confirmBtn.onclick = null;
     }
 
@@ -2909,7 +2909,7 @@
 
     // Start 5 second countdown
     if (_downloadCountdownInterval) clearInterval(_downloadCountdownInterval);
-    let secondsLeft = 5;
+    let secondsLeft = 8;
 
     _downloadCountdownInterval = setInterval(() => {
       secondsLeft--;
