@@ -2815,8 +2815,6 @@
 
   });
 
-})();
-
 
   // Download Sponsor Modal (Rewarded Step)
   let _downloadCountdownInterval = null;
@@ -2959,3 +2957,6 @@
       _downloadCountdownInterval = null;
     }
   };
+
+
+})();
