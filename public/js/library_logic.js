@@ -1,3 +1,193 @@
+
+// ═══════════════════════════════════════════════════════════════════════════
+// NATIVE FILE SYSTEM ACCESS API & LOCAL FOLDER ZERO-COPY ENGINE
+// ═══════════════════════════════════════════════════════════════════════════
+
+function parseLocalFilename(filename) {
+    let name = filename.replace(/\.(epub|pdf)$/i, '');
+    name = name.replace(/\s*\(\d+\)\s*$/, '').trim();
+    name = name.replace(/[\s_-]*(?:_fr|-fr|\[fr\]|\(fr\)|vf|french)[\s_-]*/ig, ' ').trim();
+    name = name.replace(/\[[^\]]+\]|\([^\)]+\)/g, ' ').replace(/\s{2,}/g, ' ').trim();
+
+    let volumeNumber = null;
+    let seriesTitle = name;
+
+    const volMatch = name.match(/[\s\-_]+(?:vol(?:ume)?|tome|v)\.?\s*(\d+(?:\.\d+)?)/i) ||
+                     name.match(/[\s\-_]+0*(\d+)\s*$/);
+    if (volMatch) {
+        volumeNumber = parseFloat(volMatch[1]);
+        seriesTitle = name.slice(0, volMatch.index).trim();
+    }
+
+    if (!seriesTitle) seriesTitle = name;
+    seriesTitle = seriesTitle.replace(/[\s\-_]+$/, '').trim();
+
+    return {
+        seriesTitle: seriesTitle || name,
+        volumeNumber: volumeNumber,
+        volumeTitle: volumeNumber !== null ? ('Volume ' + volumeNumber) : name,
+        cleanName: name
+    };
+}
+
+async function connectLocalFolderNative() {
+    if (typeof window.showDirectoryPicker !== 'function') {
+        const importFolderInput = document.getElementById('importFolderInput');
+        if (importFolderInput) {
+            importFolderInput.value = '';
+            importFolderInput.click();
+        } else {
+            alert("Votre navigateur ne supporte pas l'accès direct aux dossiers. Veuillez utiliser Chrome, Edge, Brave ou Opera sur ordinateur.");
+        }
+        return;
+    }
+
+    let dirHandle;
+    try {
+        dirHandle = await window.showDirectoryPicker({ mode: 'read' });
+    } catch (err) {
+        if (err.name === 'AbortError') return; // L'utilisateur a cliqué sur Annuler
+        console.error('[FolderPicker] Erreur:', err);
+        alert("Impossible d'accéder au dossier : " + err.message);
+        return;
+    }
+
+    if (!dirHandle) return;
+
+    const btnSmartAdd = document.getElementById('btnSmartAdd');
+    const origBtnHtml = btnSmartAdd ? btnSmartAdd.innerHTML : '';
+    if (btnSmartAdd) {
+        btnSmartAdd.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Scan de "' + dirHandle.name + '"...';
+        btnSmartAdd.disabled = true;
+    }
+
+    const smartAddModal = document.getElementById('smartAddModal');
+    if (smartAddModal) smartAddModal.classList.add('hidden');
+    const foldersModal = document.getElementById('foldersModal');
+    if (foldersModal) foldersModal.classList.add('hidden');
+
+    try {
+        const foundFiles = [];
+        async function scanDir(handle, subPath = '') {
+            for await (const entry of handle.values()) {
+                if (entry.kind === 'file') {
+                    const ext = entry.name.split('.').pop().toLowerCase();
+                    if (ext === 'epub' || ext === 'pdf') {
+                        foundFiles.push({
+                            entry: entry,
+                            parentHandle: handle,
+                            filename: entry.name,
+                            subPath: subPath,
+                            format: ext
+                        });
+                    }
+                } else if (entry.kind === 'directory' && !entry.name.startsWith('.') && !entry.name.startsWith('$')) {
+                    try {
+                        const newSub = subPath ? (subPath + '/' + entry.name) : entry.name;
+                        await scanDir(entry, newSub);
+                    } catch(e) {}
+                }
+            }
+        }
+
+        await scanDir(dirHandle);
+
+        if (foundFiles.length === 0) {
+            alert('Aucun fichier .epub ou .pdf trouvé dans le dossier "' + dirHandle.name + '".');
+            return;
+        }
+
+        const folderId = 'folder_' + dirHandle.name.toLowerCase().replace(/[^a-z0-9_-]/g, '_');
+        await window.libraryDB.saveConnectedFolder({
+            id: folderId,
+            name: dirHandle.name,
+            handle: dirHandle,
+            bookCount: foundFiles.length,
+            connectedAt: Date.now()
+        });
+
+        const seriesGroups = new Map();
+        for (const item of foundFiles) {
+            const parsed = parseLocalFilename(item.filename);
+            let sTitle = parsed.seriesTitle;
+            if (item.subPath) {
+                const subParts = item.subPath.split('/');
+                if (subParts.length > 0 && subParts[0].trim()) {
+                    sTitle = subParts[0].trim();
+                }
+            }
+
+            const seriesKey = sTitle.toLowerCase().replace(/[^a-z0-9_-]/g, '_');
+            const seriesId = 'local_series_' + seriesKey;
+
+            if (!seriesGroups.has(seriesId)) {
+                seriesGroups.set(seriesId, {
+                    id: seriesId,
+                    title: sTitle,
+                    author: 'Dossier Local : ' + dirHandle.name,
+                    cover: '/favicon.svg',
+                    isLocalFsSeries: true,
+                    folderId: folderId,
+                    folderName: dirHandle.name,
+                    addedAt: Date.now(),
+                    volumes: []
+                });
+            }
+
+            const sObj = seriesGroups.get(seriesId);
+            const bookId = 'local_book_' + encodeURIComponent(folderId + '_' + (item.subPath ? item.subPath + '/' : '') + item.filename);
+
+            const volObj = {
+                id: bookId,
+                seriesId: seriesId,
+                title: parsed.volumeTitle,
+                volumeNumber: parsed.volumeNumber,
+                filename: item.filename,
+                format: item.format,
+                isLocalFsBook: true,
+                folderId: folderId,
+                folderName: dirHandle.name,
+                cover: '/favicon.svg',
+                progress: 0,
+                lastReadDate: 0
+            };
+
+            sObj.volumes.push(volObj);
+
+            await window.libraryDB.saveLocalFile({
+                id: 'handle_' + bookId,
+                type: 'file_handle',
+                bookId: bookId,
+                handle: item.entry,
+                folderId: folderId,
+                filename: item.filename
+            });
+
+            await window.libraryDB.saveBook(volObj);
+        }
+
+        for (const [sId, sData] of seriesGroups) {
+            sData.volumes.sort((a, b) => (a.volumeNumber || 0) - (b.volumeNumber || 0));
+            await window.libraryDB.saveLocalSeries(sData);
+        }
+
+        await initLibrary(true);
+        if (typeof loadLinkedFoldersList === 'function') await loadLinkedFoldersList();
+
+        alert('Dossier "' + dirHandle.name + '" connecté avec succès !\n' + foundFiles.length + ' livre(s) détecté(s) dans ' + seriesGroups.size + ' série(s).');
+
+    } catch (scanErr) {
+        console.error('[FolderScan] Erreur scan:', scanErr);
+        alert('Erreur lors de la lecture des fichiers du dossier : ' + scanErr.message);
+    } finally {
+        if (btnSmartAdd) {
+            btnSmartAdd.innerHTML = origBtnHtml;
+            btnSmartAdd.disabled = false;
+        }
+    }
+}
+window.connectLocalFolderNative = connectLocalFolderNative;
+
 ﻿// library_logic.js - Ultra-Premium Library & Series Engine
 let allBooks = [];
 let allSeries = [];
@@ -73,12 +263,22 @@ async function syncLocalBookmarkedSeriesAndProgress() {
         if (window.libraryDB.initPromise) {
             await window.libraryDB.initPromise;
         }
-        const [savedLibItems, savedFavs, localBooks, catalogMap] = await Promise.all([
+        const [savedLibItems, savedFavs, localBooks, catalogMap, connectedLocalSeries] = await Promise.all([
             typeof window.libraryDB.getAllLocalLibrary === 'function' ? window.libraryDB.getAllLocalLibrary() : Promise.resolve([]),
             typeof window.libraryDB.getFavorites === 'function' ? window.libraryDB.getFavorites() : Promise.resolve([]),
             typeof window.libraryDB.getAllBooks === 'function' ? window.libraryDB.getAllBooks() : Promise.resolve([]),
-            getCatalogSeriesMap()
+            getCatalogSeriesMap(),
+            typeof window.libraryDB.getAllLocalSeries === 'function' ? window.libraryDB.getAllLocalSeries() : Promise.resolve([])
         ]);
+
+        // Injecter les séries issues de dossiers locaux connectés
+        if (Array.isArray(connectedLocalSeries)) {
+            for (const locSeries of connectedLocalSeries) {
+                if (locSeries && locSeries.id && !allSeries.some(s => s.id === locSeries.id)) {
+                    allSeries.push(locSeries);
+                }
+            }
+        }
 
         const savedLibIds = new Set((savedLibItems || []).map(i => (i.id || i.seriesId || '').toLowerCase()).filter(Boolean));
         const favIdsSet = new Set((savedFavs || []).map(f => (f.id || '').toLowerCase()).filter(Boolean));
@@ -824,91 +1024,121 @@ async function loadLinkedFoldersList() {
     }
 
     try {
-        const headers = await getAuthHeaders();
-        const res = await fetch('/api/library/paths?t=' + Date.now(), { headers });
-        const data = await res.json();
-        const rawPaths = data.paths || [];
+        let localFolders = [];
+        if (window.libraryDB && typeof window.libraryDB.getConnectedFolders === 'function') {
+            localFolders = await window.libraryDB.getConnectedFolders();
+        }
 
-        // Normalize paths (can be array of objects or strings)
-        const linkedList = rawPaths.map(item => {
-            if (typeof item === 'string') {
-                return { path: item, exists: true, bookCount: 0 };
-            }
-            return item;
-        });
-
-        if (countEl) countEl.textContent = linkedList.length;
-
-        if (listEl) {
-            if (linkedList.length === 0) {
-                listEl.innerHTML = `
-                    <div style="color: var(--text-secondary); font-size: 13px; text-align: center; padding: 20px; background: var(--bg-elevated); border: 1px dashed var(--border-color); border-radius: var(--radius-md);">
-                        <i class="fa-solid fa-folder-open" style="font-size: 24px; opacity: 0.4; margin-bottom: 8px; display: block;"></i>
-                        Aucun dossier externe connecté pour le moment.
-                    </div>
-                `;
-            } else {
-                listEl.innerHTML = '';
-                linkedList.forEach(entry => {
-                    const folderPath = entry.path;
-                    const bookCount = entry.bookCount || 0;
-                    const exists = entry.exists !== false;
-
-                    const item = document.createElement('div');
-                    item.className = 'linked-folder-item';
-                    item.style.cssText = 'display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-sm); gap: 10px; transition: border-color 0.2s;';
-                    
-                    const folderName = folderPath.split(/[\\/]/).filter(Boolean).pop() || folderPath;
-
-                    item.innerHTML = `
-                        <div style="display: flex; align-items: center; gap: 10px; overflow: hidden; min-width: 0; flex: 1;">
-                            <i class="fa-solid fa-folder-tree" style="color: #a78bfa; font-size: 18px; flex-shrink: 0;"></i>
-                            <div style="display: flex; flex-direction: column; min-width: 0; overflow: hidden;">
-                                <div style="display: flex; align-items: center; gap: 8px;">
-                                    <strong style="font-size: 13px; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${folderName}</strong>
-                                    ${exists ? `<span style="font-size: 11px; background: rgba(167,139,250,0.15); color: #c4b5fd; padding: 1px 6px; border-radius: 4px; font-weight: 600;">${bookCount} livre${bookCount > 1 ? 's' : ''}</span>` : '<span style="font-size: 11px; background: rgba(239,68,68,0.15); color: #ef4444; padding: 1px 6px; border-radius: 4px;">Introuvable</span>'}
-                                </div>
-                                <span style="font-size: 11.5px; color: var(--text-tertiary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${folderPath}">${folderPath}</span>
-                            </div>
-                        </div>
-                        <button type="button" class="btn btn-icon-glass btn-sm btn-remove-folder" title="Délier ce dossier" style="flex-shrink: 0; color: #ef4444;">
-                            <i class="fa-solid fa-trash-can"></i>
-                        </button>
-                    `;
-
-                    const removeBtn = item.querySelector('.btn-remove-folder');
-                    if (removeBtn) {
-                        removeBtn.onclick = async () => {
-                            if (!confirm(`Délier le dossier "${folderName}" de votre bibliothèque ?`)) return;
-                            removeBtn.disabled = true;
-                            removeBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
-                            try {
-                                const delHeaders = await getAuthHeaders({ 'Content-Type': 'application/json' });
-                                const delRes = await fetch('/api/library/remove-path', {
-                                    method: 'POST',
-                                    headers: delHeaders,
-                                    body: JSON.stringify({ folderPath: folderPath })
-                                });
-                                const delData = await delRes.json();
-                                if (delData.success) {
-                                    await loadLinkedFoldersList();
-                                    await initLibrary(true);
-                                } else {
-                                    alert(delData.message || 'Erreur lors de la suppression.');
-                                    removeBtn.disabled = false;
-                                    removeBtn.innerHTML = '<i class="fa-solid fa-trash-can"></i>';
-                                }
-                            } catch (e) {
-                                alert('Erreur lors de la suppression du dossier.');
-                                removeBtn.disabled = false;
-                                removeBtn.innerHTML = '<i class="fa-solid fa-trash-can"></i>';
-                            }
-                        };
-                    }
-
-                    listEl.appendChild(item);
+        let serverPaths = [];
+        const isLocalHost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+        if (isLocalHost) {
+            try {
+                const headers = await getAuthHeaders();
+                const res = await fetch('/api/library/paths?t=' + Date.now(), { headers });
+                const data = await res.json();
+                serverPaths = (data.paths || []).map(item => {
+                    if (typeof item === 'string') return { path: item, exists: true, bookCount: 0, isServer: true };
+                    return { ...item, isServer: true };
                 });
+            } catch (e) {}
+        }
+
+        const totalCount = localFolders.length + serverPaths.length;
+        if (countEl) countEl.textContent = totalCount;
+
+        if (!listEl) return;
+
+        if (totalCount === 0) {
+            listEl.innerHTML = `
+                <div style="color: var(--text-secondary); font-size: 13px; text-align: center; padding: 20px; background: var(--bg-elevated); border: 1px dashed var(--border-color); border-radius: var(--radius-md);">
+                    <i class="fa-solid fa-folder-open" style="font-size: 24px; opacity: 0.4; margin-bottom: 8px; display: block;"></i>
+                    Aucun dossier connecté pour le moment.
+                </div>
+            `;
+            return;
+        }
+
+        listEl.innerHTML = '';
+
+        // 1. Afficher d'abord les dossiers locaux du PC
+        for (const folder of localFolders) {
+            const item = document.createElement('div');
+            item.className = 'linked-folder-item';
+            item.style.cssText = 'display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-sm); gap: 10px; transition: border-color 0.2s;';
+            item.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 10px; overflow: hidden; min-width: 0; flex: 1;">
+                    <i class="fa-solid fa-laptop" style="color: #60a5fa; font-size: 18px; flex-shrink: 0;"></i>
+                    <div style="display: flex; flex-direction: column; min-width: 0; overflow: hidden;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <strong style="font-size: 13px; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${folder.name}</strong>
+                            <span style="font-size: 11px; background: rgba(59,130,246,0.15); color: #93c5fd; padding: 1px 6px; border-radius: 4px; font-weight: 600;">PC Local</span>
+                            <span style="font-size: 11px; background: rgba(167,139,250,0.15); color: #c4b5fd; padding: 1px 6px; border-radius: 4px; font-weight: 600;">${folder.bookCount || 0} livre(s)</span>
+                        </div>
+                        <span style="font-size: 11.5px; color: var(--text-tertiary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Zéro-Copie &bull; Lu directement depuis ce PC</span>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-icon-glass btn-sm btn-remove-local-folder" title="Délier ce dossier" style="flex-shrink: 0; color: #ef4444;">
+                    <i class="fa-solid fa-trash-can"></i>
+                </button>
+            `;
+            const remBtn = item.querySelector('.btn-remove-local-folder');
+            if (remBtn) {
+                remBtn.onclick = async () => {
+                    if (!confirm(`Délier le dossier local "${folder.name}" de votre bibliothèque ?\n(Vos fichiers sur votre PC restent intacts).`)) return;
+                    remBtn.disabled = true;
+                    remBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+                    await window.libraryDB.removeConnectedFolder(folder.id);
+                    await loadLinkedFoldersList();
+                    await initLibrary(true);
+                };
             }
+            listEl.appendChild(item);
+        }
+
+        // 2. Afficher les dossiers serveur si présents
+        for (const entry of serverPaths) {
+            const folderPath = entry.path;
+            const bookCount = entry.bookCount || 0;
+            const folderName = folderPath.split(/[\\/]/).filter(Boolean).pop() || folderPath;
+            const item = document.createElement('div');
+            item.className = 'linked-folder-item';
+            item.style.cssText = 'display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-sm); gap: 10px; transition: border-color 0.2s;';
+            item.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 10px; overflow: hidden; min-width: 0; flex: 1;">
+                    <i class="fa-solid fa-folder-tree" style="color: #a78bfa; font-size: 18px; flex-shrink: 0;"></i>
+                    <div style="display: flex; flex-direction: column; min-width: 0; overflow: hidden;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <strong style="font-size: 13px; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${folderName}</strong>
+                            <span style="font-size: 11px; background: rgba(167,139,250,0.15); color: #c4b5fd; padding: 1px 6px; border-radius: 4px; font-weight: 600;">${bookCount} livre(s)</span>
+                        </div>
+                        <span style="font-size: 11.5px; color: var(--text-tertiary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${folderPath}">${folderPath}</span>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-icon-glass btn-sm btn-remove-folder" title="Délier ce dossier" style="flex-shrink: 0; color: #ef4444;">
+                    <i class="fa-solid fa-trash-can"></i>
+                </button>
+            `;
+            const removeBtn = item.querySelector('.btn-remove-folder');
+            if (removeBtn) {
+                removeBtn.onclick = async () => {
+                    if (!confirm(`Délier le dossier "${folderName}" de votre bibliothèque ?`)) return;
+                    removeBtn.disabled = true;
+                    removeBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+                    try {
+                        const delHeaders = await getAuthHeaders({ 'Content-Type': 'application/json' });
+                        await fetch('/api/library/remove-path', {
+                            method: 'POST',
+                            headers: delHeaders,
+                            body: JSON.stringify({ folderPath: folderPath })
+                        });
+                        await loadLinkedFoldersList();
+                        await initLibrary(true);
+                    } catch (e) {
+                        alert('Erreur lors de la suppression.');
+                    }
+                };
+            }
+            listEl.appendChild(item);
         }
     } catch (e) {
         if (listEl) listEl.innerHTML = '<div style="color: #ef4444; font-size: 13px; padding: 12px;">Erreur de chargement des dossiers liés.</div>';
@@ -1035,7 +1265,18 @@ function setupFoldersModal() {
         modal.classList.remove('hidden');
         if (feedback) feedback.classList.add('hidden');
         loadLinkedFoldersList();
-        navigateFs(currentExplorePath || '');
+
+        const isLocalHost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+        const fsCard = modal.querySelector('.fs-explorer-card');
+        const manualBox = document.getElementById('inputFolderPath')?.closest('div');
+        if (!isLocalHost) {
+            if (fsCard) fsCard.style.display = 'none';
+            if (manualBox) manualBox.style.display = 'none';
+        } else {
+            if (fsCard) fsCard.style.display = 'flex';
+            if (manualBox) manualBox.style.display = 'block';
+            navigateFs(currentExplorePath || '');
+        }
     }
 
     function closeModal() {
@@ -1116,19 +1357,24 @@ function setupFoldersModal() {
 async function triggerNativeFolderPicker() {
     const isMobile = () => ('ontouchstart' in window) || (window.innerWidth <= 768);
     const importFilesInput = document.getElementById('importFilesInput');
-    const importFolderInput = document.getElementById('importFolderInput');
 
     const smartAddModal = document.getElementById('smartAddModal');
     if (smartAddModal) smartAddModal.classList.add('hidden');
 
-    // Sur mobile, ouvrir le sélecteur natif de fichiers
+    // Sur mobile, ouvrir le sélecteur de fichiers
     if (isMobile() && importFilesInput) {
         importFilesInput.value = '';
         importFilesInput.click();
         return;
     }
 
-    // Sur Desktop, déclencher le sélecteur de dossier natif du navigateur (webkitdirectory)
+    // Sur Desktop, utiliser l'API File System Access native si supportée (Zéro-Copie direct)
+    if (typeof window.showDirectoryPicker === 'function') {
+        return connectLocalFolderNative();
+    }
+
+    // Repli webkitdirectory
+    const importFolderInput = document.getElementById('importFolderInput');
     if (importFolderInput) {
         importFolderInput.value = '';
         importFolderInput.click();
@@ -1137,7 +1383,6 @@ async function triggerNativeFolderPicker() {
         if (foldersModal) {
             foldersModal.classList.remove('hidden');
             if (typeof loadLinkedFoldersList === 'function') await loadLinkedFoldersList();
-            if (typeof navigateFs === 'function') await navigateFs(currentExplorePath || '');
         }
     }
 }

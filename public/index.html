@@ -1959,6 +1959,21 @@
         <button class="close-modal" id="closeFoldersModal">&times;</button>
       </div>
       <div class="modal-body" style="padding: 16px 0; display: flex; flex-direction: column; gap: 14px;">
+        <!-- ACTION PRINCIPALE : Connecter un dossier de mon PC (Zéro-Copie) -->
+        <div style="background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(59, 130, 246, 0.15)); border: 1px solid rgba(139, 92, 246, 0.35); border-radius: 10px; padding: 14px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+          <div style="display: flex; align-items: center; gap: 10px; min-width: 0;">
+            <div style="width: 38px; height: 38px; border-radius: 8px; background: var(--primary); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 18px; flex-shrink: 0;">
+              <i class="fa-solid fa-laptop-file"></i>
+            </div>
+            <div style="min-width: 0;">
+              <strong style="font-size: 13.5px; color: var(--text-primary); display: block;">Connecter un dossier de votre PC</strong>
+              <span style="font-size: 11.5px; color: var(--text-secondary); display: block;">Zéro-Copie : Lecture directe de vos EPUB &amp; PDF sans upload</span>
+            </div>
+          </div>
+          <button type="button" id="btnConnectFolderNativeAction" class="btn btn-primary btn-sm" onclick="connectLocalFolderNative()" style="display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; font-weight: 600; white-space: nowrap;">
+            <i class="fa-solid fa-folder-plus"></i> Choisir un dossier
+          </button>
+        </div>
         <!-- Explorateur Visuel Intégré (Zéro Copie) -->
         <div class="fs-explorer-card" style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px; display: flex; flex-direction: column; gap: 10px;">
           <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
@@ -2552,19 +2567,19 @@
   <script src="js/jszip.min.js?v=1789351336060"></script>
   <script src="js/epub.min.js?v=1789351336060"></script>
   <script src="js/api-client.js?v=1789351336060"></script>
-  <script src="js/library_db.js?v=1789351336060"></script>
+  <script src="=1791937817088"></script>
   <script src="js/supabase_auth.js?v=1790960543692"></script>
   <script src="js/sync_engine.js?v=1790725844546"></script>
-  <script src="js/library_logic.js?v=1790725844546"></script>
+  <script src="=1791937817088"></script>
   <script src="js/reader_audio.js"></script>
   <script src="js/inline_comments.js?v=1790962117112"></script>
   <script src="js/quote_card_generator.js?v=1790962388662"></script>
-  <script src="js/pdf_reader.js?v=1790900961187"></script>
+  <script src="=1791937817088"></script>
   <script src="js/webnovel_reader.js?v=1789752407265"></script>
   <script src="js/home_lnori_logic.js?v=1790725844546"></script>
   <script src="js/catalog_logic.js?v=1790725844546"></script>
   <script src="js/editorial_logic.js?v=1790771297989"></script>
-  <script src="js/series_logic.js?v=1791907606652"></script>
+  <script src="=1791937817088"></script>
   <script src="js/contributor_logic.js?v=1790266838034"></script>
   <script src="js/admin_logic.js?v=1790772173968"></script>
   <script src="js/pwa_manager.js?v=1790841520734"></script>

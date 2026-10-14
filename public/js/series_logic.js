@@ -62,15 +62,36 @@ document.addEventListener('DOMContentLoaded', async function() {
         }
 
         // [C3]: Direct unified query: local library & catalog handled cleanly
+        let data = null;
+        if (seriesId && seriesId.startsWith('local_series_')) {
+            if (window.libraryDB && typeof window.libraryDB.getLocalSeries === 'function') {
+                const localSeries = await window.libraryDB.getLocalSeries(seriesId);
+                if (localSeries && localSeries.volumes && localSeries.volumes.length > 0) {
+                    await renderSeries(localSeries);
+                    return;
+                }
+            }
+        }
+
         var res = await fetch('/api/series/' + encodeURIComponent(seriesId), { headers: authHeaders });
         if (!res.ok) {
             res = await fetch('/api/catalog/series/' + encodeURIComponent(seriesId));
         }
-        var data = await res.json();
+        if (res.ok) {
+            data = await res.json();
+        }
 
-        if (data.success && data.series) {
+        if (data && data.success && data.series) {
             await renderSeries(data.series);
         } else {
+            // Repli vers IndexedDB si la série est un dossier connecté local
+            if (window.libraryDB && typeof window.libraryDB.getLocalSeries === 'function') {
+                const localSeries = await window.libraryDB.getLocalSeries(seriesId);
+                if (localSeries && localSeries.volumes && localSeries.volumes.length > 0) {
+                    await renderSeries(localSeries);
+                    return;
+                }
+            }
             document.getElementById('seriesSynopsis').innerHTML = '<p style="color:var(--danger);">Série introuvable.</p>';
         }
     } catch (e) {

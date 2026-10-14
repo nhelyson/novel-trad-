@@ -298,6 +298,33 @@
     if (!book) return;
     currentBookRef = book;
 
+    // Si le livre provient d'un dossier local connecté sur ce PC (File System Access Zéro-Copie)
+    if (book.isLocalFsBook || (book.id && book.id.startsWith('local_book_'))) {
+      try {
+        if (window.libraryDB && typeof window.libraryDB.getLocalFile === 'function') {
+          const fileRecord = await window.libraryDB.getLocalFile('handle_' + book.id);
+          if (fileRecord && fileRecord.handle) {
+            let perm = 'granted';
+            if (typeof fileRecord.handle.queryPermission === 'function') {
+              perm = await fileRecord.handle.queryPermission({ mode: 'read' });
+              if (perm !== 'granted' && typeof fileRecord.handle.requestPermission === 'function') {
+                perm = await fileRecord.handle.requestPermission({ mode: 'read' });
+              }
+            }
+            if (perm === 'granted') {
+              const fileObj = await fileRecord.handle.getFile();
+              const blobUrl = URL.createObjectURL(fileObj);
+              book.file_path = blobUrl;
+              book.filePath = blobUrl;
+              book.url = blobUrl;
+            }
+          }
+        }
+      } catch (localFileErr) {
+        console.warn('[Reader] Erreur lecture fichier local:', localFileErr);
+      }
+    }
+
     // Télémétrie invisible de lecture en coulisses
     try {
       var readSeriesId = book.seriesId || book.series_id;

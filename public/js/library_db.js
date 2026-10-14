@@ -321,6 +321,112 @@ class LibraryDB {
     }
 
     // =========================================================================
+    // NATIVE CONNECTED FOLDERS & LOCAL FS SERIES
+    // =========================================================================
+    async saveConnectedFolder(folderRecord) {
+        await this.initPromise;
+        if (!this.db) return folderRecord;
+        return this._put(FILES_STORE, { ...folderRecord, isConnectedFolder: true });
+    }
+
+    async getConnectedFolders() {
+        await this.initPromise;
+        if (!this.db) return [];
+        const all = await this._getAll(FILES_STORE);
+        return all.filter(f => f && f.isConnectedFolder);
+    }
+
+    async removeConnectedFolder(id) {
+        await this.initPromise;
+        if (!this.db) return;
+        await this._delete(FILES_STORE, id);
+        const allLib = await this._getAll(LIBRARY_STORE);
+        for (const s of allLib) {
+            if (s && (s.folderId === id || s.folderName === id)) {
+                await this._delete(LIBRARY_STORE, s.id);
+            }
+        }
+        const allFiles = await this._getAll(FILES_STORE);
+        for (const f of allFiles) {
+            if (f && f.folderId === id) {
+                await this._delete(FILES_STORE, f.id);
+            }
+        }
+    }
+
+    async saveLocalSeries(seriesRecord) {
+        await this.initPromise;
+        if (!this.db) return seriesRecord;
+        return this._put(LIBRARY_STORE, { ...seriesRecord, isLocalFsSeries: true });
+    }
+
+    async getLocalSeries(seriesId) {
+        await this.initPromise;
+        if (!this.db) return null;
+        return this._get(LIBRARY_STORE, seriesId);
+    }
+
+    async getAllLocalSeries() {
+        await this.initPromise;
+        if (!this.db) return [];
+        const all = await this._getAll(LIBRARY_STORE);
+        return all.filter(s => s && s.isLocalFsSeries);
+    }
+
+    // =========================================================================
+    // NATIVE CONNECTED FOLDERS & LOCAL FS SERIES
+    // =========================================================================
+    async saveConnectedFolder(folderRecord) {
+        await this.initPromise;
+        if (!this.db) return folderRecord;
+        return this._put(FILES_STORE, { ...folderRecord, isConnectedFolder: true });
+    }
+
+    async getConnectedFolders() {
+        await this.initPromise;
+        if (!this.db) return [];
+        const all = await this._getAll(FILES_STORE);
+        return all.filter(f => f && f.isConnectedFolder);
+    }
+
+    async removeConnectedFolder(id) {
+        await this.initPromise;
+        if (!this.db) return;
+        await this._delete(FILES_STORE, id);
+        const allLib = await this._getAll(LIBRARY_STORE);
+        for (const s of allLib) {
+            if (s && (s.folderId === id || s.folderName === id)) {
+                await this._delete(LIBRARY_STORE, s.id);
+            }
+        }
+        const allFiles = await this._getAll(FILES_STORE);
+        for (const f of allFiles) {
+            if (f && f.folderId === id) {
+                await this._delete(FILES_STORE, f.id);
+            }
+        }
+    }
+
+    async saveLocalSeries(seriesRecord) {
+        await this.initPromise;
+        if (!this.db) return seriesRecord;
+        return this._put(LIBRARY_STORE, { ...seriesRecord, isLocalFsSeries: true });
+    }
+
+    async getLocalSeries(seriesId) {
+        await this.initPromise;
+        if (!this.db) return null;
+        return this._get(LIBRARY_STORE, seriesId);
+    }
+
+    async getAllLocalSeries() {
+        await this.initPromise;
+        if (!this.db) return [];
+        const all = await this._getAll(LIBRARY_STORE);
+        return all.filter(s => s && s.isLocalFsSeries);
+    }
+
+    // =========================================================================
     // INTERNAL PROMISE HELPERS
     // =========================================================================
     _put(storeName, item) {
