@@ -423,7 +423,6 @@
             <div class="lnori-card">
                 <div class="lnori-card-cover-box">
                     <span class="lnori-card-format-tag">${originTag}</span>
-                    ${isNew ? '<span class="lnori-card-new-badge"><i class="fa-solid fa-sparkles"></i> NOUVEAU</span>' : ''}
                     <img src="${coverSrc}" alt="${series.title}" loading="lazy" decoding="async" onload="this.classList.add('loaded')" onerror="this.onerror=null;this.src='https://placehold.co/400x600/18181b/ffffff?text=${encodeURIComponent(series.title)}'">
                     <span class="lnori-card-vol-badge">${volCount} Vol.</span>
                 </div>
@@ -439,7 +438,6 @@
                     <div class="popup-tags-row">
                         <span class="popup-pill">${originTag}</span>
                         <span class="popup-pill popup-vol-pill"><i class="fa-solid fa-book"></i> ${volCount} Vol.</span>
-                        ${isNew ? '<span class="popup-pill popup-new-pill"><i class="fa-solid fa-sparkles"></i> Nouveau</span>' : ''}
                     </div>
                     <h4 class="popup-title">${series.title}</h4>
                     <span class="popup-author">${series.author || 'Auteur Inconnu'}</span>
