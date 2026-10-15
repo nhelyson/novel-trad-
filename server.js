@@ -509,8 +509,13 @@ async function getEpubSpine(fileKey) {
   }
 }
 
+// ── FAST IN-MEMORY RAM CACHE FOR PARSED STREAM CHAPTERS (<1ms) ──
+const parsedChaptersCache = new Map();
+const MAX_PARSED_CHAPTERS_CACHE = 800;
+
 app.get('/api/volume-chapters/:fileKey', async (req, res) => {
   try {
+    res.setHeader('Cache-Control', 'public, max-age=3600, stale-while-revalidate=86400');
     const fileKey = req.params.fileKey;
     const epub = await getEpubSpine(fileKey);
     if (!epub) return res.status(404).json({ success: false, message: 'Volume introuvable.' });
@@ -536,6 +541,13 @@ app.get('/api/volume-chapters/:fileKey/:chapterNum', async (req, res) => {
   try {
     const { fileKey, chapterNum } = req.params;
     const num = parseInt(chapterNum, 10);
+    const cacheKey = `${fileKey}:${num}`;
+
+    // 1. Cache HIT RAM instantané (<1ms, 0 I/O disque)
+    if (parsedChaptersCache.has(cacheKey)) {
+      res.setHeader('Cache-Control', 'public, max-age=86400, stale-while-revalidate=604800');
+      return res.json(parsedChaptersCache.get(cacheKey));
+    }
     const epub = await getEpubSpine(fileKey);
     if (!epub) return res.status(404).json({ success: false, message: 'Volume introuvable.' });
 
@@ -590,7 +602,7 @@ app.get('/api/volume-chapters/:fileKey/:chapterNum', async (req, res) => {
       chapterTitle = `Chapitre ${num}`;
     }
 
-    res.json({
+    const responsePayload = {
       success: true,
       totalChapters: epub.spineItems.length,
       currentChapter: num,
@@ -599,7 +611,17 @@ app.get('/api/volume-chapters/:fileKey/:chapterNum', async (req, res) => {
         title: chapterTitle,
         content: bodyContent
       }
-    });
+    };
+
+    // Stockage en RAM cache avec éviction LRU douce
+    if (parsedChaptersCache.size >= MAX_PARSED_CHAPTERS_CACHE) {
+      const oldestKey = parsedChaptersCache.keys().next().value;
+      parsedChaptersCache.delete(oldestKey);
+    }
+    parsedChaptersCache.set(cacheKey, responsePayload);
+
+    res.setHeader('Cache-Control', 'public, max-age=86400, stale-while-revalidate=604800');
+    res.json(responsePayload);
   } catch (err) {
     console.error('[VolumeChapter] Error:', err.message);
     res.status(500).json({ success: false, error: err.message });

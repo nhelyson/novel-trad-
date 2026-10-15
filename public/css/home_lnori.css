@@ -4455,3 +4455,98 @@
 .download-sponsor-btn.ready:active {
   transform: translateY(1px) !important;
 }
+
+
+/* CONTINUOUS VERTICAL STREAM READER */
+.stream-chapter-section {
+  position: relative !important;
+  margin-bottom: 24px !important;
+}
+
+.stream-chapter-divider {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin: 48px 0 36px 0 !important;
+  position: relative !important;
+  user-select: none !important;
+}
+
+.stream-chapter-divider .divider-line {
+  flex: 1 !important;
+  height: 1px !important;
+  background: linear-gradient(90deg, transparent, rgba(148, 163, 184, 0.25), transparent) !important;
+}
+
+.stream-chapter-divider .divider-pill {
+  padding: 6px 18px !important;
+  border-radius: 20px !important;
+  background: #11141c !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: #94a3b8 !important;
+  font-size: 11.5px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4) !important;
+}
+
+.stream-chapter-divider .divider-pill i {
+  color: var(--primary, #e11d48) !important;
+}
+
+.stream-append-loader {
+  padding: 24px 16px !important;
+  text-align: center !important;
+  color: #94a3b8 !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 10px !important;
+}
+
+.stream-append-loader i {
+  color: var(--primary, #e11d48) !important;
+  font-size: 16px !important;
+}
+
+.stream-book-completed-card {
+  margin: 50px 0 80px 0 !important;
+  padding: 32px 20px !important;
+  border-radius: 16px !important;
+  background: rgba(16, 185, 129, 0.06) !important;
+  border: 1px solid rgba(16, 185, 129, 0.25) !important;
+  text-align: center !important;
+  color: #f8fafc !important;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3) !important;
+}
+
+.stream-book-completed-card .completed-icon {
+  width: 52px !important;
+  height: 52px !important;
+  border-radius: 50% !important;
+  background: rgba(16, 185, 129, 0.15) !important;
+  color: #10b981 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 22px !important;
+  margin-bottom: 14px !important;
+}
+
+.stream-book-completed-card h3 {
+  font-size: 19px !important;
+  font-weight: 700 !important;
+  margin: 0 0 8px 0 !important;
+}
+
+.stream-book-completed-card p {
+  font-size: 13.5px !important;
+  color: #94a3b8 !important;
+  margin: 0 !important;
+}

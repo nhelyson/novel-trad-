@@ -501,26 +501,37 @@
     loadStreamChapter(chapterNum);
   };
 
-  async function loadStreamChapter(chapterNum) {
-    if (!window._streamVolumeManifest) return;
-    if (_isStreamChapterLoading) return;
-    _isStreamChapterLoading = true;
-    const manifest = window._streamVolumeManifest;
-    const total = manifest.totalChapters;
-    const num = Math.max(1, Math.min(chapterNum, total));
-    window._streamCurrentChapter = num;
+  // ── CONTINUOUS VERTICAL STREAM STATE ──
+  let _isAppendingStreamChapter = false;
+  let _highestLoadedChapter = 1;
+  let _chapterIntersectionObserver = null;
+  const _streamChapterMemoryCache = new Map();
 
-    const viewer = document.getElementById("readerViewer");
+  async function fetchStreamChapterData(fileKey, num) {
+    const key = `${fileKey}:${num}`;
+    if (_streamChapterMemoryCache.has(key)) {
+      return _streamChapterMemoryCache.get(key);
+    }
+    const resp = await fetch('/api/volume-chapters/' + encodeURIComponent(fileKey) + '/' + num, {
+      headers: { 'ngrok-skip-browser-warning': 'true' }
+    });
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    const data = await resp.json();
+    if (!data.success || !data.chapter) throw new Error(data.message || 'Données manquantes');
+    _streamChapterMemoryCache.set(key, data);
+    return data;
+  }
+
+  function updateStreamHeaderAndProgress(num, total, manifest) {
     const progressText = document.getElementById("readerProgressText");
     const titleEl = document.getElementById("readerTitle");
-    if (!viewer) return;
-
     const pct = Math.round((num / total) * 100);
+
     if (progressText) {
       progressText.textContent = num + " / " + total + " (" + pct + "%)";
     }
 
-    const chMeta = manifest.chapters.find(c => c.chapterNumber === num) || { title: "Chapitre " + num };
+    const chMeta = (manifest && manifest.chapters && manifest.chapters.find(c => c.chapterNumber === num)) || { title: "Chapitre " + num };
     if (titleEl && currentBookRef) {
       const baseBookTitle = (currentBookRef.title || "Livre").split(' - Chapitre')[0].split(' - Section')[0];
       titleEl.textContent = baseBookTitle + " - " + chMeta.title;
@@ -528,8 +539,7 @@
 
     updateStreamTocActive(num);
 
-    // Sauvegarde de progression
-    if (manifest.fileKey) {
+    if (manifest && manifest.fileKey) {
       try {
         localStorage.setItem('reading_chapter_' + manifest.fileKey, num.toString());
         if (currentBookRef) {
@@ -542,12 +552,108 @@
         }
       } catch(e) {}
     }
+  }
 
-    
-    setTimeout(() => {
-      const sc = document.getElementById("streamChapterContainer");
-      if (sc) window.attachReaderScrollObserver(sc);
-    }, 100);
+  async function appendNextStreamChapter() {
+    if (_isAppendingStreamChapter || !window._streamVolumeManifest) return;
+    const manifest = window._streamVolumeManifest;
+    const total = manifest.totalChapters;
+    if (_highestLoadedChapter >= total) return;
+
+    _isAppendingStreamChapter = true;
+    const nextNum = _highestLoadedChapter + 1;
+    const sentinel = document.getElementById("streamChapterSentinel");
+    const body = document.getElementById("streamChapterBody");
+
+    if (sentinel) {
+      sentinel.innerHTML = `<div class="stream-append-loader"><i class="fa-solid fa-circle-notch fa-spin"></i> Chargement du Chapitre ${nextNum}...</div>`;
+    }
+
+    try {
+      const data = await fetchStreamChapterData(manifest.fileKey, nextNum);
+      const chapter = data.chapter;
+      const chMeta = manifest.chapters.find(c => c.chapterNumber === nextNum) || { title: "Chapitre " + nextNum };
+      const chapterTitle = (chapter.title || chMeta.title || ('Chapitre ' + nextNum)).replace(/</g, '&lt;');
+
+      const divWrapper = document.createElement("div");
+      divWrapper.innerHTML = `
+        <div class="stream-chapter-divider">
+          <span class="divider-line"></span>
+          <span class="divider-pill"><i class="fa-solid fa-book-open"></i> Chapitre ${nextNum}</span>
+          <span class="divider-line"></span>
+        </div>
+        <section class="stream-chapter-section" id="streamChapter_${nextNum}" data-chapter-num="${nextNum}">
+          <header class="stream-chapter-header">
+            <div class="stream-chapter-badge">Chapitre ${nextNum} sur ${total}</div>
+            <h2 class="stream-chapter-title">${chapterTitle}</h2>
+          </header>
+
+          <article class="stream-chapter-content">
+            ${chapter.content}
+          </article>
+        </section>
+      `;
+
+      if (body) {
+        while (divWrapper.firstChild) {
+          body.appendChild(divWrapper.firstChild);
+        }
+      }
+
+      _highestLoadedChapter = nextNum;
+
+      const newSec = document.getElementById(`streamChapter_${nextNum}`);
+      if (newSec && _chapterIntersectionObserver) {
+        _chapterIntersectionObserver.observe(newSec);
+      }
+
+      const art = newSec ? newSec.querySelector('.stream-chapter-content') : null;
+      if (art && typeof window.initInlineParagraphComments === 'function') {
+        window.initInlineParagraphComments(art, manifest.fileKey, nextNum);
+      }
+
+      if (_highestLoadedChapter >= total && body) {
+        const finishCard = document.createElement("div");
+        finishCard.className = "stream-book-completed-card";
+        finishCard.innerHTML = `
+          <div class="completed-icon"><i class="fa-solid fa-circle-check"></i></div>
+          <h3>Fin du Volume</h3>
+          <p>Vous avez atteint la fin de ce volume. Félicitations pour votre lecture !</p>
+        `;
+        body.appendChild(finishCard);
+      }
+    } catch (err) {
+      console.warn("[Stream Reader] Erreur append chapitre", nextNum, err);
+    } finally {
+      if (sentinel) sentinel.innerHTML = "";
+      _isAppendingStreamChapter = false;
+    }
+  }
+
+  async function loadStreamChapter(chapterNum) {
+    if (!window._streamVolumeManifest) return;
+    if (_isStreamChapterLoading) return;
+    _isStreamChapterLoading = true;
+
+    if (_chapterIntersectionObserver) {
+      _chapterIntersectionObserver.disconnect();
+      _chapterIntersectionObserver = null;
+    }
+
+    const manifest = window._streamVolumeManifest;
+    const total = manifest.totalChapters;
+    const num = Math.max(1, Math.min(chapterNum, total));
+    window._streamCurrentChapter = num;
+    _highestLoadedChapter = num;
+
+    const viewer = document.getElementById("readerViewer");
+    if (!viewer) {
+      _isStreamChapterLoading = false;
+      return;
+    }
+
+    const chMeta = manifest.chapters.find(c => c.chapterNumber === num) || { title: "Chapitre " + num };
+
     viewer.innerHTML = `
       <div id="epubLoader" class="pdf-reader-loading-overlay">
         <div class="pdf-loader-card">
@@ -561,57 +667,72 @@
     `;
 
     try {
-      const resp = await fetch('/api/volume-chapters/' + encodeURIComponent(manifest.fileKey) + '/' + num, {
-        headers: { 'ngrok-skip-browser-warning': 'true' }
-      });
-      if (!resp.ok) throw new Error('HTTP ' + resp.status);
-      const data = await resp.json();
-      if (!data.success || !data.chapter) throw new Error(data.message || 'Données de chapitre manquantes');
-
+      const data = await fetchStreamChapterData(manifest.fileKey, num);
       const chapter = data.chapter;
-      const isPrev = (num > 1);
-      const isNext = (num < total);
+      const chapterTitle = (chapter.title || chMeta.title || ('Chapitre ' + num)).replace(/</g, '&lt;');
 
       viewer.innerHTML = `
         <div id="streamChapterContainer" class="stream-chapter-container">
-          <div class="stream-chapter-body">
-            <header class="stream-chapter-header">
-              <div class="stream-chapter-badge">Chapitre ${num} sur ${total}</div>
-              <h2 class="stream-chapter-title">${(chapter.title || chMeta.title || ('Chapitre ' + num)).replace(/</g, '&lt;')}</h2>
-            </header>
+          <div class="stream-chapter-body" id="streamChapterBody">
+            <section class="stream-chapter-section" id="streamChapter_${num}" data-chapter-num="${num}">
+              <header class="stream-chapter-header">
+                <div class="stream-chapter-badge">Chapitre ${num} sur ${total}</div>
+                <h2 class="stream-chapter-title">${chapterTitle}</h2>
+              </header>
 
-            <article class="stream-chapter-content">
-              ${chapter.content}
-            </article>
-
-            <footer class="stream-chapter-nav-footer">
-              ${isPrev ? `
-                <button type="button" class="btn-stream-nav" onclick="window.streamReaderGoTo(${num - 1})">
-                  <i class="fa-solid fa-chevron-left"></i> Chapitre Précédent
-                </button>
-              ` : '<div></div>'}
-
-              <div style="font-size: 13px; opacity: 0.7; font-weight: 500;">
-                ${pct}% du livre
-              </div>
-
-              ${isNext ? `
-                <button type="button" class="btn-stream-nav" onclick="window.streamReaderGoTo(${num + 1})">
-                  Chapitre Suivant <i class="fa-solid fa-chevron-right"></i>
-                </button>
-              ` : '<div></div>'}
-            </footer>
+              <article class="stream-chapter-content">
+                ${chapter.content}
+              </article>
+            </section>
           </div>
+          <div id="streamChapterSentinel" class="stream-chapter-sentinel"></div>
         </div>
       `;
 
       applyEpubThemeAndSettings();
       syncModeBtn();
       updateReaderFormatControls("epub");
-      updateReaderFormatControls("epub");
 
       const cont = document.getElementById("streamChapterContainer");
-      if (cont) cont.scrollTop = 0;
+      if (cont) {
+        cont.scrollTop = 0;
+        window.attachReaderScrollObserver(cont);
+
+        // Continuous Vertical Infinite Scroll Trigger
+        cont.addEventListener("scroll", () => {
+          if (_isAppendingStreamChapter) return;
+          if (_highestLoadedChapter >= total) return;
+          const distanceToBottom = cont.scrollHeight - (cont.scrollTop + cont.clientHeight);
+          if (distanceToBottom < 750) {
+            appendNextStreamChapter();
+          }
+        }, { passive: true });
+      }
+
+      // Update Toolbar & Header
+      updateStreamHeaderAndProgress(num, total, manifest);
+
+      // IntersectionObserver for active chapter as reader scrolls vertically
+      _chapterIntersectionObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            const chNum = parseInt(entry.target.getAttribute('data-chapter-num'), 10);
+            if (chNum && chNum !== window._streamCurrentChapter) {
+              window._streamCurrentChapter = chNum;
+              updateStreamHeaderAndProgress(chNum, total, manifest);
+            }
+          }
+        });
+      }, {
+        root: cont,
+        rootMargin: "-15% 0px -65% 0px",
+        threshold: 0
+      });
+
+      const firstSec = document.getElementById(`streamChapter_${num}`);
+      if (firstSec && _chapterIntersectionObserver) {
+        _chapterIntersectionObserver.observe(firstSec);
+      }
 
       // In-Line Paragraph Comments Hook
       if (typeof window.initInlineParagraphComments === 'function') {
@@ -2520,6 +2641,7 @@
         // 1. Durée < 600ms (flick franc, pas un appui prolongé)
         // 2. Déplacement horizontal >= 60px
         // 3. Dominance latérale (|deltaX| > |deltaY| * 1.5) pour préserver le défilement vertical du texte
+        if (window._isStreamVolume) return; // In continuous vertical stream mode, avoid horizontal gestures
         if (deltaTime < 600 && Math.abs(deltaX) >= 60 && Math.abs(deltaX) > Math.abs(deltaY) * 1.5) {
           if (deltaX < 0) {
             // Glissement de droite à gauche -> Chapitre Suivant
