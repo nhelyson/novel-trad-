@@ -157,8 +157,11 @@
       const auth = window.authManager;
       if (auth && auth.currentUser) {
         const profile = auth.userProfile || {};
-        const pseudo = profile.display_name || (auth.currentUser.user_metadata?.display_name) || auth.currentUser.email.split('@')[0];
-        const avatar = profile.avatar_url || (auth.currentUser.user_metadata?.avatar_url) || '';
+        const metaName = auth.currentUser.user_metadata ? (auth.currentUser.user_metadata.display_name || auth.currentUser.user_metadata.full_name) : null;
+        const emailName = auth.currentUser.email ? auth.currentUser.email.split('@')[0] : 'Lecteur';
+        const pseudo = profile.display_name || metaName || emailName || 'Lecteur';
+        const metaAvatar = auth.currentUser.user_metadata ? auth.currentUser.user_metadata.avatar_url : '';
+        const avatar = profile.avatar_url || metaAvatar || '';
 
         userNameEl.textContent = pseudo;
         userNameEl.classList.remove('hidden');

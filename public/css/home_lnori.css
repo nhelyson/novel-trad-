@@ -5295,3 +5295,50 @@ html.theme-light .vol-feed-empty h4,
   border-color: #d1c4aa !important;
   color: #6a5746 !important;
 }
+
+/* MOBILE RESPONSIVE TWEAKS FOR VOLUME COMMENTS */
+@media (max-width: 640px) {
+  .vol-comments-section {
+    padding: 18px 12px !important;
+    border-radius: 16px !important;
+  }
+  .vol-comments-header {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 12px !important;
+  }
+  .vol-comments-sort-tabs {
+    width: 100% !important;
+    display: flex !important;
+  }
+  .vol-sort-tab {
+    flex: 1 !important;
+    justify-content: center !important;
+    padding: 8px 10px !important;
+    font-size: 12px !important;
+  }
+  .vol-comment-input-box {
+    padding: 14px 10px !important;
+    border-radius: 12px !important;
+  }
+  .vol-input-user-row {
+    flex-wrap: wrap !important;
+  }
+  .vol-guest-name-input {
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+  .vol-card-header {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 6px !important;
+  }
+  .completed-actions-row {
+    flex-direction: column !important;
+    width: 100% !important;
+  }
+  .btn-completed-action {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+}

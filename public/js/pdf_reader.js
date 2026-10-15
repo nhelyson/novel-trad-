@@ -622,19 +622,27 @@
 
     body.appendChild(wrap);
 
-    // Mount Webtoon Comments
+    // Mount Webtoon Comments (with mobile resilience & retry)
     const fileKey = manifest.fileKey || (bookRef && (bookRef.fileKey || bookRef.id)) || 'vol_' + Date.now();
-    if (typeof window.renderVolumeCommentsSection === 'function') {
-      const mount = document.getElementById("streamVolumeCommentsMount");
-      if (mount) {
-        window.renderVolumeCommentsSection(mount, fileKey, {
+    const mount = wrap.querySelector("#streamVolumeCommentsMount") || document.getElementById("streamVolumeCommentsMount");
+
+    function tryMountVolumeComments(attempts) {
+      const m = wrap.querySelector("#streamVolumeCommentsMount") || document.getElementById("streamVolumeCommentsMount");
+      if (!m) return;
+      if (typeof window.renderVolumeCommentsSection === 'function') {
+        window.renderVolumeCommentsSection(m, fileKey, {
           title: bookRef ? bookRef.title : (manifest.title || 'Volume'),
           seriesId: bookRef ? (bookRef.seriesId || bookRef.series_id) : null,
           volumeNumber: bookRef ? (bookRef.volumeNumber || bookRef.volume_number) : 1,
           totalChapters: manifest.totalChapters
         });
+      } else if (attempts > 0) {
+        setTimeout(function() {
+          tryMountVolumeComments(attempts - 1);
+        }, 200);
       }
     }
+    tryMountVolumeComments(5);
   }
 
   async function appendNextStreamChapter() {
