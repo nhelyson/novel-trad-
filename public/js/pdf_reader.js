@@ -167,6 +167,134 @@
   let lastScrollY = 0;
   let scrollThreshold = 18;
 
+  
+  // ==========================================================================
+  //  DEDICATED WEBTOON COMMENTS DRAWER & BOTTOM BAR CONTROLLER
+  // ==========================================================================
+  window.openVolumeCommentsDrawer = function() {
+    const drawer = document.getElementById("volCommentsDrawer");
+    const backdrop = document.getElementById("volCommentsDrawerBackdrop");
+    const mount = document.getElementById("volDrawerMount");
+    if (!drawer || !backdrop) return;
+
+    const manifest = window._streamVolumeManifest;
+    const bookRef = window.currentBookRef;
+    const fileKey = (manifest && manifest.fileKey) || (bookRef && (bookRef.fileKey || bookRef.id)) || 'vol_' + Date.now();
+
+    backdrop.classList.remove("hidden");
+    drawer.classList.remove("hidden");
+    requestAnimationFrame(() => {
+      drawer.classList.add("open");
+    });
+
+    if (mount && typeof window.renderVolumeCommentsSection === 'function') {
+      window.renderVolumeCommentsSection(mount, fileKey, {
+        title: bookRef ? bookRef.title : (manifest ? manifest.title : 'Volume'),
+        seriesId: bookRef ? (bookRef.seriesId || bookRef.series_id) : null,
+        volumeNumber: bookRef ? (bookRef.volumeNumber || bookRef.volume_number) : 1,
+        totalChapters: manifest ? manifest.totalChapters : 1,
+        isDrawer: true
+      });
+    }
+  };
+
+  window.closeVolumeCommentsDrawer = function() {
+    const drawer = document.getElementById("volCommentsDrawer");
+    const backdrop = document.getElementById("volCommentsDrawerBackdrop");
+    if (!drawer) return;
+
+    drawer.classList.remove("open");
+    if (backdrop) backdrop.classList.add("hidden");
+    setTimeout(() => {
+      drawer.classList.add("hidden");
+    }, 280);
+  };
+
+  window.refreshVolumeCommentsBadge = async function(fileKey) {
+    if (!fileKey) return;
+    try {
+      const resp = await fetch('/api/comments/' + encodeURIComponent(fileKey) + '/volume_end');
+      if (resp.ok) {
+        const data = await resp.json();
+        const count = Array.isArray(data.comments) ? data.comments.length : 0;
+        const bBadge = document.getElementById("bottomCommentsCountBadge");
+        const dBadge = document.getElementById("volDrawerHeaderCount");
+        if (bBadge) {
+          bBadge.textContent = count > 99 ? '99+' : count;
+          bBadge.classList.toggle('has-count', count > 0);
+        }
+        if (dBadge) {
+          dBadge.textContent = count + (count > 1 ? ' avis' : ' avis');
+        }
+      }
+    } catch(e) {}
+  };
+
+  function initWebtoonBottomBarEvents() {
+    const btnComments = document.getElementById("btnBottomComments");
+    const btnPrev = document.getElementById("btnBottomPrev");
+    const btnNext = document.getElementById("btnBottomNext");
+    const btnToc = document.getElementById("btnBottomToc");
+    const btnSettings = document.getElementById("btnBottomSettings");
+    const btnCloseDrawer = document.getElementById("volDrawerCloseBtn");
+    const backdropDrawer = document.getElementById("volCommentsDrawerBackdrop");
+
+    if (btnComments && !btnComments._hasBound) {
+      btnComments._hasBound = true;
+      btnComments.addEventListener("click", (e) => {
+        e.stopPropagation();
+        window.openVolumeCommentsDrawer();
+      });
+    }
+
+    if (btnPrev && !btnPrev._hasBound) {
+      btnPrev._hasBound = true;
+      btnPrev.addEventListener("click", (e) => {
+        e.stopPropagation();
+        if (typeof window.handleReaderPrev === "function") window.handleReaderPrev();
+      });
+    }
+
+    if (btnNext && !btnNext._hasBound) {
+      btnNext._hasBound = true;
+      btnNext.addEventListener("click", (e) => {
+        e.stopPropagation();
+        if (typeof window.handleReaderNext === "function") window.handleReaderNext();
+      });
+    }
+
+    if (btnToc && !btnToc._hasBound) {
+      btnToc._hasBound = true;
+      btnToc.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const tb = document.getElementById("toggleSidebarBtn");
+        if (tb) tb.click();
+      });
+    }
+
+    if (btnSettings && !btnSettings._hasBound) {
+      btnSettings._hasBound = true;
+      btnSettings.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const st = document.getElementById("readerSettingsToggle");
+        if (st) st.click();
+      });
+    }
+
+    if (btnCloseDrawer && !btnCloseDrawer._hasBound) {
+      btnCloseDrawer._hasBound = true;
+      btnCloseDrawer.addEventListener("click", window.closeVolumeCommentsDrawer);
+    }
+
+    if (backdropDrawer && !backdropDrawer._hasBound) {
+      backdropDrawer._hasBound = true;
+      backdropDrawer.addEventListener("click", window.closeVolumeCommentsDrawer);
+    }
+  }
+
+  // Hook initWebtoonBottomBarEvents in DOMContentLoaded and openBookReader
+  document.addEventListener("DOMContentLoaded", initWebtoonBottomBarEvents);
+
   window.showReaderToolbar = function() {
     const tb = document.querySelector(".premium-reader-toolbar");
     if (tb && isToolbarHidden) {
@@ -297,6 +425,11 @@
   window.openBookReader = async function (book) {
     if (!book) return;
     currentBookRef = book;
+    initWebtoonBottomBarEvents();
+    try {
+      const fKey = extractVolumeFileKey(book);
+      if (fKey) window.refreshVolumeCommentsBadge(fKey);
+    } catch(e) {}
 
     // Si le livre provient d'un dossier local connecté sur ce PC (File System Access Zéro-Copie)
     if (book.isLocalFsBook || (book.id && book.id.startsWith('local_book_'))) {

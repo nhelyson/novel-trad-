@@ -62,7 +62,7 @@
     })();
   </script>
   <link rel="stylesheet" href="css/style.css?v=1790900961187">
-  <link rel="stylesheet" href="css/home_lnori.css?v=1792024686105">
+  <link rel="stylesheet" href="css/home_lnori.css?v=1792074392008">
   <link rel="stylesheet" href="css/app_themes.css?v=1792030000000">
   <!-- Coupe-circuit de production pour console propre & anti-fuite -->
   <script>
@@ -697,6 +697,60 @@
         </div>
       </div>
     </div>
+  
+    <!-- DEDICATED WEBTOON COMMENTS DRAWER -->
+    <div id="volCommentsDrawerBackdrop" class="vol-comments-drawer-backdrop hidden"></div>
+    <aside id="volCommentsDrawer" class="vol-comments-drawer hidden" aria-label="Espace Commentaires">
+      <div class="vol-drawer-handle-bar">
+        <div class="vol-drawer-drag-handle"></div>
+      </div>
+      <div class="vol-drawer-header">
+        <div class="vol-drawer-title-group">
+          <i class="fa-solid fa-comments" style="color: #fb7185;"></i>
+          <h3>Commentaires du Tome</h3>
+          <span class="vol-drawer-count" id="volDrawerHeaderCount">0</span>
+        </div>
+        <button type="button" id="volDrawerCloseBtn" class="vol-drawer-close-btn" aria-label="Fermer les commentaires">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div id="volDrawerMount" class="vol-drawer-content-mount">
+        <!-- Contenu dynamique injecté par renderVolumeCommentsSection -->
+      </div>
+    </aside>
+
+    <!-- WEBTOON BOTTOM NAVIGATION TOOLBAR -->
+    <footer class="reader-webtoon-bottom-bar" id="readerWebtoonBottomBar">
+      <button type="button" class="webtoon-bottom-btn" id="btnBottomPrev" title="Chapitre Précédent">
+        <i class="fa-solid fa-chevron-left"></i>
+        <span>Précédent</span>
+      </button>
+
+      <button type="button" class="webtoon-bottom-btn" id="btnBottomToc" title="Sommaire">
+        <i class="fa-solid fa-list-ul"></i>
+        <span>Sommaire</span>
+      </button>
+
+      <!-- 💬 BOUTON COMMENTAIRES DÉDIÉ STYLE WEBTOON -->
+      <button type="button" class="webtoon-bottom-btn primary-comment" id="btnBottomComments" title="Voir les commentaires du tome">
+        <div class="webtoon-comment-icon-wrap">
+          <i class="fa-solid fa-comments"></i>
+          <span class="webtoon-comment-badge" id="bottomCommentsCountBadge">0</span>
+        </div>
+        <span>Avis</span>
+      </button>
+
+      <button type="button" class="webtoon-bottom-btn" id="btnBottomSettings" title="Apparence du texte">
+        <i class="fa-solid fa-font"></i>
+        <span>Texte</span>
+      </button>
+
+      <button type="button" class="webtoon-bottom-btn" id="btnBottomNext" title="Chapitre Suivant">
+        <span>Suivant</span>
+        <i class="fa-solid fa-chevron-right"></i>
+      </button>
+    </footer>
+
   </div>
 
   <!-- WEBNOVEL READER OVERLAY (GUEST FIRST) -->
@@ -823,9 +877,9 @@
   <script src="/js/sync_engine.js?v=1790725844546"></script>
   <script src="js/library_logic.js?v=1791942152722"></script>
   <script src="js/reader_audio.js"></script>
-  <script src="js/inline_comments.js?v=1792073371985"></script>
+  <script src="js/inline_comments.js?v=1792074392008"></script>
   <script src="js/quote_card_generator.js?v=1792070723691"></script>
-  <script src="js/pdf_reader.js?v=1792073371985"></script>
+  <script src="js/pdf_reader.js?v=1792074392008"></script>
   <script src="js/webnovel_reader.js?v=1790249188293"></script>
   <script src="js/pwa_manager.js?v=1790841520734"></script>
   <script src="js/series_logic.js?v=1791942152722"></script>

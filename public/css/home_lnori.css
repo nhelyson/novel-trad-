@@ -5342,3 +5342,329 @@ html.theme-light .vol-feed-empty h4,
     justify-content: center !important;
   }
 }
+
+/* WEBTOON DEDICATED BOTTOM BAR & COMMENTS DRAWER */
+/* =========================================================================
+   WEBTOON BOTTOM BAR
+   ========================================================================= */
+.reader-webtoon-bottom-bar {
+  position: fixed !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  height: 60px !important;
+  background: rgba(9, 10, 16, 0.94) !important;
+  backdrop-filter: blur(18px) !important;
+  -webkit-backdrop-filter: blur(18px) !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-around !important;
+  z-index: 100 !important;
+  padding: 0 10px !important;
+  padding-bottom: env(safe-area-inset-bottom, 0px) !important;
+  box-shadow: 0 -8px 26px rgba(0, 0, 0, 0.35) !important;
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  box-sizing: border-box !important;
+}
+
+.reader-webtoon-bottom-bar.bottombar-autohidden {
+  transform: translateY(100%) !important;
+}
+
+.webtoon-bottom-btn {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 3px !important;
+  background: transparent !important;
+  border: none !important;
+  color: #94a3b8 !important;
+  font-size: 10.5px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  padding: 6px 14px !important;
+  border-radius: 12px !important;
+  transition: all 0.16s ease !important;
+  user-select: none !important;
+  -webkit-tap-highlight-color: transparent !important;
+}
+
+.webtoon-bottom-btn i {
+  font-size: 16px !important;
+  transition: transform 0.16s ease !important;
+}
+
+.webtoon-bottom-btn:hover,
+.webtoon-bottom-btn:active {
+  color: #f8fafc !important;
+  background: rgba(255, 255, 255, 0.06) !important;
+}
+
+.webtoon-bottom-btn:active i {
+  transform: scale(0.9) !important;
+}
+
+/* Central Webtoon Comment Button */
+.webtoon-bottom-btn.primary-comment {
+  color: #fb7185 !important;
+}
+
+.webtoon-bottom-btn.primary-comment:hover {
+  background: rgba(225, 29, 72, 0.12) !important;
+  color: #fda4af !important;
+}
+
+.webtoon-comment-icon-wrap {
+  position: relative !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.webtoon-comment-icon-wrap i {
+  font-size: 19px !important;
+}
+
+.webtoon-comment-badge {
+  position: absolute !important;
+  top: -7px !important;
+  right: -12px !important;
+  min-width: 17px !important;
+  height: 17px !important;
+  border-radius: 9999px !important;
+  background: linear-gradient(135deg, #e11d48, #be123c) !important;
+  color: #ffffff !important;
+  font-size: 9.5px !important;
+  font-weight: 800 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 4px !important;
+  box-shadow: 0 2px 8px rgba(225, 29, 72, 0.5) !important;
+  border: 1.5px solid #090a10 !important;
+}
+
+/* =========================================================================
+   DEDICATED WEBTOON COMMENTS DRAWER
+   ========================================================================= */
+.vol-comments-drawer-backdrop {
+  position: fixed !important;
+  inset: 0 !important;
+  background: rgba(0, 0, 0, 0.65) !important;
+  backdrop-filter: blur(4px) !important;
+  -webkit-backdrop-filter: blur(4px) !important;
+  z-index: 250 !important;
+  opacity: 1 !important;
+  transition: opacity 0.25s ease !important;
+}
+
+.vol-comments-drawer-backdrop.hidden {
+  display: none !important;
+  opacity: 0 !important;
+}
+
+.vol-comments-drawer {
+  position: fixed !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  height: 86vh !important;
+  max-height: 86vh !important;
+  background: #0d0f17 !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.12) !important;
+  border-radius: 24px 24px 0 0 !important;
+  z-index: 260 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  transform: translateY(100%) !important;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.6) !important;
+}
+
+.vol-comments-drawer.open {
+  transform: translateY(0) !important;
+}
+
+.vol-comments-drawer.hidden {
+  display: none !important;
+}
+
+/* Desktop layout: Side panel on right */
+@media (min-width: 769px) {
+  .vol-comments-drawer {
+    top: 0 !important;
+    bottom: 0 !important;
+    right: 0 !important;
+    left: auto !important;
+    width: 460px !important;
+    max-width: 90vw !important;
+    height: 100vh !important;
+    max-height: 100vh !important;
+    border-left: 1px solid rgba(255, 255, 255, 0.12) !important;
+    border-top: none !important;
+    border-radius: 0 !important;
+    transform: translateX(100%) !important;
+  }
+  .vol-comments-drawer.open {
+    transform: translateX(0) !important;
+  }
+  .vol-drawer-handle-bar {
+    display: none !important;
+  }
+}
+
+.vol-drawer-handle-bar {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 10px 0 4px 0 !important;
+}
+
+.vol-drawer-drag-handle {
+  width: 38px !important;
+  height: 4px !important;
+  border-radius: 9999px !important;
+  background: rgba(255, 255, 255, 0.22) !important;
+}
+
+.vol-drawer-header {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 12px 20px 14px 20px !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+.vol-drawer-title-group {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+}
+
+.vol-drawer-title-group h3 {
+  margin: 0 !important;
+  font-size: 16.5px !important;
+  font-weight: 700 !important;
+  color: #f8fafc !important;
+}
+
+.vol-drawer-count {
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  padding: 2px 8px !important;
+  border-radius: 9999px !important;
+  background: rgba(225, 29, 72, 0.18) !important;
+  color: #fb7185 !important;
+  border: 1px solid rgba(225, 29, 72, 0.35) !important;
+}
+
+.vol-drawer-close-btn {
+  width: 32px !important;
+  height: 32px !important;
+  border-radius: 50% !important;
+  background: rgba(255, 255, 255, 0.06) !important;
+  border: none !important;
+  color: #94a3b8 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  font-size: 15px !important;
+  transition: all 0.15s ease !important;
+}
+
+.vol-drawer-close-btn:hover {
+  background: rgba(255, 255, 255, 0.12) !important;
+  color: #ffffff !important;
+}
+
+.vol-drawer-content-mount {
+  flex: 1 !important;
+  overflow-y: auto !important;
+  padding: 16px 18px 40px 18px !important;
+  overscroll-behavior: contain !important;
+  -webkit-overflow-scrolling: touch !important;
+}
+
+/* Inside drawer, remove external margin on section */
+.vol-drawer-content-mount .vol-comments-section {
+  padding: 0 !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* =========================================================================
+   THEME ADAPTATION FOR BOTTOM BAR & DRAWER
+   ========================================================================= */
+/* Light Mode */
+#readerOverlay.theme-light .reader-webtoon-bottom-bar {
+  background: rgba(255, 255, 255, 0.95) !important;
+  border-top-color: #e2e8f0 !important;
+  box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.08) !important;
+}
+
+#readerOverlay.theme-light .webtoon-bottom-btn {
+  color: #64748b !important;
+}
+
+#readerOverlay.theme-light .webtoon-bottom-btn:hover,
+#readerOverlay.theme-light .webtoon-bottom-btn:active {
+  color: #0f172a !important;
+  background: #f1f5f9 !important;
+}
+
+#readerOverlay.theme-light .webtoon-bottom-btn.primary-comment {
+  color: #e11d48 !important;
+}
+
+#readerOverlay.theme-light .webtoon-comment-badge {
+  border-color: #ffffff !important;
+}
+
+#readerOverlay.theme-light .vol-comments-drawer {
+  background: #ffffff !important;
+  border-color: #e2e8f0 !important;
+}
+
+#readerOverlay.theme-light .vol-drawer-header {
+  border-bottom-color: #e2e8f0 !important;
+}
+
+#readerOverlay.theme-light .vol-drawer-title-group h3 {
+  color: #0f172a !important;
+}
+
+#readerOverlay.theme-light .vol-drawer-drag-handle {
+  background: #cbd5e1 !important;
+}
+
+#readerOverlay.theme-light .vol-drawer-close-btn {
+  background: #f1f5f9 !important;
+  color: #64748b !important;
+}
+
+/* Sepia Mode */
+#readerOverlay.theme-sepia .reader-webtoon-bottom-bar {
+  background: rgba(244, 236, 216, 0.96) !important;
+  border-top-color: #d1c4aa !important;
+}
+
+#readerOverlay.theme-sepia .webtoon-bottom-btn {
+  color: #6a5746 !important;
+}
+
+#readerOverlay.theme-sepia .vol-comments-drawer {
+  background: #f4ecd8 !important;
+  border-color: #d1c4aa !important;
+}
+
+#readerOverlay.theme-sepia .vol-drawer-header {
+  border-bottom-color: #d1c4aa !important;
+}
+
+#readerOverlay.theme-sepia .vol-drawer-title-group h3 {
+  color: #3d3024 !important;
+}

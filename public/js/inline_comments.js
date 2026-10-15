@@ -216,6 +216,7 @@
         const data = await resp.json();
         commentsData = Array.isArray(data.comments) ? data.comments : [];
         renderCommentsList();
+        if (typeof window.refreshVolumeCommentsBadge === "function") window.refreshVolumeCommentsBadge(cleanBookKey);
       } catch (err) {
         console.warn('[VolumeComments] Erreur chargement:', err);
         feed.innerHTML = `
@@ -421,6 +422,7 @@
             if (data.success) {
               commentsData = commentsData.filter(x => x.id !== cId);
               renderCommentsList();
+              if (typeof window.refreshVolumeCommentsBadge === "function") window.refreshVolumeCommentsBadge(cleanBookKey);
             } else {
               alert(data.error || 'Erreur lors de la suppression.');
             }
@@ -481,6 +483,7 @@
         // Insert new comment and re-render
         commentsData.unshift(data.comment || data);
         renderCommentsList();
+        if (typeof window.refreshVolumeCommentsBadge === "function") window.refreshVolumeCommentsBadge(cleanBookKey);
 
       } catch(err) {
         alert(err.message || 'Impossible de publier le commentaire.');
