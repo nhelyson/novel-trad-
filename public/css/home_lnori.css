@@ -5668,3 +5668,78 @@ html.theme-light .vol-feed-empty h4,
 #readerOverlay.theme-sepia .vol-drawer-title-group h3 {
   color: #3d3024 !important;
 }
+
+/* STREAM CHAPTER SPACED SPONSOR CARD */
+.stream-chapter-ad-card {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin: 40px auto 32px auto !important;
+  padding: 16px 20px !important;
+  background: rgba(17, 20, 28, 0.6) !important;
+  border: 1px solid rgba(255, 255, 255, 0.07) !important;
+  border-radius: 18px !important;
+  max-width: 360px !important;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25) !important;
+  user-select: none !important;
+}
+
+.stream-ad-label {
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  color: #64748b !important;
+  letter-spacing: 0.06em !important;
+  text-transform: uppercase !important;
+  margin-bottom: 12px !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+}
+
+.stream-ad-label i {
+  color: #fb7185 !important;
+}
+
+.stream-ad-frame-wrap {
+  width: 300px !important;
+  height: 250px !important;
+  min-height: 250px !important;
+  overflow: hidden !important;
+  border-radius: 10px !important;
+  background: transparent !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.stream-ad-frame-wrap iframe {
+  width: 300px !important;
+  height: 250px !important;
+  border: none !important;
+  display: block !important;
+}
+
+/* Light Theme */
+#readerOverlay.theme-light .stream-chapter-ad-card,
+html.theme-light .stream-chapter-ad-card {
+  background: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05) !important;
+}
+
+#readerOverlay.theme-light .stream-ad-label,
+html.theme-light .stream-ad-label {
+  color: #64748b !important;
+}
+
+/* Sepia Theme */
+#readerOverlay.theme-sepia .stream-chapter-ad-card {
+  background: #ede3ce !important;
+  border-color: #d1c4aa !important;
+  box-shadow: 0 4px 20px rgba(74, 53, 34, 0.08) !important;
+}
+
+#readerOverlay.theme-sepia .stream-ad-label {
+  color: #786452 !important;
+}

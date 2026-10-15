@@ -799,8 +799,22 @@
       const chMeta = manifest.chapters.find(c => c.chapterNumber === nextNum) || { title: "Chapitre " + nextNum };
       const chapterTitle = (chapter.title || chMeta.title || ('Chapitre ' + nextNum)).replace(/</g, '&lt;');
 
+      const shouldShowAd = nextNum > 2 && ((nextNum - 1) % 3 === 0);
+      const adMarkup = shouldShowAd ? `
+        <div class="stream-chapter-ad-card">
+          <div class="stream-ad-label">
+            <i class="fa-solid fa-rectangle-ad"></i>
+            <span>Sponsor de lecture</span>
+          </div>
+          <div class="stream-ad-frame-wrap">
+            <iframe src="/ads/adsterra_300x250.html" width="300" height="250" frameborder="0" scrolling="no" loading="lazy" title="Sponsor"></iframe>
+          </div>
+        </div>
+      ` : '';
+
       const divWrapper = document.createElement("div");
       divWrapper.innerHTML = `
+        ${adMarkup}
         <div class="stream-chapter-divider">
           <span class="divider-line"></span>
           <span class="divider-pill"><i class="fa-solid fa-book-open"></i> Chapitre ${nextNum}</span>
