@@ -11,7 +11,7 @@
   // ---- Shared Reader State -------------------------------------------------
   let currentBookRef = null;
   let currentFormat = "epub"; // "epub" | "pdf"
-  let currentTheme = "dark";  // "light" | "sepia" | "dark"
+  let currentTheme = (typeof localStorage !== "undefined" && (localStorage.getItem("noveltrad_global_theme") || localStorage.getItem("noveltrad_reader_theme"))) || "dark";
   let currentFontSize = 100;  // 80 - 150 (%)
   let currentMargin = "5%";   // "0%" | "5%" | "15%"
   let currentReadMode = "paginated"; // "paginated" | "webtoon"

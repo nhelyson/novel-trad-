@@ -78,8 +78,26 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
   <!-- Stylesheets -->
+    <!-- Anti-Flicker Theme Detection (Zero Flash) -->
+  <script>
+    (function() {
+      try {
+        var t = localStorage.getItem('noveltrad_global_theme') || localStorage.getItem('noveltrad_reader_theme') || 'dark';
+        if (t === 'light') {
+          document.documentElement.classList.remove('dark');
+          document.documentElement.classList.add('theme-light');
+        } else if (t === 'sepia') {
+          document.documentElement.classList.remove('dark');
+          document.documentElement.classList.add('theme-sepia');
+        } else if (t === 'midnight') {
+          document.documentElement.classList.add('theme-midnight');
+        }
+      } catch(e) {}
+    })();
+  </script>
   <link rel="stylesheet" href="css/style.css?v=1790900961187">
   <link rel="stylesheet" href="css/home_lnori.css?v=1792024686105">
+  <link rel="stylesheet" href="css/app_themes.css?v=1792030000000">
   <!-- Coupe-circuit de production pour console propre & anti-fuite -->
   <script>
     if (window.location.hostname !== 'localhost' && !window.location.search.includes('debug=true')) {
@@ -1237,20 +1255,48 @@
                   </div>
                 </div>
 
-                <!-- CARTE 4 : PRÉFÉRENCES DU LECTEUR -->
+                <!-- CARTE 4 : PRÉFÉRENCES D'AFFICHAGE & DE LECTURE -->
                 <div class="account-card settings-card">
                   <div class="account-card-header-simple">
-                    <h3><i class="fa-solid fa-sliders"></i> Préférences de Lecture</h3>
-                    <p>Ces paramètres seront automatiquement appliqués à chaque ouverture du lecteur.</p>
+                    <h3><i class="fa-solid fa-sliders"></i> Préférences d'Affichage & de Lecture</h3>
+                    <p>Personnalisez le thème global du site et les réglages automatiques du lecteur.</p>
                   </div>
                   <div class="account-settings-form">
-                    <div class="setting-item">
-                      <label for="accountSettingTheme"><i class="fa-solid fa-palette"></i> Thème par défaut</label>
-                      <select id="accountSettingTheme">
+                    <div class="setting-item" style="flex-direction: column; align-items: stretch; gap: 10px;">
+                      <div class="setting-label-group">
+                        <label for="accountSettingTheme"><i class="fa-solid fa-palette"></i> Thème de l'application & du lecteur</label>
+                        <span style="font-size: 12px; color: var(--text-secondary); margin-top: 2px;">Cliquez sur un mode pour l'activer instantanément</span>
+                      </div>
+                      
+                      <!-- Sélecteur Visuel Interactif (Pill Cards) -->
+                      <div class="theme-picker-grid" id="themePickerGrid">
+                        <div class="theme-pill-card theme-dark-opt active" data-theme="dark" title="Mode Sombre Cosmique">
+                          <div class="theme-preview-dot"><i class="fa-solid fa-moon"></i></div>
+                          <span class="theme-pill-title">Sombre</span>
+                          <span class="theme-pill-badge">Cosmique (Défaut)</span>
+                        </div>
+                        <div class="theme-pill-card theme-light-opt" data-theme="light" title="Mode Clair Épuré">
+                          <div class="theme-preview-dot"><i class="fa-solid fa-sun"></i></div>
+                          <span class="theme-pill-title">Clair</span>
+                          <span class="theme-pill-badge">Épuré (Nouveau)</span>
+                        </div>
+                        <div class="theme-pill-card theme-sepia-opt" data-theme="sepia" title="Mode Sépia Papier">
+                          <div class="theme-preview-dot"><i class="fa-solid fa-book-open"></i></div>
+                          <span class="theme-pill-title">Sépia</span>
+                          <span class="theme-pill-badge">Papier Chaud</span>
+                        </div>
+                        <div class="theme-pill-card theme-midnight-opt" data-theme="midnight" title="Mode Nuit OLED">
+                          <div class="theme-preview-dot"><i class="fa-solid fa-star"></i></div>
+                          <span class="theme-pill-title">OLED</span>
+                          <span class="theme-pill-badge">Noir Pur</span>
+                        </div>
+                      </div>
+
+                      <select id="accountSettingTheme" class="app-theme-select" style="display: none;">
                         <option value="dark">Sombre Cosmique (Par défaut)</option>
-                        <option value="midnight">Nuit Bleutée (OLED)</option>
-                        <option value="sepia">Sépia Papier Chaud</option>
                         <option value="light">Clair Épuré</option>
+                        <option value="sepia">Sépia Papier Chaud</option>
+                        <option value="midnight">Nuit Bleutée (OLED)</option>
                       </select>
                     </div>
                     <div class="setting-item">
@@ -2638,6 +2684,7 @@
   <script src="js/epub.min.js?v=1789351336060"></script>
   <script src="js/api-client.js?v=1789351336060"></script>
   <script src="js/library_db.js?v=1791942152722"></script>
+  <script src="js/theme_manager.js?v=1792030000000"></script>
   <script src="js/supabase_auth.js?v=1790960543692"></script>
   <script src="js/sync_engine.js?v=1790725844546"></script>
   <script src="js/library_logic.js?v=1791942152722"></script>

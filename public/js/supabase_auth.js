@@ -1175,8 +1175,13 @@ function initAccountModule() {
     // Enregistrer les préférences
     if (selTheme) {
         selTheme.addEventListener('change', (e) => {
-            localStorage.setItem('noveltrad_reader_theme', e.target.value);
-            if (window.authManager) window.authManager.showToast('Thème du lecteur mis à jour.');
+            const chosen = e.target.value;
+            localStorage.setItem('noveltrad_reader_theme', chosen);
+            if (window.setNovelTradTheme) {
+                window.setNovelTradTheme(chosen, true);
+            } else if (window.authManager) {
+                window.authManager.showToast('Thème mis à jour.');
+            }
         });
     }
 
