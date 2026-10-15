@@ -82,15 +82,12 @@
   <script>
     (function() {
       try {
-        var t = localStorage.getItem('noveltrad_global_theme') || localStorage.getItem('noveltrad_reader_theme') || 'dark';
+        var t = localStorage.getItem('noveltrad_global_theme') || 'dark';
         if (t === 'light') {
           document.documentElement.classList.remove('dark');
           document.documentElement.classList.add('theme-light');
-        } else if (t === 'sepia') {
-          document.documentElement.classList.remove('dark');
-          document.documentElement.classList.add('theme-sepia');
-        } else if (t === 'midnight') {
-          document.documentElement.classList.add('theme-midnight');
+        } else {
+          document.documentElement.classList.add('dark');
         }
       } catch(e) {}
     })();
@@ -1264,39 +1261,31 @@
                   <div class="account-settings-form">
                     <div class="setting-item" style="flex-direction: column; align-items: stretch; gap: 10px;">
                       <div class="setting-label-group">
-                        <label for="accountSettingTheme"><i class="fa-solid fa-palette"></i> Thème de l'application & du lecteur</label>
-                        <span style="font-size: 12px; color: var(--text-secondary); margin-top: 2px;">Cliquez sur un mode pour l'activer instantanément</span>
+                        <label for="accountSettingTheme"><i class="fa-solid fa-palette"></i> Thème de l'application</label>
+                        <span style="font-size: 12px; color: var(--text-secondary); margin-top: 2px;">Basculez entre le mode sombre immersif et le mode clair haute lisibilité</span>
                       </div>
                       
-                      <!-- Sélecteur Visuel Interactif (Pill Cards) -->
-                      <div class="theme-picker-grid" id="themePickerGrid">
-                        <div class="theme-pill-card theme-dark-opt active" data-theme="dark" title="Mode Sombre Cosmique">
-                          <div class="theme-preview-dot"><i class="fa-solid fa-moon"></i></div>
-                          <span class="theme-pill-title">Sombre</span>
-                          <span class="theme-pill-badge">Cosmique (Défaut)</span>
+                      <!-- Sélecteur Visuel Dual (Sombre / Clair) -->
+                      <div class="theme-picker-dual" id="themePickerDual">
+                        <div class="theme-mode-card mode-dark active" data-theme="dark" title="Mode Sombre Cosmique">
+                          <div class="theme-mode-icon"><i class="fa-solid fa-moon"></i></div>
+                          <div class="theme-mode-text">
+                            <span class="theme-mode-title">Mode Sombre</span>
+                            <span class="theme-mode-desc">Cosmique (Par défaut)</span>
+                          </div>
                         </div>
-                        <div class="theme-pill-card theme-light-opt" data-theme="light" title="Mode Clair Épuré">
-                          <div class="theme-preview-dot"><i class="fa-solid fa-sun"></i></div>
-                          <span class="theme-pill-title">Clair</span>
-                          <span class="theme-pill-badge">Épuré (Nouveau)</span>
-                        </div>
-                        <div class="theme-pill-card theme-sepia-opt" data-theme="sepia" title="Mode Sépia Papier">
-                          <div class="theme-preview-dot"><i class="fa-solid fa-book-open"></i></div>
-                          <span class="theme-pill-title">Sépia</span>
-                          <span class="theme-pill-badge">Papier Chaud</span>
-                        </div>
-                        <div class="theme-pill-card theme-midnight-opt" data-theme="midnight" title="Mode Nuit OLED">
-                          <div class="theme-preview-dot"><i class="fa-solid fa-star"></i></div>
-                          <span class="theme-pill-title">OLED</span>
-                          <span class="theme-pill-badge">Noir Pur</span>
+                        <div class="theme-mode-card mode-light" data-theme="light" title="Mode Clair Épuré">
+                          <div class="theme-mode-icon"><i class="fa-solid fa-sun"></i></div>
+                          <div class="theme-mode-text">
+                            <span class="theme-mode-title">Mode Clair</span>
+                            <span class="theme-mode-desc">Épuré & Haute Lisibilité</span>
+                          </div>
                         </div>
                       </div>
 
                       <select id="accountSettingTheme" class="app-theme-select" style="display: none;">
-                        <option value="dark">Sombre Cosmique (Par défaut)</option>
-                        <option value="light">Clair Épuré</option>
-                        <option value="sepia">Sépia Papier Chaud</option>
-                        <option value="midnight">Nuit Bleutée (OLED)</option>
+                        <option value="dark">Mode Sombre Cosmique (Par défaut)</option>
+                        <option value="light">Mode Clair Épuré</option>
                       </select>
                     </div>
                     <div class="setting-item">

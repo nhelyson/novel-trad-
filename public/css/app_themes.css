@@ -1,41 +1,44 @@
 /* ==========================================================================
-   NOVELTRAD - SYSTEME DE THEMES GLOBAUX (LIGHT, SEPIA, OLED & DARK DEFAULT)
-   Conçu pour une lisibilité optimale, zéro fatigue oculaire et réversibilité totale.
+   NOVELTRAD - SYSTEME DE THEME CLAIR HAUTE LISIBILITE (WCAG AAA)
+   Inspiré des standards Apple Books, Linear & Webtoon :
+   - Contraste maximal : Titres noir charbon (#0f172a), sous-textes ardoise (#334155)
+   - Cartes et surfaces blanc pur (#ffffff) nettement détourées (#e2e8f0)
+   - Zéro texte blanc ou gris pâle résiduel sur fond clair
    ========================================================================== */
 
 /* --------------------------------------------------------------------------
-   1. THEME CLAIR EPURE (html.theme-light)
-   Palette douce ardoise / blanc cassé (inspiration Apple Books & Substack)
+   1. VARIABLES GLOBALES THEME CLAIR
    -------------------------------------------------------------------------- */
 html.theme-light {
   --bg-deep: #f1f5f9;
   --bg-app: #f8fafc;
   --bg-sidebar: #ffffff;
   --bg-card: #ffffff;
-  --bg-elevated: #f1f5f9;
-  --bg-hover: #e2e8f0;
+  --bg-elevated: #ffffff;
+  --bg-hover: #f1f5f9;
   --bg-glass: rgba(0, 0, 0, 0.03);
   --bg-glass-hover: rgba(0, 0, 0, 0.06);
   --bg-main: #f8fafc;
   --surface-color: #ffffff;
   --surface-light: #f1f5f9;
-  --border-color: rgba(0, 0, 0, 0.08);
-  --border-hover: rgba(0, 0, 0, 0.16);
-  --border-accent: rgba(225, 29, 72, 0.35);
+  --border-color: #e2e8f0;
+  --border-hover: #cbd5e1;
+  --border-accent: rgba(225, 29, 72, 0.4);
   --text-primary: #0f172a;
-  --text-secondary: #475569;
-  --text-tertiary: #64748b;
-  --text-muted: #94a3b8;
+  --text-secondary: #334155;
+  --text-tertiary: #475569;
+  --text-muted: #64748b;
   --accent: #e11d48;
-  --accent-hover: #f43f5e;
-  --accent-active: #be123c;
+  --accent-hover: #be123c;
+  --accent-active: #9f1239;
   --accent-glow: rgba(225, 29, 72, 0.15);
-  --accent-subtle: rgba(225, 29, 72, 0.06);
+  --accent-subtle: rgba(225, 29, 72, 0.08);
   --accent-color: #e11d48;
   --primary-color: #e11d48;
   color-scheme: light;
 }
 
+/* Base de l'application */
 html.theme-light body,
 html.theme-light .app-container,
 html.theme-light .main-content {
@@ -43,14 +46,16 @@ html.theme-light .main-content {
   color: #0f172a !important;
 }
 
-/* TOPNAV CLAIRE & TRANSLUCIDE */
+/* --------------------------------------------------------------------------
+   2. TOPNAV BLANCHE GLACEE & HAUTE DEFINITION
+   -------------------------------------------------------------------------- */
 html.theme-light .topnav#mainHeader,
 html.theme-light .topnav {
-  background: rgba(255, 255, 255, 0.88) !important;
-  backdrop-filter: blur(14px) saturate(1.8) !important;
-  -webkit-backdrop-filter: blur(14px) saturate(1.8) !important;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+  background: rgba(255, 255, 255, 0.94) !important;
+  backdrop-filter: blur(16px) saturate(1.8) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(1.8) !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 4px 12px rgba(0, 0, 0, 0.02) !important;
 }
 
 html.theme-light .topnav-logo .logo-text {
@@ -62,26 +67,26 @@ html.theme-light .topnav-logo .logo-text strong {
 }
 
 html.theme-light .topnav-nav-links .nav-item-btn {
-  color: #475569 !important;
+  color: #334155 !important;
+  font-weight: 600 !important;
 }
 
 html.theme-light .topnav-nav-links .nav-item-btn:hover {
   color: #0f172a !important;
-  background: rgba(0, 0, 0, 0.05) !important;
+  background: #f1f5f9 !important;
 }
 
 html.theme-light .topnav-nav-links .nav-item-btn.active {
   color: #e11d48 !important;
   background: rgba(225, 29, 72, 0.08) !important;
   border-color: rgba(225, 29, 72, 0.25) !important;
-  font-weight: 600 !important;
 }
 
-/* BARRE DE RECHERCHE TOPNAV */
+/* Barre de recherche navbar */
 html.theme-light .search-filter-container .search-input-wrapper,
 html.theme-light .nav-search-wrapper {
   background: #f1f5f9 !important;
-  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  border: 1px solid #e2e8f0 !important;
 }
 
 html.theme-light .nav-search-input {
@@ -89,18 +94,18 @@ html.theme-light .nav-search-input {
 }
 
 html.theme-light .nav-search-input::placeholder {
-  color: #94a3b8 !important;
+  color: #64748b !important;
 }
 
 html.theme-light .nav-search-icon,
 html.theme-light .nav-search-clear {
-  color: #64748b !important;
+  color: #475569 !important;
 }
 
 html.theme-light .filter-toggle-btn.nav-filter-btn {
   background: #ffffff !important;
-  border: 1px solid rgba(0, 0, 0, 0.1) !important;
-  color: #475569 !important;
+  border: 1px solid #e2e8f0 !important;
+  color: #334155 !important;
 }
 
 html.theme-light .filter-toggle-btn.nav-filter-btn:hover {
@@ -108,140 +113,255 @@ html.theme-light .filter-toggle-btn.nav-filter-btn:hover {
   background: #f1f5f9 !important;
 }
 
-html.theme-light .btn-nav-auth-pill {
-  background: #ffffff !important;
-  border: 1px solid rgba(0, 0, 0, 0.1) !important;
-  color: #0f172a !important;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
-}
-
+html.theme-light .btn-nav-auth-pill,
 html.theme-light .nav-user-pill {
   background: #ffffff !important;
-  border: 1px solid rgba(0, 0, 0, 0.1) !important;
+  border: 1px solid #e2e8f0 !important;
   color: #0f172a !important;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
 }
 
-html.theme-light .nav-user-avatar {
-  background: rgba(225, 29, 72, 0.1) !important;
-  color: #e11d48 !important;
+html.theme-light .nav-user-email {
+  color: #0f172a !important;
 }
 
+html.theme-light .nav-dropdown-menu,
 html.theme-light .nav-user-menu {
   background: #ffffff !important;
-  border: 1px solid rgba(0, 0, 0, 0.1) !important;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1) !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08) !important;
 }
 
+html.theme-light .nav-dropdown-link,
 html.theme-light .nav-user-menu-item {
   color: #334155 !important;
 }
 
+html.theme-light .nav-dropdown-link:hover,
 html.theme-light .nav-user-menu-item:hover {
-  background: #f1f5f9 !important;
+  background: #f8fafc !important;
   color: #0f172a !important;
 }
 
-/* HERO SECTION LNORI EN MODE CLAIR */
-html.theme-light .hero-section {
+html.theme-light .nav-link-title {
+  color: #0f172a !important;
+}
+
+html.theme-light .nav-link-desc {
+  color: #64748b !important;
+}
+
+/* --------------------------------------------------------------------------
+   3. HERO IMMERSIF ACCUEIL (LNORI HERO)
+   -------------------------------------------------------------------------- */
+html.theme-light .home-lnori-hero {
   background: #f8fafc !important;
 }
 
-html.theme-light .hero-backdrop-overlay {
+html.theme-light .home-hero-overlay {
   background: 
-    radial-gradient(ellipse 90% 75% at 50% 25%, transparent 20%, rgba(248, 250, 252, 0.6) 70%, #f8fafc 100%),
-    linear-gradient(to bottom, transparent 25%, rgba(248, 250, 252, 0.7) 65%, #f8fafc 100%),
-    linear-gradient(to right, #f8fafc 0%, rgba(248, 250, 252, 0.3) 25%, rgba(248, 250, 252, 0.3) 75%, #f8fafc 100%) !important;
+    radial-gradient(ellipse 90% 75% at 50% 25%, transparent 20%, rgba(248, 250, 252, 0.65) 70%, #f8fafc 100%),
+    linear-gradient(to bottom, transparent 20%, rgba(248, 250, 252, 0.8) 60%, #f8fafc 100%),
+    linear-gradient(to right, #f8fafc 0%, rgba(248, 250, 252, 0.4) 30%, rgba(248, 250, 252, 0.4) 70%, #f8fafc 100%) !important;
 }
 
-html.theme-light .hero-title {
+html.theme-light .home-hero-title {
   color: #0f172a !important;
   text-shadow: none !important;
 }
 
-html.theme-light .hero-synopsis {
+html.theme-light .home-hero-meta {
+  color: #475569 !important;
+}
+
+html.theme-light .home-hero-meta .author {
+  color: #0f172a !important;
+}
+
+html.theme-light .home-hero-synopsis {
   color: #334155 !important;
   text-shadow: none !important;
 }
 
 html.theme-light .hero-genre-tag {
-  background: rgba(0, 0, 0, 0.05) !important;
-  color: #334155 !important;
-  border: 1px solid rgba(0, 0, 0, 0.08) !important;
-}
-
-/* TITRES DE SECTIONS */
-html.theme-light .section-title,
-html.theme-light .section-header h2,
-html.theme-light .home-section-title {
-  color: #0f172a !important;
-}
-
-html.theme-light .section-subtitle {
-  color: #64748b !important;
-}
-
-/* NOVEL CARDS (CATALOGUE & ACCUEIL) */
-html.theme-light .novel-card,
-html.theme-light .novel-series-card {
-  background: #ffffff !important;
-  border: 1px solid rgba(0, 0, 0, 0.07) !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04) !important;
-}
-
-html.theme-light .novel-card:hover,
-html.theme-light .novel-series-card:hover {
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08) !important;
-  border-color: rgba(225, 29, 72, 0.3) !important;
-}
-
-html.theme-light .novel-card-title,
-html.theme-light .novel-series-card h3 {
-  color: #0f172a !important;
-}
-
-html.theme-light .novel-card-author,
-html.theme-light .novel-card-meta,
-html.theme-light .novel-series-card p {
-  color: #64748b !important;
-}
-
-html.theme-light .novel-card-cover-wrap {
   background: #f1f5f9 !important;
+  color: #334155 !important;
+  border: 1px solid #e2e8f0 !important;
+  font-weight: 600 !important;
 }
 
-/* CATALOGUE FILTRES & BARRE D'OUTILS */
+html.theme-light .hero-genre-tag:hover {
+  background: #e2e8f0 !important;
+  color: #0f172a !important;
+}
+
+html.theme-light .btn-hero-glass {
+  background: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #0f172a !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+}
+
+html.theme-light .btn-hero-glass:hover {
+  background: #f1f5f9 !important;
+  border-color: #94a3b8 !important;
+}
+
+html.theme-light .hero-arrow-btn {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  color: #0f172a !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06) !important;
+}
+
+html.theme-light .hero-pill {
+  background: #cbd5e1 !important;
+}
+
+html.theme-light .hero-pill.active {
+  background: #e11d48 !important;
+}
+
+/* Bannière de reprise */
+html.theme-light .home-resume-banner {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04) !important;
+}
+
+html.theme-light .resume-label {
+  color: #e11d48 !important;
+}
+
+html.theme-light .resume-title {
+  color: #0f172a !important;
+}
+
+html.theme-light .resume-progress-track {
+  background: #e2e8f0 !important;
+}
+
+html.theme-light .resume-percent {
+  color: #475569 !important;
+}
+
+/* --------------------------------------------------------------------------
+   4. SECTIONS D'ACCUEIL & GRILLES DE ROMANS
+   -------------------------------------------------------------------------- */
+html.theme-light .home-section-title-wrap {
+  border-bottom: 1px solid #e2e8f0 !important;
+}
+
+html.theme-light .home-section-title-wrap h2 {
+  color: #0f172a !important;
+}
+
+html.theme-light .home-section-title-wrap p {
+  color: #475569 !important;
+}
+
+html.theme-light .home-section-link {
+  color: #334155 !important;
+  font-weight: 600 !important;
+}
+
+html.theme-light .home-section-link:hover {
+  color: #e11d48 !important;
+}
+
+/* Cartes de romans Lnori */
+html.theme-light .lnori-card-cover-box {
+  background: #e2e8f0 !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05) !important;
+}
+
+html.theme-light .lnori-card:hover .lnori-card-cover-box {
+  border-color: rgba(225, 29, 72, 0.4) !important;
+  box-shadow: 0 12px 28px rgba(225, 29, 72, 0.15) !important;
+}
+
+html.theme-light .lnori-card-title {
+  color: #0f172a !important;
+  font-weight: 700 !important;
+}
+
+html.theme-light .lnori-card-sub {
+  color: #475569 !important;
+  font-weight: 500 !important;
+}
+
+html.theme-light .lnori-card-format-tag,
+html.theme-light .lnori-card-vol-badge {
+  background: rgba(255, 255, 255, 0.95) !important;
+  color: #0f172a !important;
+  border: 1px solid rgba(0, 0, 0, 0.1) !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06) !important;
+}
+
+/* Flyout Popover au survol d'un roman */
+html.theme-light .lnori-card-popup {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.12), 0 4px 12px rgba(0, 0, 0, 0.04) !important;
+  color: #0f172a !important;
+}
+
+html.theme-light .lnori-card-popup .popup-title {
+  color: #0f172a !important;
+}
+
+html.theme-light .lnori-card-popup .popup-synopsis {
+  color: #334155 !important;
+}
+
+html.theme-light .lnori-card-popup .popup-meta-item {
+  color: #475569 !important;
+}
+
+/* --------------------------------------------------------------------------
+   5. CATALOGUE & FILTRES
+   -------------------------------------------------------------------------- */
 html.theme-light .catalog-lnori-header {
-  border-bottom: 1px solid rgba(0, 0, 0, 0.06) !important;
+  border-bottom: 1px solid #e2e8f0 !important;
 }
 
 html.theme-light .catalog-lnori-search-box {
   background: #ffffff !important;
-  border: 1px solid rgba(0, 0, 0, 0.1) !important;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03) !important;
+  border: 1px solid #cbd5e1 !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
 }
 
 html.theme-light .catalog-lnori-search-box input {
   color: #0f172a !important;
 }
 
+html.theme-light .catalog-lnori-search-box input::placeholder {
+  color: #64748b !important;
+}
+
+html.theme-light .cat-search-icon {
+  color: #475569 !important;
+}
+
 html.theme-light .catalog-filter-toggle-btn {
   background: #ffffff !important;
-  border: 1px solid rgba(0, 0, 0, 0.1) !important;
+  border: 1px solid #cbd5e1 !important;
   color: #0f172a !important;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03) !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
 }
 
 html.theme-light .catalog-tools-panel {
   background: #ffffff !important;
-  border: 1px solid rgba(0, 0, 0, 0.08) !important;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05) !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.06) !important;
 }
 
 html.theme-light .catalog-filter-pill {
   background: #f1f5f9 !important;
-  border: 1px solid rgba(0, 0, 0, 0.08) !important;
-  color: #475569 !important;
+  border: 1px solid #e2e8f0 !important;
+  color: #334155 !important;
+  font-weight: 500 !important;
 }
 
 html.theme-light .catalog-filter-pill:hover {
@@ -259,75 +379,123 @@ html.theme-light .catalog-filter-select,
 html.theme-light .catalog-pill-select {
   background: #ffffff !important;
   color: #0f172a !important;
-  border: 1px solid rgba(0, 0, 0, 0.12) !important;
+  border: 1px solid #cbd5e1 !important;
 }
 
 html.theme-light .catalog-count-pill {
   background: #f1f5f9 !important;
-  color: #475569 !important;
-  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  color: #334155 !important;
+  border: 1px solid #e2e8f0 !important;
 }
 
-/* PAGE SERIE (series.html) */
-html.theme-light .series-header-card,
-html.theme-light .series-detail-wrap {
-  background: #ffffff !important;
-  border: 1px solid rgba(0, 0, 0, 0.08) !important;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04) !important;
-}
-
-html.theme-light .series-title,
-html.theme-light .series-header-info h1 {
+/* --------------------------------------------------------------------------
+   6. BIBLIOTHEQUE (libraryModule)
+   -------------------------------------------------------------------------- */
+html.theme-light .library-module-container h2 {
   color: #0f172a !important;
 }
 
-html.theme-light .series-author,
-html.theme-light .series-meta-item {
-  color: #475569 !important;
-}
-
-html.theme-light .series-synopsis-box {
-  background: #f8fafc !important;
-  border: 1px solid rgba(0, 0, 0, 0.06) !important;
+html.theme-light .library-tab-btn {
+  background: #f1f5f9 !important;
+  border: 1px solid #e2e8f0 !important;
   color: #334155 !important;
 }
 
-html.theme-light .tome-card,
-html.theme-light .volume-card,
-html.theme-light .tome-accordion,
-html.theme-light .series-tome-item {
-  background: #ffffff !important;
-  border: 1px solid rgba(0, 0, 0, 0.08) !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03) !important;
+html.theme-light .library-tab-btn.active {
+  background: #e11d48 !important;
+  color: #ffffff !important;
+  border-color: #e11d48 !important;
 }
 
-html.theme-light .tome-title,
-html.theme-light .series-tome-header h3 {
+/* --------------------------------------------------------------------------
+   7. PAGE FICHE SERIE (series.html)
+   -------------------------------------------------------------------------- */
+html.theme-light .series-title-row h2#seriesTitle {
   color: #0f172a !important;
 }
 
-html.theme-light .chapter-item,
-html.theme-light .series-chapter-row {
-  color: #1e293b !important;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05) !important;
+html.theme-light .series-subtitle-editorial {
+  color: #475569 !important;
 }
 
-html.theme-light .chapter-item:hover,
-html.theme-light .series-chapter-row:hover {
+html.theme-light .series-meta-label {
+  color: #64748b !important;
+  font-weight: 600 !important;
+}
+
+html.theme-light .series-meta-val,
+html.theme-light #seriesAuthor,
+html.theme-light #seriesVolCount,
+html.theme-light #seriesStatusText {
+  color: #0f172a !important;
+  font-weight: 600 !important;
+}
+
+html.theme-light .series-tag-pill {
   background: #f1f5f9 !important;
+  color: #334155 !important;
+  border: 1px solid #e2e8f0 !important;
 }
 
-/* MODULE COMPTE & PROFIL (index.html) */
+html.theme-light .series-synopsis-section .series-section-header h3,
+html.theme-light .series-volumes-section .series-section-header h3 {
+  color: #0f172a !important;
+}
+
+html.theme-light .series-synopsis-wrapper {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03) !important;
+}
+
+html.theme-light .series-synopsis-content p {
+  color: #334155 !important;
+  line-height: 1.7 !important;
+}
+
+html.theme-light .vol-filter-tab {
+  background: #f1f5f9 !important;
+  border: 1px solid #e2e8f0 !important;
+  color: #334155 !important;
+  font-weight: 600 !important;
+}
+
+html.theme-light .vol-filter-tab.active {
+  background: #e11d48 !important;
+  color: #ffffff !important;
+  border-color: #e11d48 !important;
+}
+
+html.theme-light .volume-card {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04) !important;
+}
+
+html.theme-light .volume-card:hover {
+  border-color: rgba(225, 29, 72, 0.4) !important;
+  box-shadow: 0 10px 24px rgba(225, 29, 72, 0.12) !important;
+}
+
+html.theme-light .volume-title {
+  color: #0f172a !important;
+  font-weight: 700 !important;
+}
+
+html.theme-light .volume-pill-tag {
+  background: #f1f5f9 !important;
+  color: #0f172a !important;
+  border: 1px solid #e2e8f0 !important;
+}
+
+/* --------------------------------------------------------------------------
+   8. MODULE MON COMPTE & PROFIL (index.html)
+   -------------------------------------------------------------------------- */
+html.theme-light .account-profile-header-card,
 html.theme-light .account-card {
   background: #ffffff !important;
-  border: 1px solid rgba(0, 0, 0, 0.08) !important;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04) !important;
-}
-
-html.theme-light .account-profile-header-card {
-  background: #ffffff !important;
-  border: 1px solid rgba(0, 0, 0, 0.08) !important;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04) !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.03) !important;
 }
 
 html.theme-light .profile-display-name {
@@ -335,7 +503,7 @@ html.theme-light .profile-display-name {
 }
 
 html.theme-light .profile-email-subtitle {
-  color: #64748b !important;
+  color: #475569 !important;
 }
 
 html.theme-light .account-card-header-simple h3 {
@@ -343,28 +511,30 @@ html.theme-light .account-card-header-simple h3 {
 }
 
 html.theme-light .account-card-header-simple p {
-  color: #64748b !important;
+  color: #475569 !important;
 }
 
 html.theme-light .setting-item {
   background: #f8fafc !important;
-  border: 1px solid rgba(0, 0, 0, 0.06) !important;
+  border: 1px solid #e2e8f0 !important;
 }
 
+html.theme-light .setting-label-group label,
 html.theme-light .setting-item label {
   color: #0f172a !important;
+  font-weight: 700 !important;
 }
 
 html.theme-light .setting-item select,
 html.theme-light .account-select {
   background: #ffffff !important;
   color: #0f172a !important;
-  border: 1px solid rgba(0, 0, 0, 0.12) !important;
+  border: 1px solid #cbd5e1 !important;
 }
 
 html.theme-light .account-shortcut-box {
   background: #f8fafc !important;
-  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  border: 1px solid #e2e8f0 !important;
 }
 
 html.theme-light .account-shortcut-box:hover {
@@ -372,21 +542,30 @@ html.theme-light .account-shortcut-box:hover {
   border-color: rgba(225, 29, 72, 0.3) !important;
 }
 
+html.theme-light .shortcut-text strong {
+  color: #0f172a !important;
+}
+
+html.theme-light .shortcut-text span {
+  color: #475569 !important;
+}
+
 html.theme-light .account-detail-item {
-  border-bottom: 1px solid rgba(0, 0, 0, 0.06) !important;
+  border-bottom: 1px solid #e2e8f0 !important;
 }
 
 html.theme-light .account-detail-item .detail-label {
-  color: #64748b !important;
+  color: #475569 !important;
 }
 
 html.theme-light .account-detail-item .detail-value {
   color: #0f172a !important;
+  font-weight: 600 !important;
 }
 
 html.theme-light .guest-banner-card {
   background: #ffffff !important;
-  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  border: 1px solid #e2e8f0 !important;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04) !important;
 }
 
@@ -395,32 +574,35 @@ html.theme-light .guest-banner-content h2 {
 }
 
 html.theme-light .guest-banner-content p {
-  color: #475569 !important;
+  color: #334155 !important;
 }
 
-/* MODALES & POPUPS */
+/* --------------------------------------------------------------------------
+   9. MODALES & TELECHARGEMENT
+   -------------------------------------------------------------------------- */
 html.theme-light .modal-content,
 html.theme-light .auth-card {
   background: #ffffff !important;
-  border: 1px solid rgba(0, 0, 0, 0.1) !important;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12) !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.12) !important;
   color: #0f172a !important;
+}
+
+html.theme-light .auth-input-group label {
+  color: #334155 !important;
+  font-weight: 600 !important;
 }
 
 html.theme-light .auth-input-group input {
   background: #f8fafc !important;
   color: #0f172a !important;
-  border: 1px solid rgba(0, 0, 0, 0.12) !important;
-}
-
-html.theme-light .auth-input-group label {
-  color: #475569 !important;
+  border: 1px solid #cbd5e1 !important;
 }
 
 html.theme-light .download-sponsor-card {
   background: #ffffff !important;
-  border: 1px solid rgba(0, 0, 0, 0.1) !important;
-  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.15) !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15) !important;
 }
 
 html.theme-light .download-sponsor-title {
@@ -428,18 +610,21 @@ html.theme-light .download-sponsor-title {
 }
 
 html.theme-light .download-sponsor-subtitle {
-  color: #64748b !important;
+  color: #475569 !important;
 }
 
-/* TIROIR MOBILE (navMobileDrawer) */
+/* --------------------------------------------------------------------------
+   10. TIROIR MOBILE & FOOTER
+   -------------------------------------------------------------------------- */
 html.theme-light .nav-mobile-panel {
   background: #ffffff !important;
-  border-left: 1px solid rgba(0, 0, 0, 0.08) !important;
-  box-shadow: -10px 0 25px rgba(0, 0, 0, 0.1) !important;
+  border-left: 1px solid #e2e8f0 !important;
+  box-shadow: -10px 0 30px rgba(0, 0, 0, 0.08) !important;
 }
 
 html.theme-light .nav-mobile-btn {
   color: #334155 !important;
+  font-weight: 600 !important;
 }
 
 html.theme-light .nav-mobile-btn:hover {
@@ -453,28 +638,27 @@ html.theme-light .nav-mobile-btn.active {
 }
 
 html.theme-light .nav-mobile-label {
-  color: #94a3b8 !important;
+  color: #64748b !important;
 }
 
 html.theme-light .nav-mobile-header {
-  border-bottom: 1px solid rgba(0, 0, 0, 0.06) !important;
+  border-bottom: 1px solid #e2e8f0 !important;
 }
 
 html.theme-light .nav-mobile-search-box {
   background: #f1f5f9 !important;
-  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  border: 1px solid #e2e8f0 !important;
 }
 
 html.theme-light .nav-mobile-search-box input {
   color: #0f172a !important;
 }
 
-/* FOOTER */
 html.theme-light footer,
 html.theme-light .site-footer {
   background: #f1f5f9 !important;
-  border-top: 1px solid rgba(0, 0, 0, 0.08) !important;
-  color: #64748b !important;
+  border-top: 1px solid #e2e8f0 !important;
+  color: #475569 !important;
 }
 
 html.theme-light .footer-heading {
@@ -482,7 +666,7 @@ html.theme-light .footer-heading {
 }
 
 html.theme-light .footer-link {
-  color: #475569 !important;
+  color: #334155 !important;
 }
 
 html.theme-light .footer-link:hover {
@@ -490,199 +674,92 @@ html.theme-light .footer-link:hover {
 }
 
 /* --------------------------------------------------------------------------
-   2. THEME SEPIA PAPIER CHAUD (html.theme-sepia)
-   Ambiance roman relié, idéal pour reposer les yeux sans lumière bleue.
+   11. SELECTEUR THEMES DANS LE PROFIL (SOMBRE vs CLAIR UNIQUEMENT)
    -------------------------------------------------------------------------- */
-html.theme-sepia {
-  --bg-deep: #f2e3c6;
-  --bg-app: #fbf0d9;
-  --bg-sidebar: #f4e5c8;
-  --bg-card: #f4e5c8;
-  --bg-elevated: #ebd7b3;
-  --bg-hover: #e5cd9e;
-  --bg-glass: rgba(61, 43, 31, 0.04);
-  --bg-glass-hover: rgba(61, 43, 31, 0.08);
-  --bg-main: #fbf0d9;
-  --surface-color: #f4e5c8;
-  --surface-light: #ebd7b3;
-  --border-color: rgba(61, 43, 31, 0.12);
-  --border-hover: rgba(61, 43, 31, 0.22);
-  --border-accent: rgba(180, 83, 9, 0.4);
-  --text-primary: #3d2b1f;
-  --text-secondary: #5c4738;
-  --text-tertiary: #7d6553;
-  --text-muted: #9e8571;
-  --accent: #b45309;
-  --accent-hover: #d97706;
-  --accent-glow: rgba(180, 83, 9, 0.2);
-  --accent-subtle: rgba(180, 83, 9, 0.08);
-  color-scheme: light;
-}
-
-html.theme-sepia body,
-html.theme-sepia .app-container,
-html.theme-sepia .main-content {
-  background-color: #fbf0d9 !important;
-  color: #3d2b1f !important;
-}
-
-html.theme-sepia .topnav#mainHeader,
-html.theme-sepia .topnav {
-  background: rgba(244, 229, 200, 0.90) !important;
-  border-bottom: 1px solid rgba(61, 43, 31, 0.12) !important;
-}
-
-html.theme-sepia .topnav-logo .logo-text {
-  color: #3d2b1f !important;
-}
-
-html.theme-sepia .novel-card,
-html.theme-sepia .novel-series-card,
-html.theme-sepia .account-card {
-  background: #f4e5c8 !important;
-  border-color: rgba(61, 43, 31, 0.12) !important;
-}
-
-html.theme-sepia .novel-card-title,
-html.theme-sepia .novel-series-card h3,
-html.theme-sepia .section-title {
-  color: #3d2b1f !important;
-}
-
-/* --------------------------------------------------------------------------
-   3. THEME NUIT OLED (html.theme-midnight)
-   Noir pur #000000 absolu pour écrans OLED
-   -------------------------------------------------------------------------- */
-html.theme-midnight {
-  --bg-deep: #000000;
-  --bg-app: #000000;
-  --bg-sidebar: #050505;
-  --bg-card: #0a0a0a;
-  --bg-elevated: #111111;
-  --bg-hover: #1a1a1a;
-  --bg-glass: rgba(255, 255, 255, 0.03);
-  --bg-glass-hover: rgba(255, 255, 255, 0.06);
-  --bg-main: #000000;
-  --surface-color: #0a0a0a;
-  --surface-light: #111111;
-  --border-color: rgba(255, 255, 255, 0.1);
-  --border-hover: rgba(255, 255, 255, 0.18);
-  color-scheme: dark;
-}
-
-html.theme-midnight body,
-html.theme-midnight .app-container,
-html.theme-midnight .main-content {
-  background-color: #000000 !important;
-}
-
-html.theme-midnight .topnav#mainHeader,
-html.theme-midnight .topnav {
-  background: rgba(0, 0, 0, 0.9) !important;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
-}
-
-/* --------------------------------------------------------------------------
-   4. COMPOSANT SELECTEUR VISUEL DE THEMES DANS LE PROFIL (THEME PILL PICKER)
-   -------------------------------------------------------------------------- */
-.theme-picker-grid {
+.theme-picker-dual {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-  gap: 12px;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
   width: 100%;
-  margin-top: 12px;
+  margin-top: 10px;
 }
 
-.theme-pill-card {
+@media (max-width: 500px) {
+  .theme-picker-dual {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+}
+
+.theme-mode-card {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  padding: 14px 10px;
-  border-radius: 12px;
+  gap: 14px;
+  padding: 16px 18px;
+  border-radius: 14px;
   border: 2px solid transparent;
   cursor: pointer;
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-  text-align: center;
-  gap: 8px;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
   user-select: none;
 }
 
-.theme-pill-card .theme-preview-dot {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  border: 2px solid rgba(255, 255, 255, 0.2);
+.theme-mode-card .theme-mode-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 13px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  font-size: 20px;
+  flex-shrink: 0;
 }
 
-.theme-pill-card.theme-dark-opt {
-  background: #12121e;
-  border-color: rgba(255, 255, 255, 0.08);
-  color: #f1f5f9;
+.theme-mode-card .theme-mode-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
-.theme-pill-card.theme-dark-opt .theme-preview-dot {
-  background: #05050a;
-  color: #e11d48;
-}
-
-.theme-pill-card.theme-light-opt {
-  background: #ffffff;
-  border-color: rgba(0, 0, 0, 0.1);
-  color: #0f172a;
-}
-
-.theme-pill-card.theme-light-opt .theme-preview-dot {
-  background: #f8fafc;
-  border-color: rgba(0, 0, 0, 0.15);
-  color: #e11d48;
-}
-
-.theme-pill-card.theme-sepia-opt {
-  background: #f4e5c8;
-  border-color: rgba(61, 43, 31, 0.15);
-  color: #3d2b1f;
-}
-
-.theme-pill-card.theme-sepia-opt .theme-preview-dot {
-  background: #ebd7b3;
-  border-color: rgba(61, 43, 31, 0.2);
-  color: #b45309;
-}
-
-.theme-pill-card.theme-midnight-opt {
-  background: #000000;
-  border-color: rgba(255, 255, 255, 0.15);
-  color: #ffffff;
-}
-
-.theme-pill-card.theme-midnight-opt .theme-preview-dot {
-  background: #0a0a0a;
-  color: #6366f1;
-}
-
-.theme-pill-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(0,0,0,0.12);
-}
-
-.theme-pill-card.active {
-  border-color: #e11d48 !important;
-  box-shadow: 0 0 0 2px rgba(225, 29, 72, 0.3), 0 6px 16px rgba(225, 29, 72, 0.15) !important;
+.theme-mode-card .theme-mode-title {
+  font-size: 15px;
   font-weight: 700;
 }
 
-.theme-pill-title {
-  font-size: 13px;
-  font-weight: 600;
+.theme-mode-card .theme-mode-desc {
+  font-size: 12px;
+  opacity: 0.75;
 }
 
-.theme-pill-badge {
-  font-size: 10.5px;
-  opacity: 0.75;
+/* Carte Sombre */
+.theme-mode-card.mode-dark {
+  background: #12121e;
+  border-color: rgba(255, 255, 255, 0.1);
+  color: #f1f5f9;
+}
+
+.theme-mode-card.mode-dark .theme-mode-icon {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fb7185;
+}
+
+/* Carte Claire */
+.theme-mode-card.mode-light {
+  background: #ffffff;
+  border-color: #e2e8f0;
+  color: #0f172a;
+}
+
+.theme-mode-card.mode-light .theme-mode-icon {
+  background: rgba(225, 29, 72, 0.08);
+  color: #e11d48;
+}
+
+.theme-mode-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+}
+
+.theme-mode-card.active {
+  border-color: #e11d48 !important;
+  box-shadow: 0 0 0 3px rgba(225, 29, 72, 0.25), 0 6px 20px rgba(225, 29, 72, 0.12) !important;
 }

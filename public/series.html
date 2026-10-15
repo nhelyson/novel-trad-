@@ -51,15 +51,12 @@
   <script>
     (function() {
       try {
-        var t = localStorage.getItem('noveltrad_global_theme') || localStorage.getItem('noveltrad_reader_theme') || 'dark';
+        var t = localStorage.getItem('noveltrad_global_theme') || 'dark';
         if (t === 'light') {
           document.documentElement.classList.remove('dark');
           document.documentElement.classList.add('theme-light');
-        } else if (t === 'sepia') {
-          document.documentElement.classList.remove('dark');
-          document.documentElement.classList.add('theme-sepia');
-        } else if (t === 'midnight') {
-          document.documentElement.classList.add('theme-midnight');
+        } else {
+          document.documentElement.classList.add('dark');
         }
       } catch(e) {}
     })();
