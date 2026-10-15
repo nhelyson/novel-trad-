@@ -30,6 +30,44 @@
   <meta property="twitter:title" content="NovelTrad - Plateforme de Lecture & Traduction de Light Novels">
   <meta property="twitter:description" content="Découvrez et lisez les meilleurs Light Novels traduits en français. Lecture en ligne gratuite et fluide, téléchargement EPUB et suivi de vos séries préférées.">
   <meta property="twitter:image" content="https://novel-trad.online/icons/icon-512x512.png">
+
+  <!-- Schema.org Structured Data (Google Brand & Entity Recognition) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebSite",
+        "@id": "https://novel-trad.online/#website",
+        "url": "https://novel-trad.online/",
+        "name": "NovelTrad",
+        "alternateName": ["novel-trad", "novel trad", "NovelTrad Online", "noveltrad.online"],
+        "description": "Plateforme francophone de lecture et traduction de Light Novels et Webnovels en français.",
+        "inLanguage": "fr-FR",
+        "potentialAction": {
+          "@type": "SearchAction",
+          "target": {
+            "@type": "EntryPoint",
+            "urlTemplate": "https://novel-trad.online/#catalog?q={search_term_string}"
+          },
+          "query-input": "required name=search_term_string"
+        }
+      },
+      {
+        "@type": "Organization",
+        "@id": "https://novel-trad.online/#organization",
+        "name": "NovelTrad",
+        "url": "https://novel-trad.online/",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://novel-trad.online/icons/icon-512x512.png",
+          "width": 512,
+          "height": 512
+        }
+      }
+    ]
+  }
+  </script>
   
   <!-- Google Fonts: Inter, Outfit, Nunito Sans & Playfair Display -->
   <link rel="preconnect" href="https://fonts.googleapis.com">

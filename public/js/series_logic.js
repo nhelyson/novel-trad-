@@ -118,6 +118,26 @@ async function renderSeries(series) {
           if (ogTitle) ogTitle.setAttribute('content', series.title + ' | NovelTrad');
           const twTitle = document.getElementById('twSeriesTitle');
           if (twTitle) twTitle.setAttribute('content', series.title + ' | NovelTrad');
+
+          // Dynamically enrich Schema.org with Book metadata for Google rich results
+          const jsonLdTag = document.getElementById('jsonLdSeries');
+          if (jsonLdTag) {
+            jsonLdTag.textContent = JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Book",
+              "name": series.title,
+              "url": window.location.href,
+              "description": shortDesc,
+              "inLanguage": "fr",
+              "image": series.cover || "https://novel-trad.online/icons/icon-512x512.png",
+              "publisher": {
+                "@type": "Organization",
+                "name": "NovelTrad",
+                "alternateName": ["novel-trad", "NovelTrad Online"],
+                "url": "https://novel-trad.online/"
+              }
+            });
+          }
         } catch(e) {}
     }
     document.getElementById('seriesTitle').textContent = series.title;
