@@ -48,9 +48,136 @@ html.theme-light .main-content {
 }
 
 /* --------------------------------------------------------------------------
-   2. NAVBAR : RESTE SOMBRE EN MODE CLAIR (DEMANDE UTILISATEUR)
-   Aucune modification de couleur sur la navbar pour conserver son noir élégant.
+   2. SANCTUARISATION DE LA NAVBAR : STRICTEMENT IDENTIQUE AU MODE SOMBRE
+   Aucune modification permise : mêmes fonds, mêmes textes, mêmes bordures.
    -------------------------------------------------------------------------- */
+html.theme-light .topnav,
+html.theme-light .topnav#mainHeader {
+  --bg-deep: #05050a !important;
+  --bg-app: #0a0a14 !important;
+  --bg-sidebar: #07070f !important;
+  --bg-card: #12121e !important;
+  --bg-elevated: #1a1a2e !important;
+  --bg-hover: #1f1f33 !important;
+  --border-color: rgba(255, 255, 255, 0.08) !important;
+  --text-primary: #f1f5f9 !important;
+  --text-secondary: #94a3b8 !important;
+  --text-tertiary: #64748b !important;
+  --text-muted: #475569 !important;
+  background: rgba(9, 10, 16, 0.78) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+  box-shadow: none !important;
+  color: #f1f5f9 !important;
+}
+
+html.theme-light .topnav-logo .logo-text {
+  color: #ffffff !important;
+}
+
+html.theme-light .topnav-logo .logo-text strong {
+  color: #fb7185 !important;
+}
+
+html.theme-light .topnav-nav-links .nav-item-btn {
+  color: #94a3b8 !important;
+  background: transparent !important;
+  border-color: transparent !important;
+  font-weight: 500 !important;
+}
+
+html.theme-light .topnav-nav-links .nav-item-btn:hover {
+  color: #ffffff !important;
+  background: rgba(255, 255, 255, 0.06) !important;
+}
+
+html.theme-light .topnav-nav-links .nav-item-btn.active {
+  color: #fb7185 !important;
+  background: rgba(225, 29, 72, 0.15) !important;
+  border-color: rgba(225, 29, 72, 0.3) !important;
+  font-weight: 600 !important;
+}
+
+html.theme-light .nav-search-wrapper.search-input-wrapper {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+html.theme-light .nav-search-wrapper:focus-within {
+  background: rgba(15, 23, 42, 0.8) !important;
+  border-color: rgba(225, 29, 72, 0.5) !important;
+}
+
+html.theme-light .nav-search-input {
+  color: #ffffff !important;
+}
+
+html.theme-light .nav-search-input::placeholder {
+  color: #64748b !important;
+}
+
+html.theme-light .nav-search-icon {
+  color: #64748b !important;
+}
+
+html.theme-light .filter-toggle-btn.nav-filter-btn {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: #cbd5e1 !important;
+}
+
+html.theme-light .filter-toggle-btn.nav-filter-btn:hover {
+  color: #ffffff !important;
+  background: rgba(255, 255, 255, 0.1) !important;
+}
+
+html.theme-light .btn-nav-auth-pill {
+  background: rgba(225, 29, 72, 0.15) !important;
+  border: 1px solid rgba(225, 29, 72, 0.35) !important;
+  color: #fb7185 !important;
+  box-shadow: none !important;
+}
+
+html.theme-light .nav-user-pill {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: #ffffff !important;
+  box-shadow: none !important;
+}
+
+html.theme-light .nav-user-email {
+  color: #f1f5f9 !important;
+}
+
+html.theme-light .nav-dropdown-menu,
+html.theme-light .nav-user-dropdown {
+  background: rgba(10, 12, 20, 0.95) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  box-shadow: 0 16px 45px rgba(0, 0, 0, 0.7) !important;
+  color: #cbd5e1 !important;
+}
+
+html.theme-light .nav-dropdown-link,
+html.theme-light .nav-dropdown-item {
+  color: #cbd5e1 !important;
+}
+
+html.theme-light .nav-dropdown-link:hover,
+html.theme-light .nav-dropdown-item:hover {
+  background: rgba(255, 255, 255, 0.06) !important;
+  color: #ffffff !important;
+}
+
+html.theme-light .nav-link-title {
+  color: #ffffff !important;
+}
+
+html.theme-light .nav-link-desc {
+  color: #64748b !important;
+}
+
+html.theme-light .topnav-hamburger {
+  color: #ffffff !important;
+}
 .nav-theme-toggle {
   display: inline-flex !important;
   width: 38px !important;
