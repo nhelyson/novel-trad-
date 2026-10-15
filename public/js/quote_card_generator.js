@@ -35,9 +35,7 @@
         <button type="button" id="btnTooltipQuoteCard" class="tooltip-action-btn" title="Générer une carte visuelle">
           <i class="fa-solid fa-camera"></i> <span>Créer une Carte</span>
         </button>
-        <button type="button" id="btnTooltipComment" class="tooltip-action-btn" title="Commenter ce passage">
-          <i class="fa-regular fa-comment-dots"></i> <span>Commenter</span>
-        </button>
+        <!-- btnTooltipComment removed: comments now at end of volume -->
         <button type="button" id="btnTooltipCopy" class="tooltip-action-btn" title="Copier le texte">
           <i class="fa-regular fa-copy"></i>
         </button>
@@ -45,7 +43,7 @@
       document.body.appendChild(tooltip);
 
       const btnCard = tooltip.querySelector('#btnTooltipQuoteCard');
-      const btnComment = tooltip.querySelector('#btnTooltipComment');
+      const btnComment = null;
       const btnCopy = tooltip.querySelector('#btnTooltipCopy');
 
       if (btnCard) {

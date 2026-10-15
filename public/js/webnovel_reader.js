@@ -259,14 +259,7 @@
 
                 updateTopNavState();
 
-                // In-Line Paragraph Comments Hook
-                if (typeof window.initInlineParagraphComments === 'function') {
-                    const txtEl = document.querySelector('.wn-chapter-text');
-                    if (txtEl && currentSeries) {
-                        const bookKey = currentSeries.id + '_wn';
-                        window.initInlineParagraphComments(txtEl, bookKey, currentChapterNum);
-                    }
-                }
+                // In-Line Paragraph Comments Hook removed by user request
                 saveCurrentProgress(0);
 
             } else {

@@ -1,8 +1,12 @@
 /**
- * inline_comments.js - In-Line Paragraph Comments & Sliding Drawer (NovelTrad)
+ * inline_comments.js -> Evolved into Webtoon-style End-of-Volume Comments (NovelTrad)
+ * 
+ * - In-line paragraph comments removed per user request for pure, distraction-free reading.
+ * - End-of-Volume Webtoon comment system (Top comments, like/unlike, spoilers, guest/member auth).
  */
 (function() {
   'use strict';
+
   function escapeHtml(str) {
     if (!str) return '';
     return String(str)
@@ -12,11 +16,6 @@
       .replace(/"/g, '&quot;')
       .replace(/'/g, '&#39;');
   }
-
-
-  let currentActiveBookKey = '';
-  let currentActiveParagraphId = '';
-  let currentActiveExcerpt = '';
 
   function formatRelativeTime(dateStr) {
     try {
@@ -39,423 +38,458 @@
   }
 
   // =========================================================================
-  //  1. ATTACH COMMENTS TRIGGERS TO CHAPTER PARAGRAPHS
+  //  1. SAFE NO-OP FOR LEGACY IN-LINE CALLS (PREVENTS ANY CRASHES)
   // =========================================================================
-  window.initInlineParagraphComments = async function(contentContainer, bookKey, chapterNum) {
-    if (!contentContainer || !bookKey) return;
-    currentActiveBookKey = String(bookKey);
-    window._currentActiveBookKey = currentActiveBookKey;
-
-    // Find all paragraph elements
-    const elements = contentContainer.querySelectorAll('p, blockquote, .dialogue, figure, .pdf-reflow-p');
-    if (!elements || elements.length === 0) return;
-
-    let validIndex = 0;
-    elements.forEach((el) => {
-      // Ignore if text is too short (empty lines or pure formatting)
-      const text = el.textContent ? el.textContent.trim() : '';
-      const isImg = el.querySelector('img') || el.tagName === 'FIGURE';
-      if (!isImg && text.length < 5) return;
-
-      const paragraphId = `c${chapterNum}_p${validIndex}`;
-      validIndex++;
-
-      el.setAttribute('data-paragraph-id', paragraphId);
-      el.classList.add('has-para-comment-anchor');
-
-      // Check if button already exists
-      let btn = el.querySelector('.para-comment-trigger');
-      if (!btn) {
-        btn = document.createElement('button');
-        btn.type = 'button';
-        btn.className = 'para-comment-trigger';
-        btn.setAttribute('data-pid', paragraphId);
-        btn.setAttribute('aria-label', 'Voir les commentaires du paragraphe');
-        btn.innerHTML = `<i class="fa-regular fa-comment-dots"></i><span class="para-comment-count" data-pid="${paragraphId}"></span>`;
-
-        btn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          const excerpt = text.length > 150 ? text.substring(0, 150) + '...' : text;
-          window.openParagraphComments(bookKey, paragraphId, excerpt || 'Illustration du roman');
-        });
-
-        el.appendChild(btn);
-      }
-    });
-
-    // Batch fetch comment counts for this chapter
-    try {
-      const resp = await fetch(`/api/comments/counts?bookKey=${encodeURIComponent(bookKey)}&chapter=${encodeURIComponent(chapterNum)}`);
-      if (resp.ok) {
-        const data = await resp.json();
-        if (data.success && data.counts) {
-          Object.entries(data.counts).forEach(([pid, count]) => {
-            const countSpans = contentContainer.querySelectorAll(`.para-comment-count[data-pid="${pid}"]`);
-            countSpans.forEach(span => {
-              if (count > 0) {
-                span.textContent = count > 99 ? '99+' : count;
-                const parentBtn = span.closest('.para-comment-trigger');
-                if (parentBtn) parentBtn.classList.add('has-count');
-              }
-            });
-          });
-        }
-      }
-    } catch (e) {
-      console.warn('[InlineComments] Erreur chargement des compteurs:', e);
-    }
+  window.initInlineParagraphComments = function() {
+    // In-line paragraph comments disabled by user request.
   };
 
-  // =========================================================================
-  //  2. OPEN PARAGRAPH COMMENTS DRAWER
-  // =========================================================================
-  window.openParagraphComments = function(bookKey, paragraphId, excerpt) {
-    currentActiveBookKey = bookKey;
-    currentActiveParagraphId = paragraphId;
-    currentActiveExcerpt = excerpt || '';
-
-    const drawer = document.getElementById('paraCommentsDrawer');
-    const backdrop = document.getElementById('paraCommentsBackdrop');
-    const quoteText = document.getElementById('paraQuoteText');
-    const list = document.getElementById('paraCommentsList');
-
-    if (!drawer || !backdrop) return;
-
-    if (quoteText) {
-      quoteText.textContent = currentActiveExcerpt;
-    }
-
-    // Update current user identity in post form
-    updateCommentFormUser();
-
-    // Show drawer
-    backdrop.classList.remove('hidden');
-    drawer.classList.remove('hidden');
-    drawer.classList.add('open');
-
-    // Load comments
-    loadCommentsForActiveParagraph();
+  window.openParagraphComments = function() {
+    // Legacy drawer fallback
   };
 
   window.closeParagraphComments = function() {
     const drawer = document.getElementById('paraCommentsDrawer');
     const backdrop = document.getElementById('paraCommentsBackdrop');
-    if (drawer) {
-      drawer.classList.remove('open');
-      drawer.classList.add('hidden');
-    }
-    if (backdrop) {
-      backdrop.classList.add('hidden');
-    }
+    if (drawer) drawer.classList.add('hidden');
+    if (backdrop) backdrop.classList.add('hidden');
   };
 
-  function updateCommentFormUser() {
-    const auth = window.authManager;
-    const authorAvatar = document.getElementById('commentAuthorAvatar');
-    const authorName = document.getElementById('commentAuthorName');
-
-    if (auth && auth.currentUser) {
-      const profile = auth.userProfile || {};
-      const pseudo = profile.display_name || (auth.currentUser.user_metadata?.display_name) || auth.currentUser.email.split('@')[0];
-      const avatar = profile.avatar_url || (auth.currentUser.user_metadata?.avatar_url) || '';
-
-      if (authorName) authorName.textContent = pseudo;
-      if (authorAvatar) {
-        if (avatar) {
-          authorAvatar.innerHTML = `<img src="${avatar}" alt="${pseudo}">`;
-        } else {
-          authorAvatar.innerHTML = '<i class="fa-solid fa-user"></i>';
-        }
-      }
-    } else {
-      if (authorName) authorName.textContent = 'Invité';
-      if (authorAvatar) authorAvatar.innerHTML = '<i class="fa-solid fa-user-ninja"></i>';
-    }
-  }
-
   // =========================================================================
-  //  3. LOAD & RENDER COMMENTS LIST
+  //  2. WEBTOON END-OF-VOLUME COMMENTS ENGINE
   // =========================================================================
-  async function loadCommentsForActiveParagraph() {
-    const list = document.getElementById('paraCommentsList');
-    if (!list) return;
+  window.renderVolumeCommentsSection = function(mountContainer, bookKey, options) {
+    if (!mountContainer || !bookKey) return;
+    options = options || {};
 
-    list.innerHTML = `
-      <div class="para-comments-loading">
-        <i class="fa-solid fa-circle-notch fa-spin"></i>
-        <span>Chargement des commentaires...</span>
-      </div>
+    const cleanBookKey = String(bookKey);
+    let commentsData = [];
+    let activeSort = 'top'; // 'top' or 'recent'
+    let isSubmitting = false;
+
+    // Render skeleton layout
+    mountContainer.innerHTML = `
+      <section class="vol-comments-section" id="volCommentsSection_${cleanBookKey}" aria-label="Commentaires du volume">
+        
+        <!-- Header with Webtoon tabs -->
+        <div class="vol-comments-header">
+          <div class="vol-comments-title-wrap">
+            <h3 class="vol-comments-title">
+              <i class="fa-solid fa-comments"></i>
+              <span>Espace Débat & Avis</span>
+            </h3>
+            <span class="vol-comments-count-pill" id="volCommentsCountBadge">Chargement...</span>
+          </div>
+
+          <div class="vol-comments-sort-tabs" role="tablist">
+            <button type="button" class="vol-sort-tab active" data-sort="top" title="Trier par votes">
+              <i class="fa-solid fa-fire"></i> <span>Top Avis</span>
+            </button>
+            <button type="button" class="vol-sort-tab" data-sort="recent" title="Trier par date">
+              <i class="fa-solid fa-clock"></i> <span>Plus Récents</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Submission Box -->
+        <div class="vol-comment-input-box" id="volCommentInputBox">
+          <div class="vol-input-user-row">
+            <div class="vol-user-avatar" id="volInputAvatar">
+              <i class="fa-solid fa-user"></i>
+            </div>
+            <div class="vol-user-identity" id="volUserIdentity">
+              <span class="vol-user-name" id="volInputUserName">Lecteur</span>
+              <input type="text" id="volGuestNameInput" class="vol-guest-name-input hidden" placeholder="Votre pseudo (ex: SoloFan)" maxlength="24">
+            </div>
+            <button type="button" id="volLoginPromptBtn" class="vol-login-link-btn hidden">
+              <i class="fa-solid fa-right-to-bracket"></i> Se connecter
+            </button>
+          </div>
+
+          <textarea id="volCommentText" class="vol-comment-textarea" placeholder="Qu'avez-vous pensé de ce tome ? Vos scènes préférées, théories ou mot pour les traducteurs..." rows="3" maxlength="1000"></textarea>
+
+          <div class="vol-input-footer">
+            <label class="vol-spoiler-toggle">
+              <input type="checkbox" id="volSpoilerCheck">
+              <span><i class="fa-solid fa-triangle-exclamation"></i> Contient un spoiler</span>
+            </label>
+            <button type="button" id="volSubmitCommentBtn" class="vol-submit-btn">
+              <i class="fa-solid fa-paper-plane"></i> <span>Publier</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Top Comments Spotlight (Webtoon Top 3) -->
+        <div class="vol-top-spotlight hidden" id="volTopSpotlight">
+          <div class="vol-top-spotlight-title">
+            <i class="fa-solid fa-crown" style="color:#f59e0b;"></i>
+            <span>Top Commentaires du Tome</span>
+          </div>
+          <div class="vol-top-spotlight-list" id="volTopSpotlightList"></div>
+        </div>
+
+        <!-- Full Comments List -->
+        <div class="vol-comments-feed" id="volCommentsFeed">
+          <div class="vol-feed-loading">
+            <i class="fa-solid fa-circle-notch fa-spin"></i>
+            <span>Chargement des avis de la communauté...</span>
+          </div>
+        </div>
+
+      </section>
     `;
 
-    try {
-      const resp = await fetch(`/api/comments/${encodeURIComponent(currentActiveBookKey)}/${encodeURIComponent(currentActiveParagraphId)}`);
-      if (!resp.ok) throw new Error('HTTP ' + resp.status);
-      const data = await resp.json();
+    const countBadge = mountContainer.querySelector('#volCommentsCountBadge');
+    const sortTabs = mountContainer.querySelectorAll('.vol-sort-tab');
+    const feed = mountContainer.querySelector('#volCommentsFeed');
+    const topSpotlight = mountContainer.querySelector('#volTopSpotlight');
+    const topSpotlightList = mountContainer.querySelector('#volTopSpotlightList');
+    const textarea = mountContainer.querySelector('#volCommentText');
+    const submitBtn = mountContainer.querySelector('#volSubmitCommentBtn');
+    const spoilerCheck = mountContainer.querySelector('#volSpoilerCheck');
+    const avatarEl = mountContainer.querySelector('#volInputAvatar');
+    const userNameEl = mountContainer.querySelector('#volInputUserName');
+    const guestInput = mountContainer.querySelector('#volGuestNameInput');
+    const loginPromptBtn = mountContainer.querySelector('#volLoginPromptBtn');
 
-      if (!data.success || !Array.isArray(data.comments) || data.comments.length === 0) {
-        list.innerHTML = `
-          <div class="para-comments-empty">
-            <div class="empty-icon"><i class="fa-regular fa-comment-dots"></i></div>
-            <h4>Aucun commentaire pour l'instant</h4>
-            <p>Soyez le premier lecteur à réagir à cette réplique ou cette illustration !</p>
+    // Update user display in form
+    function updateFormIdentity() {
+      const auth = window.authManager;
+      if (auth && auth.currentUser) {
+        const profile = auth.userProfile || {};
+        const pseudo = profile.display_name || (auth.currentUser.user_metadata?.display_name) || auth.currentUser.email.split('@')[0];
+        const avatar = profile.avatar_url || (auth.currentUser.user_metadata?.avatar_url) || '';
+
+        userNameEl.textContent = pseudo;
+        userNameEl.classList.remove('hidden');
+        guestInput.classList.add('hidden');
+        loginPromptBtn.classList.add('hidden');
+
+        if (avatar) {
+          avatarEl.innerHTML = `<img src="${avatar}" alt="${escapeHtml(pseudo)}">`;
+        } else {
+          avatarEl.innerHTML = '<i class="fa-solid fa-user"></i>';
+        }
+      } else {
+        // Guest mode
+        userNameEl.classList.add('hidden');
+        guestInput.classList.remove('hidden');
+        loginPromptBtn.classList.remove('hidden');
+        avatarEl.innerHTML = '<i class="fa-solid fa-user-ninja"></i>';
+
+        const savedGuest = localStorage.getItem('noveltrad_visitor_name');
+        if (savedGuest) guestInput.value = savedGuest;
+      }
+    }
+    updateFormIdentity();
+
+    if (loginPromptBtn) {
+      loginPromptBtn.addEventListener('click', () => {
+        if (typeof window.openAuthModal === 'function') {
+          window.openAuthModal('login');
+        } else {
+          const authBtn = document.getElementById('loginBtn') || document.getElementById('mobileAuthBtn');
+          if (authBtn) authBtn.click();
+        }
+      });
+    }
+
+    // Sort tabs handler
+    sortTabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        const s = tab.getAttribute('data-sort');
+        if (s === activeSort) return;
+        activeSort = s;
+        sortTabs.forEach(t => t.classList.toggle('active', t === tab));
+        renderCommentsList();
+      });
+    });
+
+    // Fetch comments from API
+    async function loadVolumeComments() {
+      try {
+        const resp = await fetch(`/api/comments/${encodeURIComponent(cleanBookKey)}/volume_end`);
+        if (!resp.ok) throw new Error('HTTP ' + resp.status);
+        const data = await resp.json();
+        commentsData = Array.isArray(data.comments) ? data.comments : [];
+        renderCommentsList();
+      } catch (err) {
+        console.warn('[VolumeComments] Erreur chargement:', err);
+        feed.innerHTML = `
+          <div class="vol-feed-empty">
+            <i class="fa-solid fa-circle-exclamation fa-2x" style="color:#ef4444;"></i>
+            <p>Impossible de charger les avis pour le moment.</p>
+          </div>
+        `;
+        countBadge.textContent = '0';
+      }
+    }
+
+    function renderCommentsList() {
+      const count = commentsData.length;
+      countBadge.textContent = count + (count > 1 ? ' avis' : ' avis');
+
+      // 1. TOP COMMENTS SPOTLIGHT (Style Webtoon)
+      // Comments with >= 1 like, sorted by likes desc, top 3
+      const likedComments = commentsData.filter(c => (c.likes || 0) > 0);
+      likedComments.sort((a, b) => (b.likes || 0) - (a.likes || 0));
+      const top3 = likedComments.slice(0, 3);
+
+      if (top3.length > 0 && activeSort === 'top') {
+        topSpotlight.classList.remove('hidden');
+        topSpotlightList.innerHTML = '';
+        top3.forEach((c, idx) => {
+          topSpotlightList.appendChild(buildCommentCard(c, true, idx + 1));
+        });
+      } else {
+        topSpotlight.classList.add('hidden');
+        topSpotlightList.innerHTML = '';
+      }
+
+      // 2. MAIN FEED
+      if (count === 0) {
+        feed.innerHTML = `
+          <div class="vol-feed-empty">
+            <div class="empty-icon-wrap"><i class="fa-regular fa-comment-dots"></i></div>
+            <h4>Soyez le premier à donner votre avis !</h4>
+            <p>Vous venez d'achever ce tome. Partagez votre ressenti, vos théories ou remerciez les traducteurs.</p>
           </div>
         `;
         return;
       }
 
-      list.innerHTML = '';
-      data.comments.forEach(c => {
-        const item = document.createElement('div');
-        item.className = 'para-comment-item';
-        item.id = 'cmt-' + c.id;
+      // Sort comments
+      let sorted = [...commentsData];
+      if (activeSort === 'top') {
+        sorted.sort((a, b) => (b.likes || 0) - (a.likes || 0) || new Date(b.created_at) - new Date(a.created_at));
+      } else {
+        sorted.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+      }
 
-        // Modération sobre & immersive : zéro badge public (style Reddit / Royal Road)
-        const roleBadge = '';
+      feed.innerHTML = '';
+      sorted.forEach(c => {
+        feed.appendChild(buildCommentCard(c, false));
+      });
 
-        const avatarMarkup = c.user_avatar
-          ? `<img src="${c.user_avatar}" alt="${c.user_name}" class="comment-item-avatar-img">`
-          : `<div class="comment-item-avatar-placeholder"><i class="fa-solid fa-user"></i></div>`;
+      bindFeedEvents();
+    }
 
-        const relTime = formatRelativeTime(c.created_at);
+    function buildCommentCard(c, isTopCard, rank) {
+      const card = document.createElement('div');
+      card.className = 'vol-comment-card' + (isTopCard ? ' is-top-rank' : '');
+      card.id = 'vcmt-' + c.id;
 
-        // Spoiler handling
-        let contentMarkup = '';
-        if (c.is_spoiler) {
-          contentMarkup = `
-            <div class="comment-spoiler-box" onclick="this.classList.toggle('revealed')">
-              <div class="spoiler-warning">
-                <i class="fa-solid fa-triangle-exclamation"></i> Contient un spoiler <span>(Cliquez pour révéler)</span>
-              </div>
-              <div class="spoiler-content">${escapeHtml(c.content)}</div>
+      const avatarMarkup = c.user_avatar
+        ? `<img src="${c.user_avatar}" alt="${escapeHtml(c.user_name)}" class="vol-card-avatar-img">`
+        : `<div class="vol-card-avatar-placeholder"><i class="fa-solid fa-user"></i></div>`;
+
+      const roleBadge = (c.user_role && c.user_role.toUpperCase() === 'ADMIN')
+        ? '<span class="vol-badge-role admin"><i class="fa-solid fa-shield-halved"></i> Traducteur</span>'
+        : (c.user_role && c.user_role.toUpperCase() === 'VIP')
+        ? '<span class="vol-badge-role vip"><i class="fa-solid fa-gem"></i> Mécène</span>'
+        : '';
+
+      const topBadgeMarkup = isTopCard
+        ? `<span class="vol-badge-top-rank"><i class="fa-solid fa-crown"></i> TOP ${rank || ''}</span>`
+        : '';
+
+      const relTime = formatRelativeTime(c.created_at);
+
+      // Spoiler wrapper
+      let contentMarkup = '';
+      if (c.is_spoiler) {
+        contentMarkup = `
+          <div class="vol-spoiler-box" onclick="this.classList.toggle('revealed')">
+            <div class="vol-spoiler-banner">
+              <i class="fa-solid fa-triangle-exclamation"></i>
+              <span>Attention Spoiler</span>
+              <em>(Cliquer pour révéler)</em>
             </div>
-          `;
-        } else {
-          contentMarkup = `<p class="comment-item-text">${escapeHtml(c.content)}</p>`;
-        }
-
-        const auth = window.authManager;
-        const currentUserId = auth && auth.currentUser ? auth.currentUser.id : null;
-        const isAdmin = auth && auth.isAdmin && auth.isAdmin();
-        const canDelete = isAdmin || (currentUserId && currentUserId === c.user_id);
-
-        item.innerHTML = `
-          <div class="comment-item-header">
-            <div class="comment-item-author">
-              <div class="comment-item-avatar">${avatarMarkup}</div>
-              <div class="comment-item-meta">
-                <div class="comment-author-name-row">
-                  <strong class="comment-author-name">${escapeHtml(c.user_name)}</strong>
-                  ${roleBadge}
-                </div>
-                <span class="comment-item-time">${relTime}</span>
-              </div>
-            </div>
-            ${canDelete ? `<button type="button" class="btn-delete-comment" data-cid="${c.id}" title="Supprimer"><i class="fa-regular fa-trash-can"></i></button>` : ''}
-          </div>
-          <div class="comment-item-body">
-            ${contentMarkup}
-          </div>
-          <div class="comment-item-footer">
-            <button type="button" class="btn-like-comment ${(c.likes > 0) ? 'has-likes' : ''}" data-cid="${c.id}">
-              <i class="fa-regular fa-heart"></i> <span class="like-count">${c.likes || 0}</span>
-            </button>
+            <div class="vol-spoiler-text">${escapeHtml(c.content)}</div>
           </div>
         `;
+      } else {
+        contentMarkup = `<p class="vol-comment-text">${escapeHtml(c.content)}</p>`;
+      }
 
-        list.appendChild(item);
-      });
+      const auth = window.authManager;
+      const currentUserId = auth && auth.currentUser ? auth.currentUser.id : null;
+      const isAdmin = auth && auth.isAdmin && auth.isAdmin();
+      const canDelete = isAdmin || (currentUserId && currentUserId === c.user_id);
 
-      // Bind like & delete actions
-      bindCommentActions(list);
+      card.innerHTML = `
+        <div class="vol-card-header">
+          <div class="vol-card-author-group">
+            <div class="vol-card-avatar">${avatarMarkup}</div>
+            <div class="vol-card-author-meta">
+              <div class="vol-card-name-row">
+                <strong class="vol-card-username">${escapeHtml(c.user_name)}</strong>
+                ${roleBadge}
+                ${topBadgeMarkup}
+              </div>
+              <span class="vol-card-time">${relTime}</span>
+            </div>
+          </div>
+          ${canDelete ? `<button type="button" class="vol-btn-delete" data-cid="${c.id}" title="Supprimer ce commentaire"><i class="fa-regular fa-trash-can"></i></button>` : ''}
+        </div>
 
-    } catch (e) {
-      console.error('[InlineComments] Erreur chargement:', e);
-      list.innerHTML = `
-        <div class="para-comments-empty" style="color: #ef4444;">
-          <i class="fa-solid fa-circle-exclamation fa-2x"></i>
-          <p>Impossible de charger les commentaires.</p>
+        <div class="vol-card-body">
+          ${contentMarkup}
+        </div>
+
+        <div class="vol-card-footer">
+          <button type="button" class="vol-btn-like ${(c.likes > 0) ? 'has-likes' : ''}" data-cid="${c.id}">
+            <i class="fa-regular fa-heart"></i>
+            <span class="vol-like-count">${c.likes || 0}</span>
+          </button>
         </div>
       `;
+
+      return card;
     }
-  }
 
-  function bindCommentActions(container) {
-    container.querySelectorAll('.btn-like-comment').forEach(btn => {
-      btn.addEventListener('click', async () => {
-        const cId = btn.getAttribute('data-cid');
-        if (!cId) return;
+    function bindFeedEvents() {
+      // Like button handlers
+      mountContainer.querySelectorAll('.vol-btn-like').forEach(btn => {
+        btn.onclick = async (e) => {
+          e.stopPropagation();
+          const cId = btn.getAttribute('data-cid');
+          if (!cId) return;
 
-        btn.disabled = true;
-        try {
-          const auth = window.authManager;
-          const token = auth ? await auth.getAccessToken() : null;
-          const headers = { 'Content-Type': 'application/json' };
-          if (token) headers['Authorization'] = 'Bearer ' + token;
+          btn.disabled = true;
+          try {
+            const auth = window.authManager;
+            const token = auth ? await auth.getAccessToken() : null;
+            const headers = { 'Content-Type': 'application/json' };
+            if (token) headers['Authorization'] = 'Bearer ' + token;
 
-          const res = await fetch(`/api/comments/${cId}/like`, {
-            method: 'POST',
-            headers
-          });
-          const data = await res.json();
-          if (data.success) {
-            const countEl = btn.querySelector('.like-count');
-            if (countEl) countEl.textContent = data.likes;
-            if (data.liked) {
-              btn.classList.add('liked');
-              btn.querySelector('i').className = 'fa-solid fa-heart';
-            } else {
-              btn.classList.remove('liked');
-              btn.querySelector('i').className = 'fa-regular fa-heart';
+            const res = await fetch(`/api/comments/${cId}/like`, {
+              method: 'POST',
+              headers
+            });
+            const data = await res.json();
+            if (data.success) {
+              // Update local state
+              const target = commentsData.find(x => x.id === cId);
+              if (target) {
+                target.likes = data.likes;
+                if (!Array.isArray(target.liked_by)) target.liked_by = [];
+                // Update UI count
+                mountContainer.querySelectorAll(`.vol-btn-like[data-cid="${cId}"]`).forEach(b => {
+                  const cnt = b.querySelector('.vol-like-count');
+                  if (cnt) cnt.textContent = data.likes;
+                  if (data.liked) {
+                    b.classList.add('liked');
+                    b.querySelector('i').className = 'fa-solid fa-heart';
+                  } else {
+                    b.classList.remove('liked');
+                    b.querySelector('i').className = 'fa-regular fa-heart';
+                  }
+                });
+              }
             }
+          } catch(err) {
+            console.warn('[Like error]', err);
+          } finally {
+            btn.disabled = false;
           }
-        } catch(e) {
-          console.warn('[Like Error]', e);
-        } finally {
-          btn.disabled = false;
-        }
+        };
       });
-    });
 
-    container.querySelectorAll('.btn-delete-comment').forEach(btn => {
-      btn.addEventListener('click', async () => {
-        const cId = btn.getAttribute('data-cid');
-        if (!cId) return;
-        if (!confirm('Supprimer ce commentaire ?')) return;
+      // Delete button handlers
+      mountContainer.querySelectorAll('.vol-btn-delete').forEach(btn => {
+        btn.onclick = async (e) => {
+          e.stopPropagation();
+          const cId = btn.getAttribute('data-cid');
+          if (!cId) return;
+          if (!confirm('Voulez-vous vraiment supprimer ce commentaire ?')) return;
 
-        try {
-          const auth = window.authManager;
-          const token = auth ? await auth.getAccessToken() : null;
-          const headers = {};
-          if (token) headers['Authorization'] = 'Bearer ' + token;
+          try {
+            const auth = window.authManager;
+            const token = auth ? await auth.getAccessToken() : null;
+            const headers = {};
+            if (token) headers['Authorization'] = 'Bearer ' + token;
 
-          const res = await fetch(`/api/comments/${cId}`, {
-            method: 'DELETE',
-            headers
-          });
-          const data = await res.json();
-          if (data.success) {
-            const item = document.getElementById('cmt-' + cId);
-            if (item) item.remove();
-            decrementBadgeCount(currentActiveParagraphId);
-          } else {
-            alert(data.error || 'Erreur lors de la suppression.');
+            const res = await fetch(`/api/comments/${cId}`, {
+              method: 'DELETE',
+              headers
+            });
+            const data = await res.json();
+            if (data.success) {
+              commentsData = commentsData.filter(x => x.id !== cId);
+              renderCommentsList();
+            } else {
+              alert(data.error || 'Erreur lors de la suppression.');
+            }
+          } catch(err) {
+            alert('Erreur: ' + err.message);
           }
-        } catch(e) {
-          alert('Erreur: ' + e.message);
+        };
+      });
+    }
+
+    // Submit new comment
+    submitBtn.addEventListener('click', async () => {
+      if (isSubmitting) return;
+      const text = textarea.value.trim();
+      if (text.length < 2) {
+        alert('Votre commentaire doit comporter au moins 2 caractères.');
+        textarea.focus();
+        return;
+      }
+
+      const visitorName = guestInput ? guestInput.value.trim() : '';
+      if (guestInput && !guestInput.classList.contains('hidden') && visitorName) {
+        localStorage.setItem('noveltrad_visitor_name', visitorName);
+      }
+
+      isSubmitting = true;
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Publication...';
+
+      try {
+        const auth = window.authManager;
+        const token = auth ? await auth.getAccessToken() : null;
+        const headers = { 'Content-Type': 'application/json' };
+        if (token) headers['Authorization'] = 'Bearer ' + token;
+
+        const payload = {
+          content: text,
+          is_spoiler: Boolean(spoilerCheck && spoilerCheck.checked),
+          visitor_name: visitorName,
+          excerpt: options.title || 'Fin du Volume'
+        };
+
+        const res = await fetch(`/api/comments/${encodeURIComponent(cleanBookKey)}/volume_end`, {
+          method: 'POST',
+          headers,
+          body: JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+        if (!res.ok || !data.success) {
+          throw new Error(data.error || 'Erreur lors de la publication.');
         }
-      });
-    });
-  }
 
-  function incrementBadgeCount(paragraphId) {
-    const badges = document.querySelectorAll(`.para-comment-count[data-pid="${paragraphId}"]`);
-    badges.forEach(b => {
-      const current = parseInt(b.textContent || '0', 10);
-      const next = isNaN(current) ? 1 : current + 1;
-      b.textContent = next;
-      const parentBtn = b.closest('.para-comment-trigger');
-      if (parentBtn) parentBtn.classList.add('has-count');
-    });
-  }
+        // Reset inputs
+        textarea.value = '';
+        if (spoilerCheck) spoilerCheck.checked = false;
 
-  function decrementBadgeCount(paragraphId) {
-    const badges = document.querySelectorAll(`.para-comment-count[data-pid="${paragraphId}"]`);
-    badges.forEach(b => {
-      const current = parseInt(b.textContent || '0', 10);
-      const next = Math.max(0, current - 1);
-      if (next > 0) {
-        b.textContent = next;
-      } else {
-        b.textContent = '';
-        const parentBtn = b.closest('.para-comment-trigger');
-        if (parentBtn) parentBtn.classList.remove('has-count');
+        // Insert new comment and re-render
+        commentsData.unshift(data.comment || data);
+        renderCommentsList();
+
+      } catch(err) {
+        alert(err.message || 'Impossible de publier le commentaire.');
+      } finally {
+        isSubmitting = false;
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> <span>Publier</span>';
       }
     });
-  }
 
-  // =========================================================================
-  //  4. SUBMIT NEW COMMENT
-  // =========================================================================
-  async function submitActiveComment() {
-    const input = document.getElementById('paraCommentInput');
-    const spoilerCheck = document.getElementById('paraCommentSpoilerCheck');
-    const submitBtn = document.getElementById('btnSubmitParaComment');
-
-    if (!input || !submitBtn) return;
-    const text = input.value.trim();
-    if (text.length < 2) {
-      alert('Veuillez écrire au moins 2 caractères.');
-      return;
-    }
-
-    submitBtn.disabled = true;
-    submitBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Publication...';
-
-    try {
-      const auth = window.authManager;
-      const token = auth ? await auth.getAccessToken() : null;
-      const headers = { 'Content-Type': 'application/json' };
-      if (token) headers['Authorization'] = 'Bearer ' + token;
-
-      const payload = {
-        content: text,
-        is_spoiler: Boolean(spoilerCheck && spoilerCheck.checked),
-        excerpt: String(currentActiveExcerpt || '').slice(0, 300)
-      };
-
-      const res = await fetch(`/api/comments/${encodeURIComponent(currentActiveBookKey)}/${encodeURIComponent(currentActiveParagraphId)}`, {
-        method: 'POST',
-        headers,
-        body: JSON.stringify(payload)
-      });
-
-      const data = await res.json();
-      if (!res.ok || !data.success) {
-        throw new Error(data.error || 'Erreur lors de la publication.');
-      }
-
-      input.value = '';
-      if (spoilerCheck) spoilerCheck.checked = false;
-      incrementBadgeCount(currentActiveParagraphId);
-
-      // Reload comments list
-      await loadCommentsForActiveParagraph();
-
-    } catch (err) {
-      alert(err.message || 'Erreur lors de la publication du commentaire.');
-    } finally {
-      submitBtn.disabled = false;
-      submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Publier';
-    }
-  }
-
-  // =========================================================================
-  //  5. DOM INIT & EVENT LISTENERS
-  // =========================================================================
-  document.addEventListener('DOMContentLoaded', () => {
-    const closeBtn = document.getElementById('paraCommentsCloseBtn');
-    const backdrop = document.getElementById('paraCommentsBackdrop');
-    const submitBtn = document.getElementById('btnSubmitParaComment');
-    const textarea = document.getElementById('paraCommentInput');
-
-    if (closeBtn) closeBtn.addEventListener('click', window.closeParagraphComments);
-    if (backdrop) backdrop.addEventListener('click', window.closeParagraphComments);
-    if (submitBtn) submitBtn.addEventListener('click', submitActiveComment);
-
-    if (textarea) {
-      textarea.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
-          e.preventDefault();
-          submitActiveComment();
-        }
-      });
-    }
-
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') {
-        window.closeParagraphComments();
-      }
-    });
-  });
+    // Initial load
+    loadVolumeComments();
+  };
 
 })();

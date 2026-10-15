@@ -554,6 +554,89 @@
     }
   }
 
+  
+  // ==========================================================================
+  //  END OF VOLUME COMPLETION & WEBTOON COMMENTS
+  // ==========================================================================
+  function renderStreamVolumeCompletionAndComments(body, manifest, bookRef) {
+    if (!body || !manifest) return;
+    if (document.getElementById("streamVolumeCompletionWrap")) return; // Avoid duplicate
+
+    const wrap = document.createElement("div");
+    wrap.id = "streamVolumeCompletionWrap";
+    wrap.className = "stream-volume-completion-wrap";
+
+    // Detect if next volume is available
+    let nextVolumeBook = null;
+    try {
+      const sId = bookRef ? (bookRef.seriesId || bookRef.series_id) : null;
+      const currentVolNum = bookRef ? (bookRef.volumeNumber || bookRef.volume_number) : null;
+      if (sId && currentVolNum && typeof allBooks !== 'undefined' && Array.isArray(allBooks)) {
+        nextVolumeBook = allBooks.find(b => {
+          const bSeries = b.seriesId || b.series_id;
+          const bVol = b.volumeNumber || b.volume_number;
+          return bSeries === sId && bVol === (currentVolNum + 1);
+        });
+      }
+      if (!nextVolumeBook && typeof currentSeries !== 'undefined' && currentSeries && Array.isArray(currentSeries.volumes)) {
+        const nextVol = currentSeries.volumes.find(v => (v.volume_number || v.number) === (currentVolNum + 1));
+        if (nextVol) {
+          nextVolumeBook = {
+            id: nextVol.id || (currentSeries.id + '_vol_' + (currentVolNum + 1)),
+            title: currentSeries.title + ' - ' + (nextVol.title || ('Volume ' + (currentVolNum + 1))),
+            seriesId: currentSeries.id,
+            volumeNumber: currentVolNum + 1,
+            format: (nextVol.format || nextVol.file_type || '').toLowerCase() === 'pdf' ? 'pdf' : 'epub',
+            file_path: nextVol.file_path || nextVol.filePath,
+            cover: nextVol.cover || nextVol.cover_url || currentSeries.cover
+          };
+        }
+      }
+    } catch(e) {}
+
+    window._nextVolumeInReader = nextVolumeBook;
+
+    wrap.innerHTML = `
+      <div class="stream-book-completed-card">
+        <div class="completed-icon"><i class="fa-solid fa-trophy"></i></div>
+        <h3>Fin du Volume</h3>
+        <p>Vous avez atteint la fin de ce volume. Félicitations pour votre lecture !</p>
+        
+        <div class="completed-actions-row">
+          ${nextVolumeBook ? `
+            <button type="button" class="btn-completed-action primary" onclick="if (window._nextVolumeInReader && typeof window.openBookReader === 'function') window.openBookReader(window._nextVolumeInReader);">
+              <i class="fa-solid fa-book-open"></i> <span>Volume Suivant</span>
+            </button>
+          ` : ''}
+          <button type="button" class="btn-completed-action secondary" onclick="if (typeof window.closePdfReader === 'function') window.closePdfReader();">
+            <i class="fa-solid fa-arrow-left"></i> <span>Fiche du Roman</span>
+          </button>
+          <button type="button" class="btn-completed-action ghost" onclick="const sc = document.getElementById('streamChapterContainer'); if (sc) sc.scrollTo({ top: 0, behavior: 'smooth' });">
+            <i class="fa-solid fa-arrow-up"></i> <span>Haut du volume</span>
+          </button>
+        </div>
+      </div>
+
+      <div id="streamVolumeCommentsMount" class="stream-volume-comments-mount"></div>
+    `;
+
+    body.appendChild(wrap);
+
+    // Mount Webtoon Comments
+    const fileKey = manifest.fileKey || (bookRef && (bookRef.fileKey || bookRef.id)) || 'vol_' + Date.now();
+    if (typeof window.renderVolumeCommentsSection === 'function') {
+      const mount = document.getElementById("streamVolumeCommentsMount");
+      if (mount) {
+        window.renderVolumeCommentsSection(mount, fileKey, {
+          title: bookRef ? bookRef.title : (manifest.title || 'Volume'),
+          seriesId: bookRef ? (bookRef.seriesId || bookRef.series_id) : null,
+          volumeNumber: bookRef ? (bookRef.volumeNumber || bookRef.volume_number) : 1,
+          totalChapters: manifest.totalChapters
+        });
+      }
+    }
+  }
+
   async function appendNextStreamChapter() {
     if (_isAppendingStreamChapter || !window._streamVolumeManifest) return;
     const manifest = window._streamVolumeManifest;
@@ -711,6 +794,13 @@
 
       // Update Toolbar & Header
       updateStreamHeaderAndProgress(num, total, manifest);
+
+      if (num >= total) {
+        const stBody = document.getElementById("streamChapterBody");
+        if (stBody) {
+          renderStreamVolumeCompletionAndComments(stBody, manifest, currentBookRef);
+        }
+      }
 
       // IntersectionObserver for active chapter as reader scrolls vertically
       _chapterIntersectionObserver = new IntersectionObserver((entries) => {
