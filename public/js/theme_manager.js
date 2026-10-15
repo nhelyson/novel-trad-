@@ -41,13 +41,23 @@
   }
 
   function updateThemeUI(theme) {
-    // 1. Mettre à jour les sélecteurs <select>
+    const isLight = (theme === 'light');
+
+    // 1. Bouton bascule rapide Navbar (Desktop & Mobile)
+    const toggleBtns = document.querySelectorAll('#navThemeToggleBtn, .nav-theme-toggle');
+    toggleBtns.forEach(btn => {
+      btn.innerHTML = isLight ? '<i class="fa-solid fa-moon"></i>' : '<i class="fa-solid fa-sun"></i>';
+      btn.title = isLight ? 'Passer en Mode Sombre' : 'Passer en Mode Clair';
+      btn.setAttribute('aria-label', isLight ? 'Passer en Mode Sombre' : 'Passer en Mode Clair');
+    });
+
+    // 2. Sélecteurs <select> standard
     const selects = document.querySelectorAll('#accountSettingTheme, .app-theme-select');
     selects.forEach(sel => {
       if (sel) sel.value = theme;
     });
 
-    // 2. Mettre à jour les cartes interactives (Dual Cards)
+    // 3. Cartes interactives (Dual Cards)
     const cards = document.querySelectorAll('.theme-mode-card, .theme-pill-card');
     cards.forEach(card => {
       const cardTheme = card.getAttribute('data-theme');
@@ -66,8 +76,20 @@
   function initDOM() {
     updateThemeUI(getStoredTheme());
 
-    // Clic sur les cartes de mode (Dark / Light)
+    // Clic sur le bouton bascule rapide Navbar (☀️ / 🌙)
     document.addEventListener('click', function(e) {
+      const toggleBtn = e.target.closest('#navThemeToggleBtn, .nav-theme-toggle');
+      if (toggleBtn) {
+        const current = getStoredTheme();
+        const next = (current === 'light') ? 'dark' : 'light';
+        applyTheme(next, true);
+        if (window.authManager && typeof window.authManager.showToast === 'function') {
+          window.authManager.showToast(next === 'light' ? 'Mode Clair activé' : 'Mode Sombre Cosmique activé');
+        }
+        return;
+      }
+
+      // Clic sur les cartes de mode (Dark / Light)
       const card = e.target.closest('.theme-mode-card, .theme-pill-card');
       if (card) {
         const theme = card.getAttribute('data-theme');

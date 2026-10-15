@@ -763,3 +763,63 @@ html.theme-light .footer-link:hover {
   border-color: #e11d48 !important;
   box-shadow: 0 0 0 3px rgba(225, 29, 72, 0.25), 0 6px 20px rgba(225, 29, 72, 0.12) !important;
 }
+
+/* --------------------------------------------------------------------------
+   12. BOUTON BASCULE RAPIDE NAVBAR (MOBILE & DESKTOP)
+   -------------------------------------------------------------------------- */
+.nav-theme-toggle {
+  display: inline-flex !important;
+  width: 38px !important;
+  height: 38px !important;
+  border-radius: 50% !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  color: #fbbf24 !important;
+  font-size: 15px !important;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  flex-shrink: 0 !important;
+}
+
+.nav-theme-toggle:hover {
+  background: rgba(255, 255, 255, 0.16) !important;
+  transform: scale(1.08) rotate(15deg) !important;
+  color: #fde047 !important;
+}
+
+html.theme-light .nav-theme-toggle {
+  background: #f1f5f9 !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+html.theme-light .nav-theme-toggle:hover {
+  background: #e2e8f0 !important;
+  color: #e11d48 !important;
+}
+
+/* Tiroir Mobile : Ajustement cartes de thèmes */
+.nav-mobile-theme-group .theme-picker-dual {
+  margin-top: 8px;
+}
+
+.nav-mobile-theme-group .theme-mode-card {
+  padding: 10px 12px !important;
+  gap: 10px !important;
+}
+
+.nav-mobile-theme-group .theme-mode-icon {
+  width: 34px !important;
+  height: 34px !important;
+  font-size: 16px !important;
+}
+
+.nav-mobile-theme-group .theme-mode-title {
+  font-size: 13.5px !important;
+}
+
+.nav-mobile-theme-group .theme-mode-desc {
+  font-size: 11px !important;
+}

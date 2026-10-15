@@ -228,6 +228,10 @@
 
           <!-- Actions de droite : Loupe mobile, Auth pill, Hamburger -->
           <div class="topnav-actions-wrapper">
+                        <!-- Bouton Rapide Changement de Thème (Jour / Nuit) -->
+            <button id="navThemeToggleBtn" class="nav-theme-toggle" aria-label="Changer de thème" title="Bascule Mode Clair / Sombre">
+              <i class="fa-solid fa-sun"></i>
+            </button>
             <button id="navMobileSearchToggle" class="nav-icon-btn nav-mobile-search-toggle" aria-label="Recherche">
               <i class="fa-solid fa-magnifying-glass"></i>
             </button>
@@ -323,6 +327,27 @@
           <div class="nav-mobile-search-box">
             <i class="fa-solid fa-magnifying-glass"></i>
             <input type="search" id="navMobileSearchInput" placeholder="Rechercher par titre, auteur, genre..." autocomplete="off">
+          </div>
+
+          <!-- Groupe Thème & Apparence Mobile -->
+          <div class="nav-mobile-group nav-mobile-theme-group">
+            <div class="nav-mobile-label"><i class="fa-solid fa-palette"></i> Apparence & Thème</div>
+            <div class="theme-picker-dual">
+              <div class="theme-mode-card mode-dark active" data-theme="dark" title="Mode Sombre">
+                <div class="theme-mode-icon"><i class="fa-solid fa-moon"></i></div>
+                <div class="theme-mode-text">
+                  <span class="theme-mode-title">Sombre</span>
+                  <span class="theme-mode-desc">Cosmique</span>
+                </div>
+              </div>
+              <div class="theme-mode-card mode-light" data-theme="light" title="Mode Clair">
+                <div class="theme-mode-icon"><i class="fa-solid fa-sun"></i></div>
+                <div class="theme-mode-text">
+                  <span class="theme-mode-title">Clair</span>
+                  <span class="theme-mode-desc">Épuré</span>
+                </div>
+              </div>
+            </div>
           </div>
 
           <div class="nav-mobile-group">
