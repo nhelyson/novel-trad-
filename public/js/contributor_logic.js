@@ -1034,6 +1034,85 @@ class ContributorManager {
     this.openVolumesModal(novelId);
   }
 
+  updateUnitToggleButtons(unitType) {
+    if (this.btnUnitModeVolume) {
+      this.btnUnitModeVolume.classList.toggle('active', unitType === 'volume');
+    }
+    if (this.btnUnitModeChapter) {
+      this.btnUnitModeChapter.classList.toggle('active', unitType === 'chapter');
+    }
+  }
+
+  updateUnitTypeLabels(unitType) {
+    const isChap = unitType === 'chapter';
+
+    if (this.volFormColTitle) {
+      this.volFormColTitle.textContent = isChap ? 'Importer un Chapitre' : 'Importer un Tome';
+    }
+    if (this.volFormColDesc) {
+      this.volFormColDesc.textContent = isChap ? 'Téléversez le fichier de votre chapitre et renseignez ses détails.' : 'Téléversez le fichier de votre tome et renseignez ses détails.';
+    }
+    if (this.volDropzoneMainPrompt) {
+      this.volDropzoneMainPrompt.textContent = isChap ? 'Glissez-déposez le fichier du chapitre (.epub ou .pdf)' : 'Glissez-déposez le fichier du tome (.epub ou .pdf)';
+    }
+    if (this.volTypeSelectLabel) {
+      this.volTypeSelectLabel.textContent = isChap ? 'Type de Récit / Chapitre' : 'Type de Récit / Volume';
+    }
+    if (this.volNumberInputLabel) {
+      this.volNumberInputLabel.textContent = isChap ? 'Numéro du Chapitre *' : 'Numéro du Tome *';
+    }
+    if (this.inpVolNumber) {
+      this.inpVolNumber.placeholder = isChap ? '1' : '1';
+    }
+    if (this.volTitleInputLabel) {
+      this.volTitleInputLabel.textContent = isChap ? 'Titre du Chapitre (Optionnel)' : 'Titre du Tome (Optionnel)';
+    }
+    if (this.inpVolTitle) {
+      this.inpVolTitle.placeholder = isChap ? "Ex: Chapitre 1 - Le commencement..." : "Ex: L'Éveil des Ombres, Tome 1...";
+    }
+    if (this.btnSubmitVolumeText) {
+      this.btnSubmitVolumeText.textContent = isChap ? 'Téléverser & Ajouter ce Chapitre' : 'Téléverser & Ajouter ce Tome';
+    }
+    if (this.volListColHeader) {
+      this.volListColHeader.textContent = isChap ? 'Chapitres de la Série' : 'Tomes de la Série';
+    }
+  }
+
+  async switchUnitType(unitType, saveToBackend = false) {
+    this.currentUnitType = unitType;
+    this.updateUnitToggleButtons(unitType);
+    this.updateUnitTypeLabels(unitType);
+
+    if (this.selectedNovelForVolumes) {
+      this.selectedNovelForVolumes.unit_type = unitType;
+      
+      // Sync in local lists
+      const list = this.novels || this.myNovels || [];
+      const item = list.find(n => n.id === this.selectedNovelForVolumes.id);
+      if (item) item.unit_type = unitType;
+    }
+
+    this.renderVolumesListModal();
+
+    if (saveToBackend && this.selectedNovelForVolumes) {
+      try {
+        const headers = await this.getHeaders();
+        const res = await fetch(`/api/contributor/novels/${this.selectedNovelForVolumes.id}`, {
+          method: 'PUT',
+          headers: { ...headers, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ unit_type: unitType })
+        });
+        const data = await res.json();
+        if (data && data.success) {
+          console.log('[ContributorManager] Format de découpage enregistré sur le serveur:', unitType);
+        }
+      } catch (err) {
+        console.warn('[ContributorManager] Erreur synchronisation unit_type:', err);
+      }
+    }
+  }
+
+
   renderVolumesListModal() {
     if (!this.volListContainer || !this.selectedNovelForVolumes) return;
     const volumes = this.selectedNovelForVolumes.volumes || [];
