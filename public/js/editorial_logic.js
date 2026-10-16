@@ -362,7 +362,7 @@
   /**
    * Rendu du ruban horizontal de sélection des jours (Mobile & Agenda)
    */
-  function renderDayStrip(events) {
+  function renderDayStrip(events = []) {
     const stripEl = document.getElementById('calDayStrip');
     if (!stripEl) return;
     stripEl.innerHTML = '';
@@ -377,7 +377,8 @@
 
     // Jours contenant des parutions dans le mois
     const daysWithEvents = new Set();
-    events.forEach(ev => {
+    const eventList = Array.isArray(events) ? events : [];
+    eventList.forEach(ev => {
       if (ev.date && ev.date.getFullYear() === year && ev.date.getMonth() === month) {
         daysWithEvents.add(ev.date.getDate());
       }
@@ -455,9 +456,9 @@
   function renderCalendar() {
     updateHeaderUI();
     updateFilterCounts();
-    renderDayStrip(filteredEvents);
 
     const filteredEvents = getFilteredEventsForMonth();
+    renderDayStrip(filteredEvents);
     const emptyStateEl = document.getElementById('calendarEmptyState');
     const gridWrapperEl = document.getElementById('calendarGridWrapper');
     const agendaWrapperEl = document.getElementById('calendarAgendaWrapper');
