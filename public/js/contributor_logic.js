@@ -90,6 +90,17 @@ class ContributorManager {
     this.inpVolTitle = document.getElementById('contribVolTitle');
     this.inpVolReleaseDate = document.getElementById('contribVolReleaseDate');
     this.volListContainer = document.getElementById('contribVolListContainer');
+    this.btnUnitModeVolume = document.getElementById('btnUnitModeVolume');
+    this.btnUnitModeChapter = document.getElementById('btnUnitModeChapter');
+    this.inpNovelUnitType = document.getElementById('contribNovelUnitType');
+    this.volFormColTitle = document.getElementById('volFormColTitle');
+    this.volFormColDesc = document.getElementById('volFormColDesc');
+    this.volDropzoneMainPrompt = document.getElementById('volDropzoneMainPrompt');
+    this.volTypeSelectLabel = document.getElementById('volTypeSelectLabel');
+    this.volNumberInputLabel = document.getElementById('volNumberInputLabel');
+    this.volTitleInputLabel = document.getElementById('volTitleInputLabel');
+    this.btnSubmitVolumeText = document.getElementById('btnSubmitVolumeText');
+    this.volListColHeader = document.getElementById('volListColHeader');
 
     this.searchInp = document.getElementById('contribSearchInput');
     this.statusFilter = document.getElementById('contribStatusFilter');
@@ -145,6 +156,13 @@ class ContributorManager {
 
     if (this.volForm) {
       this.volForm.addEventListener('submit', (e) => this.handleVolumeSubmit(e));
+    }
+
+    if (this.btnUnitModeVolume) {
+      this.btnUnitModeVolume.addEventListener('click', () => this.switchUnitType('volume', true));
+    }
+    if (this.btnUnitModeChapter) {
+      this.btnUnitModeChapter.addEventListener('click', () => this.switchUnitType('chapter', true));
     }
 
     const btnCloseVolModal = document.getElementById('btnCloseContribVolModal');
@@ -228,7 +246,7 @@ class ContributorManager {
       }
 
       // Auto-extract volume number from filename if possible
-      const match = file.name.match(/(?:vol(?:ume)?|tome|t)[._\s-]*(\d+)/i);
+      const match = file.name.match(/(?:vol(?:ume)?|tome|t|chap(?:itre)?|ch|c)[._\s-]*(\d+(?:\.\d+)?)/i);
       if (match && match[1] && this.inpVolNumber) {
         this.inpVolNumber.value = parseInt(match[1], 10);
       }
@@ -770,6 +788,7 @@ class ContributorManager {
     if (candContainer) candContainer.classList.add('hidden');
     if (this.inpApiSearch) this.inpApiSearch.value = '';
 
+    if (this.inpNovelUnitType) this.inpNovelUnitType.value = 'volume';
     this.syncCoverUI('');
     this.switchMode('auto');
     this.showView('form');
@@ -792,6 +811,7 @@ class ContributorManager {
     if (this.inpCoverUrl) this.inpCoverUrl.value = novel.cover || novel.cover_url || '';
     this.syncCoverUI(novel.cover || novel.cover_url || '');
     if (this.inpStatus) this.inpStatus.value = novel.publication_status || 'DRAFT';
+    if (this.inpNovelUnitType) this.inpNovelUnitType.value = novel.unit_type || 'volume';
 
     this.selectedGenres.clear();
     const gList = Array.isArray(novel.genres_fr) ? novel.genres_fr : (Array.isArray(novel.genres) ? novel.genres : (novel.genres || '').split(',').map(s => s.trim()));
@@ -847,7 +867,8 @@ class ContributorManager {
       cover: this.inpCoverUrl?.value.trim() || '',
       genres: Array.from(this.selectedGenres),
       tags: (this.inpTags?.value || '').split(',').map(s => s.trim()).filter(Boolean),
-      publication_status: this.inpStatus?.value || 'DRAFT'
+      publication_status: this.inpStatus?.value || 'DRAFT',
+      unit_type: this.inpNovelUnitType?.value || 'volume'
     };
 
     try {
@@ -962,6 +983,9 @@ class ContributorManager {
     if (!novel) return;
 
     this.selectedNovelForVolumes = novel;
+    this.currentUnitType = (novel.unit_type === 'chapter') ? 'chapter' : 'volume';
+    this.updateUnitTypeLabels(this.currentUnitType);
+    this.updateUnitToggleButtons(this.currentUnitType);
     
     // Update headers and novel banner
     const titleEl = document.getElementById('volSectionNovelTitle') || document.getElementById('volModalNovelTitle');
@@ -1013,18 +1037,20 @@ class ContributorManager {
   renderVolumesListModal() {
     if (!this.volListContainer || !this.selectedNovelForVolumes) return;
     const volumes = this.selectedNovelForVolumes.volumes || [];
+    const isChap = this.currentUnitType === 'chapter';
+    const unitWord = isChap ? 'chapitre' : 'tome';
 
     const badgeCount = document.getElementById('volModalCountBadge');
-    if (badgeCount) badgeCount.textContent = `${volumes.length} tome${volumes.length > 1 ? 's' : ''}`;
+    if (badgeCount) badgeCount.textContent = `${volumes.length} ${unitWord}${volumes.length > 1 ? 's' : ''}`;
     const badgeSection = document.getElementById('volSectionCountBadge');
-    if (badgeSection) badgeSection.textContent = `${volumes.length} tome${volumes.length > 1 ? 's' : ''}`;
+    if (badgeSection) badgeSection.textContent = `${volumes.length} ${unitWord}${volumes.length > 1 ? 's' : ''}`;
 
     if (volumes.length === 0) {
       this.volListContainer.innerHTML = `
         <div class="vol-empty-state">
           <div class="vol-empty-icon"><i class="fa-solid fa-box-open"></i></div>
-          <h5>Aucun tome téléversé</h5>
-          <p>Utilisez le panneau de gauche pour ajouter le premier tome (.epub ou .pdf) de ce roman.</p>
+          <h5>Aucun ${unitWord} téléversé</h5>
+          <p>Utilisez le panneau de gauche pour ajouter le premier ${unitWord} (.epub ou .pdf) de ce roman.</p>
         </div>
       `;
       return;
@@ -1036,12 +1062,24 @@ class ContributorManager {
       const fileSize = v.file_size ? `${(v.file_size / (1024 * 1024)).toFixed(1)} Mo` : '';
       const releaseDate = v.release_date ? new Date(v.release_date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
       
+      let displayTitle = v.title;
+      if (!displayTitle) {
+        displayTitle = isChap ? `Chapitre ${volNum}` : `Volume ${volNum}`;
+      } else if (isChap && /^volume\s+/i.test(displayTitle.trim())) {
+        displayTitle = displayTitle.trim().replace(/^volume\s+/i, 'Chapitre ');
+      }
+
+      const badgeLabel = isChap ? `CHAPITRE ${String(volNum).padStart(2, '0')}` : `TOME ${String(volNum).padStart(2, '0')}`;
+      const badgeClass = isChap ? 'vol-badge-number chapter-badge' : 'vol-badge-number';
+      const fileDownloadName = v.file_name || (isChap ? `Chapitre_${volNum}.${fileType.toLowerCase()}` : `Tome_${volNum}.${fileType.toLowerCase()}`);
+      const deleteTitle = isChap ? 'Supprimer ce chapitre' : 'Supprimer ce tome';
+
       return `
         <div class="vol-card-item">
           <div class="vol-card-main">
-            <div class="vol-badge-number">TOME ${String(volNum).padStart(2, '0')}</div>
+            <div class="${badgeClass}">${badgeLabel}</div>
             <div class="vol-info-wrap">
-              <div class="vol-title-text">${v.title || `Volume ${volNum}`}</div>
+              <div class="vol-title-text">${displayTitle}</div>
               <div class="vol-meta-tags">
                 <span class="vol-pill-type ${fileType.toLowerCase()}"><i class="fa-solid ${fileType === 'PDF' ? 'fa-file-pdf' : 'fa-book'}"></i> ${fileType}</span>
                 ${fileSize ? `<span class="vol-meta-item"><i class="fa-solid fa-hard-drive"></i> ${fileSize}</span>` : ''}
@@ -1051,11 +1089,11 @@ class ContributorManager {
           </div>
           <div class="vol-card-actions">
             ${v.file_path ? `
-              <a href="${v.file_path}" download="${v.file_name || `Tome_${volNum}.${fileType.toLowerCase()}`}" class="btn-vol-download" title="Télécharger le fichier">
+              <a href="${v.file_path}" download="${fileDownloadName}" class="btn-vol-download" title="Télécharger le fichier">
                 <i class="fa-solid fa-download"></i>
               </a>
             ` : ''}
-            <button type="button" class="btn-vol-delete" onclick="window.contributorManager.handleDeleteVolume('${this.selectedNovelForVolumes.id}', ${volNum})" title="Supprimer ce tome">
+            <button type="button" class="btn-vol-delete" onclick="window.contributorManager.handleDeleteVolume('${this.selectedNovelForVolumes.id}', ${volNum})" title="${deleteTitle}">
               <i class="fa-solid fa-trash-can"></i>
             </button>
           </div>
@@ -1065,7 +1103,9 @@ class ContributorManager {
   }
 
   async handleDeleteVolume(novelId, volNum) {
-    if (!confirm(`Êtes-vous sûr de vouloir supprimer définitivement le Tome ${volNum} ?`)) {
+    const isChap = this.currentUnitType === 'chapter';
+    const unitWord = isChap ? 'Chapitre' : 'Tome';
+    if (!confirm(`Êtes-vous sûr de vouloir supprimer définitivement le ${unitWord} ${volNum} ?`)) {
       return;
     }
 
@@ -1101,7 +1141,9 @@ class ContributorManager {
     const volume_number = parseFloat(this.inpVolNumber?.value || '1');
     const volume_type = document.getElementById('contribVolType')?.value || 'main';
     const volume_group = document.getElementById('contribVolGroup')?.value.trim() || '';
-    const title = this.inpVolTitle?.value.trim() || (volume_type === 'spinoff' ? (volume_group ? `${volume_group} - Tome ${volume_number}` : `Spin-off Tome ${volume_number}`) : `Volume ${volume_number}`);
+    const isChap = this.currentUnitType === 'chapter';
+    const defaultPrefix = isChap ? 'Chapitre' : 'Volume';
+    const title = this.inpVolTitle?.value.trim() || (volume_type === 'spinoff' ? (volume_group ? `${volume_group} - ${defaultPrefix} ${volume_number}` : `Spin-off ${defaultPrefix} ${volume_number}`) : `${defaultPrefix} ${volume_number}`);
     const release_date = document.getElementById('contribVolReleaseDate')?.value;
 
     const btnSubmit = document.getElementById('btnSubmitVolume');
@@ -1168,7 +1210,7 @@ class ContributorManager {
 
         if (btnSubmit) {
           btnSubmit.disabled = false;
-          btnSubmit.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> Téléverser & Ajouter ce Tome';
+          btnSubmit.innerHTML = isChap ? '<i class="fa-solid fa-cloud-arrow-up"></i> Téléverser & Ajouter ce Chapitre' : '<i class="fa-solid fa-cloud-arrow-up"></i> Téléverser & Ajouter ce Tome';
         }
         if (progress) progress.classList.add('hidden');
 

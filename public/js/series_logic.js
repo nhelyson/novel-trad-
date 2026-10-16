@@ -208,8 +208,10 @@ async function renderSeries(series) {
 
     var elVolCount = document.getElementById('seriesVolCount');
     if (elVolCount) {
+      var isChap = series.unit_type === 'chapter';
       var vCount = (series.volumes && series.volumes.length) || (series.volume_count) || 1;
-      elVolCount.textContent = vCount + ' Volume' + (vCount > 1 ? 's' : '');
+      var unitText = isChap ? 'Chapitre' : 'Volume';
+      elVolCount.textContent = vCount + ' ' + unitText + (vCount > 1 ? 's' : '');
     }
 
     // --- Direction C : Sous-titre éditorial alternatif (Romaji / Japonais / Original) ---
@@ -442,7 +444,7 @@ async function renderSeries(series) {
 
             volumesSection.innerHTML = `
                 <div class="series-volumes-header">
-                    <h3>Volumes disponibles (${allVols.length})</h3>
+                    <h3>${series.unit_type === 'chapter' ? 'Chapitres disponibles' : 'Volumes disponibles'} (${allVols.length})</h3>
                     ${tabsHtml}
                 </div>
                 <div class="series-volumes-grid" id="seriesVolumesGrid"></div>
@@ -505,7 +507,11 @@ async function renderSeries(series) {
                         ? '<div class="volume-progress-bar"><div class="volume-progress-fill" style="width:' + progressPct + '%;"></div></div>'
                         : '';
 
-                    var labelText = vol.title || ('Volume ' + volNum);
+                    var isChapMode = series.unit_type === 'chapter';
+                    var labelText = vol.title || ((isChapMode ? 'Chapitre ' : 'Volume ') + volNum);
+                    if (isChapMode && labelText.toLowerCase().startsWith('volume ')) {
+                        labelText = labelText.replace(/^volume\s+/i, 'Chapitre ');
+                    }
 
                     var volType = (vol.volume_type || (String(volNum).includes('.') ? 'side_story' : 'main')).toLowerCase();
                     volCard.className = 'volume-card modern-vol-card';

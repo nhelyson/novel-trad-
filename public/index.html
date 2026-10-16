@@ -92,8 +92,8 @@
       } catch(e) {}
     })();
   </script>
-  <link rel="stylesheet" href="css/style.css?v=1792171648283">
-  <link rel="stylesheet" href="css/home_lnori.css?v=1792171648283">
+  <link rel="stylesheet" href="css/style.css?v=1792176318729">
+  <link rel="stylesheet" href="css/home_lnori.css?v=1792176318729">
   <link rel="stylesheet" href="css/app_themes.css?v=1792030000000">
   <!-- Coupe-circuit de production pour console propre & anti-fuite -->
   <script>
@@ -791,14 +791,14 @@
               </div>
 
               <div id="calendarMonthlyGrid" class="cal-monthly-grid" role="grid" aria-label="Grille mensuelle des parutions">
-                <!-- Cellules des 7 jours injectées par editorial_logic.js?v=1792171648283 -->
+                <!-- Cellules des 7 jours injectées par editorial_logic.js?v=1792176318729 -->
               </div>
             </div>
 
             <!-- VUE AGENDA / LISTE (Mobile & Bascule utilisateur) -->
             <div id="calendarAgendaWrapper" class="cal-agenda-wrapper hidden">
               <div id="calendarAgendaList" class="cal-agenda-list">
-                <!-- Événements groupés par date injectés par editorial_logic.js?v=1792171648283 -->
+                <!-- Événements groupés par date injectés par editorial_logic.js?v=1792176318729 -->
               </div>
             </div>
 
@@ -820,7 +820,7 @@
           <div class="modal-content cal-event-modal-content">
             <button type="button" id="calEventModalClose" class="modal-close-btn" aria-label="Fermer">&times;</button>
             <div id="calEventModalBody" class="cal-event-modal-body">
-              <!-- Injecté dynamiquement par editorial_logic.js?v=1792171648283 -->
+              <!-- Injecté dynamiquement par editorial_logic.js?v=1792176318729 -->
             </div>
           </div>
         </div>
@@ -1715,6 +1715,13 @@
                     </div>
                   </div>
                   <div class="form-group">
+                    <label for="contribNovelUnitType"><i class="fa-solid fa-layer-group"></i> Format de parution</label>
+                    <select id="contribNovelUnitType" class="contrib-select">
+                      <option value="volume">📚 Par Tomes / Volumes (Light Novels, Reliés)</option>
+                      <option value="chapter">📄 Par Chapitres (Webnovels, Séries en cours)</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
                     <label for="contribNovelStatus">Statut de la fiche</label>
                     <select id="contribNovelStatus" class="contrib-select">
                       <option value="DRAFT">Brouillon privé (DRAFT)</option>
@@ -1762,8 +1769,22 @@
               <div class="vol-novel-banner">
                 <img id="volSectionNovelCover" src="" alt="Cover" class="vol-novel-banner-cover hidden">
                 <div class="vol-novel-banner-info">
-                  <div class="account-badge-pill" style="margin-bottom: 4px;">
-                    <span class="pulse-dot"></span> <span id="volSectionCountBadge">0 tome(s)</span>
+                  <div class="vol-banner-top-row">
+                    <div class="account-badge-pill" style="margin-bottom: 0;">
+                      <span class="pulse-dot"></span> <span id="volSectionCountBadge">0 tome(s)</span>
+                    </div>
+                    <!-- SELECTEUR DE MODE D'UNITÉ : TOMES VS CHAPITRES -->
+                    <div class="contrib-unit-toggle" id="contribUnitToggle">
+                      <span class="unit-toggle-label"><i class="fa-solid fa-layer-group"></i> Découpage :</span>
+                      <div class="unit-toggle-pills">
+                        <button type="button" class="unit-pill-btn active" id="btnUnitModeVolume" title="Afficher et importer sous forme de Tomes / Volumes">
+                          <i class="fa-solid fa-book"></i> Tomes
+                        </button>
+                        <button type="button" class="unit-pill-btn" id="btnUnitModeChapter" title="Afficher et importer sous forme de Chapitres">
+                          <i class="fa-solid fa-file-lines"></i> Chapitres
+                        </button>
+                      </div>
+                    </div>
                   </div>
                   <h3 id="volSectionNovelTitle">Titre du roman</h3>
                   <div class="vol-novel-banner-meta">
@@ -1780,10 +1801,10 @@
               <!-- COLONNE GAUCHE : FORMULAIRE D'UPLOAD & METADATA DU TOME -->
               <div class="vol-form-col">
                 <div class="vol-col-header">
-                  <h4><i class="fa-solid fa-cloud-arrow-up"></i> Importer un Tome</h4>
+                  <h4><i class="fa-solid fa-cloud-arrow-up"></i> <span id="volFormColTitle">Importer un Tome</span></h4>
                   <span class="badge-format-pill">EPUB & PDF</span>
                 </div>
-                <p class="vol-col-desc">Téléversez le fichier de votre tome et renseignez ses détails.</p>
+                <p class="vol-col-desc" id="volFormColDesc">Téléversez le fichier de votre tome et renseignez ses détails.</p>
                 
                 <form id="contribVolumeForm">
                   <!-- DRAG & DROP / FILE PICKER -->
@@ -1793,7 +1814,7 @@
                       <div class="dropzone-icon-circle">
                         <i class="fa-solid fa-cloud-arrow-up"></i>
                       </div>
-                      <p class="dropzone-main-text">Glissez-déposez le fichier du tome (.epub ou .pdf)</p>
+                      <p class="dropzone-main-text" id="volDropzoneMainPrompt">Glissez-déposez le fichier du tome (.epub ou .pdf)</p>
                       <p class="dropzone-sub-text">ou <span class="dropzone-browse-btn">parcourez votre ordinateur</span></p>
                       <div class="dropzone-allowed-badges">
                         <span class="badge-ext epub"><i class="fa-solid fa-book"></i> .EPUB</span>
@@ -1817,7 +1838,7 @@
                   </div>
 
                   <div class="form-group" style="margin-bottom: 14px;">
-                    <label for="contribVolType">Type de Récit / Volume</label>
+                    <label for="contribVolType" id="volTypeSelectLabel">Type de Récit / Volume</label>
                     <div class="input-with-icon">
                       <i class="fa-solid fa-layer-group input-icon"></i>
                       <select id="contribVolType" style="background:#141721; color:#fff; border:1px solid rgba(255,255,255,0.12); border-radius:8px; padding:10px 12px 10px 38px; width:100%; font-size:13.5px;">
@@ -1831,7 +1852,7 @@
 
                   <div class="form-row-2col">
                     <div class="form-group">
-                      <label for="contribVolNumber">Numéro du Tome *</label>
+                      <label for="contribVolNumber" id="volNumberInputLabel">Numéro du Tome *</label>
                       <div class="input-with-icon">
                         <i class="fa-solid fa-hashtag input-icon"></i>
                         <input type="number" id="contribVolNumber" min="0" step="0.5" required value="1" placeholder="1">
@@ -1847,7 +1868,7 @@
                   </div>
 
                   <div class="form-group">
-                    <label for="contribVolTitle">Titre du Tome (Optionnel)</label>
+                    <label for="contribVolTitle" id="volTitleInputLabel">Titre du Tome (Optionnel)</label>
                     <div class="input-with-icon">
                       <i class="fa-solid fa-bookmark input-icon"></i>
                       <input type="text" id="contribVolTitle" placeholder="Ex: L'Éveil des Ombres, Tome 1...">
@@ -1863,7 +1884,7 @@
                   </div>
 
                   <button type="submit" class="btn-contrib-primary full-width" id="btnSubmitVolume">
-                    <i class="fa-solid fa-cloud-arrow-up"></i> Téléverser & Ajouter ce Tome
+                    <i class="fa-solid fa-cloud-arrow-up"></i> <span id="btnSubmitVolumeText">Téléverser & Ajouter ce Tome</span>
                   </button>
                 </form>
               </div>
@@ -1871,12 +1892,12 @@
               <!-- COLONNE DROITE : LISTE DES TOMES DE LA SÉRIE -->
               <div class="vol-list-col">
                 <div class="vol-col-header">
-                  <h4><i class="fa-solid fa-list-check"></i> Tomes de la Série</h4>
+                  <h4><i class="fa-solid fa-list-check"></i> <span id="volListColHeader">Tomes de la Série</span></h4>
                   <span class="vol-count-badge" id="volModalCountBadge">0 tomes</span>
                 </div>
                 
                 <div id="contribVolListContainer" class="contrib-vols-list">
-                  <!-- Dynamiquement rempli par contributor_logic.js?v=1792171648283 -->
+                  <!-- Dynamiquement rempli par contributor_logic.js?v=1792176318729 -->
                 </div>
               </div>
 
@@ -1954,7 +1975,7 @@
                 <span class="admin-widget-badge">Top Vues & Notes</span>
               </div>
               <div id="adminTopPerformingNovels" class="admin-top-novels-list">
-                <!-- Rempli dynamiquement par admin_logic.js?v=1792171648283 -->
+                <!-- Rempli dynamiquement par admin_logic.js?v=1792176318729 -->
               </div>
             </div>
 
@@ -2093,7 +2114,7 @@
                   </tr>
                 </thead>
                 <tbody id="adminSchedTableBody">
-                  <!-- Injected by admin_logic.js?v=1792171648283 -->
+                  <!-- Injected by admin_logic.js?v=1792176318729 -->
                 </tbody>
               </table>
             </div>
@@ -2123,7 +2144,7 @@
 
             <!-- LISTE DES ARTICLES EN LIGNE -->
             <div id="adminNewsCardsContainer" class="admin-ed-news-cards-grid">
-              <!-- Injected by admin_logic.js?v=1792171648283 -->
+              <!-- Injected by admin_logic.js?v=1792176318729 -->
             </div>
           </div>
 
@@ -2926,12 +2947,12 @@
   <script src="js/webnovel_reader.js?v=1789752407265"></script>
   <script src="js/home_lnori_logic.js?v=1790725844546"></script>
   <script src="js/catalog_logic.js?v=1790725844546"></script>
-  <script src="js/editorial_logic.js?v=1792171648283"></script>
+  <script src="js/editorial_logic.js?v=1792176318729"></script>
   <script src="js/series_logic.js?v=1791942152722"></script>
-  <script src="js/contributor_logic.js?v=1792171648283"></script>
-  <script src="js/admin_logic.js?v=1792171648283"></script>
+  <script src="js/contributor_logic.js?v=1792176318729"></script>
+  <script src="js/admin_logic.js?v=1792176318729"></script>
   <script src="js/pwa_manager.js?v=1790841520734"></script>
-  <script src="js/app.js?v=1792171648283"></script>
+  <script src="js/app.js?v=1792176318729"></script>
 
   <script>
     if ('serviceWorker' in navigator) {
