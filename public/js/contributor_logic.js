@@ -59,6 +59,21 @@ class ContributorManager {
     this.inpGenres = document.getElementById('contribNovelGenres');
     this.inpTags = document.getElementById('contribNovelTags');
     this.inpCoverUrl = document.getElementById('contribNovelCoverUrl');
+    this.btnCoverPillFile = document.getElementById('btnCoverPillFile');
+    this.btnCoverPillUrl = document.getElementById('btnCoverPillUrl');
+    this.paneCoverFile = document.getElementById('contribCoverFilePanel');
+    this.paneCoverUrl = document.getElementById('contribCoverUrlPanel');
+    this.dropzoneCover = document.getElementById('contribCoverDropzone');
+    this.fileInputCover = document.getElementById('contribCoverFileInput');
+    this.coverDropEmpty = document.getElementById('coverDropEmpty');
+    this.coverDropPreview = document.getElementById('coverDropPreview');
+    this.coverDropLoading = document.getElementById('coverDropLoading');
+    this.coverDropThumb = document.getElementById('coverDropThumb');
+    this.coverFileTitle = document.getElementById('coverFileTitle');
+    this.btnBrowseCover = document.getElementById('btnBrowseCover');
+    this.btnChangeCover = document.getElementById('btnChangeCover');
+    this.btnDeleteCover = document.getElementById('btnDeleteCover');
+    this.coverDirectUrlInput = document.getElementById('contribCoverUrlDirectInput');
     this.inpStatus = document.getElementById('contribNovelStatus');
     this.novelSubmitBtn = document.getElementById('contribSaveNovelBtn');
 
@@ -144,6 +159,9 @@ class ContributorManager {
 
     // Setup Volume Dropzone
     this.setupVolumeDropzone();
+
+    // Setup Multifunctional Cover Upload (Local File + Web URL)
+    this.setupCoverUpload();
 
     // Auto-reload novels when contributor/admin logs in
     const auth = window.authManager || window.supabaseAuthManager;
@@ -453,6 +471,7 @@ class ContributorManager {
     if (this.inpIllustrator) this.inpIllustrator.value = meta.illustrator || '';
     if (this.inpSynopsis) this.inpSynopsis.value = meta.synopsis_fr || meta.synopsis || '';
     if (this.inpCoverUrl) this.inpCoverUrl.value = meta.cover || '';
+    this.syncCoverUI(meta.cover || '');
 
     // Apply genres
     this.selectedGenres.clear();
@@ -751,6 +770,7 @@ class ContributorManager {
     if (candContainer) candContainer.classList.add('hidden');
     if (this.inpApiSearch) this.inpApiSearch.value = '';
 
+    this.syncCoverUI('');
     this.switchMode('auto');
     this.showView('form');
     this.updateLivePreview();
@@ -770,6 +790,7 @@ class ContributorManager {
     if (this.inpIllustrator) this.inpIllustrator.value = novel.illustrator || '';
     if (this.inpSynopsis) this.inpSynopsis.value = novel.synopsis_fr || novel.synopsis || novel.description || '';
     if (this.inpCoverUrl) this.inpCoverUrl.value = novel.cover || novel.cover_url || '';
+    this.syncCoverUI(novel.cover || novel.cover_url || '');
     if (this.inpStatus) this.inpStatus.value = novel.publication_status || 'DRAFT';
 
     this.selectedGenres.clear();
@@ -1165,6 +1186,252 @@ class ContributorManager {
       if (progress) progress.classList.add('hidden');
     }
   }
+
+  // ==========================================================================
+  // MULTIFUNCTIONAL COVER UPLOAD MANAGER (LOCAL FILE + WEB URL)
+  // ==========================================================================
+  setupCoverUpload() {
+    if (this.btnCoverPillFile && this.btnCoverPillUrl) {
+      this.btnCoverPillFile.addEventListener('click', () => this.switchCoverMode('file'));
+      this.btnCoverPillUrl.addEventListener('click', () => this.switchCoverMode('url'));
+    }
+
+    if (this.btnBrowseCover && this.fileInputCover) {
+      this.btnBrowseCover.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.fileInputCover.click();
+      });
+    }
+
+    if (this.dropzoneCover && this.fileInputCover) {
+      this.dropzoneCover.addEventListener('click', (e) => {
+        if (e.target.closest('#btnChangeCover') || e.target.closest('#btnDeleteCover')) return;
+        this.fileInputCover.click();
+      });
+
+      ['dragenter', 'dragover'].forEach(evtName => {
+        this.dropzoneCover.addEventListener(evtName, (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          this.dropzoneCover.classList.add('dragover');
+        });
+      });
+
+      ['dragleave', 'drop'].forEach(evtName => {
+        this.dropzoneCover.addEventListener(evtName, (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          this.dropzoneCover.classList.remove('dragover');
+        });
+      });
+
+      this.dropzoneCover.addEventListener('drop', (e) => {
+        const dt = e.dataTransfer;
+        const files = dt && dt.files;
+        if (files && files.length > 0) {
+          this.handleCoverFile(files[0]);
+        }
+      });
+
+      this.fileInputCover.addEventListener('change', (e) => {
+        if (e.target.files && e.target.files.length > 0) {
+          this.handleCoverFile(e.target.files[0]);
+        }
+      });
+    }
+
+    if (this.btnChangeCover && this.fileInputCover) {
+      this.btnChangeCover.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.fileInputCover.click();
+      });
+    }
+
+    if (this.btnDeleteCover) {
+      this.btnDeleteCover.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.clearCoverSelection();
+      });
+    }
+
+    if (this.coverDirectUrlInput) {
+      const syncFromUrlInput = () => {
+        const val = this.coverDirectUrlInput.value.trim();
+        if (this.inpCoverUrl) this.inpCoverUrl.value = val;
+        this.updateLivePreview();
+      };
+      this.coverDirectUrlInput.addEventListener('input', syncFromUrlInput);
+      this.coverDirectUrlInput.addEventListener('change', syncFromUrlInput);
+    }
+  }
+
+  switchCoverMode(mode) {
+    if (mode === 'file') {
+      if (this.btnCoverPillFile) this.btnCoverPillFile.classList.add('active');
+      if (this.btnCoverPillUrl) this.btnCoverPillUrl.classList.remove('active');
+      if (this.paneCoverFile) this.paneCoverFile.classList.remove('hidden');
+      if (this.paneCoverUrl) this.paneCoverUrl.classList.add('hidden');
+    } else {
+      if (this.btnCoverPillFile) this.btnCoverPillFile.classList.remove('active');
+      if (this.btnCoverPillUrl) this.btnCoverPillUrl.classList.add('active');
+      if (this.paneCoverFile) this.paneCoverFile.classList.add('hidden');
+      if (this.paneCoverUrl) this.paneCoverUrl.classList.remove('hidden');
+    }
+  }
+
+  async compressImage(file, maxWidth = 600, maxHeight = 900, quality = 0.85) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          let width = img.width;
+          let height = img.height;
+
+          if (width > height) {
+            if (width > maxWidth) {
+              height = Math.round((height * maxWidth) / width);
+              width = maxWidth;
+            }
+          } else {
+            if (height > maxHeight) {
+              width = Math.round((width * maxHeight) / height);
+              height = maxHeight;
+            }
+          }
+
+          const canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+
+          let mimeType = 'image/webp';
+          try {
+            const test = canvas.toDataURL('image/webp');
+            if (!test.startsWith('data:image/webp')) {
+              mimeType = 'image/jpeg';
+            }
+          } catch (err) {
+            mimeType = 'image/jpeg';
+          }
+
+          canvas.toBlob((blob) => {
+            if (blob) {
+              resolve({ blob, mimeType });
+            } else {
+              resolve({ blob: file, mimeType: file.type });
+            }
+          }, mimeType, quality);
+        };
+        img.onerror = () => reject(new Error('Erreur de chargement de l\'image'));
+        img.src = e.target.result;
+      };
+      reader.onerror = () => reject(new Error('Erreur de lecture du fichier'));
+      reader.readAsDataURL(file);
+    });
+  }
+
+  async handleCoverFile(file) {
+    if (!file || !file.type.startsWith('image/')) {
+      alert('Veuillez sélectionner un fichier image valide (JPG, PNG, WebP).');
+      return;
+    }
+
+    try {
+      if (this.coverDropEmpty) this.coverDropEmpty.classList.add('hidden');
+      if (this.coverDropPreview) this.coverDropPreview.classList.add('hidden');
+      if (this.coverDropLoading) this.coverDropLoading.classList.remove('hidden');
+
+      const { blob, mimeType } = await this.compressImage(file, 600, 900, 0.85);
+
+      const formData = new FormData();
+      const ext = mimeType === 'image/webp' ? '.webp' : (mimeType === 'image/png' ? '.png' : '.jpg');
+      const cleanFileName = file.name.replace(/\.[^.]+$/, '') + ext;
+      formData.append('cover', blob, cleanFileName);
+
+      const auth = window.authManager || window.supabaseAuthManager;
+      const token = auth ? await auth.getAccessToken() : null;
+
+      const res = await fetch('/api/upload/cover', {
+        method: 'POST',
+        headers: {
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+        },
+        body: formData
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || 'Erreur lors du téléversement de la couverture.');
+      }
+
+      if (this.inpCoverUrl) this.inpCoverUrl.value = data.url;
+      if (this.coverDirectUrlInput) this.coverDirectUrlInput.value = data.url;
+
+      if (this.coverDropThumb) this.coverDropThumb.src = data.url;
+      if (this.coverFileTitle) this.coverFileTitle.textContent = cleanFileName;
+
+      if (this.coverDropLoading) this.coverDropLoading.classList.add('hidden');
+      if (this.coverDropPreview) this.coverDropPreview.classList.remove('hidden');
+
+      this.updateLivePreview();
+
+      if (window.toastManager && typeof window.toastManager.show === 'function') {
+        window.toastManager.show('Couverture téléversée et optimisée avec succès !', 'success');
+      }
+    } catch (err) {
+      console.error('[CoverUpload]', err);
+      alert('Erreur : ' + err.message);
+      if (this.coverDropLoading) this.coverDropLoading.classList.add('hidden');
+      if (!this.inpCoverUrl || !this.inpCoverUrl.value) {
+        if (this.coverDropEmpty) this.coverDropEmpty.classList.remove('hidden');
+      } else {
+        if (this.coverDropPreview) this.coverDropPreview.classList.remove('hidden');
+      }
+    }
+  }
+
+  clearCoverSelection() {
+    if (this.inpCoverUrl) this.inpCoverUrl.value = '';
+    if (this.coverDirectUrlInput) this.coverDirectUrlInput.value = '';
+    if (this.fileInputCover) this.fileInputCover.value = '';
+    if (this.coverDropThumb) this.coverDropThumb.src = '';
+    if (this.coverDropPreview) this.coverDropPreview.classList.add('hidden');
+    if (this.coverDropLoading) this.coverDropLoading.classList.add('hidden');
+    if (this.coverDropEmpty) this.coverDropEmpty.classList.remove('hidden');
+    this.updateLivePreview();
+  }
+
+  syncCoverUI(url) {
+    if (!url) {
+      this.clearCoverSelection();
+      this.switchCoverMode('file');
+      return;
+    }
+
+    if (this.inpCoverUrl) this.inpCoverUrl.value = url;
+    if (this.coverDirectUrlInput) this.coverDirectUrlInput.value = url;
+
+    const isLocalUpload = url.startsWith('/uploads/covers/');
+
+    if (isLocalUpload) {
+      this.switchCoverMode('file');
+      if (this.coverDropThumb) this.coverDropThumb.src = url;
+      if (this.coverFileTitle) this.coverFileTitle.textContent = url.split('/').pop();
+      if (this.coverDropEmpty) this.coverDropEmpty.classList.add('hidden');
+      if (this.coverDropPreview) this.coverDropPreview.classList.remove('hidden');
+    } else {
+      this.switchCoverMode('url');
+      if (this.coverDropThumb) this.coverDropThumb.src = url;
+      if (this.coverFileTitle) this.coverFileTitle.textContent = 'Image distante';
+      if (this.coverDropEmpty) this.coverDropEmpty.classList.add('hidden');
+      if (this.coverDropPreview) this.coverDropPreview.classList.remove('hidden');
+    }
+
+    this.updateLivePreview();
+  }
+
 }
 
 // Instanciation globale et résiliente

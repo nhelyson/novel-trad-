@@ -764,6 +764,34 @@ const uploadVolume = multer({
     }
 });
 
+// ── MULTER CONFIG FOR NOVEL COVERS (JPG, PNG, WEBP) ───────────────────────────
+const coverUploadDir = path.join(__dirname, 'uploads', 'covers');
+if (!fs.existsSync(coverUploadDir)) {
+    fs.mkdirSync(coverUploadDir, { recursive: true });
+}
+
+const coverStorage = multer.diskStorage({
+    destination: (req, file, cb) => cb(null, coverUploadDir),
+    filename: (req, file, cb) => {
+        const unique = Date.now() + '_' + Math.random().toString(36).substr(2, 6);
+        const ext = path.extname(file.originalname).toLowerCase() || '.webp';
+        cb(null, `cover_${unique}${ext}`);
+    }
+});
+
+const uploadCover = multer({
+    storage: coverStorage,
+    limits: { fileSize: 15 * 1024 * 1024 }, // 15MB max
+    fileFilter: (req, file, cb) => {
+        const ext = path.extname(file.originalname).toLowerCase();
+        if (['.jpg', '.jpeg', '.png', '.webp', '.gif'].includes(ext) || (file.mimetype && file.mimetype.startsWith('image/'))) {
+            cb(null, true);
+        } else {
+            cb(new Error("Format d'image non supporté. Formats acceptés : JPG, PNG, WEBP."));
+        }
+    }
+});
+
 
 // ── SÉCURITÉ & OPTIMISATIONS HARDENING ──────────────────────────────────────────
 // 1. En-têtes HTTP de sécurité avec Helmet (configuré souple pour ne casser aucun CDN/image/font)
@@ -3439,6 +3467,49 @@ app.get('/api/contributor/novels', requireContributor, async (req, res) => {
         res.status(500).json({ success: false, error: e.message });
     }
 });
+
+// POST /api/upload/cover & /api/contributor/upload-cover - Téléversement de couverture (Contributeur ou Admin)
+const handleCoverUpload = async (req, res) => {
+    try {
+        if (req.file) {
+            const coverUrl = `/uploads/covers/${req.file.filename}`;
+            console.log(`[Contributor] Couverture téléversée (fichier) par ${req.user.email || req.user.id}: ${coverUrl}`);
+            return res.json({ success: true, url: coverUrl, filename: req.file.filename });
+        }
+        // Fallback Base64 JSON (Canvas export)
+        if (req.body && req.body.image && typeof req.body.image === 'string' && req.body.image.startsWith('data:image/')) {
+            const match = req.body.image.match(/^data:image\/([a-zA-Z0-9+]+);base64,(.+)$/);
+            if (match) {
+                const ext = match[1] === 'jpeg' ? '.jpg' : (match[1] === 'png' ? '.png' : '.webp');
+                const buffer = Buffer.from(match[2], 'base64');
+                const filename = `cover_${Date.now()}_${Math.random().toString(36).substr(2, 6)}${ext}`;
+                const filepath = path.join(coverUploadDir, filename);
+                fs.writeFileSync(filepath, buffer);
+                const coverUrl = `/uploads/covers/${filename}`;
+                console.log(`[Contributor] Couverture téléversée (base64) par ${req.user.email || req.user.id}: ${coverUrl}`);
+                return res.json({ success: true, url: coverUrl, filename });
+            }
+        }
+        return res.status(400).json({ success: false, error: 'Aucune image valide fournie.' });
+    } catch (e) {
+        console.error('[UploadCover Error]', e);
+        res.status(500).json({ success: false, error: e.message });
+    }
+};
+
+app.post('/api/upload/cover', contributorLimiter, requireContributor, (req, res, next) => {
+    if (req.is('multipart/form-data')) {
+        return uploadCover.single('cover')(req, res, next);
+    }
+    next();
+}, handleCoverUpload);
+
+app.post('/api/contributor/upload-cover', contributorLimiter, requireContributor, (req, res, next) => {
+    if (req.is('multipart/form-data')) {
+        return uploadCover.single('cover')(req, res, next);
+    }
+    next();
+}, handleCoverUpload);
 
 // POST /api/contributor/novels - Create a novel in DRAFT status
 app.post('/api/contributor/novels', contributorLimiter, requireContributor, async (req, res) => {

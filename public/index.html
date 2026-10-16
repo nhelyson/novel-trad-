@@ -93,7 +93,7 @@
     })();
   </script>
   <link rel="stylesheet" href="css/style.css?v=1790900961187">
-  <link rel="stylesheet" href="css/home_lnori.css?v=1792166223517">
+  <link rel="stylesheet" href="css/home_lnori.css?v=1792169433964">
   <link rel="stylesheet" href="css/app_themes.css?v=1792030000000">
   <!-- Coupe-circuit de production pour console propre & anti-fuite -->
   <script>
@@ -791,14 +791,14 @@
               </div>
 
               <div id="calendarMonthlyGrid" class="cal-monthly-grid" role="grid" aria-label="Grille mensuelle des parutions">
-                <!-- Cellules des 7 jours injectées par editorial_logic.js?v=1792166223517 -->
+                <!-- Cellules des 7 jours injectées par editorial_logic.js?v=1792169433964 -->
               </div>
             </div>
 
             <!-- VUE AGENDA / LISTE (Mobile & Bascule utilisateur) -->
             <div id="calendarAgendaWrapper" class="cal-agenda-wrapper hidden">
               <div id="calendarAgendaList" class="cal-agenda-list">
-                <!-- Événements groupés par date injectés par editorial_logic.js?v=1792166223517 -->
+                <!-- Événements groupés par date injectés par editorial_logic.js?v=1792169433964 -->
               </div>
             </div>
 
@@ -820,7 +820,7 @@
           <div class="modal-content cal-event-modal-content">
             <button type="button" id="calEventModalClose" class="modal-close-btn" aria-label="Fermer">&times;</button>
             <div id="calEventModalBody" class="cal-event-modal-body">
-              <!-- Injecté dynamiquement par editorial_logic.js?v=1792166223517 -->
+              <!-- Injecté dynamiquement par editorial_logic.js?v=1792169433964 -->
             </div>
           </div>
         </div>
@@ -1643,9 +1643,76 @@
                 </div>
 
                 <div class="form-row two-cols">
-                  <div class="form-group">
-                    <label for="contribNovelCoverUrl">URL de la Couverture</label>
-                    <input type="url" id="contribNovelCoverUrl" placeholder="https://exemple.com/cover.jpg">
+                  <div class="form-group contrib-cover-group">
+                    <div class="contrib-cover-label-bar">
+                      <label for="contribNovelCoverUrl"><i class="fa-solid fa-image"></i> Couverture du Roman</label>
+                      <div class="contrib-cover-toggle-pills">
+                        <button type="button" class="cover-pill-btn active" id="btnCoverPillFile">
+                          <i class="fa-solid fa-cloud-arrow-up"></i> Fichier local
+                        </button>
+                        <button type="button" class="cover-pill-btn" id="btnCoverPillUrl">
+                          <i class="fa-solid fa-link"></i> Lien URL
+                        </button>
+                      </div>
+                    </div>
+
+                    <!-- Champ caché conservant la valeur finale pour compatibilité totale avec toute l'app -->
+                    <input type="hidden" id="contribNovelCoverUrl" value="">
+
+                    <!-- Mode 1 : Fichier (PC & Mobile) -->
+                    <div id="contribCoverFilePanel" class="contrib-cover-panel">
+                      <div class="contrib-cover-dropzone" id="contribCoverDropzone">
+                        <input type="file" id="contribCoverFileInput" accept="image/png,image/jpeg,image/webp,image/gif" style="display:none;">
+
+                        <!-- Zone vide par défaut -->
+                        <div class="drop-content-empty" id="coverDropEmpty">
+                          <div class="drop-icon-wrap">
+                            <i class="fa-solid fa-image"></i>
+                          </div>
+                          <div class="drop-text-meta">
+                            <span class="drop-main-title">Glissez une image ou cliquez pour parcourir</span>
+                            <span class="drop-sub-desc">Depuis votre galerie ou ordinateur &bull; JPG, PNG, WebP</span>
+                          </div>
+                          <button type="button" class="btn-drop-browse" id="btnBrowseCover">
+                            <i class="fa-solid fa-folder-open"></i> Choisir une image
+                          </button>
+                        </div>
+
+                        <!-- Aperçu de l'image sélectionnée/téléversée -->
+                        <div class="drop-content-preview hidden" id="coverDropPreview">
+                          <div class="drop-thumb-container">
+                            <img id="coverDropThumb" src="" alt="Couverture sélectionnée">
+                          </div>
+                          <div class="drop-preview-info">
+                            <span class="drop-file-title" id="coverFileTitle">couverture.webp</span>
+                            <span class="drop-file-badge"><i class="fa-solid fa-circle-check"></i> Image prête & optimisée</span>
+                            <div class="drop-preview-actions">
+                              <button type="button" class="btn-cover-action change" id="btnChangeCover" title="Changer d'image">
+                                <i class="fa-solid fa-arrows-rotate"></i> Remplacer
+                              </button>
+                              <button type="button" class="btn-cover-action delete" id="btnDeleteCover" title="Supprimer">
+                                <i class="fa-solid fa-trash"></i> Retirer
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+
+                        <!-- État de chargement / compression -->
+                        <div class="drop-content-loading hidden" id="coverDropLoading">
+                          <i class="fa-solid fa-spinner fa-spin"></i>
+                          <span id="coverLoadingMsg">Optimisation WebP & téléversement...</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Mode 2 : Lien URL externe -->
+                    <div id="contribCoverUrlPanel" class="contrib-cover-panel hidden">
+                      <div class="contrib-url-box">
+                        <i class="fa-solid fa-globe"></i>
+                        <input type="url" id="contribCoverUrlDirectInput" placeholder="https://exemple.com/image.jpg" autocomplete="off">
+                      </div>
+                      <span class="contrib-field-tip">Collez l'adresse web directe (URL) de l'image de couverture.</span>
+                    </div>
                   </div>
                   <div class="form-group">
                     <label for="contribNovelStatus">Statut de la fiche</label>
@@ -1887,7 +1954,7 @@
                 <span class="admin-widget-badge">Top Vues & Notes</span>
               </div>
               <div id="adminTopPerformingNovels" class="admin-top-novels-list">
-                <!-- Rempli dynamiquement par admin_logic.js?v=1792166223517 -->
+                <!-- Rempli dynamiquement par admin_logic.js?v=1792169433964 -->
               </div>
             </div>
 
@@ -2026,7 +2093,7 @@
                   </tr>
                 </thead>
                 <tbody id="adminSchedTableBody">
-                  <!-- Injected by admin_logic.js?v=1792166223517 -->
+                  <!-- Injected by admin_logic.js?v=1792169433964 -->
                 </tbody>
               </table>
             </div>
@@ -2056,7 +2123,7 @@
 
             <!-- LISTE DES ARTICLES EN LIGNE -->
             <div id="adminNewsCardsContainer" class="admin-ed-news-cards-grid">
-              <!-- Injected by admin_logic.js?v=1792166223517 -->
+              <!-- Injected by admin_logic.js?v=1792169433964 -->
             </div>
           </div>
 
@@ -2859,12 +2926,12 @@
   <script src="js/webnovel_reader.js?v=1789752407265"></script>
   <script src="js/home_lnori_logic.js?v=1790725844546"></script>
   <script src="js/catalog_logic.js?v=1790725844546"></script>
-  <script src="js/editorial_logic.js?v=1792166223517"></script>
+  <script src="js/editorial_logic.js?v=1792169433964"></script>
   <script src="js/series_logic.js?v=1791942152722"></script>
   <script src="js/contributor_logic.js?v=1790266838034"></script>
-  <script src="js/admin_logic.js?v=1792166223517"></script>
+  <script src="js/admin_logic.js?v=1792169433964"></script>
   <script src="js/pwa_manager.js?v=1790841520734"></script>
-  <script src="js/app.js?v=1792166223517"></script>
+  <script src="js/app.js?v=1792169433964"></script>
 
   <script>
     if ('serviceWorker' in navigator) {
