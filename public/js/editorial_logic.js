@@ -366,13 +366,32 @@
     const gridWrapperEl = document.getElementById('calendarGridWrapper');
     const agendaWrapperEl = document.getElementById('calendarAgendaWrapper');
 
+    const isMobile = window.innerWidth <= 768;
+    const effectiveView = isMobile ? 'agenda' : state.viewMode;
+
+    const gridSwitchBtn = document.getElementById('calViewGridBtn');
+    const agendaSwitchBtn = document.getElementById('calViewAgendaBtn');
+    if (gridSwitchBtn && agendaSwitchBtn) {
+      if (effectiveView === 'grid') {
+        gridSwitchBtn.classList.add('active');
+        gridSwitchBtn.setAttribute('aria-pressed', 'true');
+        agendaSwitchBtn.classList.remove('active');
+        agendaSwitchBtn.setAttribute('aria-pressed', 'false');
+      } else {
+        agendaSwitchBtn.classList.add('active');
+        agendaSwitchBtn.setAttribute('aria-pressed', 'true');
+        gridSwitchBtn.classList.remove('active');
+        gridSwitchBtn.setAttribute('aria-pressed', 'false');
+      }
+    }
+
     if (filteredEvents.length === 0) {
       if (emptyStateEl) emptyStateEl.classList.remove('hidden');
       if (gridWrapperEl) gridWrapperEl.classList.add('hidden');
       if (agendaWrapperEl) agendaWrapperEl.classList.add('hidden');
     } else {
       if (emptyStateEl) emptyStateEl.classList.add('hidden');
-      if (state.viewMode === 'grid') {
+      if (effectiveView === 'grid') {
         if (gridWrapperEl) gridWrapperEl.classList.remove('hidden');
         if (agendaWrapperEl) agendaWrapperEl.classList.add('hidden');
         renderMonthlyGrid(filteredEvents);
@@ -879,6 +898,16 @@
    * Attachement des écouteurs d'événements
    */
   function bindEvents() {
+    // Écouteur de redimensionnement réactif (mobile / desktop)
+    let _calResizeTimer = null;
+    window.addEventListener('resize', () => {
+      clearTimeout(_calResizeTimer);
+      _calResizeTimer = setTimeout(() => {
+        if (state.isInitialized) {
+          renderCalendar();
+        }
+      }, 200);
+    }); // cal_window_resize_handler
     // Navigation Mois Précédent
     const prevBtn = document.getElementById('calPrevMonthBtn');
     if (prevBtn) {
