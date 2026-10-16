@@ -1205,6 +1205,7 @@ class ContributorManager {
 
     if (this.dropzoneCover && this.fileInputCover) {
       this.dropzoneCover.addEventListener('click', (e) => {
+        if (e.target === this.fileInputCover) return;
         if (e.target.closest('#btnChangeCover') || e.target.closest('#btnDeleteCover')) return;
         this.fileInputCover.click();
       });
