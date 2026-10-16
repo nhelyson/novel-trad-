@@ -854,13 +854,6 @@ app.get('/sitemap.xml', (req, res) => {
     xml += '    <priority>1.0</priority>\n';
     xml += '  </url>\n';
 
-    // Catalogue
-    xml += '  <url>\n';
-    xml += `    <loc>${baseUrl}/#catalog</loc>\n`;
-    xml += `    <lastmod>${now}</lastmod>\n`;
-    xml += '    <changefreq>daily</changefreq>\n';
-    xml += '    <priority>0.9</priority>\n';
-    xml += '  </url>\n';
 
     // Toutes les séries publiées
     for (const s of publishedSeries) {
