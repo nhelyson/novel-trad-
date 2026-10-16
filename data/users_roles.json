@@ -5,7 +5,7 @@
     "display_name": "acrome",
     "role": "ADMIN",
     "created_at": "2026-09-11T23:10:18.719548+00:00",
-    "last_active": "2026-10-14T14:30:33.362Z",
+    "last_active": "2026-10-16T08:25:45.428Z",
     "avatar_url": "https://api.dicebear.com/7.x/lorelei/svg?seed=Shadow",
     "updated_at": "2026-10-03T01:11:25.316Z"
   },
@@ -56,9 +56,30 @@
   {
     "id": "25913677-eb8c-47fd-a767-74bdc983df18",
     "email": "keindywilliams@gmail.com",
-    "display_name": "keindywilliams",
+    "display_name": "keindy",
     "role": "USER",
     "created_at": "2026-09-28T08:00:49.940786+00:00",
     "last_active": "2026-10-04T12:13:39.739Z"
+  },
+  {
+    "id": "ce5fe774-2de4-4ece-adb9-0610ff835cbb",
+    "email": "yannyacoujauresk@gmail.com",
+    "display_name": "Gojo Satoru",
+    "role": "USER",
+    "created_at": "2026-10-14T22:27:33.316881+00:00"
+  },
+  {
+    "id": "c31b283a-7963-4638-94f3-43a9acf52a0f",
+    "email": "komori@gmail.com",
+    "display_name": "komori",
+    "role": "CONTRIBUTOR",
+    "created_at": "2026-10-14T12:11:51.425936+00:00"
+  },
+  {
+    "id": "23a91eeb-30ac-4fb3-93ee-59807ca6b326",
+    "email": "observateur011@gmail.com",
+    "display_name": "Øbservateur",
+    "role": "USER",
+    "created_at": "2026-10-13T14:26:49.542302+00:00"
   }
 ]
