@@ -93,7 +93,7 @@
     })();
   </script>
   <link rel="stylesheet" href="css/style.css?v=1790900961187">
-  <link rel="stylesheet" href="css/home_lnori.css?v=1792133098163">
+  <link rel="stylesheet" href="css/home_lnori.css?v=1792136576869">
   <link rel="stylesheet" href="css/app_themes.css?v=1792030000000">
   <!-- Coupe-circuit de production pour console propre & anti-fuite -->
   <script>
@@ -733,14 +733,14 @@
               </div>
 
               <div id="calendarMonthlyGrid" class="cal-monthly-grid" role="grid" aria-label="Grille mensuelle des parutions">
-                <!-- Cellules des 7 jours injectées par editorial_logic.js?v=1792133098163 -->
+                <!-- Cellules des 7 jours injectées par editorial_logic.js?v=1792136576869 -->
               </div>
             </div>
 
             <!-- VUE AGENDA / LISTE (Mobile & Bascule utilisateur) -->
             <div id="calendarAgendaWrapper" class="cal-agenda-wrapper hidden">
               <div id="calendarAgendaList" class="cal-agenda-list">
-                <!-- Événements groupés par date injectés par editorial_logic.js?v=1792133098163 -->
+                <!-- Événements groupés par date injectés par editorial_logic.js?v=1792136576869 -->
               </div>
             </div>
 
@@ -762,7 +762,7 @@
           <div class="modal-content cal-event-modal-content">
             <button type="button" id="calEventModalClose" class="modal-close-btn" aria-label="Fermer">&times;</button>
             <div id="calEventModalBody" class="cal-event-modal-body">
-              <!-- Injecté dynamiquement par editorial_logic.js?v=1792133098163 -->
+              <!-- Injecté dynamiquement par editorial_logic.js?v=1792136576869 -->
             </div>
           </div>
         </div>
@@ -1427,11 +1427,25 @@
             </div>
           </div>
 
-          <div class="contrib-overview-body">
-            <div class="contrib-block-card">
-              <h3><i class="fa-solid fa-clock-rotate-left"></i> Activité récente</h3>
-              <div id="contribRecentList" class="contrib-recent-list"></div>
+          <div class="admin-dashboard-widgets-grid">
+            <div class="admin-widget-card">
+              <div class="admin-widget-header">
+                <h3><i class="fa-solid fa-fire" style="color: #fb7185;"></i> Séries les Plus Populaires</h3>
+                <span class="admin-widget-badge">Top Vues & Notes</span>
+              </div>
+              <div id="adminTopPerformingNovels" class="admin-top-novels-list">
+                <!-- Rempli par admin_logic.js?v=1792136576869 -->
+              </div>
             </div>
+
+            <div class="admin-widget-card">
+              <div class="admin-widget-header">
+                <h3><i class="fa-solid fa-inbox" style="color: #38bdf8;"></i> Dernières soumissions à modérer</h3>
+                <span class="admin-widget-badge">File d'attente</span>
+              </div>
+              <div id="adminQueueRecentList" class="admin-recent-queue-list"></div>
+            </div>
+          </div>
             <div class="contrib-block-card info-guide">
               <h3><i class="fa-solid fa-circle-info"></i> Guide du Contributeur</h3>
               <ul>
@@ -1445,18 +1459,19 @@
 
         <!-- VIEW 2: MES ROMANS -->
         <div id="contribNovelsSection" class="contrib-section-view hidden">
-          <div class="contrib-toolbar">
-            <div class="contrib-search-wrap">
+          <div class="admin-catalog-toolbar">
+            <div class="admin-search-wrap">
               <i class="fa-solid fa-magnifying-glass"></i>
-              <input type="text" id="contribSearchInput" placeholder="Rechercher parmi mes créations...">
+              <input type="text" id="adminCatalogSearchInp" placeholder="Rechercher par titre ou auteur...">
             </div>
-            <div class="contrib-filters-wrap">
-              <select id="contribStatusFilter" class="contrib-select">
-                <option value="ALL">Tous les statuts</option>
-                <option value="DRAFT">Brouillons</option>
-                <option value="PENDING_REVIEW">En attente de validation</option>
-                <option value="PUBLISHED">Publiés</option>
-                <option value="ARCHIVED">Archivés</option>
+            <div class="admin-sort-wrap">
+              <label for="adminCatalogSortSelect" class="admin-sort-lbl"><i class="fa-solid fa-arrow-down-wide-short"></i> Trier :</label>
+              <select id="adminCatalogSortSelect" class="admin-sort-select">
+                <option value="views_desc">🔥 Plus vus (Popularité)</option>
+                <option value="rating_desc">⭐ Mieux notés</option>
+                <option value="recent">🆕 Plus récents</option>
+                <option value="title_asc">🔤 Titre (A - Z)</option>
+                <option value="volumes_desc">📚 Plus de tomes</option>
               </select>
             </div>
           </div>
@@ -1761,25 +1776,32 @@
         </div>
       </div> <!-- END MODULE 5: CONTRIBUTOR -->
       <div id="adminModuleContainer" class="module-container admin-module-container hidden">
-        <div class="account-header-section">
-          <div class="account-title-group">
-            <div class="account-badge-pill admin">
-              <span class="pulse-dot red"></span> Espace Administration & Modération
+        <!-- EN-TÊTE DU COMMAND CENTER (CENTRÉ AVEC NAVBAR & SANS BADGE AMATEUR) -->
+        <div class="admin-header-section">
+          <div class="admin-header-content">
+            <div class="admin-title-group">
+              <h1 class="admin-main-title">Studio d'Administration</h1>
+              <p class="admin-main-subtitle">Supervision du catalogue, analyse des performances de lecture et gestion des autorisations éditoriales.</p>
             </div>
-            <h1 class="account-main-title">Panneau de Contrôle NovelTrad</h1>
-            <p class="account-main-subtitle">Supervisez l'intégralité du catalogue, validez les propositions des contributeurs et gérez les rôles d'accès des utilisateurs.</p>
+            <div class="admin-header-actions">
+              <div class="admin-system-status-pill">
+                <span class="status-indicator-dot"></span>
+                <span>Système en ligne</span>
+              </div>
+            </div>
           </div>
         </div>
 
-        <div class="contrib-subnav-bar">
-          <button class="contrib-subnav-btn active" id="adminTabDashBtn"><i class="fa-solid fa-gauge-high"></i> Dashboard</button>
-          <button class="contrib-subnav-btn" id="adminTabQueueBtn">
-            <i class="fa-solid fa-clock"></i> File de Modération 
+        <!-- BARRE D'ONGLETS EXÉCUTIVE (STYLE SAAS STUDIO) -->
+        <div class="admin-tabs-bar">
+          <button class="admin-tab-btn active" id="adminTabDashBtn"><i class="fa-solid fa-gauge-high"></i> <span>Vue d'ensemble</span></button>
+          <button class="admin-tab-btn" id="adminTabQueueBtn">
+            <i class="fa-solid fa-inbox"></i> <span>Modération</span> 
             <span class="admin-queue-pill" id="adminQueueCountBadge">0</span>
           </button>
-          <button class="contrib-subnav-btn" id="adminTabCatalogBtn"><i class="fa-solid fa-book-open"></i> Catalogue Global</button>
-          <button class="contrib-subnav-btn" id="adminTabEditorialBtn"><i class="fa-solid fa-calendar-days"></i> <span>Planning & Annonces</span></button>
-          <button class="contrib-subnav-btn" id="adminTabUsersBtn"><i class="fa-solid fa-users-gear"></i> Utilisateurs & Rôles</button>
+          <button class="admin-tab-btn" id="adminTabCatalogBtn"><i class="fa-solid fa-book-open"></i> <span>Catalogue Global</span></button>
+          <button class="admin-tab-btn" id="adminTabEditorialBtn"><i class="fa-solid fa-calendar-days"></i> <span>Éditorial & Sorties</span></button>
+          <button class="admin-tab-btn" id="adminTabUsersBtn"><i class="fa-solid fa-users-gear"></i> <span>Membres & Rôles</span></button>
         </div>
 
         <!-- VIEW 1: DASHBOARD -->
@@ -1935,7 +1957,7 @@
                   </tr>
                 </thead>
                 <tbody id="adminSchedTableBody">
-                  <!-- Injected by admin_logic.js -->
+                  <!-- Injected by admin_logic.js?v=1792136576869 -->
                 </tbody>
               </table>
             </div>
@@ -1965,7 +1987,7 @@
 
             <!-- LISTE DES ARTICLES EN LIGNE -->
             <div id="adminNewsCardsContainer" class="admin-ed-news-cards-grid">
-              <!-- Injected by admin_logic.js -->
+              <!-- Injected by admin_logic.js?v=1792136576869 -->
             </div>
           </div>
 
@@ -2766,10 +2788,10 @@
   <script src="js/webnovel_reader.js?v=1789752407265"></script>
   <script src="js/home_lnori_logic.js?v=1790725844546"></script>
   <script src="js/catalog_logic.js?v=1790725844546"></script>
-  <script src="js/editorial_logic.js?v=1792133098163"></script>
+  <script src="js/editorial_logic.js?v=1792136576869"></script>
   <script src="js/series_logic.js?v=1791942152722"></script>
   <script src="js/contributor_logic.js?v=1790266838034"></script>
-  <script src="js/admin_logic.js?v=1790772173968"></script>
+  <script src="js/admin_logic.js?v=1792136576869"></script>
   <script src="js/pwa_manager.js?v=1790841520734"></script>
   <script src="js/app.js?v=1790769743386"></script>
 

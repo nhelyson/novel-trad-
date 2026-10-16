@@ -32,6 +32,8 @@ class AdminManager {
 
     this.inpUserSearch = document.getElementById('adminUserSearchInp');
     this.inpCatalogSearch = document.getElementById('adminCatalogSearchInp');
+    this.inpCatalogSort = document.getElementById('adminCatalogSortSelect');
+    this.topPerformingContainer = document.getElementById('adminTopPerformingNovels');
   }
 
   escape(str) {
@@ -49,6 +51,9 @@ class AdminManager {
 
     if (this.inpUserSearch) {
       this.inpUserSearch.addEventListener('input', () => this.renderUsersList());
+    }
+    if (this.inpCatalogSort) {
+      this.inpCatalogSort.addEventListener('change', () => this.renderCatalogList());
     }
     if (this.inpCatalogSearch) {
       this.inpCatalogSearch.addEventListener('input', () => this.renderCatalogList());
@@ -143,7 +148,7 @@ class AdminManager {
   async loadCatalog() {
     try {
       const headers = await this.getHeaders();
-      const res = await fetch('/api/catalog', { headers });
+      const res = await fetch('/api/catalog?all=true', { headers });
       if (res.ok) {
         const data = await res.json();
         this.allNovels = data.novels || [];
@@ -213,6 +218,40 @@ class AdminManager {
         }
       }
     } catch (e) {}
+
+    // Render Top 5 Performing Series
+    if (this.topPerformingContainer) {
+      const topNovels = [...this.allNovels]
+        .sort((a, b) => (b.views || 0) - (a.views || 0))
+        .slice(0, 5);
+
+      if (topNovels.length === 0) {
+        this.topPerformingContainer.innerHTML = '<div class="admin-empty-clean"><i class="fa-solid fa-chart-line"></i> Aucune série au catalogue pour le moment.</div>';
+      } else {
+        this.topPerformingContainer.innerHTML = topNovels.map((n, idx) => {
+          const rank = idx + 1;
+          const rankClass = rank === 1 ? 'gold' : (rank === 2 ? 'silver' : (rank === 3 ? 'bronze' : ''));
+          const viewsStr = (n.views || 0).toLocaleString('fr-FR');
+          const ratingVal = typeof n.rating === 'number' ? n.rating.toFixed(1) : (n.rating || '4.8');
+          const volCount = (n.volumes && n.volumes.length) || 0;
+
+          return `
+            <div class="admin-rank-item" onclick="window.location.href='/series.html?id=${encodeURIComponent(n.id)}'" title="Voir la fiche de la série">
+              <div class="rank-pos-badge ${rankClass}">#${rank}</div>
+              <img src="${n.cover || 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=400'}" class="rank-thumb" alt="" onerror="this.src='https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=400'">
+              <div class="rank-info">
+                <div class="rank-title">${this.escape(n.title)}</div>
+                <div class="rank-author">${this.escape(n.author || 'Auteur inconnu')} • ${volCount} tome${volCount > 1 ? 's' : ''}</div>
+              </div>
+              <div class="rank-metrics">
+                <span class="metric-pill views" title="${viewsStr} vues"><i class="fa-solid fa-eye"></i> ${viewsStr}</span>
+                <span class="metric-pill rating" title="Note moyenne ${ratingVal} / 5"><i class="fa-solid fa-star"></i> ${ratingVal}</span>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+    }
 
     const elQueueRecent = document.getElementById('adminQueueRecentList');
     if (elQueueRecent) {
@@ -411,55 +450,97 @@ class AdminManager {
   renderCatalogList() {
     if (!this.catalogContainer) return;
     const q = (this.inpCatalogSearch?.value || '').trim().toLowerCase();
+    const sortMode = this.inpCatalogSort?.value || 'views_desc';
 
     let filtered = [...this.allNovels];
     if (q) {
       filtered = filtered.filter(n => (n.title || '').toLowerCase().includes(q) || (n.author || '').toLowerCase().includes(q));
     }
 
+    // Tri par performance & critères
+    filtered.sort((a, b) => {
+      if (sortMode === 'views_desc') return (b.views || 0) - (a.views || 0);
+      if (sortMode === 'rating_desc') return (b.rating || 0) - (a.rating || 0);
+      if (sortMode === 'volumes_desc') return ((b.volumes && b.volumes.length) || 0) - ((a.volumes && a.volumes.length) || 0);
+      if (sortMode === 'title_asc') return (a.title || '').localeCompare(b.title || '');
+      if (sortMode === 'recent') {
+        const timeA = new Date(a.created_at || a.uploaded_at || 0).getTime();
+        const timeB = new Date(b.created_at || b.uploaded_at || 0).getTime();
+        return timeB - timeA;
+      }
+      return 0;
+    });
+
+    if (filtered.length === 0) {
+      this.catalogContainer.innerHTML = '<div class="admin-empty-clean"><i class="fa-solid fa-magnifying-glass"></i> Aucun roman ne correspond à votre recherche.</div>';
+      return;
+    }
+
     this.catalogContainer.innerHTML = `
-      <table class="admin-table">
-        <thead>
-          <tr>
-            <th>Couverture</th>
-            <th>Titre</th>
-            <th>Auteur</th>
-            <th>Statut</th>
-            <th>À la une (Slider)</th>
-            <th>Action rapide</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${filtered.map(n => {
-            const status = (n.publication_status || 'PUBLISHED').toUpperCase();
-            return `
-              <tr>
-                <td><img src="${n.cover || 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=400'}" class="admin-table-thumb"></td>
-                <td><strong>${n.title}</strong></td>
-                <td>${n.author || 'Inconnu'}</td>
-                <td>
-                  <select class="admin-status-select" onchange="window.adminManager.changeNovelStatus('${n.id}', this.value)">
-                    <option value="PUBLISHED" ${status === 'PUBLISHED' ? 'selected' : ''}>Publié</option>
-                    <option value="DRAFT" ${status === 'DRAFT' ? 'selected' : ''}>Brouillon</option>
-                    <option value="PENDING_REVIEW" ${status === 'PENDING_REVIEW' ? 'selected' : ''}>En attente</option>
-                    <option value="ARCHIVED" ${status === 'ARCHIVED' ? 'selected' : ''}>Archivé</option>
-                  </select>
-                </td>
-                <td>
-                  <button type="button" class="btn-contrib-action ${n.featured ? 'featured-active' : ''}" style="${n.featured ? 'color: #f59e0b; border-color: rgba(245, 158, 11, 0.4); background: rgba(245, 158, 11, 0.12);' : 'color: #94a3b8; border-color: rgba(255, 255, 255, 0.1); font-size: 12px; padding: 4px 10px;'}" onclick="window.adminManager.toggleFeatured('${n.id}')" title="${n.featured ? 'Retirer du slider d\'accueil' : 'Mettre à la une sur le slider d\'accueil'}">
-                    <i class="fa-${n.featured ? 'solid' : 'regular'} fa-star" style="color: ${n.featured ? '#f59e0b' : 'inherit'};"></i> ${n.featured ? 'À la une' : 'Standard'}
-                  </button>
-                </td>
-                <td>
-                  <button class="btn-admin-mini" onclick="window.location.href='/series.html?id=${n.id}'" title="Voir la fiche">
-                    <i class="fa-solid fa-eye"></i>
-                  </button>
-                </td>
-              </tr>
-            `;
-          }).join('')}
-        </tbody>
-      </table>
+      <div class="admin-table-responsive">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th style="width: 54px;">Couverture</th>
+              <th>Roman & Auteur</th>
+              <th>Volumes</th>
+              <th>Performances Lecteurs</th>
+              <th>Statut</th>
+              <th>À la une (Slider)</th>
+              <th style="text-align: right;">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${filtered.map(n => {
+              const status = (n.publication_status || 'PUBLISHED').toUpperCase();
+              const volCount = (n.volumes && n.volumes.length) || 0;
+              const viewsNum = (n.views || 0).toLocaleString('fr-FR');
+              const ratingNum = typeof n.rating === 'number' ? n.rating.toFixed(1) : (n.rating || '4.8');
+              const likesNum = (n.likes || 0).toLocaleString('fr-FR');
+
+              return `
+                <tr>
+                  <td>
+                    <img src="${n.cover || 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=400'}" class="admin-table-thumb" alt="" onerror="this.src='https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=400'">
+                  </td>
+                  <td>
+                    <div class="admin-novel-cell-title">${this.escape(n.title)}</div>
+                    <div class="admin-novel-cell-sub">${this.escape(n.author || 'Auteur inconnu')}</div>
+                  </td>
+                  <td>
+                    <span class="admin-vol-badge">${volCount} tome${volCount > 1 ? 's' : ''}</span>
+                  </td>
+                  <td>
+                    <div class="admin-perf-stats-row">
+                      <span class="perf-chip views" title="Vues / Lectures totales"><i class="fa-solid fa-eye"></i> ${viewsNum}</span>
+                      <span class="perf-chip rating" title="Note moyenne des lecteurs"><i class="fa-solid fa-star"></i> ${ratingNum}</span>
+                      <span class="perf-chip likes" title="Favoris & Likes"><i class="fa-solid fa-heart"></i> ${likesNum}</span>
+                    </div>
+                  </td>
+                  <td>
+                    <select class="admin-status-select" onchange="window.adminManager.changeNovelStatus('${n.id}', this.value)">
+                      <option value="PUBLISHED" ${status === 'PUBLISHED' ? 'selected' : ''}>Publié</option>
+                      <option value="DRAFT" ${status === 'DRAFT' ? 'selected' : ''}>Brouillon</option>
+                      <option value="PENDING_REVIEW" ${status === 'PENDING_REVIEW' ? 'selected' : ''}>En attente</option>
+                      <option value="ARCHIVED" ${status === 'ARCHIVED' ? 'selected' : ''}>Archivé</option>
+                    </select>
+                  </td>
+                  <td>
+                    <button type="button" class="btn-contrib-action ${n.featured ? 'featured-active' : ''}" style="${n.featured ? 'color: #f59e0b; border-color: rgba(245, 158, 11, 0.4); background: rgba(245, 158, 11, 0.12);' : 'color: #94a3b8; border-color: rgba(255, 255, 255, 0.1); font-size: 12px; padding: 5px 12px;'}" onclick="window.adminManager.toggleFeatured('${n.id}')" title="${n.featured ? 'Retirer du slider d\'accueil' : 'Mettre à la une sur le slider d\'accueil'}">
+                      <i class="fa-${n.featured ? 'solid' : 'regular'} fa-star" style="color: ${n.featured ? '#f59e0b' : 'inherit'};"></i> ${n.featured ? 'À la une' : 'Standard'}
+                    </button>
+                  </td>
+                  <td style="text-align: right;">
+                    <button class="btn-admin-mini" onclick="window.location.href='/series.html?id=${encodeURIComponent(n.id)}'" title="Ouvrir la fiche du roman">
+                      <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                    </button>
+                  </td>
+                </tr>
+              `;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>
     `;
   }
 
