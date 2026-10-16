@@ -440,7 +440,7 @@ class ContributorManager {
   renderApiResultCard(meta) {
     if (!this.apiResultCard) return;
 
-    const cover = meta.cover || 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=400';
+    const cover = meta.cover || '/icons/icon-512x512.png';
     if (this.apiResultCover) this.apiResultCover.src = cover;
     if (this.apiResultTitle) this.apiResultTitle.textContent = meta.title || 'Sans titre';
     if (this.apiResultAuthor) this.apiResultAuthor.textContent = meta.author || 'Inconnu';
@@ -507,7 +507,7 @@ class ContributorManager {
   updateLivePreview() {
     const title = this.inpTitle?.value.trim() || 'Titre du roman';
     const author = this.inpAuthor?.value.trim() || 'Auteur inconnu';
-    const cover = this.inpCoverUrl?.value.trim() || 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=400';
+    const cover = this.inpCoverUrl?.value.trim() || '/icons/icon-512x512.png';
 
     if (this.previewTitle) this.previewTitle.textContent = title;
     if (this.previewAuthor) this.previewAuthor.textContent = author;
@@ -661,14 +661,14 @@ class ContributorManager {
         badgeText = 'Archivé';
       }
 
-      const cover = novel.cover || novel.cover_url || 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=400';
+      const cover = novel.cover || novel.cover_url || '/icons/icon-512x512.png';
       const volCount = novel.volumes ? novel.volumes.length : (novel.volume_count || 0);
       const safeReason = (novel.rejection_reason || '').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
       return `
         <div class="contrib-novel-card ${isRejected ? 'is-rejected-card' : ''}">
           <div class="contrib-card-cover-wrap">
-            <img src="${cover}" alt="${novel.title}" class="contrib-card-cover" onerror="this.src='https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=400'">
+            <img src="${cover}" alt="${novel.title}" class="contrib-card-cover" onerror="this.src='/icons/icon-512x512.png'">
             <span class="contrib-status-badge ${badgeClass}">${badgeText}</span>
           </div>
           <div class="contrib-card-body">
