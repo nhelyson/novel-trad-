@@ -92,6 +92,9 @@ class ContributorManager {
     this.volListContainer = document.getElementById('contribVolListContainer');
     this.btnUnitModeVolume = document.getElementById('btnUnitModeVolume');
     this.btnUnitModeChapter = document.getElementById('btnUnitModeChapter');
+    this.inpNovelAllowDownload = document.getElementById('contribNovelAllowDownload');
+    this.btnToggleNovelDownload = document.getElementById('btnToggleNovelDownload');
+    this.labelToggleNovelDownload = document.getElementById('labelToggleNovelDownload');
     this.inpNovelUnitType = document.getElementById('contribNovelUnitType');
     this.volFormColTitle = document.getElementById('volFormColTitle');
     this.volFormColDesc = document.getElementById('volFormColDesc');
@@ -163,6 +166,10 @@ class ContributorManager {
     }
     if (this.btnUnitModeChapter) {
       this.btnUnitModeChapter.addEventListener('click', () => this.switchUnitType('chapter', true));
+    }
+
+    if (this.btnToggleNovelDownload) {
+      this.btnToggleNovelDownload.addEventListener('click', () => this.toggleNovelDownloadPermission());
     }
 
     const btnCloseVolModal = document.getElementById('btnCloseContribVolModal');
@@ -789,6 +796,7 @@ class ContributorManager {
     if (this.inpApiSearch) this.inpApiSearch.value = '';
 
     if (this.inpNovelUnitType) this.inpNovelUnitType.value = 'volume';
+    if (this.inpNovelAllowDownload) this.inpNovelAllowDownload.checked = true;
     this.syncCoverUI('');
     this.switchMode('auto');
     this.showView('form');
@@ -812,6 +820,7 @@ class ContributorManager {
     this.syncCoverUI(novel.cover || novel.cover_url || '');
     if (this.inpStatus) this.inpStatus.value = novel.publication_status || 'DRAFT';
     if (this.inpNovelUnitType) this.inpNovelUnitType.value = novel.unit_type || 'volume';
+    if (this.inpNovelAllowDownload) this.inpNovelAllowDownload.checked = (novel.allow_download !== false);
 
     this.selectedGenres.clear();
     const gList = Array.isArray(novel.genres_fr) ? novel.genres_fr : (Array.isArray(novel.genres) ? novel.genres : (novel.genres || '').split(',').map(s => s.trim()));
@@ -868,7 +877,8 @@ class ContributorManager {
       genres: Array.from(this.selectedGenres),
       tags: (this.inpTags?.value || '').split(',').map(s => s.trim()).filter(Boolean),
       publication_status: this.inpStatus?.value || 'DRAFT',
-      unit_type: this.inpNovelUnitType?.value || 'volume'
+      unit_type: this.inpNovelUnitType?.value || 'volume',
+      allow_download: this.inpNovelAllowDownload ? this.inpNovelAllowDownload.checked : true
     };
 
     try {
@@ -986,6 +996,7 @@ class ContributorManager {
     this.currentUnitType = (novel.unit_type === 'chapter') ? 'chapter' : 'volume';
     this.updateUnitTypeLabels(this.currentUnitType);
     this.updateUnitToggleButtons(this.currentUnitType);
+    this.updateDownloadToggleUI(novel.allow_download !== false);
     
     // Update headers and novel banner
     const titleEl = document.getElementById('volSectionNovelTitle') || document.getElementById('volModalNovelTitle');
@@ -1030,6 +1041,53 @@ class ContributorManager {
   }
 
   // Alias
+  updateDownloadToggleUI(isAllowed) {
+    if (this.btnToggleNovelDownload && this.labelToggleNovelDownload) {
+      if (isAllowed) {
+        this.btnToggleNovelDownload.style.background = 'rgba(16, 185, 129, 0.15)';
+        this.btnToggleNovelDownload.style.color = '#34d399';
+        this.btnToggleNovelDownload.style.borderColor = 'rgba(16, 185, 129, 0.35)';
+        this.labelToggleNovelDownload.innerHTML = '<i class="fa-solid fa-cloud-arrow-down"></i> Téléchargement public : Actif';
+        this.btnToggleNovelDownload.title = "Le public peut télécharger les fichiers. Cliquez pour restreindre à la lecture en ligne seule.";
+      } else {
+        this.btnToggleNovelDownload.style.background = 'rgba(239, 68, 68, 0.2)';
+        this.btnToggleNovelDownload.style.color = '#fca5a5';
+        this.btnToggleNovelDownload.style.borderColor = 'rgba(239, 68, 68, 0.4)';
+        this.labelToggleNovelDownload.innerHTML = '<i class="fa-solid fa-lock"></i> Lecture en ligne exclusive';
+        this.btnToggleNovelDownload.title = "Le téléchargement est désactivé pour le public. Cliquez pour autoriser le téléchargement.";
+      }
+    }
+  }
+
+  async toggleNovelDownloadPermission() {
+    if (!this.selectedNovelForVolumes) return;
+    const current = (this.selectedNovelForVolumes.allow_download !== false);
+    const nextVal = !current;
+
+    this.selectedNovelForVolumes.allow_download = nextVal;
+    this.updateDownloadToggleUI(nextVal);
+
+    // Sync local list
+    const list = this.novels || this.myNovels || [];
+    const item = list.find(n => n.id === this.selectedNovelForVolumes.id);
+    if (item) item.allow_download = nextVal;
+
+    try {
+      const headers = await this.getHeaders();
+      const res = await fetch(`/api/contributor/novels/${this.selectedNovelForVolumes.id}`, {
+        method: 'PUT',
+        headers: { ...headers, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ allow_download: nextVal })
+      });
+      const data = await res.json();
+      if (data && data.success) {
+        console.log('[ContributorManager] allow_download sauvegardé:', nextVal);
+      }
+    } catch (err) {
+      console.warn('[ContributorManager] Erreur sauvegarde allow_download:', err);
+    }
+  }
+
   openManageVolumes(novelId) {
     this.openVolumesModal(novelId);
   }

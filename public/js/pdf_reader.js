@@ -426,6 +426,19 @@
     if (!book) return;
     currentBookRef = book;
     initWebtoonBottomBarEvents();
+
+    // Vérification de permission de téléchargement pour cette œuvre
+    const isDlAllowed = (book && book.allow_download !== false) && (!window.currentSeries || window.currentSeries.allow_download !== false);
+    const downloadBtnEl = document.getElementById("readerDownloadBtn");
+    if (downloadBtnEl) {
+      if (!isDlAllowed) {
+        downloadBtnEl.classList.add("hidden");
+        downloadBtnEl.style.display = "none";
+      } else {
+        downloadBtnEl.classList.remove("hidden");
+        downloadBtnEl.style.display = "";
+      }
+    }
     try {
       const fKey = extractVolumeFileKey(book);
       if (fKey) window.refreshVolumeCommentsBadge(fKey);

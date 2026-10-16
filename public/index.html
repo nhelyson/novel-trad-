@@ -92,8 +92,8 @@
       } catch(e) {}
     })();
   </script>
-  <link rel="stylesheet" href="css/style.css?v=1792178096779">
-  <link rel="stylesheet" href="css/home_lnori.css?v=1792178096779">
+  <link rel="stylesheet" href="css/style.css?v=1792181946358">
+  <link rel="stylesheet" href="css/home_lnori.css?v=1792181946358">
   <link rel="stylesheet" href="css/app_themes.css?v=1792030000000">
   <!-- Coupe-circuit de production pour console propre & anti-fuite -->
   <script>
@@ -791,14 +791,14 @@
               </div>
 
               <div id="calendarMonthlyGrid" class="cal-monthly-grid" role="grid" aria-label="Grille mensuelle des parutions">
-                <!-- Cellules des 7 jours injectées par editorial_logic.js?v=1792178096779 -->
+                <!-- Cellules des 7 jours injectées par editorial_logic.js?v=1792181946358 -->
               </div>
             </div>
 
             <!-- VUE AGENDA / LISTE (Mobile & Bascule utilisateur) -->
             <div id="calendarAgendaWrapper" class="cal-agenda-wrapper hidden">
               <div id="calendarAgendaList" class="cal-agenda-list">
-                <!-- Événements groupés par date injectés par editorial_logic.js?v=1792178096779 -->
+                <!-- Événements groupés par date injectés par editorial_logic.js?v=1792181946358 -->
               </div>
             </div>
 
@@ -820,7 +820,7 @@
           <div class="modal-content cal-event-modal-content">
             <button type="button" id="calEventModalClose" class="modal-close-btn" aria-label="Fermer">&times;</button>
             <div id="calEventModalBody" class="cal-event-modal-body">
-              <!-- Injecté dynamiquement par editorial_logic.js?v=1792178096779 -->
+              <!-- Injecté dynamiquement par editorial_logic.js?v=1792181946358 -->
             </div>
           </div>
         </div>
@@ -1730,6 +1730,16 @@
                   </div>
                 </div>
 
+                <div class="form-group contrib-perm-box" style="margin-bottom: 20px; background: rgba(15, 23, 42, 0.55); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 10px; padding: 12px 14px;">
+                  <label class="contrib-checkbox-label" style="display: flex; align-items: flex-start; gap: 12px; cursor: pointer;">
+                    <input type="checkbox" id="contribNovelAllowDownload" checked style="width: 18px; height: 18px; margin-top: 2px; accent-color: #6366f1; cursor: pointer;">
+                    <span style="font-size: 13px; color: #f1f5f9; line-height: 1.45;">
+                      <strong style="display: block; font-size: 13.5px; margin-bottom: 2px;"><i class="fa-solid fa-cloud-arrow-down" style="color: #60a5fa;"></i> Autoriser le téléchargement direct (EPUB / PDF)</strong>
+                      <span style="color: #94a3b8;">Si décoché, les lecteurs ne pourront pas télécharger les fichiers bruts. L'œuvre sera disponible en <em>lecture en ligne exclusive</em> sur NovelTrad.</span>
+                    </span>
+                  </label>
+                </div>
+
                 <div class="form-actions-bar">
                   <button type="button" class="btn-contrib-cancel" onclick="window.contributorManager.showView('novels')">Annuler</button>
                   <button type="submit" id="contribSaveNovelBtn" class="btn-contrib-primary">
@@ -1785,6 +1795,11 @@
                         </button>
                       </div>
                     </div>
+
+                    <!-- BOUTON PERMISSION DE TÉLÉCHARGEMENT -->
+                    <button type="button" class="unit-pill-btn active" id="btnToggleNovelDownload" style="background: rgba(30, 41, 59, 0.8); border: 1px solid rgba(255, 255, 255, 0.12); padding: 4px 12px; border-radius: 9999px;">
+                      <span id="labelToggleNovelDownload"><i class="fa-solid fa-cloud-arrow-down" style="color:#60a5fa;"></i> Téléchargement public : Actif</span>
+                    </button>
                   </div>
                   <h3 id="volSectionNovelTitle">Titre du roman</h3>
                   <div class="vol-novel-banner-meta">
@@ -1897,7 +1912,7 @@
                 </div>
                 
                 <div id="contribVolListContainer" class="contrib-vols-list">
-                  <!-- Dynamiquement rempli par contributor_logic.js?v=1792178096779 -->
+                  <!-- Dynamiquement rempli par contributor_logic.js?v=1792181946358 -->
                 </div>
               </div>
 
@@ -1975,7 +1990,7 @@
                 <span class="admin-widget-badge">Top Vues & Notes</span>
               </div>
               <div id="adminTopPerformingNovels" class="admin-top-novels-list">
-                <!-- Rempli dynamiquement par admin_logic.js?v=1792178096779 -->
+                <!-- Rempli dynamiquement par admin_logic.js?v=1792181946358 -->
               </div>
             </div>
 
@@ -2114,7 +2129,7 @@
                   </tr>
                 </thead>
                 <tbody id="adminSchedTableBody">
-                  <!-- Injected by admin_logic.js?v=1792178096779 -->
+                  <!-- Injected by admin_logic.js?v=1792181946358 -->
                 </tbody>
               </table>
             </div>
@@ -2144,7 +2159,7 @@
 
             <!-- LISTE DES ARTICLES EN LIGNE -->
             <div id="adminNewsCardsContainer" class="admin-ed-news-cards-grid">
-              <!-- Injected by admin_logic.js?v=1792178096779 -->
+              <!-- Injected by admin_logic.js?v=1792181946358 -->
             </div>
           </div>
 
@@ -2947,12 +2962,12 @@
   <script src="js/webnovel_reader.js?v=1789752407265"></script>
   <script src="js/home_lnori_logic.js?v=1790725844546"></script>
   <script src="js/catalog_logic.js?v=1790725844546"></script>
-  <script src="js/editorial_logic.js?v=1792178096779"></script>
+  <script src="js/editorial_logic.js?v=1792181946358"></script>
   <script src="js/series_logic.js?v=1791942152722"></script>
-  <script src="js/contributor_logic.js?v=1792178096779"></script>
-  <script src="js/admin_logic.js?v=1792178096779"></script>
+  <script src="js/contributor_logic.js?v=1792181946358"></script>
+  <script src="js/admin_logic.js?v=1792181946358"></script>
   <script src="js/pwa_manager.js?v=1790841520734"></script>
-  <script src="js/app.js?v=1792178096779"></script>
+  <script src="js/app.js?v=1792181946358"></script>
 
   <script>
     if ('serviceWorker' in navigator) {

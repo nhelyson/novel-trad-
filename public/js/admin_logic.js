@@ -576,6 +576,28 @@ class AdminManager {
     }
   }
 
+  async toggleAllowDownload(novelId) {
+    const novel = (this.novels || []).find(n => n.id === novelId);
+    if (!novel) return;
+    const current = (novel.allow_download !== false);
+    const nextVal = !current;
+    try {
+      const headers = await this.getHeaders();
+      const res = await fetch(`/api/contributor/novels/${novelId}`, {
+        method: 'PUT',
+        headers: { ...headers, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ allow_download: nextVal })
+      });
+      const data = await res.json();
+      if (data && data.success) {
+        novel.allow_download = nextVal;
+        this.renderCatalogManagement();
+      }
+    } catch (e) {
+      console.error('[AdminManager] Erreur toggle allow_download:', e);
+    }
+  }
+
   async changeNovelStatus(novelId, newStatus) {
     try {
       const headers = await this.getHeaders();

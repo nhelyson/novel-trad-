@@ -305,6 +305,13 @@ app.get('/api/volume-stream/:fileKey', (req, res) => {
             file.pipe(res);
         } else {
             const isDownload = req.query.download === '1' || req.query.dl === '1';
+            if (isDownload) {
+                const catData = CatalogService.loadData();
+                const matchedNovel = (catData.series || []).find(s => (s.volumes || []).some(v => (v.file_path || '').includes(key) || (v.id || '').includes(key)));
+                if (matchedNovel && matchedNovel.allow_download === false) {
+                    return res.status(403).json({ success: false, error: "Le téléchargement de cette œuvre a été désactivé par son auteur (Lecture en ligne exclusive)." });
+                }
+            }
             const headers = {
                 'Content-Type': 'application/octet-stream',
                 'Content-Length': stat.size,
@@ -3576,6 +3583,7 @@ app.post('/api/contributor/novels', contributorLimiter, requireContributor, asyn
             status_fr: 'En cours',
             publication_status: publication_status || 'DRAFT',
             unit_type: req.body.unit_type === 'chapter' ? 'chapter' : 'volume',
+            allow_download: (req.body.allow_download !== false && req.body.allow_download !== 'false'),
             genres: Array.isArray(genres) ? genres : (genres ? [genres] : ['Fantaisie']),
             genres_fr: Array.isArray(genres) ? genres : (genres ? [genres] : ['Fantaisie']),
             tags: Array.isArray(tags) ? tags : (tags ? [tags] : []),
@@ -3610,7 +3618,7 @@ const handleUpdateNovel = async (novelId, req, res) => {
     try {
         if (!novelId) return res.status(400).json({ success: false, error: 'ID du roman requis.' });
 
-        const { title, title_romaji, author, illustrator, synopsis, genres, tags, cover, publication_status, unit_type } = req.body;
+        const { title, title_romaji, author, illustrator, synopsis, genres, tags, cover, publication_status, unit_type, allow_download } = req.body;
 
         const catService = CatalogService;
         const data = catService.loadData();
@@ -3635,6 +3643,7 @@ const handleUpdateNovel = async (novelId, req, res) => {
         if (cover) novel.cover = cover;
         if (publication_status) novel.publication_status = publication_status;
         if (unit_type !== undefined) novel.unit_type = unit_type === "chapter" ? "chapter" : "volume";
+        if (allow_download !== undefined) novel.allow_download = (allow_download === true || allow_download === "true");
         novel.updated_at = Date.now();
 
         catService.saveData();

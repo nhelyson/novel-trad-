@@ -101,6 +101,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 });
 
 async function renderSeries(series) {
+    window.currentSeries = series;
     if (series.title) {
         document.title = series.title + ' - Light Novel en Français | NovelTrad';
         try {
@@ -207,6 +208,17 @@ async function renderSeries(series) {
     }
 
     var elVolCount = document.getElementById('seriesVolCount');
+    if (series.allow_download === false) {
+      var headerActions = document.querySelector('.series-actions') || document.querySelector('.series-meta-row');
+      var existingExcl = document.getElementById('badgeSeriesExclusiveOnline');
+      if (!existingExcl && headerActions) {
+        var exclPill = document.createElement('span');
+        exclPill.id = 'badgeSeriesExclusiveOnline';
+        exclPill.className = 'series-badge-exclusive';
+        exclPill.innerHTML = '<i class="fa-solid fa-lock"></i> Lecture en ligne exclusive';
+        headerActions.appendChild(exclPill);
+      }
+    }
     if (elVolCount) {
       var isChap = series.unit_type === 'chapter';
       var vCount = (series.volumes && series.volumes.length) || (series.volume_count) || 1;
@@ -574,6 +586,7 @@ async function renderSeries(series) {
                             volumeNumber: volNum,
                             fileKey: fileKey,
                             format: isPdf ? 'pdf' : 'epub',
+                            allow_download: (series.allow_download !== false),
                             file_path: vol.file_path || vol.filePath,
                             filePath: vol.file_path || vol.filePath,
                             fullPath: vol.fullPath || null,
