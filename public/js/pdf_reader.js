@@ -1,3 +1,50 @@
+
+// ── NOTICE DE TÉLÉCHARGEMENT RESTREINT (LECTURE EN LIGNE EXCLUSIVE) ──
+window.showDownloadRestrictedNotice = function () {
+  let modal = document.getElementById("downloadRestrictedModal");
+  if (!modal) {
+    modal = document.createElement("div");
+    modal.id = "downloadRestrictedModal";
+    modal.className = "download-restricted-overlay";
+    modal.innerHTML = `
+      <div class="download-restricted-card" role="dialog" aria-modal="true" aria-labelledby="dlRestrictedTitle">
+        <div class="download-restricted-icon">
+          <i class="fa-solid fa-lock"></i>
+        </div>
+        <h3 id="dlRestrictedTitle">Lecture exclusive en ligne</h3>
+        <p>L'auteur a désactivé le téléchargement pour cette œuvre afin de protéger ses droits et privilégier la lecture sur NovelTrad.<br><br>Merci de respecter son travail et bonne lecture à vous !</p>
+        <button type="button" class="btn-restricted-dismiss" id="btnRestrictedDismiss">
+          <i class="fa-solid fa-book-open"></i> Continuer la lecture
+        </button>
+      </div>
+    `;
+    document.body.appendChild(modal);
+
+    modal.addEventListener("click", function(e) {
+      if (e.target === modal || e.target.closest("#btnRestrictedDismiss")) {
+        window.closeDownloadRestrictedNotice();
+      }
+    });
+
+    document.addEventListener("keydown", function(e) {
+      if (e.key === "Escape" && modal.classList.contains("active")) {
+        window.closeDownloadRestrictedNotice();
+      }
+    });
+  }
+
+  requestAnimationFrame(() => {
+    modal.classList.add("active");
+  });
+};
+
+window.closeDownloadRestrictedNotice = function () {
+  const modal = document.getElementById("downloadRestrictedModal");
+  if (modal) {
+    modal.classList.remove("active");
+  }
+};
+
 /* ==========================================================================
    NovelTrad AI Studio - Unified Book Reader Module (pdf_reader.js)
    Supports EPUB (ePub.js) & PDF (Mozilla PDF.js) with Paginated & Webtoon scroll,
@@ -431,12 +478,16 @@
     const isDlAllowed = (book && book.allow_download !== false) && (!window.currentSeries || window.currentSeries.allow_download !== false);
     const downloadBtnEl = document.getElementById("readerDownloadBtn");
     if (downloadBtnEl) {
+      downloadBtnEl.classList.remove("hidden");
+      downloadBtnEl.style.display = "";
       if (!isDlAllowed) {
-        downloadBtnEl.classList.add("hidden");
-        downloadBtnEl.style.display = "none";
+        downloadBtnEl.classList.add("btn-download-locked");
+        downloadBtnEl.title = "Téléchargement désactivé par l'auteur (Lecture en ligne exclusive)";
+        downloadBtnEl.innerHTML = '<i class="fa-solid fa-lock" style="color: #f87171;"></i>';
       } else {
-        downloadBtnEl.classList.remove("hidden");
-        downloadBtnEl.style.display = "";
+        downloadBtnEl.classList.remove("btn-download-locked");
+        downloadBtnEl.title = "Télécharger le volume";
+        downloadBtnEl.innerHTML = '<i class="fa-solid fa-download"></i>';
       }
     }
     try {
@@ -2538,6 +2589,16 @@
     const downloadBtn = document.getElementById("readerDownloadBtn");
     if (downloadBtn) {
       downloadBtn.addEventListener("click", function() {
+        const book = window.currentActiveBook || window.activePdfBook || window.activeWebnovelBook || window.currentBookRef;
+        const isDlAllowed = (book && book.allow_download !== false) && (!window.currentSeries || window.currentSeries.allow_download !== false);
+        if (!isDlAllowed) {
+          if (typeof window.showDownloadRestrictedNotice === "function") {
+            window.showDownloadRestrictedNotice();
+          } else {
+            alert("L'auteur a désactivé le téléchargement pour cette œuvre afin de protéger ses droits et privilégier la lecture sur NovelTrad.");
+          }
+          return;
+        }
         if (typeof window.openDownloadSponsorModal === "function") {
           window.openDownloadSponsorModal();
         } else if (typeof window.downloadCurrentVolume === "function") {
