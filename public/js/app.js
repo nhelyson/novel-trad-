@@ -140,8 +140,15 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
 
-    // Scroll to top of content smoothly
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Reset immédiat du scroll vertical et horizontal pour garantir le positionnement en tête de page
+    window.scrollTo(0, 0);
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+    const mainContentEl = document.querySelector('.main-content');
+    if (mainContentEl) {
+      mainContentEl.scrollTop = 0;
+      mainContentEl.scrollLeft = 0;
+    }
   }
 
   window.setActiveTab = setActiveTab;
@@ -176,7 +183,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if (window.adminManager && typeof window.adminManager.initAdmin === 'function') {
       window.adminManager.initAdmin();
     }
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo(0, 0);
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
   }
   window.openAdminTab = openAdminTab;
 

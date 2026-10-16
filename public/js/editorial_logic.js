@@ -441,13 +441,15 @@
 
     stripEl.appendChild(fragment);
 
-    // Centrer le jour sélectionné ou aujourd'hui
+    // Centrer le jour sélectionné ou aujourd'hui uniquement dans son conteneur ruban (zéro scroll parasite global)
     const targetDay = state.selectedDay || (isCurrentMonth ? todayDate : null);
     if (targetDay) {
       setTimeout(() => {
         const activeEl = document.getElementById('calDayStripItem_' + targetDay);
-        if (activeEl) {
-          activeEl.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+        const stripContainer = document.getElementById('calDayStrip');
+        if (activeEl && stripContainer) {
+          const scrollTarget = activeEl.offsetLeft - (stripContainer.clientWidth / 2) + (activeEl.clientWidth / 2);
+          stripContainer.scrollTo({ left: Math.max(0, scrollTarget), behavior: 'smooth' });
         }
       }, 50);
     }

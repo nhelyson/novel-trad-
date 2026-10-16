@@ -374,7 +374,7 @@
 }
 
 /* Modules secondaires compacts (Paramètres, Outils spécifiques) */
-.module-container:not(#homeModuleContainer):not(#catalogModule):not(#libraryModule):not(.library-module-container):not(#seriesModule):not(.series-module-full) {
+.module-container:not(#homeModuleContainer):not(#catalogModule):not(#libraryModule):not(.library-module-container):not(#seriesModule):not(.series-module-full):not(#editorialModule):not(.cal-page-container):not(#adminModuleContainer):not(.admin-module-container) {
   width: 100% !important;
   max-width: 1100px !important;
   margin: 0 auto !important;
@@ -6206,11 +6206,24 @@ html.theme-light #editorialModule .cal-empty-desc {
    NOVELTRAD - RUBAN HORIZONTAL DE JOURS TACTILE (DAY STRIP)
    ========================================================================== */
 
+.cal-page-container,
+.cal-header,
+.cal-nav-bar {
+  max-width: 100% !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  min-width: 0 !important;
+}
+
 .cal-day-strip {
   display: flex !important;
   align-items: center !important;
   gap: 8px !important;
   overflow-x: auto !important;
+  max-width: 100% !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
   padding: 8px 4px 10px 4px !important;
   margin-top: 14px !important;
   margin-bottom: 6px !important;
@@ -7065,19 +7078,73 @@ html.theme-light .admin-table td {
   color: #334155 !important;
 }
 
-/* 10. Responsive Mobile (< 768px) */
+/* 10. Responsive Mobile (< 768px) - Ergonomie & Zéro Scroll Parasite */
 @media (max-width: 768px) {
   .admin-module-container {
-    padding: 14px 12px 60px 12px !important;
+    padding: 12px 14px 60px 14px !important;
+    margin-top: 0 !important;
+  }
+
+  .admin-header-section {
+    margin-bottom: 14px !important;
+    padding-bottom: 12px !important;
+  }
+
+  .admin-header-content {
+    gap: 8px !important;
   }
 
   .admin-main-title {
-    font-size: 24px !important;
+    font-size: 22px !important;
+  }
+
+  .admin-main-subtitle {
+    font-size: 13px !important;
+    margin-top: 4px !important;
+    line-height: 1.4 !important;
+  }
+
+  .admin-system-status-pill {
+    padding: 4px 10px !important;
+    font-size: 11px !important;
+  }
+
+  .admin-tabs-bar {
+    margin-bottom: 16px !important;
+    padding: 4px !important;
+    gap: 4px !important;
+    border-radius: 12px !important;
+  }
+
+  .admin-tab-btn {
+    padding: 8px 12px !important;
+    font-size: 12.5px !important;
   }
 
   .admin-module-container .contrib-stats-grid.admin {
     grid-template-columns: repeat(2, 1fr) !important;
     gap: 10px !important;
+    margin-bottom: 16px !important;
+  }
+
+  .admin-module-container .contrib-stat-card {
+    padding: 12px 14px !important;
+    gap: 10px !important;
+  }
+
+  .admin-module-container .contrib-stat-icon {
+    width: 38px !important;
+    height: 38px !important;
+    font-size: 15px !important;
+    border-radius: 10px !important;
+  }
+
+  .admin-module-container .stat-number {
+    font-size: 19px !important;
+  }
+
+  .admin-module-container .stat-label {
+    font-size: 11.5px !important;
   }
 
   .admin-dashboard-widgets-grid {
@@ -7085,9 +7152,14 @@ html.theme-light .admin-table td {
     gap: 14px !important;
   }
 
+  .admin-widget-card {
+    padding: 16px !important;
+  }
+
   .admin-catalog-toolbar {
     flex-direction: column !important;
     align-items: stretch !important;
+    gap: 10px !important;
   }
 
   .admin-sort-wrap {
