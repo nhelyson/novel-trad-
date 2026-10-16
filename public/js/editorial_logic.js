@@ -28,7 +28,8 @@
 
   const state = {
     selectedYear: new Date().getFullYear(),
-    selectedMonth: new Date().getMonth(), // 0-11
+    selectedMonth: new Date().getMonth(),
+    selectedDay: null, // null = tout le mois, ou numéro du jour (1-31)
     activeFilter: 'all', // 'all' | 'translations' | 'volumes' | 'new' | 'announcements'
     viewMode: window.innerWidth <= 768 ? 'agenda' : 'grid', // 'grid' | 'agenda'
     events: [],
@@ -357,9 +358,104 @@
   /**
    * Rendu complet du calendrier (En-tête, Grille mensuelle, Mode Agenda)
    */
+  
+  /**
+   * Rendu du ruban horizontal de sélection des jours (Mobile & Agenda)
+   */
+  function renderDayStrip(events) {
+    const stripEl = document.getElementById('calDayStrip');
+    if (!stripEl) return;
+    stripEl.innerHTML = '';
+
+    const year = state.selectedYear;
+    const month = state.selectedMonth;
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+    const today = new Date();
+    const isCurrentMonth = today.getFullYear() === year && today.getMonth() === month;
+    const todayDate = today.getDate();
+
+    // Jours contenant des parutions dans le mois
+    const daysWithEvents = new Set();
+    events.forEach(ev => {
+      if (ev.date && ev.date.getFullYear() === year && ev.date.getMonth() === month) {
+        daysWithEvents.add(ev.date.getDate());
+      }
+    });
+
+    const SHORT_DAYS_FR = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'];
+    const fragment = document.createDocumentFragment();
+
+    // 1. Pastille "Tout le mois"
+    const allBtn = document.createElement('button');
+    allBtn.type = 'button';
+    allBtn.className = 'cal-day-strip-item' + (state.selectedDay === null ? ' active' : '');
+    allBtn.setAttribute('data-day', 'all');
+    allBtn.setAttribute('title', 'Afficher toutes les sorties du mois');
+    allBtn.innerHTML = `
+      <span class="cal-day-strip-name">Mois</span>
+      <span class="cal-day-strip-num">Tous</span>
+    `;
+    allBtn.addEventListener('click', () => {
+      state.selectedDay = null;
+      renderCalendar();
+    });
+    fragment.appendChild(allBtn);
+
+    // 2. Pastilles pour chaque jour
+    for (let d = 1; d <= daysInMonth; d++) {
+      const dayDate = new Date(year, month, d);
+      const dayName = SHORT_DAYS_FR[dayDate.getDay()];
+      const isToday = isCurrentMonth && d === todayDate;
+      const hasEvents = daysWithEvents.has(d);
+      const isSelected = state.selectedDay === d;
+
+      const dayBtn = document.createElement('button');
+      dayBtn.type = 'button';
+      dayBtn.id = 'calDayStripItem_' + d;
+      dayBtn.className = 'cal-day-strip-item' +
+        (isSelected ? ' active' : '') +
+        (isToday ? ' is-today' : '') +
+        (hasEvents ? ' has-events' : '');
+      dayBtn.setAttribute('data-day', String(d));
+      dayBtn.setAttribute('title', d + ' ' + MONTH_NAMES_FR[month] + (isToday ? " (Aujourd'hui)" : ''));
+
+      dayBtn.innerHTML = `
+        <span class="cal-day-strip-name">${dayName}</span>
+        <span class="cal-day-strip-num">${d}</span>
+        ${hasEvents ? '<span class="cal-day-strip-dot"></span>' : ''}
+      `;
+
+      dayBtn.addEventListener('click', () => {
+        if (state.selectedDay === d) {
+          state.selectedDay = null;
+        } else {
+          state.selectedDay = d;
+        }
+        renderCalendar();
+      });
+
+      fragment.appendChild(dayBtn);
+    }
+
+    stripEl.appendChild(fragment);
+
+    // Centrer le jour sélectionné ou aujourd'hui
+    const targetDay = state.selectedDay || (isCurrentMonth ? todayDate : null);
+    if (targetDay) {
+      setTimeout(() => {
+        const activeEl = document.getElementById('calDayStripItem_' + targetDay);
+        if (activeEl) {
+          activeEl.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+        }
+      }, 50);
+    }
+  }
+
   function renderCalendar() {
     updateHeaderUI();
     updateFilterCounts();
+    renderDayStrip(filteredEvents);
 
     const filteredEvents = getFilteredEventsForMonth();
     const emptyStateEl = document.getElementById('calendarEmptyState');
@@ -592,8 +688,36 @@
     if (!agendaEl) return;
     agendaEl.innerHTML = '';
 
+    // Filtrage spécifique si un jour précis est sélectionné dans le ruban
+    let displayEvents = events;
+    if (state.selectedDay !== null) {
+      displayEvents = events.filter(ev => ev.date && ev.date.getDate() === state.selectedDay);
+    }
+
+    if (displayEvents.length === 0 && state.selectedDay !== null) {
+      const emptyDay = document.createElement('div');
+      emptyDay.className = 'cal-empty-day-state';
+      emptyDay.innerHTML = `
+        <div class="cal-empty-day-icon"><i class="fa-regular fa-calendar-xmark"></i></div>
+        <h4>Aucune sortie le ${state.selectedDay} ${MONTH_NAMES_FR[state.selectedMonth]} ${state.selectedYear}</h4>
+        <p>Aucun roman ou chapitre n'est programmé pour cette journée.</p>
+        <button type="button" class="btn-secondary cal-btn-see-month" id="calSeeAllMonthBtn">
+          <i class="fa-solid fa-calendar-days"></i> <span>Voir tout le mois</span>
+        </button>
+      `;
+      const btn = emptyDay.querySelector('#calSeeAllMonthBtn');
+      if (btn) {
+        btn.addEventListener('click', () => {
+          state.selectedDay = null;
+          renderCalendar();
+        });
+      }
+      agendaEl.appendChild(emptyDay);
+      return;
+    }
+
     // Trier les événements par date croissante
-    const sorted = [...events].sort((a, b) => a.date.getTime() - b.date.getTime());
+    const sorted = [...displayEvents].sort((a, b) => a.date.getTime() - b.date.getTime());
 
     // Grouper par date ISO (YYYY-MM-DD)
     const groups = {};
@@ -915,8 +1039,10 @@
         if (state.selectedMonth === 0) {
           state.selectedMonth = 11;
           state.selectedYear -= 1;
+          state.selectedDay = null;
         } else {
           state.selectedMonth -= 1;
+          state.selectedDay = null;
         }
         renderCalendar();
       });
@@ -929,8 +1055,10 @@
         if (state.selectedMonth === 11) {
           state.selectedMonth = 0;
           state.selectedYear += 1;
+          state.selectedDay = null;
         } else {
           state.selectedMonth += 1;
+          state.selectedDay = null;
         }
         renderCalendar();
       });
@@ -943,6 +1071,7 @@
         const now = new Date();
         state.selectedYear = now.getFullYear();
         state.selectedMonth = now.getMonth();
+        state.selectedDay = now.getDate();
         renderCalendar();
       });
     }
