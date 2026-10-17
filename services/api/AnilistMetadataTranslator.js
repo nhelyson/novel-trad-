@@ -70,6 +70,24 @@ class AnilistMetadataTranslator {
         this.cachePath = path.join(__dirname, '..', '..', 'data', 'series_cache.json');
     }
 
+    isEnglishText(text) {
+        if (!text || typeof text !== 'string') return false;
+        const enWords = ['the', 'and', 'is', 'in', 'to', 'of', 'with', 'was', 'for', 'from', 'her', 'his', 'after', 'lives', 'series', 'world', 'when'];
+        const frWords = ['le', 'la', 'les', 'un', 'une', 'des', 'et', 'dans', 'est', 'pour', 'qui', 'avec', 'son', 'sa', 'sur', 'vie', 'lorsque', 'monde'];
+        const lower = text.toLowerCase();
+        let enCount = 0;
+        let frCount = 0;
+        enWords.forEach(w => {
+            const m = lower.match(new RegExp('\\b' + w + '\\b', 'g'));
+            if (m) enCount += m.length;
+        });
+        frWords.forEach(w => {
+            const m = lower.match(new RegExp('\\b' + w + '\\b', 'g'));
+            if (m) frCount += m.length;
+        });
+        return enCount > frCount;
+    }
+
     translateGenre(genre) {
         if (!genre) return '';
         return GENRES_FR[genre] || genre;
@@ -86,16 +104,19 @@ class AnilistMetadataTranslator {
     async translateText(text, targetLang = 'fr') {
         if (!text || text.trim().length === 0) return '';
 
-        // --- Tentative 1 : @vitalets/google-translate-api ---
+        // --- Tentative 1 : @vitalets/google-translate-api avec timeout de sécurité ---
         try {
             const { translate } = await import('@vitalets/google-translate-api');
-            const result = await translate(text, { to: targetLang });
+            const result = await Promise.race([
+                translate(text, { to: targetLang }),
+                new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout 9s')), 9000))
+            ]);
             if (result && result.text) {
-                console.log('[Translator] Synopsis traduit avec succès en français (Google)');
+                console.log('[Translator] Synopsis traduit avec succès en français (Google Translate API)');
                 return result.text;
             }
         } catch (e) {
-            console.warn('[Translator] Google Translate non disponible:', e.message);
+            console.warn('[Translator] Google Translate wrapper warning:', e.message);
         }
 
         // --- Tentative 2 : MyMemory API (fallback gratuit) ---
@@ -105,7 +126,7 @@ class AnilistMetadataTranslator {
             const response = await fetch(url);
             const json = await response.json();
             const translated = json?.responseData?.translatedText;
-            if (translated && translated !== text) {
+            if (translated && translated !== text && !translated.includes('MYMEMORY WARNING')) {
                 console.log('[Translator] Synopsis traduit via MyMemory API');
                 return translated;
             }
@@ -143,14 +164,26 @@ class AnilistMetadataTranslator {
             updated.synopsis_fr = 'Aucun synopsis disponible.';
         }
 
-        // Traduire également les candidats
+        // Traduire également les métadonnées ET le synopsis des candidats pour le Studio
         if (Array.isArray(updated.candidates)) {
-            updated.candidates = updated.candidates.map(cand => ({
-                ...cand,
-                status_fr: this.translateStatus(cand.status),
-                genres_fr: (cand.genres || []).map(g => this.translateGenre(g)),
-                format_label: cand.format === 'NOVEL' ? 'Light Novel' : (cand.format === 'MANGA' ? 'Manga' : cand.format)
-            }));
+            for (let i = 0; i < updated.candidates.length; i++) {
+                const cand = updated.candidates[i];
+                cand.status_fr = this.translateStatus(cand.status);
+                cand.genres_fr = (cand.genres || []).map(g => this.translateGenre(g));
+                cand.format_label = cand.format === 'NOVEL' ? 'Light Novel' : (cand.format === 'MANGA' ? 'Manga' : cand.format);
+                
+                if (i === 0 && updated.synopsis_fr) {
+                    cand.synopsis_fr = updated.synopsis_fr;
+                } else if (cand.synopsis && cand.synopsis.trim()) {
+                    try {
+                        cand.synopsis_fr = await this.translateText(cand.synopsis, 'fr');
+                    } catch(_) {
+                        cand.synopsis_fr = cand.synopsis;
+                    }
+                } else {
+                    cand.synopsis_fr = 'Aucun synopsis disponible.';
+                }
+            }
         }
 
         return updated;
@@ -177,10 +210,11 @@ class AnilistMetadataTranslator {
             updated.status_fr = this.translateStatus(raw.status);
         }
 
-        // Synopsis FR
-        if (!updated.synopsis_fr) {
-            if (raw.synopsis && raw.synopsis.trim().length > 0) {
-                updated.synopsis_fr = await this.translateText(raw.synopsis, 'fr');
+        // Synopsis FR (vérifie également si synopsis_fr est actuellement en anglais)
+        if (!updated.synopsis_fr || this.isEnglishText(updated.synopsis_fr)) {
+            const sourceText = raw.synopsis || updated.synopsis || '';
+            if (sourceText && sourceText.trim().length > 0) {
+                updated.synopsis_fr = await this.translateText(sourceText, 'fr');
             } else {
                 updated.synopsis_fr = 'Aucun synopsis disponible.';
             }

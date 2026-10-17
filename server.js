@@ -2363,7 +2363,8 @@ app.get('/api/series/:id/metadata', async (req, res) => {
     const { id } = req.params;
     const title = req.query.title || id;
     let metadata = AnilistClient.cache[id];
-    if (!metadata) {
+    // Re-traduire si manquant ou si le synopsis actuel est encore en anglais
+    if (!metadata || !metadata.synopsis_fr || AnilistMetadataTranslator.isEnglishText(metadata.synopsis_fr)) {
       metadata = await AnilistMetadataTranslator.get(id, title);
     }
     res.json({ success: true, metadata });
@@ -4808,6 +4809,37 @@ app.use((req, res) => {
   return res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
+
+// ── AUTO-RÉPARATION DES SYNOPSIS DU CATALOGUE (FR) ──────────────────────────
+async function autoRepairCatalogSynopses() {
+  try {
+    const catData = CatalogService.loadData();
+    let updatedCount = 0;
+    for (const novel of (catData.series || [])) {
+      const syn = novel.synopsis_fr || novel.synopsis;
+      if (syn && AnilistMetadataTranslator.isEnglishText(syn)) {
+        console.log(`[AutoRepair] Traduction en français du synopsis pour : "${novel.title}"...`);
+        try {
+          const fr = await AnilistMetadataTranslator.translateText(syn, 'fr');
+          if (fr && fr !== syn) {
+            novel.synopsis_fr = fr;
+            novel.synopsis = fr;
+            updatedCount++;
+          }
+        } catch (err) {
+          console.warn(`[AutoRepair] Échec de traduction pour "${novel.title}":`, err.message);
+        }
+      }
+    }
+    if (updatedCount > 0) {
+      CatalogService.saveData(catData);
+      console.log(`[AutoRepair] ✅ ${updatedCount} œuvre(s) du catalogue traduite(s) en français avec succès !`);
+    }
+  } catch (err) {
+    console.warn('[AutoRepair] Warning:', err.message);
+  }
+}
+
 // Démarrage du serveur Express
 app.listen(PORT, () => {
   console.log('='.repeat(60));
@@ -4818,4 +4850,6 @@ app.listen(PORT, () => {
   if (LibraryWatcher && LibraryWatcher.init) {
     LibraryWatcher.init(reg.folders);
   }
+  // Auto-réparation non-bloquante des synopsis 4s après le démarrage
+  setTimeout(autoRepairCatalogSynopses, 4000);
 });
