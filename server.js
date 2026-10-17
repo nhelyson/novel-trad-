@@ -261,6 +261,22 @@ app.get('/api/cover-proxy', async (req, res) => {
 });
 
 app.use('/uploads/covers', express.static(path.join(__dirname, 'uploads', 'covers')));
+// Middleware de protection Anti-Bypass : bloque l'accès direct aux fichiers des œuvres restreintes
+app.use('/uploads/volumes', (req, res, next) => {
+    try {
+        const filename = path.basename(req.path);
+        if (!filename) return next();
+        const catData = CatalogService.loadData();
+        const matchedRestricted = (catData.series || []).find(s => 
+            s.allow_download === false && 
+            (s.volumes || []).some(v => (v.file_path && v.file_path.includes(filename)) || (v.id && filename.includes(v.id)))
+        );
+        if (matchedRestricted) {
+            return res.status(403).json({ success: false, error: "Le téléchargement direct de cette œuvre est désactivé par l'auteur (Lecture en ligne exclusive)." });
+        }
+    } catch(e) {}
+    next();
+});
 app.use('/uploads/volumes', express.static(path.join(__dirname, 'uploads', 'volumes')));
 
 // ── VOLUME FILE STREAMING ENDPOINT (Anti-IDM Interception & ngrok/Mobile Compatible) ──
@@ -3022,6 +3038,19 @@ app.get(['/api/download-job/:jobId', '/api/download-job/:jobId/*'], async (req, 
         if (!allowedExts.includes(ext)) {
           return res.status(403).json({ error: true, message: 'Type de fichier non autorisé.' });
         }
+
+        // Vérification Anti-Bypass de restriction de téléchargement
+        try {
+          const fn = path.basename(resolvedP);
+          const catData = CatalogService.loadData();
+          const matchedRestricted = (catData.series || []).find(s => 
+            s.allow_download === false && 
+            (s.volumes || []).some(v => (v.file_path && v.file_path.includes(fn)) || (v.id && fn.includes(v.id)))
+          );
+          if (matchedRestricted) {
+            return res.status(403).json({ error: true, message: "Le téléchargement de cette œuvre a été désactivé par son auteur (Lecture en ligne exclusive)." });
+          }
+        } catch(e) {}
         if (ext === '.pdf') res.setHeader('Content-Type', 'application/pdf');
         if (ext === '.epub') res.setHeader('Content-Type', 'application/epub+zip');
         if (ext === '.txt') res.setHeader('Content-Type', 'text/plain');

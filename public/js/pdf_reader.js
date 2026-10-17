@@ -3622,3 +3622,30 @@ window.checkIsDownloadRestricted = function(targetBook) {
 
 
 })();
+
+// ── PROTECTION ANTI-BYPASS : CLIC DROIT & RACCOURCIS CLAVIER DANS LE LECTEUR ──
+document.addEventListener("contextmenu", function(e) {
+  if (typeof window.checkIsDownloadRestricted === 'function' && window.checkIsDownloadRestricted()) {
+    const reader = document.getElementById("readerModule") || document.getElementById("pdfReaderContainer");
+    if (reader && !reader.classList.contains("hidden") && reader.contains(e.target)) {
+      e.preventDefault();
+      if (typeof window.showDownloadRestrictedNotice === "function") {
+        window.showDownloadRestrictedNotice();
+      }
+    }
+  }
+});
+
+document.addEventListener("keydown", function(e) {
+  if ((e.ctrlKey || e.metaKey) && (e.key === 's' || e.key === 'S')) {
+    if (typeof window.checkIsDownloadRestricted === 'function' && window.checkIsDownloadRestricted()) {
+      const reader = document.getElementById("readerModule") || document.getElementById("pdfReaderContainer");
+      if (reader && !reader.classList.contains("hidden")) {
+        e.preventDefault();
+        if (typeof window.showDownloadRestrictedNotice === "function") {
+          window.showDownloadRestrictedNotice();
+        }
+      }
+    }
+  }
+});
