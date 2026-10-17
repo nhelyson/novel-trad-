@@ -768,7 +768,7 @@ async function renderSeries(series) {
 async function renderSeriesRecommendations(currentSeries) {
     var recSection = document.getElementById('seriesRecommendationsSection');
     var recGrid = document.getElementById('seriesRecommendationsGrid');
-    if (!recSection || !recGrid) return;
+    if (!recSection || !recGrid || !currentSeries) return;
 
     try {
         var catalogData = null;
@@ -778,7 +778,7 @@ async function renderSeriesRecommendations(currentSeries) {
             var res = await fetch('/api/catalog');
             if (res.ok) {
                 var json = await res.json();
-                catalogData = json.series || [];
+                catalogData = json.novels || json.series || [];
             }
         }
 
@@ -787,17 +787,43 @@ async function renderSeriesRecommendations(currentSeries) {
             return;
         }
 
-        var currentGenres = (currentSeries.genres_fr || currentSeries.genres || []).map(function(g) { return String(g).toLowerCase(); });
-        var candidates = catalogData.filter(function(s) { return s && s.id !== currentSeries.id; });
+        var currentId = String(currentSeries.id || '').toLowerCase();
+        var currentGenres = (currentSeries.genres_fr || currentSeries.genres || []).map(function(g) { 
+            return String(g).trim().toLowerCase(); 
+        });
+
+        // Filtrer pour exclure la série en cours de consultation
+        var candidates = catalogData.filter(function(s) { 
+            return s && String(s.id || '').toLowerCase() !== currentId; 
+        });
+
+        if (candidates.length === 0) {
+            recSection.classList.add('hidden');
+            return;
+        }
 
         // Attribution d'un score de similarité selon les genres communs
         candidates.forEach(function(s) {
-            var gList = (s.genres_fr || s.genres || []).map(function(g) { return String(g).toLowerCase(); });
-            var matches = gList.filter(function(g) { return currentGenres.includes(g); }).length;
+            var gList = (s.genres_fr || s.genres || []).map(function(g) { 
+                return String(g).trim().toLowerCase(); 
+            });
+            var matches = 0;
+            if (currentGenres.length > 0) {
+                matches = gList.filter(function(g) { return currentGenres.includes(g); }).length;
+            }
             s._matchScore = matches;
         });
 
-        candidates.sort(function(a, b) { return (b._matchScore || 0) - (a._matchScore || 0); });
+        // Tri par pertinence (score élevé en premier), puis par nombre de tomes
+        candidates.sort(function(a, b) { 
+            if ((b._matchScore || 0) !== (a._matchScore || 0)) {
+                return (b._matchScore || 0) - (a._matchScore || 0);
+            }
+            var countA = (a.volumes && a.volumes.length) || a.volume_count || 1;
+            var countB = (b.volumes && b.volumes.length) || b.volume_count || 1;
+            return countB - countA;
+        });
+
         var topRecs = candidates.slice(0, 6);
 
         if (topRecs.length === 0) {
@@ -806,17 +832,18 @@ async function renderSeriesRecommendations(currentSeries) {
         }
 
         recGrid.innerHTML = topRecs.map(function(rec) {
-            var rTitle = (rec.title || 'Roman').replace(/</g, '&lt;');
+            var rTitle = (rec.title || 'Roman').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
             var rCover = rec.cover || (rec.metadata && rec.metadata.cover) || '';
             var rGenre = (rec.genres_fr && rec.genres_fr[0]) || (rec.genres && rec.genres[0]) || 'Light Novel';
             var rCount = (rec.volumes && rec.volumes.length) || rec.volume_count || 1;
             var isChap = rec.unit_type === 'chapter';
             var countLabel = rCount + ' ' + (isChap ? 'chapitre' : 'tome') + (rCount > 1 ? 's' : '');
+            var recUrl = 'series.html?id=' + encodeURIComponent(rec.id);
 
             return `
-                <a href="series.html?id=${encodeURIComponent(rec.id)}" class="recom-card">
+                <a href="${recUrl}" class="recom-card">
                     <div class="recom-cover-wrap">
-                        <img src="${rCover}" alt="${rTitle}" class="recom-cover" loading="lazy" onerror="this.src='https://placehold.co/200x300/18181b/ffffff?text=${encodeURIComponent(rec.title)}'">
+                        <img src="${rCover}" alt="${rTitle}" class="recom-cover" loading="lazy">
                         <span class="recom-badge">${countLabel}</span>
                     </div>
                     <div class="recom-info">
@@ -827,7 +854,16 @@ async function renderSeriesRecommendations(currentSeries) {
             `;
         }).join('');
 
+        // Attachement sécurisé du fallback d'image en JavaScript
+        recGrid.querySelectorAll('.recom-cover').forEach(function(img) {
+            img.onerror = function() {
+                this.onerror = null;
+                this.src = 'https://placehold.co/200x300/18181b/ffffff?text=NovelTrad';
+            };
+        });
+
         recSection.classList.remove('hidden');
+        recSection.style.display = 'block';
     } catch(err) {
         console.warn('[Recommendations] Non-blocking warning:', err);
         recSection.classList.add('hidden');
