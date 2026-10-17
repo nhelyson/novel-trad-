@@ -716,6 +716,9 @@ window.checkIsDownloadRestricted = function(targetBook) {
   let _highestLoadedChapter = 1;
   let _chapterIntersectionObserver = null;
   const _streamChapterMemoryCache = new Map();
+  let _streamAppendConsecutiveErrors = 0;
+  let _streamAppendFailedChapters = new Set();
+  let _lastStreamAppendTimestamp = 0;
 
   async function fetchStreamChapterData(fileKey, num) {
     const key = `${fileKey}:${num}`;
@@ -1074,8 +1077,28 @@ window.checkIsDownloadRestricted = function(targetBook) {
     const total = manifest.totalChapters;
     if (_highestLoadedChapter >= total) return;
 
-    _isAppendingStreamChapter = true;
+    // Cooldown anti-boucle : pas d'appels frénétiques à moins de 350ms
+    const now = Date.now();
+    if (now - _lastStreamAppendTimestamp < 350) return;
+    _lastStreamAppendTimestamp = now;
+
+    // Arrêt net si trop d'erreurs consécutives pour stopper toute boucle infinie
+    if (_streamAppendConsecutiveErrors >= 2) {
+      _highestLoadedChapter = total;
+      const body = document.getElementById("streamChapterBody");
+      if (body && !document.getElementById("streamVolumeCompletionWrap")) {
+        renderStreamVolumeCompletionAndComments(body, manifest, currentBookRef);
+      }
+      return;
+    }
+
     const nextNum = _highestLoadedChapter + 1;
+    if (_streamAppendFailedChapters.has(nextNum)) {
+      _highestLoadedChapter = nextNum;
+      return;
+    }
+
+    _isAppendingStreamChapter = true;
     const sentinel = document.getElementById("streamChapterSentinel");
     const body = document.getElementById("streamChapterBody");
 
@@ -1129,6 +1152,7 @@ window.checkIsDownloadRestricted = function(targetBook) {
       }
 
       _highestLoadedChapter = nextNum;
+      _streamAppendConsecutiveErrors = 0; // Réinitialisation après succès
 
       const newSec = document.getElementById(`streamChapter_${nextNum}`);
       if (newSec && _chapterIntersectionObserver) {
@@ -1146,7 +1170,19 @@ window.checkIsDownloadRestricted = function(targetBook) {
         }
       }
     } catch (err) {
-      console.warn("[Stream Reader] Erreur append chapitre", nextNum, err);
+      console.warn("[Stream Reader] Chapitre", nextNum, "non accessible:", err.message);
+      _streamAppendFailedChapters.add(nextNum);
+      _streamAppendConsecutiveErrors++;
+
+      // Avancer _highestLoadedChapter pour ne jamais rester bloqué en boucle sur ce numéro
+      _highestLoadedChapter = nextNum;
+
+      if (_highestLoadedChapter >= total || _streamAppendConsecutiveErrors >= 2) {
+        _highestLoadedChapter = total;
+        if (body && !document.getElementById("streamVolumeCompletionWrap")) {
+          renderStreamVolumeCompletionAndComments(body, manifest, currentBookRef);
+        }
+      }
     } finally {
       if (sentinel) sentinel.innerHTML = "";
       _isAppendingStreamChapter = false;
@@ -1168,6 +1204,8 @@ window.checkIsDownloadRestricted = function(targetBook) {
     const num = Math.max(1, Math.min(chapterNum, total));
     window._streamCurrentChapter = num;
     _highestLoadedChapter = num;
+    _streamAppendConsecutiveErrors = 0;
+    _streamAppendFailedChapters.clear();
 
     const viewer = document.getElementById("readerViewer");
     if (!viewer) {
@@ -1225,6 +1263,8 @@ window.checkIsDownloadRestricted = function(targetBook) {
         cont.addEventListener("scroll", () => {
           if (_isAppendingStreamChapter) return;
           if (_highestLoadedChapter >= total) return;
+          const now = Date.now();
+          if (now - _lastStreamAppendTimestamp < 350) return;
           const distanceToBottom = cont.scrollHeight - (cont.scrollTop + cont.clientHeight);
           if (distanceToBottom < 750) {
             appendNextStreamChapter();

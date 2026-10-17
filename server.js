@@ -409,12 +409,53 @@ function resolveVolumePath(fileKey) {
   return null;
 }
 
+function findZipFile(zip, opfDir, rawHref) {
+  if (!zip || !rawHref) return null;
+  const hrefClean = rawHref.split('#')[0].split('?')[0].trim();
+  let decodedHref = hrefClean;
+  try { decodedHref = decodeURIComponent(hrefClean); } catch(e) {}
+
+  const candidates = [
+    opfDir === '.' ? hrefClean : path.posix.join(opfDir, hrefClean),
+    opfDir === '.' ? decodedHref : path.posix.join(opfDir, decodedHref),
+    hrefClean,
+    decodedHref,
+    path.posix.basename(hrefClean),
+    path.posix.basename(decodedHref)
+  ];
+
+  for (const c of candidates) {
+    const f = zip.file(c);
+    if (f) return f;
+  }
+
+  // Fallback insensible à la casse
+  const cLower = candidates.map(c => c.toLowerCase());
+  const allFiles = Object.keys(zip.files);
+  for (const zf of allFiles) {
+    if (cLower.includes(zf.toLowerCase())) {
+      return zip.files[zf];
+    }
+  }
+
+  // Fallback insensible à la casse sur basename
+  const baseLower = path.posix.basename(decodedHref).toLowerCase();
+  for (const zf of allFiles) {
+    if (path.posix.basename(zf).toLowerCase() === baseLower) {
+      return zip.files[zf];
+    }
+  }
+
+  return null;
+}
+
 const volumeChaptersCache = new Map(); // fileKey -> { spineItems, opfDir, zip, fullPath, tocMap }
 
 async function getEpubSpine(fileKey) {
-  const cleanKey = (fileKey.startsWith('local_') || fileKey.startsWith('external_'))
+  let cleanKey = (fileKey.startsWith('local_') || fileKey.startsWith('external_'))
     ? fileKey
     : path.basename(fileKey).replace(/\.(epub|pdf)$/i, '');
+  try { cleanKey = decodeURIComponent(cleanKey); } catch(e) {}
   if (volumeChaptersCache.has(cleanKey)) {
     return volumeChaptersCache.get(cleanKey);
   }
@@ -473,7 +514,13 @@ async function getEpubSpine(fileKey) {
       if (manifest[idref]) {
         const item = manifest[idref];
         if (item.mediaType && (item.mediaType.includes('xml') || item.mediaType.includes('html'))) {
-          spineItems.push(item);
+          const zipEntry = findZipFile(zip, opfDir, item.href);
+          if (zipEntry) {
+            item.zipPath = zipEntry.name;
+            spineItems.push(item);
+          } else {
+            console.warn(`[EpubSpine] Fichier manquant ignoré dans l'EPUB ${cleanKey}: ${item.href}`);
+          }
         }
       }
     }
@@ -578,7 +625,8 @@ app.get('/api/volume-chapters/:fileKey/:chapterNum', async (req, res) => {
     if (!item) return res.status(404).json({ success: false, message: 'Chapitre introuvable.' });
 
     const fullHref = epub.opfDir === '.' ? item.href : `${epub.opfDir}/${item.href}`.replace(/\/+/g, '/');
-    const chapterFile = epub.zip.file(fullHref) || epub.zip.file(item.href) || epub.zip.file(path.posix.basename(item.href));
+    const chapterFile = (item.zipPath && epub.zip.file(item.zipPath)) ||
+                        findZipFile(epub.zip, epub.opfDir, item.href);
     if (!chapterFile) return res.status(404).json({ success: false, message: 'Fichier de chapitre introuvable dans le volume.' });
 
     let rawHtml = await chapterFile.async('string');
@@ -591,7 +639,7 @@ app.get('/api/volume-chapters/:fileKey/:chapterNum', async (req, res) => {
     }
 
     // Réécrire les chemins d'images relatifs pour chargement différé (lazy loading unitaire)
-    const chapterDir = path.dirname(fullHref);
+    const chapterDir = path.dirname(item.zipPath || fullHref);
     bodyContent = bodyContent.replace(/<img([^>]+)src=["']([^"']+)["']/gi, (match, before, src) => {
       if (src.startsWith('http://') || src.startsWith('https://') || src.startsWith('data:')) return match;
       let cleanSrc = src;
