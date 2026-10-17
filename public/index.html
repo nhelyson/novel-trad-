@@ -92,8 +92,8 @@
       } catch(e) {}
     })();
   </script>
-  <link rel="stylesheet" href="css/style.css?v=1792224475050">
-  <link rel="stylesheet" href="css/home_lnori.css?v=1792224475050">
+  <link rel="stylesheet" href="css/style.css?v=1792228575735">
+  <link rel="stylesheet" href="css/home_lnori.css?v=1792228575735">
   <link rel="stylesheet" href="css/app_themes.css?v=1792030000000">
   <!-- Coupe-circuit de production pour console propre & anti-fuite -->
   <script>
@@ -791,14 +791,14 @@
               </div>
 
               <div id="calendarMonthlyGrid" class="cal-monthly-grid" role="grid" aria-label="Grille mensuelle des parutions">
-                <!-- Cellules des 7 jours injectées par editorial_logic.js?v=1792224475050 -->
+                <!-- Cellules des 7 jours injectées par editorial_logic.js?v=1792228575735 -->
               </div>
             </div>
 
             <!-- VUE AGENDA / LISTE (Mobile & Bascule utilisateur) -->
             <div id="calendarAgendaWrapper" class="cal-agenda-wrapper hidden">
               <div id="calendarAgendaList" class="cal-agenda-list">
-                <!-- Événements groupés par date injectés par editorial_logic.js?v=1792224475050 -->
+                <!-- Événements groupés par date injectés par editorial_logic.js?v=1792228575735 -->
               </div>
             </div>
 
@@ -820,7 +820,7 @@
           <div class="modal-content cal-event-modal-content">
             <button type="button" id="calEventModalClose" class="modal-close-btn" aria-label="Fermer">&times;</button>
             <div id="calEventModalBody" class="cal-event-modal-body">
-              <!-- Injecté dynamiquement par editorial_logic.js?v=1792224475050 -->
+              <!-- Injecté dynamiquement par editorial_logic.js?v=1792228575735 -->
             </div>
           </div>
         </div>
@@ -1565,7 +1565,7 @@
                 </div>
                 <p class="api-candidates-hint">Sélectionnez la fiche correspondant à votre œuvre pour charger ses détails et l'appliquer :</p>
                 <div id="contribApiCandidatesGrid" class="contrib-candidates-grid">
-                  <!-- Injected dynamically by contributor_logic.js?v=1792224475050 -->
+                  <!-- Injected dynamically by contributor_logic.js?v=1792228575735 -->
                 </div>
               </div>
 
@@ -1925,7 +1925,7 @@
                 </div>
                 
                 <div id="contribVolListContainer" class="contrib-vols-list">
-                  <!-- Dynamiquement rempli par contributor_logic.js?v=1792224475050 -->
+                  <!-- Dynamiquement rempli par contributor_logic.js?v=1792228575735 -->
                 </div>
               </div>
 
@@ -2003,7 +2003,7 @@
                 <span class="admin-widget-badge">Top Vues & Notes</span>
               </div>
               <div id="adminTopPerformingNovels" class="admin-top-novels-list">
-                <!-- Rempli dynamiquement par admin_logic.js?v=1792224475050 -->
+                <!-- Rempli dynamiquement par admin_logic.js?v=1792228575735 -->
               </div>
             </div>
 
@@ -2013,6 +2013,16 @@
                 <span class="admin-widget-badge">File d'attente</span>
               </div>
               <div id="adminQueueRecentList" class="admin-recent-queue-list"></div>
+            </div>
+
+            <div class="admin-widget-card admin-widget-reviews">
+              <div class="admin-widget-header">
+                <h3><i class="fa-solid fa-comment-dots" style="color: #fbbf24;"></i> Retours & Avis Lecteurs Récents</h3>
+                <span class="admin-widget-badge">À chaud</span>
+              </div>
+              <div id="adminRecentReviewsList" class="admin-recent-reviews-list">
+                <!-- Rempli dynamiquement par admin_logic.js?v=1792228575735 -->
+              </div>
             </div>
           </div>
         </div>
@@ -2142,7 +2152,7 @@
                   </tr>
                 </thead>
                 <tbody id="adminSchedTableBody">
-                  <!-- Injected by admin_logic.js?v=1792224475050 -->
+                  <!-- Injected by admin_logic.js?v=1792228575735 -->
                 </tbody>
               </table>
             </div>
@@ -2172,7 +2182,7 @@
 
             <!-- LISTE DES ARTICLES EN LIGNE -->
             <div id="adminNewsCardsContainer" class="admin-ed-news-cards-grid">
-              <!-- Injected by admin_logic.js?v=1792224475050 -->
+              <!-- Injected by admin_logic.js?v=1792228575735 -->
             </div>
           </div>
 
@@ -2954,6 +2964,24 @@
     </div>
   </div>
 
+  <!-- Modal Détail des Notes & Avis Lecteurs -->
+  <div class="modal-overlay hidden" id="adminRatingsDetailModal">
+    <div class="modal modal-card admin-ratings-modal-content">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <span class="modal-badge-amber"><i class="fa-solid fa-star"></i> Notes & Avis des Lecteurs</span>
+          <h3 id="adminRatingsModalTitle">Avis des Lecteurs</h3>
+        </div>
+        <button type="button" class="modal-close-btn" id="adminRatingsCloseBtn" aria-label="Fermer">&times;</button>
+      </div>
+
+      <div class="admin-ratings-modal-body" id="adminRatingsModalBody">
+        <!-- Dynamiquement généré par admin_logic.js?v=1792228575735 -->
+      </div>
+    </div>
+  </div>
+
+
 
   <!-- ═════════════════════════════════════════════════════════════════════ -->
   <!-- SCRIPTS & LIBRAIRIES NOVELTRAD -->
@@ -2975,12 +3003,12 @@
   <script src="js/webnovel_reader.js?v=1789752407265"></script>
   <script src="js/home_lnori_logic.js?v=1790725844546"></script>
   <script src="js/catalog_logic.js?v=1790725844546"></script>
-  <script src="js/editorial_logic.js?v=1792224475050"></script>
+  <script src="js/editorial_logic.js?v=1792228575735"></script>
   <script src="js/series_logic.js?v=1791942152722"></script>
-  <script src="js/contributor_logic.js?v=1792224475050"></script>
-  <script src="js/admin_logic.js?v=1792224475050"></script>
+  <script src="js/contributor_logic.js?v=1792228575735"></script>
+  <script src="js/admin_logic.js?v=1792228575735"></script>
   <script src="js/pwa_manager.js?v=1790841520734"></script>
-  <script src="js/app.js?v=1792224475050"></script>
+  <script src="js/app.js?v=1792228575735"></script>
 
   <script>
     if ('serviceWorker' in navigator) {

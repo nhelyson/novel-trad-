@@ -426,6 +426,21 @@ class CatalogService {
             user_score: numScore
         };
     }
+
+    deleteReview(id, voterKey) {
+        const series = this.getSeries(id);
+        if (!series || !series.ratings_data) return false;
+
+        const rd = series.ratings_data;
+        if (Array.isArray(rd.recent_reviews)) {
+            rd.recent_reviews = rd.recent_reviews.filter(r => r.voterKey !== voterKey);
+        }
+        if (rd.user_votes && rd.user_votes[voterKey]) {
+            delete rd.user_votes[voterKey].review;
+        }
+        this.saveData();
+        return true;
+    }
 }
 
 module.exports = new CatalogService();

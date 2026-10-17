@@ -2757,6 +2757,20 @@ app.post('/api/catalog/series/:id/rate', async (req, res) => {
   }
 });
 
+// Suppression/Modération d'un avis lecteur (Admin uniquement)
+app.post('/api/catalog/series/:id/delete-review', requireAdmin, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { voterKey } = req.body || {};
+    if (!voterKey) return res.status(400).json({ success: false, message: 'Identifiant du vote manquant.' });
+
+    const ok = CatalogService.deleteReview(id, voterKey);
+    res.json({ success: ok, message: ok ? 'Avis supprimé avec succès.' : 'Avis introuvable.' });
+  } catch(e) {
+    res.status(500).json({ success: false, message: e.message });
+  }
+});
+
 // Cache mémoire pour les couvertures extraites (accélération 0ms)
 const CoverCache = new Map();
 

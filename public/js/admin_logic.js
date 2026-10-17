@@ -58,6 +58,17 @@ class AdminManager {
     if (this.inpCatalogSearch) {
       this.inpCatalogSearch.addEventListener('input', () => this.renderCatalogList());
     }
+
+    const modalRatings = document.getElementById('adminRatingsDetailModal');
+    const btnRatingsClose = document.getElementById('adminRatingsCloseBtn');
+    if (btnRatingsClose) {
+      btnRatingsClose.addEventListener('click', () => this.closeRatingsModal());
+    }
+    if (modalRatings) {
+      modalRatings.addEventListener('click', (e) => {
+        if (e.target === modalRatings) this.closeRatingsModal();
+      });
+    }
   }
 
   async getHeaders() {
@@ -269,6 +280,49 @@ class AdminManager {
             </button>
           </div>
         `).join('');
+      }
+    }
+
+    const elReviewsRecent = document.getElementById('adminRecentReviewsList');
+    if (elReviewsRecent) {
+      const allReviews = [];
+      this.allNovels.forEach(n => {
+        const rd = n.ratings_data;
+        if (rd && Array.isArray(rd.recent_reviews) && rd.recent_reviews.length > 0) {
+          rd.recent_reviews.forEach(r => {
+            allReviews.push({
+              seriesId: n.id,
+              seriesTitle: n.title,
+              seriesCover: n.cover,
+              ...r
+            });
+          });
+        }
+      });
+
+      allReviews.sort((a, b) => (b.created_at || 0) - (a.created_at || 0));
+      const topReviews = allReviews.slice(0, 5);
+
+      if (topReviews.length === 0) {
+        elReviewsRecent.innerHTML = '<div class="admin-empty-clean small"><i class="fa-solid fa-comments"></i> Aucun avis écrit pour le moment. Les avis laissés en fin de lecture apparaîtront ici.</div>';
+      } else {
+        elReviewsRecent.innerHTML = topReviews.map(r => {
+          const dateStr = r.created_at ? new Date(r.created_at).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' }) : '';
+          const scoreNum = r.score || 5;
+          return `
+            <div class="admin-recent-review-card" onclick="window.adminManager.openRatingsModal('${r.seriesId}')" title="Cliquer pour voir tous les avis de ce roman">
+              <img src="${r.seriesCover || 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=400'}" class="admin-review-thumb" alt="" onerror="this.src='https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=400'">
+              <div class="admin-review-main">
+                <div class="admin-review-topline">
+                  <span class="admin-review-novel-title">${this.escape(r.seriesTitle)}</span>
+                  <span class="admin-review-score-pill"><i class="fa-solid fa-star"></i> ${scoreNum}/5</span>
+                </div>
+                <div class="admin-review-quote">"${this.escape(r.text || '')}"</div>
+                <div class="admin-review-meta">Par <strong>${this.escape(r.name || 'Lecteur')}</strong> ${dateStr ? `• ${dateStr}` : ''}</div>
+              </div>
+            </div>
+          `;
+        }).join('');
       }
     }
   }
@@ -496,6 +550,7 @@ class AdminManager {
               const volCount = (n.volumes && n.volumes.length) || 0;
               const viewsNum = (n.views || 0).toLocaleString('fr-FR');
               const ratingNum = typeof n.rating === 'number' ? n.rating.toFixed(1) : (n.rating || '4.8');
+              const ratingCount = n.rating_count || (n.ratings_data && n.ratings_data.count) || 0;
               const likesNum = (n.likes || 0).toLocaleString('fr-FR');
 
               return `
@@ -513,7 +568,9 @@ class AdminManager {
                   <td>
                     <div class="admin-perf-stats-row">
                       <span class="perf-chip views" title="Vues / Lectures totales"><i class="fa-solid fa-eye"></i> ${viewsNum}</span>
-                      <span class="perf-chip rating" title="Note moyenne des lecteurs"><i class="fa-solid fa-star"></i> ${ratingNum}</span>
+                      <span class="perf-chip rating interactive-rating-chip" onclick="window.adminManager.openRatingsModal('${n.id}')" title="Cliquer pour voir le détail des notes et avis (${ratingCount} avis)">
+                        <i class="fa-solid fa-star"></i> ${ratingNum} <span class="rating-count-pill">(${ratingCount})</span>
+                      </span>
                       <span class="perf-chip likes" title="Favoris & Likes"><i class="fa-solid fa-heart"></i> ${likesNum}</span>
                     </div>
                   </td>
@@ -1461,6 +1518,145 @@ class AdminManager {
       alert('Erreur réseau : ' + e.message);
     }
   }
+
+
+  openRatingsModal(seriesId) {
+    const novel = this.allNovels.find(n => n.id === seriesId);
+    if (!novel) return;
+
+    const modal = document.getElementById('adminRatingsDetailModal');
+    const modalTitle = document.getElementById('adminRatingsModalTitle');
+    const modalBody = document.getElementById('adminRatingsModalBody');
+    if (!modal || !modalBody) return;
+
+    if (modalTitle) modalTitle.textContent = novel.title;
+
+    const rd = novel.ratings_data || {
+      count: novel.rating_count || 0,
+      total_score: 0,
+      distribution: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 },
+      recent_reviews: []
+    };
+    const dist = rd.distribution || { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+    const totalVotes = novel.rating_count || rd.count || 0;
+    const avgScore = typeof novel.rating === 'number' ? novel.rating.toFixed(1) : (novel.rating || '4.8');
+    const reviews = Array.isArray(rd.recent_reviews) ? rd.recent_reviews : [];
+
+    function calcPct(count) {
+      if (!totalVotes || totalVotes <= 0) return 0;
+      return Math.round((count / totalVotes) * 100);
+    }
+
+    modalBody.innerHTML = `
+      <div class="ratings-modal-summary">
+        <div class="ratings-big-score-box">
+          <img src="${novel.cover || 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=400'}" class="ratings-modal-cover" alt="" onerror="this.src='https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=400'">
+          <div class="ratings-score-digits">${avgScore}</div>
+          <div class="ratings-score-stars">
+            ${[1, 2, 3, 4, 5].map(s => `<i class="fa-solid fa-star ${s <= Math.round(avgScore) ? 'star-filled' : 'star-empty'}"></i>`).join('')}
+          </div>
+          <div class="ratings-score-sub">${totalVotes} vote${totalVotes > 1 ? 's' : ''} au total</div>
+        </div>
+
+        <div class="ratings-bars-breakdown">
+          <div class="ratings-breakdown-title"><i class="fa-solid fa-chart-bar"></i> Répartition des avis</div>
+          ${[5, 4, 3, 2, 1].map(stars => {
+            const count = dist[stars] || 0;
+            const pct = calcPct(count);
+            return `
+              <div class="rating-dist-row">
+                <span class="rating-dist-lbl">${stars} <i class="fa-solid fa-star" style="font-size:11px; color:#fbbf24;"></i></span>
+                <div class="rating-dist-bar-track">
+                  <div class="rating-dist-bar-fill star-${stars}" style="width: ${pct}%;"></div>
+                </div>
+                <span class="rating-dist-count">${count} <small>(${pct}%)</small></span>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      </div>
+
+      <div class="ratings-modal-reviews-section">
+        <div class="ratings-section-header">
+          <h4><i class="fa-solid fa-comments"></i> Avis écrits par les lecteurs (${reviews.length})</h4>
+          <span class="ratings-section-tip">Modération instantanée</span>
+        </div>
+
+        <div class="ratings-modal-reviews-list">
+          ${reviews.length === 0 ? `
+            <div class="admin-empty-clean small">
+              <i class="fa-solid fa-feather"></i> Aucun avis rédigé pour le moment. Seules des notes étoilées ont été enregistrées.
+            </div>
+          ` : reviews.map(rev => `
+            <div class="admin-review-card-item" id="rev_${this.escape(rev.voterKey || '')}">
+              <div class="admin-review-card-top">
+                <div class="admin-review-user-info">
+                  <span class="admin-review-avatar"><i class="fa-solid fa-user"></i></span>
+                  <div>
+                    <strong>${this.escape(rev.name || 'Lecteur')}</strong>
+                    <span class="admin-review-date">${rev.created_at ? new Date(rev.created_at).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' }) : ''}</span>
+                  </div>
+                </div>
+                <div class="admin-review-actions-wrap">
+                  <span class="admin-review-star-tag"><i class="fa-solid fa-star"></i> ${rev.score || 5}/5</span>
+                  <button type="button" class="btn-delete-review-action" onclick="window.adminManager.deleteReview('${novel.id}', '${this.escape(rev.voterKey || '')}')" title="Supprimer cet avis">
+                    <i class="fa-solid fa-trash-can"></i>
+                  </button>
+                </div>
+              </div>
+              <div class="admin-review-card-body">
+                "${this.escape(rev.text || '')}"
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `;
+
+    modal.classList.remove('hidden');
+  }
+
+  closeRatingsModal() {
+    const modal = document.getElementById('adminRatingsDetailModal');
+    if (modal) modal.classList.add('hidden');
+  }
+
+  async deleteReview(seriesId, voterKey) {
+    if (!confirm("Voulez-vous vraiment supprimer cet avis lecteur ?")) return;
+    try {
+      const headers = await this.getHeaders();
+      const res = await fetch(`/api/catalog/series/${encodeURIComponent(seriesId)}/delete-review`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ voterKey })
+      });
+      const data = await res.json();
+      if (data && data.success) {
+        if (window.toastManager && typeof window.toastManager.show === 'function') {
+          window.toastManager.show('Avis supprimé avec succès.', 'success');
+        } else {
+          alert('Avis supprimé avec succès.');
+        }
+
+        const novel = this.allNovels.find(n => n.id === seriesId);
+        if (novel && novel.ratings_data && Array.isArray(novel.ratings_data.recent_reviews)) {
+          novel.ratings_data.recent_reviews = novel.ratings_data.recent_reviews.filter(r => r.voterKey !== voterKey);
+          if (novel.ratings_data.user_votes && novel.ratings_data.user_votes[voterKey]) {
+            delete novel.ratings_data.user_votes[voterKey].review;
+          }
+        }
+
+        this.openRatingsModal(seriesId);
+        this.renderCatalogList();
+        this.updateDashboardStats();
+      } else {
+        alert((data && data.message) || 'Erreur lors de la suppression.');
+      }
+    } catch (e) {
+      alert('Erreur réseau lors de la suppression.');
+    }
+  }
+
 }
 
 window.adminManager = new AdminManager();
