@@ -689,7 +689,11 @@
    3. SECTIONS & GRILLES DE SÉRIES TYPE LNORI
    -------------------------------------------------------------------------- */
 .home-lnori-section {
-  margin-bottom: 48px;
+  width: 100% !important;
+  max-width: 1320px !important;
+  margin: 0 auto 48px auto !important;
+  padding: 0 24px !important;
+  box-sizing: border-box !important;
 }
 
 .home-section-title-wrap {
@@ -741,33 +745,40 @@
   transform: translateX(3px);
 }
 
-/* Grille ultra-clean Lnori (ratio 2:3) */
+/* Grille ultra-clean Lnori (ratio 2:3) parfaitement alignée avec le titre et le Hero */
 .lnori-catalog-grid {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   gap: 22px;
   position: relative;
-  width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 !important;
+  box-sizing: border-box !important;
 }
 
 @media (max-width: 1280px) {
   .lnori-catalog-grid {
     grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
   }
 }
 
 @media (max-width: 960px) {
   .lnori-catalog-grid {
     grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
   }
 }
 
 @media (max-width: 600px) {
+  .home-lnori-section {
+    padding: 0 16px !important;
+    margin-bottom: 36px !important;
+  }
   .lnori-catalog-grid {
     grid-template-columns: repeat(2, 1fr);
-    gap: 14px;
+    gap: 12px;
   }
 }
 
@@ -1053,6 +1064,10 @@
    6. CARTE REPRISE DE LECTURE FLOTTANTE
    -------------------------------------------------------------------------- */
 .home-resume-banner {
+  width: 100% !important;
+  max-width: 1320px !important;
+  margin: 0 auto 40px auto !important;
+  box-sizing: border-box !important;
   background: linear-gradient(90deg, rgba(225, 29, 72, 0.12) 0%, rgba(18, 19, 28, 0.8) 50%, rgba(18, 19, 28, 0.95) 100%);
   border: 1px solid rgba(225, 29, 72, 0.25);
   border-radius: 20px;
@@ -1061,7 +1076,6 @@
   align-items: center;
   justify-content: space-between;
   gap: 24px;
-  margin-bottom: 40px;
   backdrop-filter: blur(12px);
   box-shadow: 0 12px 30px -10px rgba(0, 0, 0, 0.5);
 }
@@ -7814,4 +7828,9 @@ html.theme-light .reader-review-textarea,
 .admin-review-meta {
   font-size: 10.5px !important;
   color: #64748b !important;
+}
+
+/* Masquage définitif du badge d'origine/JP sur les cartes */
+.lnori-card-format-tag {
+  display: none !important;
 }

@@ -425,7 +425,7 @@
         cardWrap.innerHTML = `
             <div class="lnori-card">
                 <div class="lnori-card-cover-box">
-                    <span class="lnori-card-format-tag ${originTag.toLowerCase()}">${originTag}</span>
+                    
                     <img src="${coverSrc}" alt="${series.title}" loading="lazy" decoding="async" onload="this.classList.add('loaded')" onerror="this.onerror=null;this.src='https://placehold.co/400x600/18181b/ffffff?text=${encodeURIComponent(series.title)}'">
                     <span class="lnori-card-vol-badge">${volCount} Vol.</span>
                 </div>
