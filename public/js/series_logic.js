@@ -227,16 +227,11 @@ async function renderSeries(series) {
     }
 
     // --- Direction C : Sous-titre éditorial alternatif (Romaji / Japonais / Original) ---
-    var subTitle = series.title_romaji || series.originalTitle || (series.metadata && (series.metadata.romaji_title || series.metadata.original_title || series.metadata.native_title)) || '';
+    // --- Titre alternatif masqué sur l'interface série (réservé en interne pour le rollback de recherche) ---
     var subTitleEl = document.getElementById('seriesSubtitle');
     if (subTitleEl) {
-      if (subTitle && subTitle.trim() && subTitle.trim().toLowerCase() !== (series.title || '').trim().toLowerCase()) {
-        subTitleEl.textContent = subTitle.trim();
-        subTitleEl.classList.remove('hidden');
-      } else {
-        subTitleEl.textContent = '';
-        subTitleEl.classList.add('hidden');
-      }
+      subTitleEl.textContent = '';
+      subTitleEl.classList.add('hidden');
     }
 
 

@@ -147,7 +147,10 @@ class CatalogService {
             const queryNorm = normStr(q);
             list = list.filter(s => {
                 const matchTitle = normStr(s.title).includes(queryNorm);
-                const matchAlt = normStr(s.originalTitle).includes(queryNorm);
+                const matchAlt = normStr(s.originalTitle).includes(queryNorm) || 
+                                 normStr(s.title_romaji).includes(queryNorm) || 
+                                 normStr(s.metadata?.title_romaji).includes(queryNorm) ||
+                                 normStr(s.romaji).includes(queryNorm);
                 const matchAuthor = normStr(s.author).includes(queryNorm);
                 const matchTrans = normStr(s.translator).includes(queryNorm);
                 const matchGenres = (s.genres || []).some(g => normStr(g).includes(queryNorm)) ||

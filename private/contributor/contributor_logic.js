@@ -97,6 +97,19 @@ class ContributorManager {
     this.labelToggleNovelDownload = document.getElementById('labelToggleNovelDownload');
     this.inpNovelUnitType = document.getElementById('contribNovelUnitType');
     this.inpNovelOrigin = document.getElementById('contribNovelOrigin');
+    this.inpNovelOriginCustom = document.getElementById('contribNovelOriginCustom');
+    this.apiResultRomaji = document.getElementById('apiResultRomaji');
+    this.apiResultRomajiText = document.getElementById('apiResultRomajiText');
+
+    if (this.inpNovelOrigin) {
+      this.inpNovelOrigin.addEventListener('change', () => {
+        if (this.inpNovelOrigin.value === 'OTHER') {
+          if (this.inpNovelOriginCustom) this.inpNovelOriginCustom.classList.remove('hidden');
+        } else {
+          if (this.inpNovelOriginCustom) this.inpNovelOriginCustom.classList.add('hidden');
+        }
+      });
+    }
     this.candidatesSection = document.getElementById('contribApiCandidatesSection');
     this.candidatesGrid = document.getElementById('contribApiCandidatesGrid');
     this.candidatesCountPill = document.getElementById('candidatesCountPill');
@@ -464,6 +477,7 @@ class ContributorManager {
         <div class="api-candidate-info">
           <div>
             <div class="api-candidate-title" title="${cand.title}">${cand.title}</div>
+            ${cand.title_romaji && cand.title_romaji.trim() && cand.title_romaji.trim().toLowerCase() !== (cand.title || '').trim().toLowerCase() ? `<div class="api-candidate-romaji" title="${cand.title_romaji}"><i class="fa-solid fa-language"></i> ${cand.title_romaji}</div>` : ''}
             <div class="api-candidate-author">${cand.author || 'Auteur non précisé'}${cand.year ? ` &bull; ${cand.year}` : ''}</div>
           </div>
           <div class="api-candidate-badges">
@@ -494,6 +508,15 @@ class ContributorManager {
     const cover = meta.cover || '/icons/icon-512x512.png';
     if (this.apiResultCover) this.apiResultCover.src = cover;
     if (this.apiResultTitle) this.apiResultTitle.textContent = meta.title || 'Sans titre';
+    if (this.apiResultRomaji && this.apiResultRomajiText) {
+      const romaji = meta.title_romaji || meta.originalTitle || '';
+      if (romaji && romaji.trim().toLowerCase() !== (meta.title || '').trim().toLowerCase()) {
+        this.apiResultRomajiText.textContent = romaji;
+        this.apiResultRomaji.classList.remove('hidden');
+      } else {
+        this.apiResultRomaji.classList.add('hidden');
+      }
+    }
     if (this.apiResultAuthor) this.apiResultAuthor.textContent = meta.author || 'Inconnu';
     if (this.apiResultStatus) this.apiResultStatus.textContent = meta.status_fr || meta.status || 'En cours';
     if (this.apiResultOrigin) this.apiResultOrigin.textContent = meta.origin || 'Japon (Light Novel)';
@@ -523,8 +546,32 @@ class ContributorManager {
     if (this.inpIllustrator) this.inpIllustrator.value = meta.illustrator || '';
     if (this.inpSynopsis) this.inpSynopsis.value = meta.synopsis_fr || meta.synopsis || '';
     if (this.inpCoverUrl) this.inpCoverUrl.value = meta.cover || '';
-    if (meta.origin && this.inpNovelOrigin) {
-      this.inpNovelOrigin.value = meta.origin;
+    // Origine automatique intelligente
+    if (this.inpNovelOrigin) {
+      let matchedOrigin = 'Japon (Light Novel)';
+      const origStr = (meta.origin || '').toLowerCase();
+      const co = (meta.countryOfOrigin || '').toUpperCase();
+      if (origStr.includes('corée') || origStr.includes('coree') || co === 'KR') {
+        matchedOrigin = 'Corée du Sud (Webnovel)';
+      } else if (origStr.includes('chine') || co === 'CN') {
+        matchedOrigin = 'Chine (Webnovel)';
+      } else if (origStr.includes('france') || co === 'FR') {
+        matchedOrigin = 'France (Création originale)';
+      } else if (meta.origin) {
+        matchedOrigin = meta.origin;
+      }
+
+      const hasOption = Array.from(this.inpNovelOrigin.options).some(o => o.value === matchedOrigin);
+      if (hasOption) {
+        this.inpNovelOrigin.value = matchedOrigin;
+        if (this.inpNovelOriginCustom) this.inpNovelOriginCustom.classList.add('hidden');
+      } else {
+        this.inpNovelOrigin.value = 'OTHER';
+        if (this.inpNovelOriginCustom) {
+          this.inpNovelOriginCustom.value = matchedOrigin;
+          this.inpNovelOriginCustom.classList.remove('hidden');
+        }
+      }
     }
     this.syncCoverUI(meta.cover || '');
 
@@ -820,6 +867,11 @@ class ContributorManager {
     if (this.novelFormTitle) this.novelFormTitle.textContent = "Créer une nouvelle fiche de Light Novel";
     if (this.novelSubmitBtn) this.novelSubmitBtn.innerHTML = '<i class="fa-solid fa-save"></i> Enregistrer le Roman';
     if (this.novelForm) this.novelForm.reset();
+    if (this.inpNovelOrigin) this.inpNovelOrigin.value = 'Japon (Light Novel)';
+    if (this.inpNovelOriginCustom) {
+      this.inpNovelOriginCustom.value = '';
+      this.inpNovelOriginCustom.classList.add('hidden');
+    }
     if (this.apiResultCard) this.apiResultCard.classList.add('hidden');
     const candContainer = document.getElementById('contribApiCandidatesContainer');
     if (candContainer) candContainer.classList.add('hidden');
@@ -852,7 +904,20 @@ class ContributorManager {
     this.syncCoverUI(novel.cover || novel.cover_url || '');
     if (this.inpStatus) this.inpStatus.value = novel.publication_status || 'DRAFT';
     if (this.inpNovelUnitType) this.inpNovelUnitType.value = novel.unit_type || 'volume';
-    if (this.inpNovelOrigin) this.inpNovelOrigin.value = novel.origin || 'Japon (Light Novel)';
+    if (this.inpNovelOrigin) {
+      const orig = novel.origin || 'Japon (Light Novel)';
+      const hasOption = Array.from(this.inpNovelOrigin.options).some(o => o.value === orig);
+      if (hasOption) {
+        this.inpNovelOrigin.value = orig;
+        if (this.inpNovelOriginCustom) this.inpNovelOriginCustom.classList.add('hidden');
+      } else {
+        this.inpNovelOrigin.value = 'OTHER';
+        if (this.inpNovelOriginCustom) {
+          this.inpNovelOriginCustom.value = orig;
+          this.inpNovelOriginCustom.classList.remove('hidden');
+        }
+      }
+    }
     if (this.candidatesSection) this.candidatesSection.classList.add('hidden');
     if (this.inpNovelAllowDownload) this.inpNovelAllowDownload.checked = (novel.allow_download !== false);
 
@@ -912,7 +977,13 @@ class ContributorManager {
       tags: (this.inpTags?.value || '').split(',').map(s => s.trim()).filter(Boolean),
       publication_status: this.inpStatus?.value || 'DRAFT',
       unit_type: this.inpNovelUnitType?.value || 'volume',
-      origin: this.inpNovelOrigin?.value || 'Japon (Light Novel)',
+      origin: (function(self) {
+        let val = self.inpNovelOrigin?.value || 'Japon (Light Novel)';
+        if (val === 'OTHER') {
+          return self.inpNovelOriginCustom?.value.trim() || 'Autre';
+        }
+        return val;
+      })(this),
       allow_download: this.inpNovelAllowDownload ? this.inpNovelAllowDownload.checked : true
     };
 

@@ -244,6 +244,8 @@ class MetadataCascadeClient {
                     format: media.format || 'MANGA',
                     format_label: media.format === 'NOVEL' ? 'Light Novel' : (media.format === 'MANGA' ? 'Manga' : media.format),
                     title: media.title?.english || media.title?.romaji || media.title?.native || cleanTitle,
+                    title_romaji: media.title?.romaji || '',
+                    originalTitle: media.title?.native || media.title?.romaji || '',
                     author,
                     genres: media.genres || [],
                     status: media.status || 'UNKNOWN',
@@ -358,6 +360,8 @@ class MetadataCascadeClient {
                     format: isNovel ? 'NOVEL' : 'MANGA',
                     format_label: isNovel ? 'Light Novel' : 'Manga',
                     title,
+                    title_romaji: attr.titles?.en_jp || attr.canonicalTitle || '',
+                    originalTitle: attr.titles?.ja_jp || attr.titles?.en_jp || '',
                     author: 'Inconnu',
                     genres,
                     status,
@@ -474,6 +478,21 @@ class MetadataCascadeClient {
                     format: 'MANGA',
                     format_label: 'Manga',
                     title,
+                    title_romaji: (function() {
+                        if (attr.title && attr.title['ja-ro']) return attr.title['ja-ro'];
+                        if (attr.title && attr.title['ko-ro']) return attr.title['ko-ro'];
+                        if (attr.title && attr.title['zh-ro']) return attr.title['zh-ro'];
+                        if (Array.isArray(attr.altTitles)) {
+                            for (const alt of attr.altTitles) {
+                                if (alt['ja-ro']) return alt['ja-ro'];
+                                if (alt['ko-ro']) return alt['ko-ro'];
+                                if (alt['zh-ro']) return alt['zh-ro'];
+                                if (alt['en']) return alt['en'];
+                            }
+                        }
+                        return '';
+                    })(),
+                    originalTitle: (attr.originalLanguage || '').toUpperCase(),
                     author,
                     genres,
                     status,

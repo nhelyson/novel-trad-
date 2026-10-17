@@ -145,6 +145,9 @@
                 <div class="api-result-details">
                   <div class="api-result-header">
                     <h3 id="apiResultTitle">Titre de l'œuvre</h3>
+                  <div id="apiResultRomaji" class="api-result-romaji hidden" style="font-size: 13.5px; color: #a78bfa; margin-top: -4px; margin-bottom: 8px; font-weight: 500;">
+                    <i class="fa-solid fa-language"></i> <span id="apiResultRomajiText"></span>
+                  </div>
                     <span class="api-provider-badge" id="apiResultProvider">Source: AniList</span>
                   </div>
                   <p class="api-result-meta">
@@ -296,19 +299,32 @@
                       <span class="contrib-field-tip">Collez l'adresse web directe (URL) de l'image de couverture.</span>
                     </div>
                   </div>
-                  <div class="form-group">
-                    <label for="contribNovelUnitType"><i class="fa-solid fa-layer-group"></i> Format de parution</label>
-                    <select id="contribNovelUnitType" class="contrib-select">
-                      <option value="volume">📚 Par Tomes / Volumes (Light Novels, Reliés)</option>
-                      <option value="chapter">📄 Par Chapitres (Webnovels, Séries en cours)</option>
-                    </select>
-                  </div>
-                  <div class="form-group">
-                    <label for="contribNovelStatus">Statut de la fiche</label>
-                    <select id="contribNovelStatus" class="contrib-select">
-                      <option value="DRAFT">Brouillon privé (DRAFT)</option>
-                      <option value="PENDING_REVIEW">Soumettre directement (PENDING_REVIEW)</option>
-                    </select>
+                  <div class="form-col-group" style="display: flex; flex-direction: column; gap: 16px;">
+                    <div class="form-group">
+                      <label for="contribNovelUnitType"><i class="fa-solid fa-layer-group"></i> Format de parution</label>
+                      <select id="contribNovelUnitType" class="contrib-select">
+                        <option value="volume">📚 Par Tomes / Volumes (Light Novels, Reliés)</option>
+                        <option value="chapter">📄 Par Chapitres (Webnovels, Séries en cours)</option>
+                      </select>
+                    </div>
+                    <div class="form-group">
+                      <label for="contribNovelOrigin"><i class="fa-solid fa-earth-asia"></i> Origine de l'œuvre *</label>
+                      <select id="contribNovelOrigin" class="contrib-select">
+                        <option value="Japon (Light Novel)">🇯PJapon (Light Novel / Webnovel)</option>
+                        <option value="Corée du Sud (Webnovel)">🇰🇷 Corée du Sud (Webnovel / Manhwa)</option>
+                        <option value="Chine (Webnovel)">🇨🇳 Chine (Webnovel / Wuxia / Xianxia)</option>
+                        <option value="France (Création originale)">🇫🇷 France (Création originale)</option>
+                        <option value="OTHER">🌐 Autre (Préciser...)</option>
+                      </select>
+                      <input type="text" id="contribNovelOriginCustom" class="contrib-input hidden" placeholder="Précisez l'origine (ex: Taïwan, États-Unis...)" style="margin-top: 8px; width: 100%; padding: 9px 12px; background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; color: #fff; font-size: 13.5px;">
+                    </div>
+                    <div class="form-group">
+                      <label for="contribNovelStatus">Statut de la fiche</label>
+                      <select id="contribNovelStatus" class="contrib-select">
+                        <option value="DRAFT">Brouillon privé (DRAFT)</option>
+                        <option value="PENDING_REVIEW">Soumettre directement (PENDING_REVIEW)</option>
+                      </select>
+                    </div>
                   </div>
                 </div>
 
