@@ -45,6 +45,18 @@ window.closeDownloadRestrictedNotice = function () {
   }
 };
 
+window.checkIsDownloadRestricted = function(targetBook) {
+  const b = targetBook || (typeof currentBookRef !== 'undefined' ? currentBookRef : null) || window.currentBookRef;
+  if (!b) return false;
+  if (b.allow_download === false || b.allow_download === 'false') return true;
+  if (window.currentSeries && (window.currentSeries.allow_download === false || window.currentSeries.allow_download === 'false')) {
+    if (!b.seriesId || b.seriesId === window.currentSeries.id) {
+      return true;
+    }
+  }
+  return false;
+};
+
 /* ==========================================================================
    NovelTrad AI Studio - Unified Book Reader Module (pdf_reader.js)
    Supports EPUB (ePub.js) & PDF (Mozilla PDF.js) with Paginated & Webtoon scroll,
@@ -472,15 +484,16 @@ window.closeDownloadRestrictedNotice = function () {
   window.openBookReader = async function (book) {
     if (!book) return;
     currentBookRef = book;
+    window.currentBookRef = book;
     initWebtoonBottomBarEvents();
 
-    // Vérification de permission de téléchargement pour cette œuvre
-    const isDlAllowed = (book && book.allow_download !== false) && (!window.currentSeries || window.currentSeries.allow_download !== false);
+    // Vérification de permission de téléchargement pour cette œuvre (autorisé par défaut, bloqué seulement si allow_download === false)
+    const isRestricted = window.checkIsDownloadRestricted(book);
     const downloadBtnEl = document.getElementById("readerDownloadBtn");
     if (downloadBtnEl) {
       downloadBtnEl.classList.remove("hidden");
       downloadBtnEl.style.display = "";
-      if (!isDlAllowed) {
+      if (isRestricted) {
         downloadBtnEl.classList.add("btn-download-locked");
         downloadBtnEl.title = "Téléchargement désactivé par l'auteur (Lecture en ligne exclusive)";
         downloadBtnEl.innerHTML = '<i class="fa-solid fa-lock" style="color: #f87171;"></i>';
@@ -2797,9 +2810,9 @@ window.closeDownloadRestrictedNotice = function () {
     const downloadBtn = document.getElementById("readerDownloadBtn");
     if (downloadBtn) {
       downloadBtn.addEventListener("click", function() {
-        const book = window.currentActiveBook || window.activePdfBook || window.activeWebnovelBook || window.currentBookRef;
-        const isDlAllowed = (book && book.allow_download !== false) && (!window.currentSeries || window.currentSeries.allow_download !== false);
-        if (!isDlAllowed) {
+        const activeBook = (typeof currentBookRef !== 'undefined' ? currentBookRef : null) || window.currentBookRef;
+        const isRestricted = window.checkIsDownloadRestricted(activeBook);
+        if (isRestricted) {
           if (typeof window.showDownloadRestrictedNotice === "function") {
             window.showDownloadRestrictedNotice();
           } else {
