@@ -288,23 +288,68 @@ async function renderSeries(series) {
         }
     }
 
-    // Action buttons in series meta (Ajouter à ma bibliothèque + Commencer la lecture)
+    // Action buttons in series meta (Ajouter à ma bibliothèque + Lecture intelligente + Partager)
     var metaContainer = document.querySelector('.series-page-meta');
     if (metaContainer && !document.getElementById('seriesPageActions')) {
         var actionsDiv = document.createElement('div');
         actionsDiv.id = 'seriesPageActions';
         actionsDiv.className = 'series-page-actions';
-        actionsDiv.style.cssText = 'display:flex; gap:12px; margin-top:16px; flex-wrap:wrap;';
+        actionsDiv.style.cssText = 'display:flex; gap:12px; margin-top:16px; flex-wrap:wrap; align-items:center;';
 
         var isWebnovel = series.type === 'webnovel' || (series.chapters && series.chapters.length > 0);
-        var readBtnLabel = isWebnovel ? 'Lire le Chapitre 1' : 'Lire le Volume 1';
+        var isChapMode = series.unit_type === 'chapter' || isWebnovel;
+        var unitWord = isChapMode ? 'Chapitre' : 'Volume';
+        var readBtnLabel = 'Lire le ' + unitWord + ' 1';
+
+        // Détection de progression existante (Lecture intelligente)
+        var lastReadBook = null;
+        try {
+            if (window.libraryDB && typeof window.libraryDB.getAllHistory === 'function') {
+                var hist = await window.libraryDB.getAllHistory();
+                if (Array.isArray(hist) && hist.length > 0) {
+                    lastReadBook = hist.find(function(h) {
+                        return (h.seriesId && h.seriesId === series.id) ||
+                               (h.series_id && h.series_id === series.id) ||
+                               (h.bookId && h.bookId.startsWith(series.id + '_')) ||
+                               (h.id && h.id.startsWith(series.id + '_'));
+                    });
+                }
+            }
+        } catch(eHist) {}
+
+        var resumeVolNum = lastReadBook ? (lastReadBook.volumeNumber || lastReadBook.volume_number || 1) : 1;
+        var resumeProgress = lastReadBook ? Math.round(lastReadBook.progress || 0) : 0;
+        var hasResume = Boolean(lastReadBook && (resumeVolNum > 1 || resumeProgress > 0));
+
+        var primaryBtnHtml = '';
+        if (hasResume) {
+            primaryBtnHtml = `
+                <button id="btnSeriesQuickRead" class="btn-series-hero-primary is-resume" type="button" title="Reprendre votre lecture en cours">
+                    <i class="fa-solid fa-play"></i>
+                    <div class="btn-resume-content">
+                        <span class="btn-resume-label">Reprendre : ${unitWord} ${resumeVolNum}</span>
+                        <span class="btn-resume-sub">${resumeProgress > 0 ? resumeProgress + '% lu' : 'En cours'}</span>
+                    </div>
+                </button>
+                <button id="btnSeriesRestart" class="btn-series-hero-restart" type="button" title="Recommencer depuis le début (${unitWord} 1)">
+                    <i class="fa-solid fa-rotate-left"></i>
+                </button>
+            `;
+        } else {
+            primaryBtnHtml = `
+                <button id="btnSeriesQuickRead" class="btn-series-hero-primary" type="button">
+                    <i class="fa-solid fa-book-open-reader"></i> <span>${readBtnLabel}</span>
+                </button>
+            `;
+        }
 
         actionsDiv.innerHTML = `
-            <button id="btnSeriesQuickRead" class="btn-series-hero-primary" type="button">
-                <i class="fa-solid fa-book-open-reader"></i> <span>${readBtnLabel}</span>
-            </button>
+            ${primaryBtnHtml}
             <button id="btnSeriesBookmark" class="btn-series-hero-secondary" type="button">
                 <i class="fa-solid fa-bookmark"></i> <span>Ajouter à ma bibliothèque</span>
+            </button>
+            <button id="btnSeriesShare" class="btn-series-hero-secondary btn-share" type="button" title="Partager cette œuvre">
+                <i class="fa-solid fa-share-nodes"></i> <span>Partager</span>
             </button>
         `;
 
@@ -385,8 +430,57 @@ async function renderSeries(series) {
 
         // Bind Quick Read
         document.getElementById('btnSeriesQuickRead').onclick = function() {
+            if (hasResume && lastReadBook) {
+                // Ouvrir directement le tome en cours de lecture
+                if (typeof window.openBookReader === 'function') {
+                    window.openBookReader(lastReadBook);
+                    return;
+                }
+            }
             quickStartReadingSeries(series);
         };
+
+        // Bind Recommencer depuis le début
+        var restartBtn = document.getElementById('btnSeriesRestart');
+        if (restartBtn) {
+            restartBtn.onclick = function() {
+                quickStartReadingSeries(series);
+            };
+        }
+
+        // Bind Bouton Partager
+        var shareBtn = document.getElementById('btnSeriesShare');
+        if (shareBtn) {
+            shareBtn.onclick = async function() {
+                var shareUrl = window.location.href;
+                var shareTitle = (series.title || 'NovelTrad') + ' - Light Novel VF';
+                var shareText = 'Découvrez ' + (series.title || 'ce roman') + ' en lecture libre sur NovelTrad !';
+
+                if (navigator.share) {
+                    try {
+                        await navigator.share({ title: shareTitle, text: shareText, url: shareUrl });
+                        return;
+                    } catch(e) {}
+                }
+
+                // Fallback copie presse-papier
+                try {
+                    await navigator.clipboard.writeText(shareUrl);
+                    if (window.authManager && typeof window.authManager.showToast === 'function') {
+                        window.authManager.showToast('Lien du roman copié dans le presse-papier !');
+                    } else {
+                        var toast = document.getElementById('seriesToast');
+                        if (toast) {
+                            toast.textContent = 'Lien copié dans le presse-papier !';
+                            toast.classList.add('show');
+                            setTimeout(function() { toast.classList.remove('show'); }, 2500);
+                        }
+                    }
+                } catch(err) {
+                    prompt('Copiez ce lien :', shareUrl);
+                }
+            };
+        }
 
 // Bookmark handler cleanly handled above with Auth protection
     }
@@ -449,16 +543,64 @@ async function renderSeries(series) {
                 `;
             }
 
+            var showVolToolbar = allVols.length >= 6;
+            var volToolbarHtml = showVolToolbar ? `
+                <div class="series-volumes-toolbar">
+                    <div class="vol-search-input-wrap">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <input type="text" id="inputVolSearch" class="vol-search-input" placeholder="Filtrer..." autocomplete="off">
+                    </div>
+                    <button type="button" id="btnToggleSortVols" class="btn-vol-sort" title="Inverser l'ordre des tomes">
+                        <i class="fa-solid fa-arrow-down-1-9" id="iconSortVols"></i>
+                    </button>
+                </div>
+            ` : '';
+
             volumesSection.innerHTML = `
                 <div class="series-volumes-header">
-                    <h3>${series.unit_type === 'chapter' ? 'Chapitres disponibles' : 'Volumes disponibles'} (${allVols.length})</h3>
-                    ${tabsHtml}
+                    <div class="series-volumes-title-group">
+                        <h3>${series.unit_type === 'chapter' ? 'Chapitres disponibles' : 'Volumes disponibles'} (${allVols.length})</h3>
+                        ${tabsHtml}
+                    </div>
+                    ${volToolbarHtml}
                 </div>
                 <div class="series-volumes-grid" id="seriesVolumesGrid"></div>
             `;
 
             var volumesGrid = document.getElementById('seriesVolumesGrid');
             
+            // Wiring du champ de recherche rapide de tomes
+            var inputSearch = volumesSection.querySelector('#inputVolSearch');
+            if (inputSearch) {
+                inputSearch.addEventListener('input', function() {
+                    var q = (this.value || '').trim().toLowerCase();
+                    var cards = volumesGrid.querySelectorAll('.volume-card');
+                    cards.forEach(function(card) {
+                        var title = (card.querySelector('.volume-title')?.textContent || '').toLowerCase();
+                        var num = String(card.getAttribute('data-vol-num') || '');
+                        var matches = !q || title.includes(q) || num === q || ('tome ' + num).includes(q) || ('volume ' + num).includes(q);
+                        card.style.display = matches ? '' : 'none';
+                    });
+                });
+            }
+
+            // Wiring de l'inversion de l'ordre de tri (Tome 1->N ou N->1)
+            var btnSort = volumesSection.querySelector('#btnToggleSortVols');
+            var isAscending = true;
+            if (btnSort) {
+                btnSort.addEventListener('click', function() {
+                    isAscending = !isAscending;
+                    var icon = document.getElementById('iconSortVols');
+                    if (icon) {
+                        icon.className = isAscending ? 'fa-solid fa-arrow-down-1-9' : 'fa-solid fa-arrow-down-9-1';
+                    }
+                    var cards = Array.from(volumesGrid.querySelectorAll('.volume-card'));
+                    cards.reverse().forEach(function(card) {
+                        volumesGrid.appendChild(card);
+                    });
+                });
+            }
+
             // Wiring des onglets de filtrage de volumes si présents
             var filterTabs = volumesSection.querySelectorAll('.vol-filter-tab');
             if (filterTabs.length > 0) {
@@ -614,6 +756,81 @@ async function renderSeries(series) {
         } catch (e) {
             console.error('Failed to fetch series metadata', e);
         }
+    }
+
+    // Rendu dynamique de la section "Vous aimerez aussi"
+    renderSeriesRecommendations(series);
+}
+
+/**
+ * Rendu épuré des recommandations de séries similaires
+ */
+async function renderSeriesRecommendations(currentSeries) {
+    var recSection = document.getElementById('seriesRecommendationsSection');
+    var recGrid = document.getElementById('seriesRecommendationsGrid');
+    if (!recSection || !recGrid) return;
+
+    try {
+        var catalogData = null;
+        if (typeof window.allBooks !== 'undefined' && Array.isArray(window.allBooks) && window.allBooks.length > 0) {
+            catalogData = window.allBooks;
+        } else {
+            var res = await fetch('/api/catalog');
+            if (res.ok) {
+                var json = await res.json();
+                catalogData = json.series || [];
+            }
+        }
+
+        if (!Array.isArray(catalogData) || catalogData.length < 2) {
+            recSection.classList.add('hidden');
+            return;
+        }
+
+        var currentGenres = (currentSeries.genres_fr || currentSeries.genres || []).map(function(g) { return String(g).toLowerCase(); });
+        var candidates = catalogData.filter(function(s) { return s && s.id !== currentSeries.id; });
+
+        // Attribution d'un score de similarité selon les genres communs
+        candidates.forEach(function(s) {
+            var gList = (s.genres_fr || s.genres || []).map(function(g) { return String(g).toLowerCase(); });
+            var matches = gList.filter(function(g) { return currentGenres.includes(g); }).length;
+            s._matchScore = matches;
+        });
+
+        candidates.sort(function(a, b) { return (b._matchScore || 0) - (a._matchScore || 0); });
+        var topRecs = candidates.slice(0, 6);
+
+        if (topRecs.length === 0) {
+            recSection.classList.add('hidden');
+            return;
+        }
+
+        recGrid.innerHTML = topRecs.map(function(rec) {
+            var rTitle = (rec.title || 'Roman').replace(/</g, '&lt;');
+            var rCover = rec.cover || (rec.metadata && rec.metadata.cover) || '';
+            var rGenre = (rec.genres_fr && rec.genres_fr[0]) || (rec.genres && rec.genres[0]) || 'Light Novel';
+            var rCount = (rec.volumes && rec.volumes.length) || rec.volume_count || 1;
+            var isChap = rec.unit_type === 'chapter';
+            var countLabel = rCount + ' ' + (isChap ? 'chapitre' : 'tome') + (rCount > 1 ? 's' : '');
+
+            return `
+                <a href="series.html?id=${encodeURIComponent(rec.id)}" class="recom-card">
+                    <div class="recom-cover-wrap">
+                        <img src="${rCover}" alt="${rTitle}" class="recom-cover" loading="lazy" onerror="this.src='https://placehold.co/200x300/18181b/ffffff?text=${encodeURIComponent(rec.title)}'">
+                        <span class="recom-badge">${countLabel}</span>
+                    </div>
+                    <div class="recom-info">
+                        <span class="recom-genre">${rGenre}</span>
+                        <h4 class="recom-title" title="${rTitle}">${rTitle}</h4>
+                    </div>
+                </a>
+            `;
+        }).join('');
+
+        recSection.classList.remove('hidden');
+    } catch(err) {
+        console.warn('[Recommendations] Non-blocking warning:', err);
+        recSection.classList.add('hidden');
     }
 }
 

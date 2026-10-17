@@ -61,7 +61,7 @@
       } catch(e) {}
     })();
   </script>
-  <link rel="stylesheet" href="css/style.css?v=1792255379186">
+  <link rel="stylesheet" href="css/style.css?v=1792275493263">
   <link rel="stylesheet" href="css/home_lnori.css?v=1792255379186">
   <link rel="stylesheet" href="css/app_themes.css?v=1792030000000">
   <!-- Coupe-circuit de production pour console propre & anti-fuite -->
@@ -444,6 +444,16 @@
                 <!-- Volumes injected here -->
               </div>
             </div>
+            
+            <!-- SECTION : RECOMMANDATIONS SÉRIES SIMILAIRES -->
+            <section class="series-recommendations-section hidden" id="seriesRecommendationsSection">
+              <div class="series-section-header">
+                <h3><i class="fa-solid fa-wand-magic-sparkles" style="color:var(--primary, #e11d48); margin-right:8px; font-size:16px;"></i> Vous aimerez aussi</h3>
+              </div>
+              <div class="series-recommendations-grid" id="seriesRecommendationsGrid">
+                <!-- Recommendations injectées dynamiquement -->
+              </div>
+            </section>
           </div>
         </div>
       </div>
@@ -882,7 +892,7 @@
   <script src="js/pdf_reader.js?v=1792257157490"></script>
   <script src="js/webnovel_reader.js?v=1790249188293"></script>
   <script src="js/pwa_manager.js?v=1790841520734"></script>
-  <script src="js/series_logic.js?v=1791942152722"></script>
+  <script src="js/series_logic.js?v=1792275493263"></script>
   <!-- PWA Service Worker -->
   <script>
     if ('serviceWorker' in navigator) {

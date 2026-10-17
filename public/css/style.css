@@ -18526,3 +18526,283 @@ body.pwa-standalone .pwa-smart-banner {
   color: #93c5fd;
   border-color: rgba(99, 102, 241, 0.4);
 }
+
+
+/* ══════════════════════════════════════════════════════════════════════════ */
+/* ENHANCED SERIES PAGE (3D BOOK REALISM, SMART RESUME, SEARCH & RECOMS)      */
+/* ══════════════════════════════════════════════════════════════════════════ */
+
+/* Tranche de reliure 3D réaliste (Subtle Book Spine Realism) */
+.series-page-cover-wrap {
+  position: relative !important;
+  overflow: visible !important;
+}
+
+.series-page-cover-wrap::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 14px;
+  background: linear-gradient(90deg, 
+    rgba(0, 0, 0, 0.45) 0%, 
+    rgba(255, 255, 255, 0.16) 28%, 
+    rgba(0, 0, 0, 0.22) 65%, 
+    transparent 100%
+  );
+  pointer-events: none;
+  border-top-left-radius: 13px;
+  border-bottom-left-radius: 13px;
+  z-index: 3;
+}
+
+/* Bouton Reprendre la lecture intelligent */
+.btn-series-hero-primary.is-resume {
+  padding: 8px 22px !important;
+  gap: 12px !important;
+}
+
+.btn-resume-content {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  text-align: left !important;
+  line-height: 1.25 !important;
+}
+
+.btn-resume-label {
+  font-size: 13.5px !important;
+  font-weight: 700 !important;
+  color: #ffffff !important;
+}
+
+.btn-resume-sub {
+  font-size: 11px !important;
+  font-weight: 500 !important;
+  color: rgba(255, 255, 255, 0.85) !important;
+  margin-top: 1px !important;
+}
+
+/* Bouton Recommencer discret */
+.btn-series-hero-restart {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 42px !important;
+  height: 42px !important;
+  border-radius: 50% !important;
+  background: rgba(255, 255, 255, 0.06) !important;
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  color: #94a3b8 !important;
+  font-size: 14px !important;
+  cursor: pointer !important;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.btn-series-hero-restart:hover {
+  background: rgba(255, 255, 255, 0.12) !important;
+  color: #ffffff !important;
+  border-color: rgba(255, 255, 255, 0.28) !important;
+  transform: rotate(-90deg) scale(1.05) !important;
+}
+
+/* Header des volumes avec Toolbar de filtrage et tri */
+.series-volumes-header {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  flex-wrap: wrap !important;
+  gap: 16px !important;
+  margin-bottom: 22px !important;
+}
+
+.series-volumes-title-group {
+  display: flex !important;
+  align-items: center !important;
+  gap: 18px !important;
+  flex-wrap: wrap !important;
+}
+
+.series-volumes-toolbar {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+}
+
+.vol-search-input-wrap {
+  position: relative !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+.vol-search-input-wrap i {
+  position: absolute !important;
+  left: 12px !important;
+  font-size: 12px !important;
+  color: #64748b !important;
+  pointer-events: none !important;
+}
+
+.vol-search-input {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  border-radius: 9999px !important;
+  padding: 7px 14px 7px 32px !important;
+  font-size: 12.5px !important;
+  color: #f8fafc !important;
+  outline: none !important;
+  width: 140px !important;
+  transition: all 0.25s ease !important;
+}
+
+.vol-search-input:focus {
+  width: 190px !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: var(--primary, #e11d48) !important;
+  box-shadow: 0 0 0 3px rgba(225, 29, 72, 0.15) !important;
+}
+
+.btn-vol-sort {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 32px !important;
+  height: 32px !important;
+  border-radius: 8px !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  color: #94a3b8 !important;
+  font-size: 13px !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+}
+
+.btn-vol-sort:hover {
+  background: rgba(255, 255, 255, 0.12) !important;
+  color: #ffffff !important;
+  border-color: rgba(255, 255, 255, 0.28) !important;
+}
+
+/* Section Recommandations "Vous aimerez aussi" */
+.series-recommendations-section {
+  margin-top: 50px !important;
+  padding-top: 36px !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+.series-recommendations-grid {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)) !important;
+  gap: 20px !important;
+  margin-top: 20px !important;
+}
+
+.recom-card {
+  display: flex !important;
+  flex-direction: column !important;
+  background: rgba(255, 255, 255, 0.02) !important;
+  border: 1px solid rgba(255, 255, 255, 0.07) !important;
+  border-radius: 12px !important;
+  overflow: hidden !important;
+  text-decoration: none !important;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.recom-card:hover {
+  transform: translateY(-4px) !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+  border-color: rgba(225, 29, 72, 0.4) !important;
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.5), 0 0 22px rgba(225, 29, 72, 0.15) !important;
+}
+
+.recom-cover-wrap {
+  position: relative !important;
+  width: 100% !important;
+  aspect-ratio: 2/3 !important;
+  overflow: hidden !important;
+  background: #0d0f17 !important;
+}
+
+.recom-cover {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  transition: transform 0.35s ease !important;
+}
+
+.recom-card:hover .recom-cover {
+  transform: scale(1.05) !important;
+}
+
+.recom-badge {
+  position: absolute !important;
+  top: 8px !important;
+  right: 8px !important;
+  padding: 3px 8px !important;
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  border-radius: 6px !important;
+  background: rgba(9, 10, 16, 0.85) !important;
+  backdrop-filter: blur(6px) !important;
+  -webkit-backdrop-filter: blur(6px) !important;
+  color: #f1f5f9 !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.recom-info {
+  padding: 12px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 4px !important;
+}
+
+.recom-genre {
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  color: #f43f5e !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.04em !important;
+}
+
+.recom-title {
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  color: #f8fafc !important;
+  margin: 0 !important;
+  display: -webkit-box !important;
+  -webkit-line-clamp: 2 !important;
+  -webkit-box-orient: vertical !important;
+  overflow: hidden !important;
+  line-height: 1.35 !important;
+}
+
+/* Light Theme overrides */
+html.theme-light .series-page-cover-wrap::after {
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0.25) 0%, rgba(255, 255, 255, 0.25) 30%, transparent 100%) !important;
+}
+
+html.theme-light .vol-search-input {
+  background: rgba(0, 0, 0, 0.04) !important;
+  border-color: rgba(0, 0, 0, 0.12) !important;
+  color: #0f172a !important;
+}
+
+html.theme-light .btn-vol-sort {
+  background: rgba(0, 0, 0, 0.04) !important;
+  border-color: rgba(0, 0, 0, 0.12) !important;
+  color: #475569 !important;
+}
+
+html.theme-light .recom-card {
+  background: #ffffff !important;
+  border-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+html.theme-light .recom-title {
+  color: #0f172a !important;
+}
+
+html.theme-light .series-recommendations-section {
+  border-top-color: rgba(0, 0, 0, 0.08) !important;
+}
