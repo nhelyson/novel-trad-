@@ -82,7 +82,7 @@ class AdminManager {
 
   async initAdmin() {
     if (!window.authManager || !window.authManager.isAdmin()) {
-      alert('Accès réservé : Vous devez être Administrateur pour accéder à ce panneau.');
+      // Accès réservé - redirection silencieuse
       if (typeof setActiveTab === 'function') {
         const catBtn = document.getElementById('tabCatalogBtn');
         const catMod = document.getElementById('catalogModule');

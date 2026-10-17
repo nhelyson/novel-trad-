@@ -104,9 +104,9 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
     }
-    if (activeModule === adminModuleContainer) {
+    const curAdmCheck = document.getElementById('adminModuleContainer');
+    if (curAdmCheck && activeModule === curAdmCheck) {
       if (!auth || !auth.isAdmin()) {
-        alert('Accès réservé : Cet espace est strictement réservé aux Administrateurs.');
         if (tabHomeBtn) tabHomeBtn.click();
         return;
       }
@@ -118,7 +118,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (editorialModule) editorialModule.classList.add('hidden');
     if (docModuleContainer) docModuleContainer.classList.add('hidden');
     if (contributorModuleContainer) contributorModuleContainer.classList.add('hidden');
-    if (adminModuleContainer) adminModuleContainer.classList.add('hidden');
+    const curAdmHide = document.getElementById('adminModuleContainer'); if (curAdmHide) curAdmHide.classList.add('hidden');
     if (accountModuleContainer) accountModuleContainer.classList.add('hidden');
     if (libraryModule) {
       libraryModule.classList.add('hidden');
@@ -176,16 +176,103 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   window.openContributorTab = openContributorTab;
 
-  function openAdminTab() {
-    const adminModule = document.getElementById('adminModuleContainer');
-    if (!adminModule) return;
-    setActiveTab(null, adminModule);
-    if (window.adminManager && typeof window.adminManager.initAdmin === 'function') {
-      window.adminManager.initAdmin();
+  let _isLoadingAdminBundle = false;
+
+  async function openAdminTab() {
+    // 1. Attente initiale que Supabase Auth initialise la session
+    if (window.authManager) {
+      try {
+        if (!window.authManager.currentUser && window.authManager.isLoading !== false) {
+          await Promise.race([
+            new Promise(resolve => {
+              const check = () => {
+                if (window.authManager.currentUser || window.authManager.isLoading === false) resolve();
+                else setTimeout(check, 50);
+              };
+              check();
+            }),
+            new Promise(r => setTimeout(r, 600))
+          ]);
+        }
+      } catch(e) {}
     }
-    window.scrollTo(0, 0);
-    document.documentElement.scrollTop = 0;
-    document.body.scrollTop = 0;
+
+    // 2. Si non-admin : silence radio total, on efface le hash et on reste sur l'accueil
+    const isAdmin = window.authManager && typeof window.authManager.isAdmin === 'function' && window.authManager.isAdmin();
+    if (!isAdmin) {
+      if (window.location.hash === '#admin') {
+        history.replaceState(null, '', window.location.pathname);
+      }
+      return;
+    }
+
+    // 3. Si l'admin module est déjà monté dans le DOM
+    let adminModule = document.getElementById('adminModuleContainer');
+    if (adminModule && window.adminManager) {
+      setActiveTab(null, adminModule);
+      if (typeof window.adminManager.initAdmin === 'function') {
+        window.adminManager.initAdmin();
+      }
+      window.scrollTo(0, 0);
+      return;
+    }
+
+    // 4. Si pas encore monté, récupération sécurisée auprès du serveur
+    if (_isLoadingAdminBundle) return;
+    _isLoadingAdminBundle = true;
+
+    try {
+      const token = window.authManager ? await window.authManager.getAccessToken() : null;
+      if (!token) throw new Error('Token requis');
+
+      const res = await fetch('/api/admin/bundle', {
+        headers: { 'Authorization': 'Bearer ' + token }
+      });
+
+      if (!res.ok) {
+        history.replaceState(null, '', window.location.pathname);
+        return;
+      }
+
+      const data = await res.json();
+      if (data && data.success && data.html) {
+        let mount = document.getElementById('adminMountPoint');
+        if (!mount) {
+          mount = document.createElement('div');
+          mount.id = 'adminMountPoint';
+          const main = document.querySelector('main.app-main') || document.querySelector('main');
+          const footer = document.getElementById('noveltradFooter');
+          if (main && footer) {
+            main.insertBefore(mount, footer);
+          } else if (main) {
+            main.appendChild(mount);
+          } else {
+            document.body.appendChild(mount);
+          }
+        }
+
+        mount.innerHTML = data.html;
+
+        if (data.js && !window.adminManager) {
+          const s = document.createElement('script');
+          s.textContent = data.js;
+          document.body.appendChild(s);
+        }
+
+        adminModule = document.getElementById('adminModuleContainer');
+        if (adminModule) {
+          setActiveTab(null, adminModule);
+          if (window.adminManager && typeof window.adminManager.initAdmin === 'function') {
+            window.adminManager.initAdmin();
+          }
+          window.scrollTo(0, 0);
+        }
+      }
+    } catch(err) {
+      console.warn('[Admin Lazy Load Error]', err);
+    } finally {
+      _isLoadingAdminBundle = false;
+    }
   }
   window.openAdminTab = openAdminTab;
 
@@ -335,10 +422,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (btnNavAdminPanel) {
     btnNavAdminPanel.addEventListener('click', () => {
-      setActiveTab(btnNavAdminPanel, adminModuleContainer);
-      if (window.adminManager && window.adminManager.initAdmin) {
-        window.adminManager.initAdmin();
-      }
+      openAdminTab();
     });
   }
 

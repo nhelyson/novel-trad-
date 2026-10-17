@@ -92,8 +92,8 @@
       } catch(e) {}
     })();
   </script>
-  <link rel="stylesheet" href="css/style.css?v=1792228575735">
-  <link rel="stylesheet" href="css/home_lnori.css?v=1792228575735">
+  <link rel="stylesheet" href="css/style.css?v=1792231462516">
+  <link rel="stylesheet" href="css/home_lnori.css?v=1792231462516">
   <link rel="stylesheet" href="css/app_themes.css?v=1792030000000">
   <!-- Coupe-circuit de production pour console propre & anti-fuite -->
   <script>
@@ -791,14 +791,14 @@
               </div>
 
               <div id="calendarMonthlyGrid" class="cal-monthly-grid" role="grid" aria-label="Grille mensuelle des parutions">
-                <!-- Cellules des 7 jours injectées par editorial_logic.js?v=1792228575735 -->
+                <!-- Cellules des 7 jours injectées par editorial_logic.js?v=1792231462516 -->
               </div>
             </div>
 
             <!-- VUE AGENDA / LISTE (Mobile & Bascule utilisateur) -->
             <div id="calendarAgendaWrapper" class="cal-agenda-wrapper hidden">
               <div id="calendarAgendaList" class="cal-agenda-list">
-                <!-- Événements groupés par date injectés par editorial_logic.js?v=1792228575735 -->
+                <!-- Événements groupés par date injectés par editorial_logic.js?v=1792231462516 -->
               </div>
             </div>
 
@@ -820,7 +820,7 @@
           <div class="modal-content cal-event-modal-content">
             <button type="button" id="calEventModalClose" class="modal-close-btn" aria-label="Fermer">&times;</button>
             <div id="calEventModalBody" class="cal-event-modal-body">
-              <!-- Injecté dynamiquement par editorial_logic.js?v=1792228575735 -->
+              <!-- Injecté dynamiquement par editorial_logic.js?v=1792231462516 -->
             </div>
           </div>
         </div>
@@ -1565,7 +1565,7 @@
                 </div>
                 <p class="api-candidates-hint">Sélectionnez la fiche correspondant à votre œuvre pour charger ses détails et l'appliquer :</p>
                 <div id="contribApiCandidatesGrid" class="contrib-candidates-grid">
-                  <!-- Injected dynamically by contributor_logic.js?v=1792228575735 -->
+                  <!-- Injected dynamically by contributor_logic.js?v=1792231462516 -->
                 </div>
               </div>
 
@@ -1925,7 +1925,7 @@
                 </div>
                 
                 <div id="contribVolListContainer" class="contrib-vols-list">
-                  <!-- Dynamiquement rempli par contributor_logic.js?v=1792228575735 -->
+                  <!-- Dynamiquement rempli par contributor_logic.js?v=1792231462516 -->
                 </div>
               </div>
 
@@ -1934,261 +1934,7 @@
           </div>
         </div>
       </div> <!-- END MODULE 5: CONTRIBUTOR -->
-      <div id="adminModuleContainer" class="module-container admin-module-container hidden">
-        <!-- COMMAND CENTER HEADER (CENTRÉ SUR LA NAVBAR, SANS BADGE AMATEUR) -->
-        <div class="admin-header-section">
-          <div class="admin-header-content">
-            <div class="admin-title-group">
-              <h1 class="admin-main-title">Studio d'Administration</h1>
-              <p class="admin-main-subtitle">Supervision du catalogue, analyse des performances de lecture et gestion des autorisations éditoriales.</p>
-            </div>
-            <div class="admin-header-actions">
-              <div class="admin-system-status-pill">
-                <span class="status-indicator-dot"></span>
-                <span>Système en ligne</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- BARRE D'ONGLETS EXÉCUTIVE (STYLE SAAS STUDIO) -->
-        <div class="admin-tabs-bar">
-          <button class="admin-tab-btn active" id="adminTabDashBtn"><i class="fa-solid fa-gauge-high"></i> <span>Vue d'ensemble</span></button>
-          <button class="admin-tab-btn" id="adminTabQueueBtn">
-            <i class="fa-solid fa-inbox"></i> <span>Modération</span> 
-            <span class="admin-queue-pill" id="adminQueueCountBadge">0</span>
-          </button>
-          <button class="admin-tab-btn" id="adminTabCatalogBtn"><i class="fa-solid fa-book-open"></i> <span>Catalogue Global</span></button>
-          <button class="admin-tab-btn" id="adminTabEditorialBtn"><i class="fa-solid fa-calendar-days"></i> <span>Planning & Actualités</span></button>
-          <button class="admin-tab-btn" id="adminTabUsersBtn"><i class="fa-solid fa-users-gear"></i> <span>Membres & Rôles</span></button>
-        </div>
-
-        <!-- VIEW 1: DASHBOARD -->
-        <div id="adminDashboardSection" class="contrib-section-view">
-          <div class="contrib-stats-grid admin">
-            <div class="contrib-stat-card">
-              <div class="contrib-stat-icon novels"><i class="fa-solid fa-book-journal-whills"></i></div>
-              <div class="contrib-stat-info">
-                <span class="stat-number" id="adminStatNovels">0</span>
-                <span class="stat-label">Romans au Catalogue</span>
-              </div>
-            </div>
-            <div class="contrib-stat-card">
-              <div class="contrib-stat-icon pending"><i class="fa-solid fa-inbox"></i></div>
-              <div class="contrib-stat-info">
-                <span class="stat-number" id="adminStatQueue">0</span>
-                <span class="stat-label">En attente de révision</span>
-              </div>
-            </div>
-            <div class="contrib-stat-card">
-              <div class="contrib-stat-icon users"><i class="fa-solid fa-users"></i></div>
-              <div class="contrib-stat-info">
-                <span class="stat-number" id="adminStatUsers">0</span>
-                <span class="stat-label">Utilisateurs enregistrés</span>
-              </div>
-            </div>
-            <div class="contrib-stat-card">
-              <div class="contrib-stat-icon published"><i class="fa-solid fa-feather-pointed"></i></div>
-              <div class="contrib-stat-info">
-                <span class="stat-number" id="adminStatContributors">0</span>
-                <span class="stat-label">Contributeurs & Admins</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="admin-dashboard-widgets-grid">
-            <div class="admin-widget-card">
-              <div class="admin-widget-header">
-                <h3><i class="fa-solid fa-fire" style="color: #fb7185;"></i> Séries les Plus Populaires</h3>
-                <span class="admin-widget-badge">Top Vues & Notes</span>
-              </div>
-              <div id="adminTopPerformingNovels" class="admin-top-novels-list">
-                <!-- Rempli dynamiquement par admin_logic.js?v=1792228575735 -->
-              </div>
-            </div>
-
-            <div class="admin-widget-card">
-              <div class="admin-widget-header">
-                <h3><i class="fa-solid fa-inbox" style="color: #38bdf8;"></i> Dernières soumissions à modérer</h3>
-                <span class="admin-widget-badge">File d'attente</span>
-              </div>
-              <div id="adminQueueRecentList" class="admin-recent-queue-list"></div>
-            </div>
-
-            <div class="admin-widget-card admin-widget-reviews">
-              <div class="admin-widget-header">
-                <h3><i class="fa-solid fa-comment-dots" style="color: #fbbf24;"></i> Retours & Avis Lecteurs Récents</h3>
-                <span class="admin-widget-badge">À chaud</span>
-              </div>
-              <div id="adminRecentReviewsList" class="admin-recent-reviews-list">
-                <!-- Rempli dynamiquement par admin_logic.js?v=1792228575735 -->
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- VIEW 2: FILE DE MODERATION -->
-        <div id="adminQueueSection" class="contrib-section-view hidden">
-          <div class="admin-queue-container" id="adminQueueList"></div>
-        </div>
-
-        <!-- VIEW 3: GESTION DU CATALOGUE (AVEC RECHERCHE & TRI PAR PERFORMANCES) -->
-        <div id="adminCatalogSection" class="contrib-section-view hidden">
-          <div class="admin-catalog-toolbar">
-            <div class="admin-search-wrap">
-              <i class="fa-solid fa-magnifying-glass"></i>
-              <input type="text" id="adminCatalogSearchInp" placeholder="Rechercher par titre ou auteur...">
-            </div>
-            <div class="admin-sort-wrap">
-              <label for="adminCatalogSortSelect" class="admin-sort-lbl"><i class="fa-solid fa-arrow-down-wide-short"></i> Trier :</label>
-              <select id="adminCatalogSortSelect" class="admin-sort-select">
-                <option value="views_desc">🔥 Plus vus (Popularité)</option>
-                <option value="rating_desc">⭐ Mieux notés</option>
-                <option value="recent">🆕 Plus récents</option>
-                <option value="title_asc">🔤 Titre (A - Z)</option>
-                <option value="volumes_desc">📚 Plus de tomes</option>
-              </select>
-            </div>
-          </div>
-          <div class="admin-table-wrapper" id="adminCatalogList"></div>
-        </div>
-
-        <!-- VIEW 4: GESTION DES UTILISATEURS -->
-        <div id="adminUsersSection" class="contrib-section-view hidden">
-          <div class="contrib-toolbar">
-            <div class="contrib-search-wrap">
-              <i class="fa-solid fa-magnifying-glass"></i>
-              <input type="text" id="adminUserSearchInp" placeholder="Rechercher un utilisateur par email...">
-            </div>
-          </div>
-          <div class="admin-table-wrapper" id="adminUsersList"></div>
-        </div>
-
-        <!-- VIEW 5: GESTION ÉDITORIALE (PLANNING & NEWS) -->
-        <div id="adminEditorialSection" class="contrib-section-view hidden">
-          
-          <!-- KPI SUMMARY STATS CARDS -->
-          <div class="admin-ed-stats-grid">
-            <div class="admin-ed-stat-card">
-              <div class="admin-ed-stat-icon icon-cyan"><i class="fa-solid fa-calendar-days"></i></div>
-              <div class="admin-ed-stat-info">
-                <span class="admin-ed-stat-val" id="adminKpiTotalSched">0</span>
-                <span class="admin-ed-stat-lbl">Sorties au Planning</span>
-              </div>
-            </div>
-            <div class="admin-ed-stat-card">
-              <div class="admin-ed-stat-icon icon-amber"><i class="fa-solid fa-clock"></i></div>
-              <div class="admin-ed-stat-info">
-                <span class="admin-ed-stat-val" id="adminKpiUpcomingSched">0</span>
-                <span class="admin-ed-stat-lbl">À paraître</span>
-              </div>
-            </div>
-            <div class="admin-ed-stat-card">
-              <div class="admin-ed-stat-icon icon-emerald"><i class="fa-solid fa-circle-check"></i></div>
-              <div class="admin-ed-stat-info">
-                <span class="admin-ed-stat-val" id="adminKpiReleasedSched">0</span>
-                <span class="admin-ed-stat-lbl">Disponibles</span>
-              </div>
-            </div>
-            <div class="admin-ed-stat-card">
-              <div class="admin-ed-stat-icon icon-rose"><i class="fa-solid fa-newspaper"></i></div>
-              <div class="admin-ed-stat-info">
-                <span class="admin-ed-stat-val" id="adminKpiTotalNews">0</span>
-                <span class="admin-ed-stat-lbl">Articles d'Actualité</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- SUB-NAVIGATION TABS -->
-          <div class="admin-ed-tabs-header">
-            <div class="admin-ed-subnav">
-              <button type="button" class="admin-ed-tab-btn active" id="adminEdTabSchedule">
-                <i class="fa-solid fa-calendar-days"></i>
-                <span>Planning des Sorties</span>
-                <span class="admin-ed-badge-count" id="adminEdBadgeSched">0</span>
-              </button>
-              <button type="button" class="admin-ed-tab-btn" id="adminEdTabNews">
-                <i class="fa-solid fa-newspaper"></i>
-                <span>Actualités & Communiqués</span>
-                <span class="admin-ed-badge-count" id="adminEdBadgeNews">0</span>
-              </button>
-            </div>
-            <div class="admin-ed-top-actions">
-              <button type="button" class="btn-primary" id="btnAdminOpenAddSchedModal">
-                <i class="fa-solid fa-plus"></i>
-                <span>Programmer une sortie</span>
-              </button>
-            </div>
-          </div>
-
-          <!-- SUB-VIEW 1 : PLANNING DES SORTIES -->
-          <div id="adminEdViewSchedule" class="admin-ed-view-pane">
-            <div class="admin-ed-pane-toolbar">
-              <div class="admin-ed-toolbar-filters">
-                <div class="admin-ed-search-box">
-                  <i class="fa-solid fa-magnifying-glass"></i>
-                  <input type="text" id="adminSchedSearchInput" placeholder="Filtrer par titre, tome ou traducteur...">
-                </div>
-                <select id="adminSchedFilterStatus" class="catalog-filter-select">
-                  <option value="all">Tous les statuts</option>
-                  <option value="upcoming">⏳ À paraître uniquement</option>
-                  <option value="released">✅ Disponibles uniquement</option>
-                </select>
-              </div>
-            </div>
-
-            <!-- TABLE DES SORTIES PROGRAMMÉES -->
-            <div class="admin-ed-table-wrap">
-              <table class="admin-table admin-ed-table">
-                <thead>
-                  <tr>
-                    <th style="width:50px;">Couv.</th>
-                    <th>Série & Tome</th>
-                    <th>Date & Heure Prévue</th>
-                    <th>Format</th>
-                    <th>Équipe / Trad.</th>
-                    <th>Statut (Cliquer pour basculer)</th>
-                    <th style="width:100px; text-align:right;">Actions</th>
-                  </tr>
-                </thead>
-                <tbody id="adminSchedTableBody">
-                  <!-- Injected by admin_logic.js?v=1792228575735 -->
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          <!-- SUB-VIEW 2 : GESTION DES ACTUALITÉS -->
-          <div id="adminEdViewNews" class="admin-ed-view-pane hidden">
-            <div class="admin-ed-pane-toolbar">
-              <div class="admin-ed-toolbar-filters">
-                <div class="admin-ed-search-box">
-                  <i class="fa-solid fa-magnifying-glass"></i>
-                  <input type="text" id="adminNewsSearchInput" placeholder="Rechercher une annonce par titre ou contenu...">
-                </div>
-                <select id="adminNewsFilterCategory" class="catalog-filter-select">
-                  <option value="all">Toutes les catégories</option>
-                  <option value="Annonce">Annonces</option>
-                  <option value="Sortie">Sorties</option>
-                  <option value="Nouveauté">Nouveautés</option>
-                  <option value="Maintenance">Maintenance</option>
-                  <option value="Partenariat">Partenariat</option>
-                </select>
-              </div>
-              <button type="button" class="btn-primary" id="btnAdminOpenAddNewsModal">
-                <i class="fa-solid fa-pen-nib"></i> <span>Rédiger une actualité</span>
-              </button>
-            </div>
-
-            <!-- LISTE DES ARTICLES EN LIGNE -->
-            <div id="adminNewsCardsContainer" class="admin-ed-news-cards-grid">
-              <!-- Injected by admin_logic.js?v=1792228575735 -->
-            </div>
-          </div>
-
-        </div> <!-- END VIEW 5: GESTION ÉDITORIALE -->
-
-      </div> <!-- END MODULE 6: ADMIN -->
+      <div id="adminMountPoint"></div>
 
         <!-- NOVELTRAD FOOTER MINIMALISTE (STYLE LNORI) -->
   <footer class="noveltrad-main-footer" id="noveltradFooter" role="contentinfo">
@@ -2752,234 +2498,14 @@
   <!-- ==================================================================== -->
   <!-- MODAL: PROGRAMMER / MODIFIER UNE PARUTION (ADMIN) -->
   <!-- ==================================================================== -->
-  <div class="modal-overlay hidden" id="addScheduleModal">
-    <div class="modal modal-card admin-ed-modal-content" style="max-width: 600px; width: 92%;">
-      <div class="modal-header">
-        <div class="modal-icon-badge" style="background: rgba(225, 29, 72, 0.15); color: #e11d48;">
-          <i class="fa-solid fa-calendar-plus"></i>
-        </div>
-        <div style="flex:1;">
-          <h3 id="schedModalHeaderTitle" style="margin:0; font-size:18px; color:#fff;">Programmer une nouvelle parution</h3>
-          <p class="modal-subtitle" style="margin:4px 0 0 0; font-size:13px; color:#94a3b8;">Ajoutez ou modifiez une sortie officielle dans le calendrier public.</p>
-        </div>
-        <button type="button" class="modal-close-btn" id="schedModalCloseBtn" aria-label="Fermer">&times;</button>
-      </div>
-
-      <form id="addScheduleForm" style="display:flex; flex-direction:column; gap:16px; padding:20px 0 0 0;">
-        <input type="hidden" id="schedEditId" value="">
-
-        <!-- Auto-remplissage depuis le catalogue -->
-        <div class="form-group">
-          <label for="schedSeriesSelect" class="form-label">
-            <i class="fa-solid fa-wand-magic-sparkles" style="color:#e11d48;"></i> Choisir une œuvre du catalogue (auto-remplissage)
-          </label>
-          <select id="schedSeriesSelect" class="auth-input">
-            <option value="">-- Sélectionner une œuvre existante ou saisie libre --</option>
-          </select>
-          <span style="font-size:11.5px; color:#64748b; margin-top:4px; display:block;">Sélectionnez une œuvre pour pré-remplir le titre, la couverture et le format automatiquement.</span>
-        </div>
-
-        <!-- Titre de l'œuvre -->
-        <div class="form-group">
-          <label for="schedSeriesTitle" class="form-label">
-            <i class="fa-solid fa-heading"></i> Titre de l'œuvre *
-          </label>
-          <input type="text" id="schedSeriesTitle" class="auth-input" placeholder="Ex: Mushoku Tensei: Jobless Reincarnation" required>
-        </div>
-
-        <!-- Tome / Chapitre et Format -->
-        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:14px;">
-          <div class="form-group">
-            <label for="schedVolumeOrChapter" class="form-label">
-              <i class="fa-solid fa-bookmark"></i> Tome / Volume / Chapitre
-            </label>
-            <input type="text" id="schedVolumeOrChapter" class="auth-input" placeholder="Ex: Volume 16 ou Tome 3">
-          </div>
-          <div class="form-group">
-            <label for="schedType" class="form-label">
-              <i class="fa-solid fa-layer-group"></i> Format
-            </label>
-            <select id="schedType" class="auth-input">
-              <option value="light_novel">Light Novel</option>
-              <option value="web_novel">Webnovel</option>
-            </select>
-          </div>
-        </div>
-
-        <!-- Date de sortie & Heure -->
-        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:14px;">
-          <div class="form-group">
-            <label for="schedInputDate" class="form-label">
-              <i class="fa-solid fa-calendar-day"></i> Date officielle de parution *
-            </label>
-            <input type="date" id="schedInputDate" class="auth-input" required>
-          </div>
-          <div class="form-group">
-            <label for="schedInputTime" class="form-label">
-              <i class="fa-solid fa-clock"></i> Heure de sortie
-            </label>
-            <input type="time" id="schedInputTime" class="auth-input" value="18:00">
-          </div>
-        </div>
-
-        <!-- Équipe & Statut -->
-        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:14px;">
-          <div class="form-group">
-            <label for="schedTeam" class="form-label">
-              <i class="fa-solid fa-users"></i> Équipe de traduction
-            </label>
-            <input type="text" id="schedTeam" class="auth-input" placeholder="Ex: Team NovelTrad">
-          </div>
-          <div class="form-group">
-            <label for="schedStatus" class="form-label">
-              <i class="fa-solid fa-toggle-on"></i> Statut de départ
-            </label>
-            <select id="schedStatus" class="auth-input">
-              <option value="upcoming">⏳ À paraître</option>
-              <option value="released">✅ Déjà disponible</option>
-            </select>
-          </div>
-        </div>
-
-        <!-- Image de couverture avec prévisualisation 2:3 -->
-        <div class="form-group">
-          <label for="schedCoverUrl" class="form-label">
-            <i class="fa-solid fa-image"></i> Affiche / Couverture (URL)
-          </label>
-          <div style="display:flex; gap:14px; align-items:center;">
-            <input type="url" id="schedCoverUrl" class="auth-input" placeholder="https://..." style="flex:1;">
-            <div class="admin-ed-cover-preview-box" id="schedCoverPreviewContainer" title="Aperçu du format 2:3">
-              <img id="schedCoverPreviewImg" class="hidden" src="" alt="Aperçu">
-              <i id="schedCoverPreviewPlaceholder" class="fa-regular fa-image"></i>
-            </div>
-          </div>
-        </div>
-
-        <div id="schedFormError" class="auth-error-msg hidden"></div>
-
-        <div class="modal-actions" style="margin-top: 10px; display:flex; justify-content:flex-end; gap:12px;">
-          <button type="button" class="btn-cancel" id="btnCancelSchedModal">Annuler</button>
-          <button type="submit" class="btn-primary" id="btnSubmitSchedModal">
-            <i class="fa-solid fa-check"></i> <span id="schedSubmitBtnText">Enregistrer la parution</span>
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
+  
 
   <!-- ==================================================================== -->
   <!-- MODAL: RÉDIGER UNE ACTUALITÉ / ANNONCE (ADMIN) -->
   <!-- ==================================================================== -->
-  <div class="modal-overlay hidden" id="adminAddNewsModal">
-    <div class="modal modal-card admin-ed-modal-content" style="max-width: 600px; width: 92%;">
-      <div class="modal-header">
-        <div class="modal-icon-badge" style="background: rgba(244, 63, 94, 0.15); color: #f43f5e;">
-          <i class="fa-solid fa-newspaper"></i>
-        </div>
-        <div style="flex:1;">
-          <h3 style="margin:0; font-size:18px; color:#fff;">Rédiger une actualité ou annonce</h3>
-          <p class="modal-subtitle" style="margin:4px 0 0 0; font-size:13px; color:#94a3b8;">Diffusez une information officielle auprès des lecteurs et contributeurs.</p>
-        </div>
-        <button type="button" class="modal-close-btn" id="adminAddNewsCloseBtn" aria-label="Fermer">&times;</button>
-      </div>
+  
 
-      <form id="adminAddNewsForm" style="display:flex; flex-direction:column; gap:16px; padding:20px 0 0 0;">
-        <!-- Titre -->
-        <div class="form-group">
-          <label for="adminModalNewsTitle" class="form-label">
-            <i class="fa-solid fa-heading"></i> Titre de l'article *
-          </label>
-          <input type="text" id="adminModalNewsTitle" class="auth-input" placeholder="Ex: Lancement des parutions de l'automne 2026..." required>
-        </div>
-
-        <!-- Catégorie et Série liée -->
-        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:14px;">
-          <div class="form-group">
-            <label for="adminModalNewsCategory" class="form-label">
-              <i class="fa-solid fa-tag"></i> Catégorie *
-            </label>
-            <select id="adminModalNewsCategory" class="auth-input">
-              <option value="Annonce">Annonce</option>
-              <option value="Sortie">Sortie</option>
-              <option value="Nouveauté">Nouveauté</option>
-              <option value="Maintenance">Maintenance</option>
-              <option value="Partenariat">Partenariat</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label for="adminModalNewsSeriesSelect" class="form-label">
-              <i class="fa-solid fa-book"></i> Série associée (optionnel)
-            </label>
-            <select id="adminModalNewsSeriesSelect" class="auth-input">
-              <option value="">Aucune</option>
-            </select>
-          </div>
-        </div>
-
-        <!-- Bannière image avec prévisualisation -->
-        <div class="form-group">
-          <label for="adminModalNewsImage" class="form-label">
-            <i class="fa-solid fa-image"></i> Bannière d'illustration (URL optionnelle)
-          </label>
-          <div style="display:flex; gap:14px; align-items:center;">
-            <input type="url" id="adminModalNewsImage" class="auth-input" placeholder="https://..." style="flex:1;">
-            <div class="admin-ed-banner-preview-box" title="Aperçu bannière">
-              <img id="newsImagePreviewImg" class="hidden" src="" alt="Aperçu">
-              <i id="newsImagePreviewPlaceholder" class="fa-regular fa-image"></i>
-            </div>
-          </div>
-        </div>
-
-        <!-- Chapeau / Résumé court -->
-        <div class="form-group">
-          <label for="adminModalNewsExcerpt" class="form-label">
-            <i class="fa-solid fa-quote-left"></i> Chapeau / Résumé court
-          </label>
-          <input type="text" id="adminModalNewsExcerpt" class="auth-input" placeholder="Bref aperçu affiché sur la carte d'actualité...">
-        </div>
-
-        <!-- Contenu complet -->
-        <div class="form-group">
-          <label for="adminModalNewsContent" class="form-label">
-            <i class="fa-solid fa-align-left"></i> Contenu de l'actualité *
-          </label>
-          <textarea id="adminModalNewsContent" class="auth-input" rows="5" placeholder="Rédigez ici le texte complet du communiqué..." required></textarea>
-        </div>
-
-        <!-- Épinglé -->
-        <div class="form-group" style="margin-top:-4px;">
-          <label style="display:inline-flex; align-items:center; gap:10px; cursor:pointer; color:#e2e8f0; font-size:13.5px;">
-            <input type="checkbox" id="adminModalNewsPinned" style="width:16px; height:16px; accent-color:#e11d48; cursor:pointer;">
-            <span><i class="fa-solid fa-thumbtack" style="color:#fbbf24;"></i> Épingler cet article en tête</span>
-          </label>
-        </div>
-
-        <div class="modal-actions" style="margin-top: 10px; display:flex; justify-content:flex-end; gap:12px;">
-          <button type="button" class="btn-cancel" id="btnCancelNewsModal">Annuler</button>
-          <button type="submit" class="btn-primary" id="btnSubmitNewsModal">
-            <i class="fa-solid fa-paper-plane"></i> <span>Publier l'actualité</span>
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- Modal Détail des Notes & Avis Lecteurs -->
-  <div class="modal-overlay hidden" id="adminRatingsDetailModal">
-    <div class="modal modal-card admin-ratings-modal-content">
-      <div class="modal-header">
-        <div class="modal-title-wrap">
-          <span class="modal-badge-amber"><i class="fa-solid fa-star"></i> Notes & Avis des Lecteurs</span>
-          <h3 id="adminRatingsModalTitle">Avis des Lecteurs</h3>
-        </div>
-        <button type="button" class="modal-close-btn" id="adminRatingsCloseBtn" aria-label="Fermer">&times;</button>
-      </div>
-
-      <div class="admin-ratings-modal-body" id="adminRatingsModalBody">
-        <!-- Dynamiquement généré par admin_logic.js?v=1792228575735 -->
-      </div>
-    </div>
-  </div>
+  
 
 
 
@@ -3003,12 +2529,11 @@
   <script src="js/webnovel_reader.js?v=1789752407265"></script>
   <script src="js/home_lnori_logic.js?v=1790725844546"></script>
   <script src="js/catalog_logic.js?v=1790725844546"></script>
-  <script src="js/editorial_logic.js?v=1792228575735"></script>
+  <script src="js/editorial_logic.js?v=1792231462516"></script>
   <script src="js/series_logic.js?v=1791942152722"></script>
-  <script src="js/contributor_logic.js?v=1792228575735"></script>
-  <script src="js/admin_logic.js?v=1792228575735"></script>
-  <script src="js/pwa_manager.js?v=1790841520734"></script>
-  <script src="js/app.js?v=1792228575735"></script>
+  <script src="js/contributor_logic.js?v=1792231462516"></script>
+    <script src="js/pwa_manager.js?v=1790841520734"></script>
+  <script src="js/app.js?v=1792231462516"></script>
 
   <script>
     if ('serviceWorker' in navigator) {
