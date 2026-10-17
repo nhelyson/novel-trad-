@@ -2658,9 +2658,34 @@ app.delete('/api/editorial/news/:id', async (req, res) => {
   }
 });
 
+// Anti-spam cooldown mémoire pour les vues (30 minutes par IP et par œuvre)
+const seriesViewCooldowns = new Map();
+const VIEW_COOLDOWN_MS = 30 * 60 * 1000;
+
+setInterval(() => {
+  const now = Date.now();
+  for (const [key, timestamp] of seriesViewCooldowns.entries()) {
+    if (now - timestamp > VIEW_COOLDOWN_MS) {
+      seriesViewCooldowns.delete(key);
+    }
+  }
+}, 15 * 60 * 1000);
+
 app.post('/api/catalog/series/:id/view', async (req, res) => {
   try {
     const { id } = req.params;
+    const clientIp = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket.remoteAddress || 'unknown';
+    const cooldownKey = `${clientIp}_${id}`;
+    const now = Date.now();
+
+    const lastView = seriesViewCooldowns.get(cooldownKey);
+    if (lastView && (now - lastView < VIEW_COOLDOWN_MS)) {
+      // Cooldown actif : vue déjà comptabilisée récemment, on renvoie le total sans spammer
+      const series = CatalogService.getSeries(id);
+      return res.json({ success: true, views: series ? (series.views || 0) : 0, cooldown: true });
+    }
+
+    seriesViewCooldowns.set(cooldownKey, now);
     const views = CatalogService.incrementViews(id);
     if (supabase && id) {
       try {
@@ -2673,8 +2698,61 @@ app.post('/api/catalog/series/:id/view', async (req, res) => {
         // Silent catch for Supabase sync
       }
     }
-    res.json({ success: true, views });
+    res.json({ success: true, views, viewed: true });
   } catch (e) {
+    res.status(500).json({ success: false, message: e.message });
+  }
+});
+
+// Endpoint de notation sécurisé (Vote 1 à 5 étoiles + avis optionnel)
+app.post('/api/catalog/series/:id/rate', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { score, review } = req.body || {};
+
+    const numScore = parseInt(score, 10);
+    if (!numScore || numScore < 1 || numScore > 5) {
+      return res.status(400).json({ success: false, message: 'La note doit être un entier entre 1 et 5.' });
+    }
+
+    // Extraction utilisateur connecté (si présent) ou empreinte IP
+    let user = null;
+    try {
+      if (typeof authenticateUser === 'function') {
+        user = await authenticateUser(req);
+      }
+    } catch(err) {}
+
+    const clientIp = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket.remoteAddress || 'unknown';
+    const voterId = user ? `user_${user.id}` : `ip_${clientIp}`;
+    const voterName = (user && (user.user_metadata?.name || user.user_metadata?.full_name || user.email?.split('@')[0])) || 'Lecteur';
+
+    const result = CatalogService.addRating(id, numScore, voterId, voterName, review);
+    if (!result) {
+      return res.status(404).json({ success: false, message: 'Œuvre introuvable dans le catalogue.' });
+    }
+
+    // Synchronisation Supabase optionnelle si configurée
+    if (supabase && id) {
+      try {
+        await supabase.from('series_ratings').upsert({
+          series_id: String(id),
+          rating: result.rating,
+          rating_count: result.rating_count,
+          updated_at: new Date().toISOString()
+        }, { onConflict: 'series_id' });
+      } catch(supaErr) {}
+    }
+
+    res.json({
+      success: true,
+      rating: result.rating,
+      rating_count: result.rating_count,
+      user_score: result.user_score,
+      message: 'Votre note a bien été enregistrée !'
+    });
+  } catch (e) {
+    console.error('[Rating API Error]', e);
     res.status(500).json({ success: false, message: e.message });
   }
 });

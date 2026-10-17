@@ -755,6 +755,177 @@ window.closeDownloadRestrictedNotice = function () {
   // ==========================================================================
   //  END OF VOLUME COMPLETION & WEBTOON COMMENTS
   // ==========================================================================
+  function setupVolumeCompletionRating(container, seriesId, unitWord) {
+    if (!container || !seriesId) return;
+    const ratingCard = container.querySelector('#completedRatingCard');
+    if (!ratingCard) return;
+
+    const starBtns = ratingCard.querySelectorAll('.reader-star-btn');
+    const statusEl = ratingCard.querySelector('#readerRatingStatus');
+    const reviewFold = ratingCard.querySelector('#readerReviewFold');
+    const reviewText = ratingCard.querySelector('#readerReviewText');
+    const charCount = ratingCard.querySelector('#readerReviewCharCount');
+    const btnSubmitReview = ratingCard.querySelector('#btnSubmitReview');
+    const btnCancelReview = ratingCard.querySelector('#btnCancelReview');
+    const feedbackEl = ratingCard.querySelector('#readerRatingFeedback');
+
+    const starLabels = {
+      1: "1★ Décevant",
+      2: "2★ Moyen",
+      3: "3★ Bon",
+      4: "4★ Très bon",
+      5: "5★ Chef-d'œuvre !"
+    };
+
+    const localKey = 'noveltrad_rating_' + seriesId;
+    let currentScore = 0;
+    try {
+      const savedScore = parseInt(localStorage.getItem(localKey), 10);
+      if (!isNaN(savedScore) && savedScore >= 1 && savedScore <= 5) {
+        currentScore = savedScore;
+      }
+    } catch(e) {}
+
+    function updateStars(highlightUpTo, isHover) {
+      starBtns.forEach(btn => {
+        const score = parseInt(btn.getAttribute('data-score'), 10);
+        if (score <= highlightUpTo) {
+          btn.classList.add(isHover ? 'hovered' : 'selected');
+        } else {
+          btn.classList.remove(isHover ? 'hovered' : 'selected');
+        }
+      });
+    }
+
+    // Initial state
+    if (currentScore > 0) {
+      updateStars(currentScore, false);
+      if (statusEl) {
+        statusEl.innerHTML = '<span class="rating-badge-success"><i class="fa-solid fa-check"></i> Votre note : ' + starLabels[currentScore] + ' ⭐ (Touchez pour modifier)</span>';
+      }
+    }
+
+    // Star events
+    starBtns.forEach(btn => {
+      const score = parseInt(btn.getAttribute('data-score'), 10);
+
+      btn.addEventListener('mouseenter', () => {
+        updateStars(score, true);
+        if (statusEl) statusEl.textContent = starLabels[score];
+      });
+
+      btn.addEventListener('mouseleave', () => {
+        starBtns.forEach(b => b.classList.remove('hovered'));
+        if (currentScore > 0) {
+          updateStars(currentScore, false);
+          if (statusEl) {
+            statusEl.innerHTML = '<span class="rating-badge-success"><i class="fa-solid fa-check"></i> Votre note : ' + starLabels[currentScore] + ' ⭐ (Touchez pour modifier)</span>';
+          }
+        } else {
+          if (statusEl) statusEl.textContent = 'Touchez une étoile pour voter';
+        }
+      });
+
+      btn.addEventListener('click', async () => {
+        currentScore = score;
+        updateStars(currentScore, false);
+        try {
+          localStorage.setItem(localKey, currentScore);
+        } catch(e) {}
+
+        if (statusEl) {
+          statusEl.innerHTML = '<span class="rating-badge-saving"><i class="fa-solid fa-circle-notch fa-spin"></i> Enregistrement de votre note...</span>';
+        }
+
+        try {
+          let headers = { 'Content-Type': 'application/json' };
+          if (window.authManager && typeof window.authManager.getAccessToken === 'function') {
+            try {
+              const token = await window.authManager.getAccessToken();
+              if (token) headers['Authorization'] = 'Bearer ' + token;
+            } catch(err) {}
+          }
+
+          const res = await fetch('/api/catalog/series/' + encodeURIComponent(seriesId) + '/rate', {
+            method: 'POST',
+            headers,
+            body: JSON.stringify({ score: currentScore })
+          });
+          const data = await res.json();
+          if (data && data.success) {
+            if (statusEl) {
+              statusEl.innerHTML = '<span class="rating-badge-success"><i class="fa-solid fa-star"></i> Merci pour votre vote ! (' + starLabels[currentScore] + ')</span>';
+            }
+            if (typeof currentSeries !== 'undefined' && currentSeries && currentSeries.id === seriesId) {
+              currentSeries.rating = data.rating;
+              currentSeries.rating_count = data.rating_count;
+            }
+            if (reviewFold && reviewFold.style.display === 'none' && !ratingCard.dataset.reviewSubmitted) {
+              reviewFold.style.display = 'block';
+              if (reviewText) reviewText.focus();
+            }
+          } else {
+            if (statusEl) statusEl.textContent = (data && data.message) || 'Vote enregistré.';
+          }
+        } catch(e) {
+          if (statusEl) {
+            statusEl.innerHTML = '<span class="rating-badge-success"><i class="fa-solid fa-check"></i> Note enregistrée : ' + starLabels[currentScore] + ' ⭐</span>';
+          }
+        }
+      });
+    });
+
+    // Character counter
+    if (reviewText && charCount) {
+      reviewText.addEventListener('input', () => {
+        charCount.textContent = reviewText.value.length + '/300';
+      });
+    }
+
+    // Cancel review
+    if (btnCancelReview && reviewFold) {
+      btnCancelReview.addEventListener('click', () => {
+        reviewFold.style.display = 'none';
+      });
+    }
+
+    // Submit review
+    if (btnSubmitReview && reviewText && reviewFold) {
+      btnSubmitReview.addEventListener('click', async () => {
+        const text = reviewText.value.trim();
+        if (!text) {
+          reviewFold.style.display = 'none';
+          return;
+        }
+        btnSubmitReview.disabled = true;
+        btnSubmitReview.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Envoi...';
+
+        try {
+          let headers = { 'Content-Type': 'application/json' };
+          if (window.authManager && typeof window.authManager.getAccessToken === 'function') {
+            try {
+              const token = await window.authManager.getAccessToken();
+              if (token) headers['Authorization'] = 'Bearer ' + token;
+            } catch(err) {}
+          }
+          await fetch('/api/catalog/series/' + encodeURIComponent(seriesId) + '/rate', {
+            method: 'POST',
+            headers,
+            body: JSON.stringify({ score: currentScore || 5, review: text })
+          });
+          ratingCard.dataset.reviewSubmitted = 'true';
+          reviewFold.style.display = 'none';
+          if (feedbackEl) {
+            feedbackEl.style.display = 'block';
+            feedbackEl.innerHTML = '<div class="rating-feedback-box"><i class="fa-solid fa-heart" style="color: #e11d48;"></i> Merci pour votre avis chaleureux !</div>';
+          }
+        } catch(err) {
+          reviewFold.style.display = 'none';
+        }
+      });
+    }
+  }
+
   function renderStreamVolumeCompletionAndComments(body, manifest, bookRef) {
     if (!body || !manifest) return;
     if (document.getElementById("streamVolumeCompletionWrap")) return; // Avoid duplicate
@@ -763,10 +934,14 @@ window.closeDownloadRestrictedNotice = function () {
     wrap.id = "streamVolumeCompletionWrap";
     wrap.className = "stream-volume-completion-wrap";
 
+    const sId = (bookRef && (bookRef.seriesId || bookRef.series_id)) || (typeof currentSeries !== 'undefined' && currentSeries ? currentSeries.id : null);
+    const isChapter = (typeof currentSeries !== 'undefined' && currentSeries && currentSeries.unit_type === 'chapters');
+    const unitWord = isChapter ? 'ce chapitre' : 'ce tome';
+    const completionTitle = isChapter ? 'Fin du Chapitre' : 'Fin du Volume';
+
     // Detect if next volume is available
     let nextVolumeBook = null;
     try {
-      const sId = bookRef ? (bookRef.seriesId || bookRef.series_id) : null;
       const currentVolNum = bookRef ? (bookRef.volumeNumber || bookRef.volume_number) : null;
       if (sId && currentVolNum && typeof allBooks !== 'undefined' && Array.isArray(allBooks)) {
         nextVolumeBook = allBooks.find(b => {
@@ -780,7 +955,7 @@ window.closeDownloadRestrictedNotice = function () {
         if (nextVol) {
           nextVolumeBook = {
             id: nextVol.id || (currentSeries.id + '_vol_' + (currentVolNum + 1)),
-            title: currentSeries.title + ' - ' + (nextVol.title || ('Volume ' + (currentVolNum + 1))),
+            title: currentSeries.title + ' - ' + (nextVol.title || ((isChapter ? 'Chapitre ' : 'Volume ') + (currentVolNum + 1))),
             seriesId: currentSeries.id,
             volumeNumber: currentVolNum + 1,
             format: (nextVol.format || nextVol.file_type || '').toLowerCase() === 'pdf' ? 'pdf' : 'epub',
@@ -796,20 +971,54 @@ window.closeDownloadRestrictedNotice = function () {
     wrap.innerHTML = `
       <div class="stream-book-completed-card">
         <div class="completed-icon"><i class="fa-solid fa-trophy"></i></div>
-        <h3>Fin du Volume</h3>
-        <p>Vous avez atteint la fin de ce volume. Félicitations pour votre lecture !</p>
+        <h3>${completionTitle}</h3>
+        <p>Vous avez atteint la fin de ${unitWord}. Félicitations pour votre lecture !</p>
         
+        ${sId ? `
+        <div class="completed-rating-card" id="completedRatingCard" data-series-id="${sId}">
+          <div class="completed-rating-header">
+            <span class="rating-sparkle"><i class="fa-solid fa-star"></i> Votre avis</span>
+            <h4>Qu'avez-vous pensé de ${unitWord} ?</h4>
+            <p class="rating-instruction">Notez cette œuvre pour soutenir l'auteur et aider les prochains lecteurs :</p>
+          </div>
+          <div class="reader-star-rating-row" role="radiogroup" aria-label="Noter cette œuvre">
+            <button type="button" class="reader-star-btn" data-score="1" title="1★ Décevant" aria-label="1 étoile"><i class="fa-solid fa-star"></i></button>
+            <button type="button" class="reader-star-btn" data-score="2" title="2★ Moyen" aria-label="2 étoiles"><i class="fa-solid fa-star"></i></button>
+            <button type="button" class="reader-star-btn" data-score="3" title="3★ Bon" aria-label="3 étoiles"><i class="fa-solid fa-star"></i></button>
+            <button type="button" class="reader-star-btn" data-score="4" title="4★ Très bon" aria-label="4 étoiles"><i class="fa-solid fa-star"></i></button>
+            <button type="button" class="reader-star-btn" data-score="5" title="5★ Chef-d'œuvre !" aria-label="5 étoiles"><i class="fa-solid fa-star"></i></button>
+          </div>
+          <div class="reader-rating-status" id="readerRatingStatus">Touchez une étoile pour voter</div>
+
+          <div class="reader-review-fold" id="readerReviewFold" style="display: none;">
+            <div class="reader-review-box">
+              <textarea id="readerReviewText" class="reader-review-textarea" rows="2" maxlength="300" placeholder="Un mot pour l'auteur ou vos impressions de lecture ? (Optionnel)"></textarea>
+              <div class="reader-review-bar">
+                <span class="reader-review-char-count" id="readerReviewCharCount">0/300</span>
+                <div class="reader-review-btns">
+                  <button type="button" class="btn-submit-review" id="btnSubmitReview">
+                    <i class="fa-solid fa-paper-plane"></i> <span>Publier l'avis</span>
+                  </button>
+                  <button type="button" class="btn-cancel-review" id="btnCancelReview">Plus tard</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="reader-rating-feedback" id="readerRatingFeedback" style="display: none;"></div>
+        </div>
+        ` : ''}
+
         <div class="completed-actions-row">
           ${nextVolumeBook ? `
             <button type="button" class="btn-completed-action primary" onclick="if (window._nextVolumeInReader && typeof window.openBookReader === 'function') window.openBookReader(window._nextVolumeInReader);">
-              <i class="fa-solid fa-book-open"></i> <span>Volume Suivant</span>
+              <i class="fa-solid fa-book-open"></i> <span>${isChapter ? 'Chapitre Suivant' : 'Volume Suivant'}</span>
             </button>
           ` : ''}
           <button type="button" class="btn-completed-action secondary" onclick="if (typeof window.closePdfReader === 'function') window.closePdfReader();">
             <i class="fa-solid fa-arrow-left"></i> <span>Fiche du Roman</span>
           </button>
           <button type="button" class="btn-completed-action ghost" onclick="const sc = document.getElementById('streamChapterContainer'); if (sc) sc.scrollTo({ top: 0, behavior: 'smooth' });">
-            <i class="fa-solid fa-arrow-up"></i> <span>Haut du volume</span>
+            <i class="fa-solid fa-arrow-up"></i> <span>Haut ${isChapter ? 'du chapitre' : 'du volume'}</span>
           </button>
         </div>
       </div>
@@ -818,6 +1027,10 @@ window.closeDownloadRestrictedNotice = function () {
     `;
 
     body.appendChild(wrap);
+
+    if (sId) {
+      setupVolumeCompletionRating(wrap, sId, unitWord);
+    }
 
     // Mount Webtoon Comments (with mobile resilience & retry)
     const fileKey = manifest.fileKey || (bookRef && (bookRef.fileKey || bookRef.id)) || 'vol_' + Date.now();
@@ -915,14 +1128,9 @@ window.closeDownloadRestrictedNotice = function () {
       }
 
       if (_highestLoadedChapter >= total && body) {
-        const finishCard = document.createElement("div");
-        finishCard.className = "stream-book-completed-card";
-        finishCard.innerHTML = `
-          <div class="completed-icon"><i class="fa-solid fa-circle-check"></i></div>
-          <h3>Fin du Volume</h3>
-          <p>Vous avez atteint la fin de ce volume. Félicitations pour votre lecture !</p>
-        `;
-        body.appendChild(finishCard);
+        if (!document.getElementById("streamVolumeCompletionWrap")) {
+          renderStreamVolumeCompletionAndComments(body, manifest, currentBookRef);
+        }
       }
     } catch (err) {
       console.warn("[Stream Reader] Erreur append chapitre", nextNum, err);

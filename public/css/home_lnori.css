@@ -7166,3 +7166,288 @@ html.theme-light .admin-table td {
     justify-content: space-between !important;
   }
 }
+
+
+/* =========================================================================
+   COMPLETION SCREEN RATING COMPONENT (End of Volume / Chapter)
+   ========================================================================= */
+.completed-rating-card {
+  margin: 22px 0 !important;
+  padding: 20px 16px !important;
+  background: rgba(15, 23, 42, 0.5) !important;
+  border: 1px solid rgba(251, 191, 36, 0.28) !important;
+  border-radius: 14px !important;
+  backdrop-filter: blur(12px) !important;
+  text-align: center !important;
+  position: relative !important;
+  overflow: hidden !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25) !important;
+}
+
+.completed-rating-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #fbbf24, #f59e0b, transparent);
+}
+
+.completed-rating-header {
+  margin-bottom: 12px !important;
+}
+
+.completed-rating-header .rating-sparkle {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.08em !important;
+  padding: 3px 10px !important;
+  border-radius: 9999px !important;
+  background: rgba(251, 191, 36, 0.15) !important;
+  color: #fbbf24 !important;
+  border: 1px solid rgba(251, 191, 36, 0.35) !important;
+  margin-bottom: 8px !important;
+}
+
+.completed-rating-header h4 {
+  font-size: 16px !important;
+  font-weight: 700 !important;
+  color: #ffffff !important;
+  margin: 0 0 4px 0 !important;
+}
+
+.completed-rating-header .rating-instruction {
+  font-size: 12.5px !important;
+  color: #94a3b8 !important;
+  margin: 0 !important;
+}
+
+.reader-star-rating-row {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  margin: 14px 0 8px 0 !important;
+  padding: 6px 12px !important;
+  background: rgba(255, 255, 255, 0.04) !important;
+  border-radius: 9999px !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+.reader-star-btn {
+  background: transparent !important;
+  border: none !important;
+  padding: 4px 6px !important;
+  font-size: 26px !important;
+  color: #475569 !important;
+  cursor: pointer !important;
+  transition: transform 0.15s cubic-bezier(0.16, 1, 0.3, 1), color 0.15s ease !important;
+  outline: none !important;
+  line-height: 1 !important;
+}
+
+.reader-star-btn:hover,
+.reader-star-btn.hovered,
+.reader-star-btn.selected {
+  color: #fbbf24 !important;
+  text-shadow: 0 0 14px rgba(251, 191, 36, 0.65) !important;
+}
+
+.reader-star-btn:hover,
+.reader-star-btn.hovered {
+  transform: scale(1.22) !important;
+}
+
+.reader-star-btn.selected {
+  transform: scale(1.08) !important;
+}
+
+.reader-rating-status {
+  font-size: 13px !important;
+  color: #cbd5e1 !important;
+  min-height: 22px !important;
+  margin-top: 4px !important;
+  transition: all 0.2s ease !important;
+}
+
+.rating-badge-success {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  color: #34d399 !important;
+  font-weight: 600 !important;
+  background: rgba(52, 211, 153, 0.12) !important;
+  padding: 3px 12px !important;
+  border-radius: 9999px !important;
+  border: 1px solid rgba(52, 211, 153, 0.3) !important;
+}
+
+.rating-badge-saving {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  color: #fbbf24 !important;
+}
+
+.reader-review-fold {
+  margin-top: 14px !important;
+  animation: fadeInReviewFold 0.25s ease-out forwards;
+}
+
+@keyframes fadeInReviewFold {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.reader-review-box {
+  background: rgba(0, 0, 0, 0.35) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  border-radius: 10px !important;
+  padding: 10px 12px !important;
+  text-align: left !important;
+}
+
+.reader-review-textarea {
+  width: 100% !important;
+  background: transparent !important;
+  border: none !important;
+  outline: none !important;
+  color: #f8fafc !important;
+  font-size: 13px !important;
+  resize: vertical !important;
+  font-family: inherit !important;
+  min-height: 52px !important;
+}
+
+.reader-review-textarea::placeholder {
+  color: #64748b !important;
+}
+
+.reader-review-bar {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  margin-top: 6px !important;
+  padding-top: 6px !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+.reader-review-char-count {
+  font-size: 11px !important;
+  color: #64748b !important;
+}
+
+.reader-review-btns {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+
+.btn-submit-review {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  padding: 6px 14px !important;
+  background: linear-gradient(135deg, #fbbf24, #d97706) !important;
+  color: #0f172a !important;
+  font-weight: 700 !important;
+  font-size: 12px !important;
+  border-radius: 9999px !important;
+  border: none !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+}
+
+.btn-submit-review:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 12px rgba(251, 191, 36, 0.4) !important;
+}
+
+.btn-cancel-review {
+  background: transparent !important;
+  border: none !important;
+  color: #94a3b8 !important;
+  font-size: 12px !important;
+  cursor: pointer !important;
+  padding: 4px 8px !important;
+}
+
+.btn-cancel-review:hover {
+  color: #cbd5e1 !important;
+}
+
+.rating-feedback-box {
+  margin-top: 12px !important;
+  font-size: 13px !important;
+  color: #f43f5e !important;
+  font-weight: 600 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  background: rgba(244, 63, 94, 0.1) !important;
+  padding: 5px 14px !important;
+  border-radius: 9999px !important;
+  border: 1px solid rgba(244, 63, 94, 0.25) !important;
+}
+
+/* Light & Sepia theme adaptivity inside reader */
+html.theme-light .completed-rating-card,
+#readerOverlay.theme-light .completed-rating-card {
+  background: #ffffff !important;
+  border-color: rgba(217, 119, 6, 0.3) !important;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.06) !important;
+}
+html.theme-light .completed-rating-header h4,
+#readerOverlay.theme-light .completed-rating-header h4 {
+  color: #0f172a !important;
+}
+html.theme-light .completed-rating-header .rating-instruction,
+#readerOverlay.theme-light .completed-rating-header .rating-instruction {
+  color: #64748b !important;
+}
+html.theme-light .reader-star-btn,
+#readerOverlay.theme-light .reader-star-btn {
+  color: #cbd5e1 !important;
+}
+html.theme-light .reader-rating-status,
+#readerOverlay.theme-light .reader-rating-status {
+  color: #475569 !important;
+}
+html.theme-light .reader-review-box,
+#readerOverlay.theme-light .reader-review-box {
+  background: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+}
+html.theme-light .reader-review-textarea,
+#readerOverlay.theme-light .reader-review-textarea {
+  color: #0f172a !important;
+}
+
+#readerOverlay.theme-sepia .completed-rating-card {
+  background: #ede3ce !important;
+  border-color: rgba(180, 83, 9, 0.3) !important;
+}
+#readerOverlay.theme-sepia .completed-rating-header h4 {
+  color: #2b1f14 !important;
+}
+#readerOverlay.theme-sepia .completed-rating-header .rating-instruction {
+  color: #78624f !important;
+}
+#readerOverlay.theme-sepia .reader-star-btn {
+  color: #c4b59d !important;
+}
+#readerOverlay.theme-sepia .reader-rating-status {
+  color: #5c4738 !important;
+}
+#readerOverlay.theme-sepia .reader-review-box {
+  background: #f4ecdc !important;
+  border-color: #d8c8b0 !important;
+}
+#readerOverlay.theme-sepia .reader-review-textarea {
+  color: #2b1f14 !important;
+}

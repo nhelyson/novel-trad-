@@ -346,6 +346,86 @@ class CatalogService {
         }
         return 0;
     }
+
+    addRating(id, score, voterId, voterName = '', reviewText = '') {
+        const series = this.getSeries(id);
+        if (!series) return null;
+
+        const numScore = Math.min(5, Math.max(1, Math.round(Number(score))));
+        if (!numScore || isNaN(numScore)) return null;
+
+        if (!series.ratings_data) {
+            series.ratings_data = {
+                count: 0,
+                total_score: 0,
+                distribution: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 },
+                user_votes: {},
+                recent_reviews: []
+            };
+        }
+
+        const rd = series.ratings_data;
+        if (!rd.distribution) rd.distribution = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+        if (!rd.user_votes) rd.user_votes = {};
+        if (!Array.isArray(rd.recent_reviews)) rd.recent_reviews = [];
+
+        const voterKey = String(voterId || ('anon_' + Date.now()));
+        const previousVote = rd.user_votes[voterKey];
+
+        if (previousVote) {
+            const prevScore = previousVote.score;
+            rd.total_score = Math.max(0, (rd.total_score || 0) - prevScore + numScore);
+            if (rd.distribution[prevScore] > 0) rd.distribution[prevScore]--;
+            rd.distribution[numScore] = (rd.distribution[numScore] || 0) + 1;
+            previousVote.score = numScore;
+            previousVote.updated_at = Date.now();
+            if (reviewText && reviewText.trim()) {
+                previousVote.review = reviewText.trim().substring(0, 300);
+            }
+        } else {
+            rd.count = (rd.count || 0) + 1;
+            rd.total_score = (rd.total_score || 0) + numScore;
+            rd.distribution[numScore] = (rd.distribution[numScore] || 0) + 1;
+            rd.user_votes[voterKey] = {
+                score: numScore,
+                name: voterName ? String(voterName).substring(0, 50) : 'Lecteur',
+                review: reviewText ? String(reviewText).trim().substring(0, 300) : '',
+                created_at: Date.now()
+            };
+        }
+
+        if (reviewText && reviewText.trim()) {
+            const cleanRev = String(reviewText).trim().substring(0, 300);
+            const existingRevIdx = rd.recent_reviews.findIndex(r => r.voterKey === voterKey);
+            const reviewObj = {
+                voterKey,
+                name: voterName ? String(voterName).substring(0, 50) : 'Lecteur',
+                score: numScore,
+                text: cleanRev,
+                created_at: Date.now()
+            };
+            if (existingRevIdx !== -1) {
+                rd.recent_reviews[existingRevIdx] = reviewObj;
+            } else {
+                rd.recent_reviews.unshift(reviewObj);
+                if (rd.recent_reviews.length > 20) rd.recent_reviews.pop();
+            }
+        }
+
+        // Bayesian smoothed rating: with C=2 prior weight around baseline 4.8
+        const C = 2;
+        const m = 4.8;
+        const avg = ((C * m) + rd.total_score) / (C + rd.count);
+        series.rating = Math.round(avg * 10) / 10;
+        series.rating_count = rd.count;
+
+        this.saveData();
+        return {
+            rating: series.rating,
+            rating_count: series.rating_count,
+            user_score: numScore
+        };
+    }
 }
 
 module.exports = new CatalogService();
