@@ -800,7 +800,28 @@ const uploadCover = multer({
 });
 
 
+// Validation binaire de signature de fichier (Magic Bytes) pour contrer les fichiers déguisés
+function isValidBookBinary(filePath) {
+  try {
+    if (!fs.existsSync(filePath)) return false;
+    const fd = fs.openSync(filePath, 'r');
+    const buffer = Buffer.alloc(4);
+    fs.readSync(fd, buffer, 0, 4, 0);
+    fs.closeSync(fd);
+    // ZIP / EPUB magic signature: 0x50 0x4B (PK)
+    const isZip = buffer[0] === 0x50 && buffer[1] === 0x4B;
+    // PDF magic signature: %PDF (0x25 0x50 0x44 0x46)
+    const isPdf = buffer[0] === 0x25 && buffer[1] === 0x50 && buffer[2] === 0x44 && buffer[3] === 0x46;
+    return isZip || isPdf;
+  } catch (err) {
+    return true; // Fallback permissif
+  }
+}
+
 // ── SÉCURITÉ & OPTIMISATIONS HARDENING ──────────────────────────────────────────
+// 0. Masquage de la signature serveur Express contre les scanners d'empreinte
+app.disable('x-powered-by');
+
 // 1. En-têtes HTTP de sécurité avec Helmet (configuré souple pour ne casser aucun CDN/image/font)
 app.use(helmet({
   contentSecurityPolicy: false,
@@ -2978,13 +2999,25 @@ app.get(['/api/download-job/:jobId', '/api/download-job/:jobId/*'], async (req, 
     return res.status(404).json({ error: true, message: 'Couverture introuvable.' });
   }
 
-  // B. Fichier externe en Base64 (Zero-copy)
+  // B. Fichier externe en Base64 (Zero-copy sécurisé avec Sandboxing)
   if (jobId.startsWith('external_')) {
     try {
       const base64Part = jobId.replace('external_', '');
       const filePath = Buffer.from(base64Part, 'base64').toString('utf8');
-      if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
-        const ext = path.extname(filePath).toLowerCase();
+      const resolvedP = path.resolve(filePath);
+
+      // Sandboxing strict : restriction absolue aux dossiers de données de l'application (Anti Path-Traversal)
+      const allowedDataBases = [
+        path.resolve(__dirname, 'data'),
+        path.resolve(__dirname, 'uploads')
+      ];
+      const isAllowed = allowedDataBases.some(baseDir => resolvedP.startsWith(baseDir));
+      if (!isAllowed) {
+        return res.status(403).json({ error: true, message: 'Accès au répertoire interdit.' });
+      }
+
+      if (fs.existsSync(resolvedP) && fs.statSync(resolvedP).isFile()) {
+        const ext = path.extname(resolvedP).toLowerCase();
         const allowedExts = ['.pdf', '.epub', '.txt'];
         if (!allowedExts.includes(ext)) {
           return res.status(403).json({ error: true, message: 'Type de fichier non autorisé.' });
@@ -2992,8 +3025,8 @@ app.get(['/api/download-job/:jobId', '/api/download-job/:jobId/*'], async (req, 
         if (ext === '.pdf') res.setHeader('Content-Type', 'application/pdf');
         if (ext === '.epub') res.setHeader('Content-Type', 'application/epub+zip');
         if (ext === '.txt') res.setHeader('Content-Type', 'text/plain');
-        res.setHeader('Content-Disposition', 'inline; filename="' + encodeURIComponent(path.basename(filePath)) + '"');
-        return res.sendFile(filePath);
+        res.setHeader('Content-Disposition', 'inline; filename="' + encodeURIComponent(path.basename(resolvedP)) + '"');
+        return res.sendFile(resolvedP);
       }
     } catch(e) {}
   }
@@ -3426,11 +3459,44 @@ app.delete('/api/comments/:commentId', requireAuth, async (req, res) => {
   }
 });
 
+// Anti-flood cooldown pour les commentaires (5 secondes par IP & par volume)
+const commentCooldowns = new Map();
+const COMMENT_COOLDOWN_MS = 5 * 1000;
+
+setInterval(() => {
+  const now = Date.now();
+  for (const [key, timestamp] of commentCooldowns.entries()) {
+    if (now - timestamp > COMMENT_COOLDOWN_MS) {
+      commentCooldowns.delete(key);
+    }
+  }
+}, 60 * 1000);
+
 // POST /api/comments/:bookKey/:paragraphId - Post a comment on a paragraph
 app.post('/api/comments/:bookKey/:paragraphId', async (req, res) => {
   try {
     const { bookKey, paragraphId } = req.params;
     const { content, is_spoiler, visitor_name, excerpt } = req.body || {};
+
+    const clientIp = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket.remoteAddress || '127.0.0.1';
+    const cooldownKey = `${clientIp}_${bookKey}`;
+    const now = Date.now();
+    const lastComment = commentCooldowns.get(cooldownKey);
+    if (lastComment && (now - lastComment < COMMENT_COOLDOWN_MS)) {
+      return res.status(429).json({ success: false, error: 'Veuillez patienter quelques secondes avant de reposter un commentaire.' });
+    }
+    commentCooldowns.set(cooldownKey, now);
+
+    // Assainissement Anti-XSS strict et limite de longueur
+    const cleanContent = String(content || '')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .trim()
+      .slice(0, 500);
+
+    if (!cleanContent) {
+      return res.status(400).json({ success: false, error: 'Le commentaire ne peut pas être vide.' });
+    }
 
     let user = null;
     try {
@@ -3460,7 +3526,7 @@ app.post('/api/comments/:bookKey/:paragraphId', async (req, res) => {
       userName,
       userAvatar,
       userRole,
-      content,
+      content: cleanContent,
       isSpoiler: Boolean(is_spoiler)
     });
 
@@ -3825,6 +3891,12 @@ app.post('/api/contributor/novels/:id/volumes', contributorLimiter, requireContr
         let extractedCoverUrl = null;
 
         if (req.file) {
+            // Validation binaire stricte (Magic Bytes) pour contrer les faux fichiers déguisés
+            if (typeof isValidBookBinary === 'function' && !isValidBookBinary(req.file.path)) {
+                try { fs.unlinkSync(req.file.path); } catch(e) {}
+                return res.status(400).json({ success: false, error: 'Fichier invalide ou corrompu. Le fichier doit être un véritable document EPUB ou PDF.' });
+            }
+
             const ext = path.extname(req.file.originalname).toLowerCase();
             const formatStr = ext.replace('.', '').toUpperCase();
 
