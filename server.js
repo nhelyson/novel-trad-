@@ -4242,6 +4242,31 @@ app.post('/api/library/submit-to-catalog', requireAuth, async (req, res) => {
 });
 
 // GET /api/admin/pending - Get queue of novels awaiting moderation
+// Route privée sécurisée : sert le bundle (HTML + JS) du Studio Contributeur exclusivement aux Contributeurs et Admins
+app.get('/api/contributor/bundle', requireContributor, (req, res) => {
+  try {
+    const path = require('path');
+    const templatePath = path.join(__dirname, 'private', 'contributor', 'contributor_template.html');
+    const logicPath = path.join(__dirname, 'private', 'contributor', 'contributor_logic.js');
+
+    if (!fs.existsSync(templatePath) || !fs.existsSync(logicPath)) {
+      return res.status(404).json({ success: false, message: 'Fichiers contributeur introuvables.' });
+    }
+
+    const html = fs.readFileSync(templatePath, 'utf8');
+    const js = fs.readFileSync(logicPath, 'utf8');
+
+    res.json({
+      success: true,
+      html,
+      js
+    });
+  } catch(err) {
+    console.error('[Contributor Bundle Error]', err);
+    res.status(500).json({ success: false, message: 'Erreur lors de la récupération du studio contributeur.' });
+  }
+});
+
 // Route privée sécurisée : sert le bundle (HTML + JS) de l'administration exclusivement aux Administrateurs
 app.get('/api/admin/bundle', requireAdmin, (req, res) => {
   try {

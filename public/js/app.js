@@ -97,9 +97,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 4. Contrôle d'accès strict par rôle avant d'afficher un module protégé
     const auth = window.authManager || window.supabaseAuthManager;
-    if (activeModule === contributorModuleContainer) {
+    const curContribCheck = document.getElementById('contributorModuleContainer');
+    if (curContribCheck && activeModule === curContribCheck) {
       if (!auth || !auth.isContributor()) {
-        alert('Accès réservé : Vous devez avoir le rôle Contributeur ou Administrateur pour accéder à cet espace.');
         if (tabHomeBtn) tabHomeBtn.click();
         return;
       }
@@ -117,7 +117,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (catalogModule) catalogModule.classList.add('hidden');
     if (editorialModule) editorialModule.classList.add('hidden');
     if (docModuleContainer) docModuleContainer.classList.add('hidden');
-    if (contributorModuleContainer) contributorModuleContainer.classList.add('hidden');
+    const curContribHide = document.getElementById('contributorModuleContainer'); if (curContribHide) curContribHide.classList.add('hidden');
     const curAdmHide = document.getElementById('adminModuleContainer'); if (curAdmHide) curAdmHide.classList.add('hidden');
     if (accountModuleContainer) accountModuleContainer.classList.add('hidden');
     if (libraryModule) {
@@ -165,14 +165,106 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   window.openAccountTab = openAccountTab;
 
-  function openContributorTab() {
-    const contribModule = document.getElementById('contributorModuleContainer');
-    if (!contribModule) return;
-    setActiveTab(null, contribModule);
-    if (window.contributorManager && typeof window.contributorManager.initStudio === 'function') {
-      window.contributorManager.initStudio();
+  let _isLoadingContributorBundle = false;
+
+  async function openContributorTab() {
+    // 1. Attente initiale que Supabase Auth initialise la session
+    if (window.authManager) {
+      try {
+        if (!window.authManager.currentUser && window.authManager.isLoading !== false) {
+          await Promise.race([
+            new Promise(resolve => {
+              const check = () => {
+                if (window.authManager.currentUser || window.authManager.isLoading === false) resolve();
+                else setTimeout(check, 50);
+              };
+              check();
+            }),
+            new Promise(r => setTimeout(r, 600))
+          ]);
+        }
+      } catch(e) {}
     }
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    // 2. Si non-contributeur : silence radio total, on efface le hash et on reste sur l'accueil
+    const isContrib = window.authManager && typeof window.authManager.isContributor === 'function' && window.authManager.isContributor();
+    if (!isContrib) {
+      if (window.location.hash === '#contributor' || window.location.hash === '#studio') {
+        history.replaceState(null, '', window.location.pathname);
+      }
+      return;
+    }
+
+    // 3. Si le studio contributeur est déjà monté dans le DOM
+    let contribModule = document.getElementById('contributorModuleContainer');
+    if (contribModule && window.contributorManager) {
+      setActiveTab(null, contribModule);
+      if (typeof window.contributorManager.initStudio === 'function') {
+        window.contributorManager.initStudio();
+      }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
+    // 4. Si pas encore monté, récupération sécurisée auprès du serveur
+    if (_isLoadingContributorBundle) return;
+    _isLoadingContributorBundle = true;
+
+    try {
+      const token = window.authManager ? await window.authManager.getAccessToken() : null;
+      if (!token) throw new Error('Token requis');
+
+      const res = await fetch('/api/contributor/bundle', {
+        headers: { 'Authorization': 'Bearer ' + token }
+      });
+
+      if (!res.ok) {
+        history.replaceState(null, '', window.location.pathname);
+        return;
+      }
+
+      const data = await res.json();
+      if (data && data.success && data.html) {
+        let mount = document.getElementById('contributorMountPoint');
+        if (!mount) {
+          mount = document.createElement('div');
+          mount.id = 'contributorMountPoint';
+          const main = document.querySelector('main.app-main') || document.querySelector('main');
+          const adminMount = document.getElementById('adminMountPoint');
+          const footer = document.getElementById('noveltradFooter');
+          if (main && adminMount) {
+            main.insertBefore(mount, adminMount);
+          } else if (main && footer) {
+            main.insertBefore(mount, footer);
+          } else if (main) {
+            main.appendChild(mount);
+          } else {
+            document.body.appendChild(mount);
+          }
+        }
+
+        mount.innerHTML = data.html;
+
+        if (data.js && !window.contributorManager) {
+          const s = document.createElement('script');
+          s.textContent = data.js;
+          document.body.appendChild(s);
+        }
+
+        contribModule = document.getElementById('contributorModuleContainer');
+        if (contribModule) {
+          setActiveTab(null, contribModule);
+          if (window.contributorManager && typeof window.contributorManager.initStudio === 'function') {
+            window.contributorManager.initStudio();
+          }
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+      }
+    } catch(err) {
+      console.warn('[Contributor Lazy Load Error]', err);
+    } finally {
+      _isLoadingContributorBundle = false;
+    }
   }
   window.openContributorTab = openContributorTab;
 

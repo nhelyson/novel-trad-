@@ -1,0 +1,505 @@
+<div id="contributorModuleContainer" class="module-container contributor-module-container hidden">
+        <div class="account-header-section">
+          <div class="account-title-group">
+            <div class="account-badge-pill">
+              <span class="pulse-dot"></span> Studio Contributeur
+            </div>
+            <h1 class="account-main-title">Espace Création & Contribution</h1>
+            <p class="account-main-subtitle">Créez et enrichissez les fiches de vos Light Novels préférés, organisez les tomes et participez à la communauté NovelTrad.</p>
+          </div>
+          <div class="contrib-top-actions">
+            <button class="btn-contrib-primary" id="btnContribNewNovel">
+              <i class="fa-solid fa-plus"></i> Nouveau Roman
+            </button>
+          </div>
+        </div>
+
+        <div class="contrib-subnav-bar">
+          <button class="contrib-subnav-btn active" id="contribTabOverviewBtn"><i class="fa-solid fa-chart-pie"></i> Vue d'ensemble</button>
+          <button class="contrib-subnav-btn" id="contribTabNovelsBtn"><i class="fa-solid fa-book-bookmark"></i> Mes Romans</button>
+          <button class="contrib-subnav-btn" id="contribTabCreateBtn"><i class="fa-solid fa-pen-to-square"></i> Formulaire de Création</button>
+          <button class="contrib-subnav-btn hidden" id="contribTabVolumesBtn"><i class="fa-solid fa-boxes-stacked"></i> Gestion des Tomes</button>
+        </div>
+
+        <!-- VIEW 1: OVERVIEW -->
+        <div id="contribOverviewSection" class="contrib-section-view">
+          <div class="contrib-stats-grid">
+            <div class="contrib-stat-card">
+              <div class="contrib-stat-icon"><i class="fa-solid fa-book"></i></div>
+              <div class="contrib-stat-info">
+                <span class="stat-number" id="contribStatTotal">0</span>
+                <span class="stat-label">Mes Romans au total</span>
+              </div>
+            </div>
+            <div class="contrib-stat-card">
+              <div class="contrib-stat-icon draft"><i class="fa-solid fa-file-lines"></i></div>
+              <div class="contrib-stat-info">
+                <span class="stat-number" id="contribStatDrafts">0</span>
+                <span class="stat-label">Brouillons en cours</span>
+              </div>
+            </div>
+            <div class="contrib-stat-card">
+              <div class="contrib-stat-icon pending"><i class="fa-solid fa-hourglass-half"></i></div>
+              <div class="contrib-stat-info">
+                <span class="stat-number" id="contribStatPending">0</span>
+                <span class="stat-label">En attente de révision</span>
+              </div>
+            </div>
+            <div class="contrib-stat-card">
+              <div class="contrib-stat-icon published"><i class="fa-solid fa-circle-check"></i></div>
+              <div class="contrib-stat-info">
+                <span class="stat-number" id="contribStatPublished">0</span>
+                <span class="stat-label">Romans Publiés</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="contrib-overview-body">
+            <div class="contrib-block-card">
+              <h3><i class="fa-solid fa-clock-rotate-left"></i> Activité récente</h3>
+              <div id="contribRecentList" class="contrib-recent-list"></div>
+            </div>
+            <div class="contrib-block-card info-guide">
+              <h3><i class="fa-solid fa-circle-info"></i> Guide du Contributeur</h3>
+              <ul>
+                <li><strong>Statut Brouillon (DRAFT) :</strong> Votre roman est privé, vous seul pouvez le modifier.</li>
+                <li><strong>Soumission (PENDING_REVIEW) :</strong> Une fois prêt, soumettez-le pour qu'un modérateur le valide.</li>
+                <li><strong>Publication (PUBLISHED) :</strong> Le roman devient visible pour tous les lecteurs du catalogue.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- VIEW 2: MES ROMANS -->
+        <div id="contribNovelsSection" class="contrib-section-view hidden">
+          <div class="contrib-toolbar">
+            <div class="contrib-search-wrap">
+              <i class="fa-solid fa-magnifying-glass"></i>
+              <input type="text" id="contribSearchInput" placeholder="Rechercher parmi mes créations...">
+            </div>
+            <div class="contrib-filters-wrap">
+              <select id="contribStatusFilter" class="contrib-select">
+                <option value="ALL">Tous les statuts</option>
+                <option value="DRAFT">Brouillons</option>
+                <option value="PENDING_REVIEW">En attente de validation</option>
+                <option value="PUBLISHED">Publiés</option>
+                <option value="ARCHIVED">Archivés</option>
+              </select>
+            </div>
+          </div>
+          <div id="contribNovelsListGrid" class="contrib-novels-grid"></div>
+        </div>
+
+        <!-- VIEW 3: FORMULAIRE CREER / MODIFIER -->
+        <div id="contribFormSection" class="contrib-section-view hidden">
+          <div class="contrib-form-container dual-mode-container">
+            
+            <div class="contrib-form-topbar">
+              <div>
+                <h2 id="contribFormTitle" class="contrib-form-header-title">Créer une nouvelle fiche de Light Novel</h2>
+                <p class="contrib-form-header-desc">Choisissez votre mode de création : automatique via recherche d'APIs ou saisie manuelle libre.</p>
+              </div>
+
+              <!-- DUAL MODE SWITCHER -->
+              <div class="contrib-mode-switcher">
+                <button type="button" class="mode-btn active" id="btnModeAuto">
+                  <i class="fa-solid fa-wand-magic-sparkles"></i> Mode Automatique (API)
+                </button>
+                <button type="button" class="mode-btn" id="btnModeManual">
+                  <i class="fa-solid fa-pen-nib"></i> Mode Manuel
+                </button>
+              </div>
+            </div>
+
+            <!-- AUTO MODE SEARCH PANEL -->
+            <div id="contribAutoModePanel" class="contrib-auto-panel">
+              <div class="contrib-auto-search-box">
+                <div class="auto-search-input-wrap">
+                  <i class="fa-solid fa-magnifying-glass"></i>
+                  <input type="text" id="contribApiSearchInput" placeholder="Tapez le titre du Light Novel (ex: Mushoku Tensei, Solo Leveling, 86, Re:Zero...)">
+                  <button type="button" id="btnContribFetchApi" class="btn-contrib-primary search-action">
+                    <span id="btnFetchApiText"><i class="fa-solid fa-bolt"></i> Rechercher les infos</span>
+                    <span id="btnFetchApiSpinner" class="hidden"><i class="fa-solid fa-spinner fa-spin"></i> Recherche...</span>
+                  </button>
+                </div>
+                <p class="auto-search-hint"><i class="fa-solid fa-circle-info"></i> Recherche instantanée sur <strong>AniList, Kitsu et MangaDex</strong> avec traduction automatique du synopsis et des genres en français.</p>
+              </div>
+
+              <!-- API SEARCH RESULT PREVIEW CARD -->
+              <!-- CANDIDATS MULTI-RÉSULTATS DE RECHERCHE -->
+              <div id="contribApiCandidatesSection" class="contrib-api-candidates-section hidden">
+                <div class="api-candidates-header">
+                  <h4><i class="fa-solid fa-layer-group"></i> Plusieurs correspondances trouvées :</h4>
+                  <span class="candidates-count-pill" id="candidatesCountPill">0 résultat(s)</span>
+                </div>
+                <p class="api-candidates-hint">Sélectionnez la fiche correspondant à votre œuvre pour charger ses détails et l'appliquer :</p>
+                <div id="contribApiCandidatesGrid" class="contrib-candidates-grid">
+                  <!-- Injected dynamically by contributor_logic.js?v=1792231462516 -->
+                </div>
+              </div>
+
+              <div id="contribApiResultCard" class="contrib-api-result-card hidden">
+                <div class="api-result-cover-wrap">
+                  <img id="apiResultCover" src="" alt="Cover preview">
+                </div>
+                <div class="api-result-details">
+                  <div class="api-result-header">
+                    <h3 id="apiResultTitle">Titre de l'œuvre</h3>
+                    <span class="api-provider-badge" id="apiResultProvider">Source: AniList</span>
+                  </div>
+                  <p class="api-result-meta">
+                    <span><strong>Auteur :</strong> <span id="apiResultAuthor">-</span></span> &bull; 
+                    <span><strong>Statut :</strong> <span id="apiResultStatus">En cours</span></span> &bull; 
+                    <span><strong>Origine :</strong> <span id="apiResultOrigin">Japon (Light Novel)</span></span>
+                  </p>
+                  <div class="api-result-genres" id="apiResultGenres"></div>
+                  <p class="api-result-synopsis" id="apiResultSynopsis"></p>
+                  <div class="api-result-actions">
+                    <button type="button" class="btn-contrib-primary" id="btnApplyApiData">
+                      <i class="fa-solid fa-file-import"></i> Appliquer ces informations au formulaire
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- MAIN EDITABLE FORM (Used in both modes for review & manual edit) -->
+            <div class="contrib-main-form-layout">
+              
+              <!-- LEFT: FORM INPUTS -->
+              <form id="contribNovelForm" class="contrib-main-form" novalidate>
+                
+                <div class="form-row two-cols">
+                  <div class="form-group">
+                    <label for="contribNovelTitle">Titre principal (Français / International) *</label>
+                    <input type="text" id="contribNovelTitle" required placeholder="Ex: Mushoku Tensei: Jobless Reincarnation">
+                  </div>
+                  <div class="form-group">
+                    <label for="contribNovelRomaji">Titre original / Romaji</label>
+                    <input type="text" id="contribNovelRomaji" placeholder="Ex: Mushoku Tensei: Isekai Ittara Honki Dasu">
+                  </div>
+                </div>
+
+                <div class="form-row two-cols">
+                  <div class="form-group">
+                    <label for="contribNovelAuthor">Auteur *</label>
+                    <input type="text" id="contribNovelAuthor" required placeholder="Ex: Rifujin na Magonote">
+                  </div>
+                  <div class="form-group">
+                    <label for="contribNovelIllustrator">Illustrateur</label>
+                    <input type="text" id="contribNovelIllustrator" placeholder="Ex: Shirotaka / Shoko Iwami">
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label for="contribNovelSynopsis">Synopsis / Résumé en français *</label>
+                  <textarea id="contribNovelSynopsis" rows="6" placeholder="Décrivez l'univers et le scénario du roman..."></textarea>
+                </div>
+
+                <!-- INTERACTIVE GENRE SELECTOR -->
+                <div class="form-group">
+                  <label>Genres (Cliquez pour sélectionner / désélectionner)</label>
+                  <div class="genre-chips-selector" id="contribGenreChipsSelector">
+                    <button type="button" class="genre-chip" data-genre="Action">Action</button>
+                    <button type="button" class="genre-chip" data-genre="Aventure">Aventure</button>
+                    <button type="button" class="genre-chip" data-genre="Fantaisie">Fantaisie</button>
+                    <button type="button" class="genre-chip" data-genre="Isekai">Isekai</button>
+                    <button type="button" class="genre-chip" data-genre="Magie">Magie</button>
+                    <button type="button" class="genre-chip" data-genre="Romance">Romance</button>
+                    <button type="button" class="genre-chip" data-genre="Drame">Drame</button>
+                    <button type="button" class="genre-chip" data-genre="Comédie">Comédie</button>
+                    <button type="button" class="genre-chip" data-genre="Mystère">Mystère</button>
+                    <button type="button" class="genre-chip" data-genre="Science-Fiction">Science-Fiction</button>
+                    <button type="button" class="genre-chip" data-genre="Psychologique">Psychologique</button>
+                    <button type="button" class="genre-chip" data-genre="Surnaturel">Surnaturel</button>
+                    <button type="button" class="genre-chip" data-genre="Tranche de vie">Tranche de vie</button>
+                    <button type="button" class="genre-chip" data-genre="Seinen">Seinen</button>
+                    <button type="button" class="genre-chip" data-genre="Shounen">Shounen</button>
+                  </div>
+                  <input type="hidden" id="contribNovelGenres" value="">
+                </div>
+
+                <div class="form-group">
+                  <label for="contribNovelTags">Tags / Thématiques (séparés par des virgules)</label>
+                  <input type="text" id="contribNovelTags" placeholder="Monstres, Donjons, Magie, Réincarnation, Épée">
+                </div>
+
+                <div class="form-row two-cols">
+                  <div class="form-group contrib-cover-group">
+                    <div class="contrib-cover-label-bar">
+                      <label for="contribNovelCoverUrl"><i class="fa-solid fa-image"></i> Couverture du Roman</label>
+                      <div class="contrib-cover-toggle-pills">
+                        <button type="button" class="cover-pill-btn active" id="btnCoverPillFile">
+                          <i class="fa-solid fa-cloud-arrow-up"></i> Fichier local
+                        </button>
+                        <button type="button" class="cover-pill-btn" id="btnCoverPillUrl">
+                          <i class="fa-solid fa-link"></i> Lien URL
+                        </button>
+                      </div>
+                    </div>
+
+                    <!-- Champ caché conservant la valeur finale pour compatibilité totale avec toute l'app -->
+                    <input type="hidden" id="contribNovelCoverUrl" value="">
+
+                    <!-- Mode 1 : Fichier (PC & Mobile) -->
+                    <div id="contribCoverFilePanel" class="contrib-cover-panel">
+                      <input type="file" id="contribCoverFileInput" accept="image/png,image/jpeg,image/webp,image/gif" style="display:none;">
+                      <div class="contrib-cover-dropzone" id="contribCoverDropzone">
+
+                        <!-- Zone vide par défaut -->
+                        <div class="drop-content-empty" id="coverDropEmpty">
+                          <div class="drop-icon-wrap">
+                            <i class="fa-solid fa-image"></i>
+                          </div>
+                          <div class="drop-text-meta">
+                            <span class="drop-main-title">Glissez une image ou cliquez pour parcourir</span>
+                            <span class="drop-sub-desc">Depuis votre galerie ou ordinateur &bull; JPG, PNG, WebP</span>
+                          </div>
+                          <button type="button" class="btn-drop-browse" id="btnBrowseCover">
+                            <i class="fa-solid fa-folder-open"></i> Choisir une image
+                          </button>
+                        </div>
+
+                        <!-- Aperçu de l'image sélectionnée/téléversée -->
+                        <div class="drop-content-preview hidden" id="coverDropPreview">
+                          <div class="drop-thumb-container">
+                            <img id="coverDropThumb" src="" alt="Couverture sélectionnée">
+                          </div>
+                          <div class="drop-preview-info">
+                            <span class="drop-file-title" id="coverFileTitle">couverture.webp</span>
+                            <span class="drop-file-badge"><i class="fa-solid fa-circle-check"></i> Image prête & optimisée</span>
+                            <div class="drop-preview-actions">
+                              <button type="button" class="btn-cover-action change" id="btnChangeCover" title="Changer d'image">
+                                <i class="fa-solid fa-arrows-rotate"></i> Remplacer
+                              </button>
+                              <button type="button" class="btn-cover-action delete" id="btnDeleteCover" title="Supprimer">
+                                <i class="fa-solid fa-trash"></i> Retirer
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+
+                        <!-- État de chargement / compression -->
+                        <div class="drop-content-loading hidden" id="coverDropLoading">
+                          <i class="fa-solid fa-spinner fa-spin"></i>
+                          <span id="coverLoadingMsg">Optimisation WebP & téléversement...</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Mode 2 : Lien URL externe -->
+                    <div id="contribCoverUrlPanel" class="contrib-cover-panel hidden">
+                      <div class="contrib-url-box">
+                        <i class="fa-solid fa-globe"></i>
+                        <input type="text" id="contribCoverUrlDirectInput" placeholder="https://exemple.com/image.jpg" autocomplete="off">
+                      </div>
+                      <span class="contrib-field-tip">Collez l'adresse web directe (URL) de l'image de couverture.</span>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label for="contribNovelUnitType"><i class="fa-solid fa-layer-group"></i> Format de parution</label>
+                    <select id="contribNovelUnitType" class="contrib-select">
+                      <option value="volume">📚 Par Tomes / Volumes (Light Novels, Reliés)</option>
+                      <option value="chapter">📄 Par Chapitres (Webnovels, Séries en cours)</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label for="contribNovelStatus">Statut de la fiche</label>
+                    <select id="contribNovelStatus" class="contrib-select">
+                      <option value="DRAFT">Brouillon privé (DRAFT)</option>
+                      <option value="PENDING_REVIEW">Soumettre directement (PENDING_REVIEW)</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="form-group contrib-perm-box" style="margin-bottom: 20px; background: rgba(15, 23, 42, 0.55); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 10px; padding: 12px 14px;">
+                  <label class="contrib-checkbox-label" style="display: flex; align-items: flex-start; gap: 12px; cursor: pointer;">
+                    <input type="checkbox" id="contribNovelAllowDownload" checked style="width: 18px; height: 18px; margin-top: 2px; accent-color: #6366f1; cursor: pointer;">
+                    <span style="font-size: 13px; color: #f1f5f9; line-height: 1.45;">
+                      <strong style="display: block; font-size: 13.5px; margin-bottom: 2px;"><i class="fa-solid fa-cloud-arrow-down" style="color: #60a5fa;"></i> Autoriser le téléchargement direct (EPUB / PDF)</strong>
+                      <span style="color: #94a3b8;">Si décoché, les lecteurs ne pourront pas télécharger les fichiers bruts. L'œuvre sera disponible en <em>lecture en ligne exclusive</em> sur NovelTrad.</span>
+                    </span>
+                  </label>
+                </div>
+
+                <div class="form-actions-bar">
+                  <button type="button" class="btn-contrib-cancel" onclick="window.contributorManager.showView('novels')">Annuler</button>
+                  <button type="submit" id="contribSaveNovelBtn" class="btn-contrib-primary">
+                    <i class="fa-solid fa-save"></i> Enregistrer le Roman
+                  </button>
+                </div>
+              </form>
+
+              <!-- RIGHT: LIVE COVER PREVIEW -->
+              <div class="contrib-form-live-preview">
+                <h4><i class="fa-solid fa-eye"></i> Aperçu de la fiche</h4>
+                <div class="live-preview-card">
+                  <div class="live-preview-cover-box">
+                    <img id="livePreviewCoverImg" src="https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=400" alt="Preview cover" onerror="this.src='https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=400'">
+                  </div>
+                  <h4 id="livePreviewTitle" class="live-preview-title">Titre du roman</h4>
+                  <p id="livePreviewAuthor" class="live-preview-author">Auteur</p>
+                  <div id="livePreviewGenres" class="live-preview-genres"></div>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+
+        <!-- VIEW 4: GESTION DES VOLUMES / TOMES (SECTION INLINE DÉDIÉE - PAS DE MODALE) -->
+        <div id="contribVolumesSection" class="contrib-section-view hidden">
+          <div class="contrib-volumes-container">
+            
+            <!-- TOP BAR / NAVIGATION DE LA SECTION -->
+            <div class="contrib-volumes-topbar">
+              <button type="button" class="btn-contrib-back" onclick="window.contributorManager.showView('novels')">
+                <i class="fa-solid fa-arrow-left"></i> Retour à mes romans
+              </button>
+              
+              <div class="vol-novel-banner">
+                <img id="volSectionNovelCover" src="" alt="Cover" class="vol-novel-banner-cover hidden">
+                <div class="vol-novel-banner-info">
+                  <div class="vol-banner-top-row">
+                    <div class="account-badge-pill" style="margin-bottom: 0;">
+                      <span class="pulse-dot"></span> <span id="volSectionCountBadge">0 tome(s)</span>
+                    </div>
+                    <!-- SELECTEUR DE MODE D'UNITÉ : TOMES VS CHAPITRES -->
+                    <div class="contrib-unit-toggle" id="contribUnitToggle">
+                      <span class="unit-toggle-label"><i class="fa-solid fa-layer-group"></i> Découpage :</span>
+                      <div class="unit-toggle-pills">
+                        <button type="button" class="unit-pill-btn active" id="btnUnitModeVolume" title="Afficher et importer sous forme de Tomes / Volumes">
+                          <i class="fa-solid fa-book"></i> Tomes
+                        </button>
+                        <button type="button" class="unit-pill-btn" id="btnUnitModeChapter" title="Afficher et importer sous forme de Chapitres">
+                          <i class="fa-solid fa-file-lines"></i> Chapitres
+                        </button>
+                      </div>
+                    </div>
+
+                    <!-- BOUTON PERMISSION DE TÉLÉCHARGEMENT -->
+                    <button type="button" class="unit-pill-btn active" id="btnToggleNovelDownload" style="background: rgba(30, 41, 59, 0.8); border: 1px solid rgba(255, 255, 255, 0.12); padding: 4px 12px; border-radius: 9999px;">
+                      <span id="labelToggleNovelDownload"><i class="fa-solid fa-cloud-arrow-down" style="color:#60a5fa;"></i> Téléchargement public : Actif</span>
+                    </button>
+                  </div>
+                  <h3 id="volSectionNovelTitle">Titre du roman</h3>
+                  <div class="vol-novel-banner-meta">
+                    <span id="volSectionNovelAuthor"><i class="fa-solid fa-pen-nib"></i> Auteur</span>
+                    <span id="volSectionNovelStatus" class="status-badge draft">DRAFT</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- CORPS DE LA SECTION : GRILLE 2 COLONNES -->
+            <div class="contrib-volumes-grid">
+              
+              <!-- COLONNE GAUCHE : FORMULAIRE D'UPLOAD & METADATA DU TOME -->
+              <div class="vol-form-col">
+                <div class="vol-col-header">
+                  <h4><i class="fa-solid fa-cloud-arrow-up"></i> <span id="volFormColTitle">Importer un Tome</span></h4>
+                  <span class="badge-format-pill">EPUB & PDF</span>
+                </div>
+                <p class="vol-col-desc" id="volFormColDesc">Téléversez le fichier de votre tome et renseignez ses détails.</p>
+                
+                <form id="contribVolumeForm">
+                  <!-- DRAG & DROP / FILE PICKER -->
+                  <div class="vol-dropzone" id="volDropzone">
+                    <input type="file" id="contribVolFile" accept=".epub,.pdf" class="hidden">
+                    <div class="dropzone-content" id="volDropzonePrompt">
+                      <div class="dropzone-icon-circle">
+                        <i class="fa-solid fa-cloud-arrow-up"></i>
+                      </div>
+                      <p class="dropzone-main-text" id="volDropzoneMainPrompt">Glissez-déposez le fichier du tome (.epub ou .pdf)</p>
+                      <p class="dropzone-sub-text">ou <span class="dropzone-browse-btn">parcourez votre ordinateur</span></p>
+                      <div class="dropzone-allowed-badges">
+                        <span class="badge-ext epub"><i class="fa-solid fa-book"></i> .EPUB</span>
+                        <span class="badge-ext pdf"><i class="fa-solid fa-file-pdf"></i> .PDF</span>
+                      </div>
+                    </div>
+
+                    <!-- Selected File Preview -->
+                    <div class="dropzone-selected-file hidden" id="volSelectedFilePreview">
+                      <div class="file-icon-box" id="volFileIconBox">
+                        <i class="fa-solid fa-file-lines"></i>
+                      </div>
+                      <div class="file-details">
+                        <div class="file-name" id="volSelectedFileName">tome-1.epub</div>
+                        <div class="file-meta" id="volSelectedFileSize">0 Mo • EPUB</div>
+                      </div>
+                      <button type="button" class="btn-remove-file" id="btnRemoveVolFile" title="Changer de fichier">
+                        <i class="fa-solid fa-trash-can"></i>
+                      </button>
+                    </div>
+                  </div>
+
+                  <div class="form-group" style="margin-bottom: 14px;">
+                    <label for="contribVolType" id="volTypeSelectLabel">Type de Récit / Volume</label>
+                    <div class="input-with-icon">
+                      <i class="fa-solid fa-layer-group input-icon"></i>
+                      <select id="contribVolType" style="background:#141721; color:#fff; border:1px solid rgba(255,255,255,0.12); border-radius:8px; padding:10px 12px 10px 38px; width:100%; font-size:13.5px;">
+                        <option value="main">Histoire Principale (Canon)</option>
+                        <option value="side_story">Histoire Courte / Tome .5 (Side Story)</option>
+                        <option value="spinoff">Spin-off / Série Dérivée</option>
+                        <option value="alternative">Histoire Alternative / What-If</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div class="form-row-2col">
+                    <div class="form-group">
+                      <label for="contribVolNumber" id="volNumberInputLabel">Numéro du Tome *</label>
+                      <div class="input-with-icon">
+                        <i class="fa-solid fa-hashtag input-icon"></i>
+                        <input type="number" id="contribVolNumber" min="0" step="0.5" required value="1" placeholder="1">
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      <label for="contribVolReleaseDate">Date de Sortie</label>
+                      <div class="input-with-icon">
+                        <i class="fa-solid fa-calendar-day input-icon"></i>
+                        <input type="date" id="contribVolReleaseDate">
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="contribVolTitle" id="volTitleInputLabel">Titre du Tome (Optionnel)</label>
+                    <div class="input-with-icon">
+                      <i class="fa-solid fa-bookmark input-icon"></i>
+                      <input type="text" id="contribVolTitle" placeholder="Ex: L'Éveil des Ombres, Tome 1...">
+                    </div>
+                  </div>
+
+                  <!-- Upload Progress Bar -->
+                  <div class="vol-upload-progress hidden" id="volUploadProgress">
+                    <div class="progress-bar-track">
+                      <div class="progress-bar-fill" id="volProgressBarFill" style="width: 0%;"></div>
+                    </div>
+                    <div class="progress-status-text" id="volProgressText">Envoi du fichier en cours...</div>
+                  </div>
+
+                  <button type="submit" class="btn-contrib-primary full-width" id="btnSubmitVolume">
+                    <i class="fa-solid fa-cloud-arrow-up"></i> <span id="btnSubmitVolumeText">Téléverser & Ajouter ce Tome</span>
+                  </button>
+                </form>
+              </div>
+
+              <!-- COLONNE DROITE : LISTE DES TOMES DE LA SÉRIE -->
+              <div class="vol-list-col">
+                <div class="vol-col-header">
+                  <h4><i class="fa-solid fa-list-check"></i> <span id="volListColHeader">Tomes de la Série</span></h4>
+                  <span class="vol-count-badge" id="volModalCountBadge">0 tomes</span>
+                </div>
+                
+                <div id="contribVolListContainer" class="contrib-vols-list">
+                  <!-- Dynamiquement rempli par contributor_logic.js?v=1792231462516 -->
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+      </div> <!-- END MODULE 5: CONTRIBUTOR -->

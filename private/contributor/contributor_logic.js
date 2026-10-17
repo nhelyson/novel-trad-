@@ -340,7 +340,7 @@ class ContributorManager {
   async initStudio() {
     const auth = window.authManager || window.supabaseAuthManager;
     if (!auth || !auth.isContributor()) {
-      alert('Accès réservé : Vous devez être connecté avec un compte Contributeur ou Administrateur pour accéder au Studio.');
+      // Accès réservé - redirection silencieuse
       if (typeof setActiveTab === 'function') {
         const catBtn = document.getElementById('tabCatalogBtn');
         const catMod = document.getElementById('catalogModule');
