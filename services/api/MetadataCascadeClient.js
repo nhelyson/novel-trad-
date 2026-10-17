@@ -119,6 +119,7 @@ class MetadataCascadeClient {
             media (search: $search, type: MANGA, sort: [POPULARITY_DESC]) {
               id
               format
+              countryOfOrigin
               title {
                 romaji
                 english
@@ -224,8 +225,18 @@ class MetadataCascadeClient {
                 const rawScore = media.averageScore || media.meanScore || null;
                 const calcRating = rawScore ? +(rawScore / 20).toFixed(1) : 4.5;
 
+                // Détection de l'origine
+                let originStr = 'Japon (Light Novel)';
+                const co = (media.countryOfOrigin || '').toUpperCase();
+                if (co === 'KR') originStr = 'Corée du Sud (Webnovel)';
+                else if (co === 'CN') originStr = 'Chine (Webnovel)';
+                else if (co === 'FR') originStr = 'France (Création originale)';
+                else if (co === 'TW') originStr = 'Taïwan (Webnovel)';
+
                 scoredCandidates.push({
                     id: 'anilist-' + media.id,
+                    origin: originStr,
+                    countryOfOrigin: co || 'JP',
                     rating: calcRating,
                     averageScore: rawScore,
                     popularity: media.popularity || 0,
@@ -334,8 +345,15 @@ class MetadataCascadeClient {
 
                 const year = attr.startDate ? parseInt(attr.startDate.split('-')[0]) : null;
 
+                let originStr = 'Japon (Light Novel)';
+                const kSubType = (attr.subtype || '').toLowerCase();
+                if (kSubType === 'manhwa') originStr = 'Corée du Sud (Webnovel)';
+                else if (kSubType === 'manhua') originStr = 'Chine (Webnovel)';
+
                 scoredCandidates.push({
                     id: 'kitsu-' + item.id,
+                    origin: originStr,
+                    countryOfOrigin: (kSubType === 'manhwa' ? 'KR' : (kSubType === 'manhua' ? 'CN' : 'JP')),
                     provider: 'kitsu',
                     format: isNovel ? 'NOVEL' : 'MANGA',
                     format_label: isNovel ? 'Light Novel' : 'Manga',
@@ -442,8 +460,16 @@ class MetadataCascadeClient {
 
                 const genres = tagNames.slice(0, 8);
 
+                let originStr = 'Japon (Light Novel)';
+                const origLang = (attr.originalLanguage || '').toLowerCase();
+                if (origLang === 'ko') originStr = 'Corée du Sud (Webnovel)';
+                else if (origLang === 'zh' || origLang === 'zh-hk') originStr = 'Chine (Webnovel)';
+                else if (origLang === 'fr') originStr = 'France (Création originale)';
+
                 scoredCandidates.push({
                     id: 'mangadex-' + item.id,
+                    origin: originStr,
+                    countryOfOrigin: (origLang === 'ko' ? 'KR' : (origLang.startsWith('zh') ? 'CN' : (origLang === 'fr' ? 'FR' : 'JP'))),
                     provider: 'mangadex',
                     format: 'MANGA',
                     format_label: 'Manga',
@@ -485,33 +511,62 @@ class MetadataCascadeClient {
      */
     async searchLive(rawTitle) {
         const cleanTitle = this.cleanSearchTitle(rawTitle);
-        console.log(`\n[MetadataCascade] 🔍 Recherche LIVE pour : "${rawTitle}" (Nettoyé: "${cleanTitle}")`);
+        console.log(`\n[MetadataCascade] 🔍 Recherche LIVE multi-sources (AniList + Kitsu + MangaDex) pour : "${rawTitle}" (Nettoyé: "${cleanTitle}")`);
 
-        // --- Tentative 1 : AniList (avec format NOVEL et détection de spin-offs) ---
-        let metadata = await this.fetchFromAniList(cleanTitle);
-        if (metadata) {
-            console.log(`[MetadataCascade] ✅ Correspondance validée via AniList pour "${rawTitle}" (Format: ${metadata.format}, Score: ${(metadata.totalScore*100).toFixed(0)}%)`);
-            return metadata;
+        // Interroger les 3 APIs en parallèle pour une vitesse maximale et une couverture complète
+        const [anilistRes, kitsuRes, mangadexRes] = await Promise.allSettled([
+            this.fetchFromAniList(cleanTitle),
+            this.fetchFromKitsu(cleanTitle),
+            this.fetchFromMangaDex(cleanTitle)
+        ]);
+
+        const allCandidates = [];
+
+        if (anilistRes.status === 'fulfilled' && anilistRes.value) {
+            const list = anilistRes.value.candidates || [anilistRes.value];
+            allCandidates.push(...list);
+        }
+        if (kitsuRes.status === 'fulfilled' && kitsuRes.value) {
+            const list = kitsuRes.value.candidates || [kitsuRes.value];
+            allCandidates.push(...list);
+        }
+        if (mangadexRes.status === 'fulfilled' && mangadexRes.value) {
+            const list = mangadexRes.value.candidates || [mangadexRes.value];
+            allCandidates.push(...list);
         }
 
-        // --- Tentative 2 : Kitsu (Rollback 1) ---
-        console.log(`[MetadataCascade] [ROLLBACK 1] Basculement sécurisé vers Kitsu...`);
-        metadata = await this.fetchFromKitsu(cleanTitle);
-        if (metadata) {
-            console.log(`[MetadataCascade] ✅ Correspondance validée via Kitsu pour "${rawTitle}" (Format: ${metadata.format}, Score: ${(metadata.totalScore*100).toFixed(0)}%)`);
-            return metadata;
+        if (allCandidates.length === 0) {
+            console.warn(`[MetadataCascade] 🛡️ Aucun résultat concordant pour "${rawTitle}"`);
+            return null;
         }
 
-        // --- Tentative 3 : MangaDex (Rollback 2) ---
-        console.log(`[MetadataCascade] [ROLLBACK 2] Basculement sécurisé vers MangaDex...`);
-        metadata = await this.fetchFromMangaDex(cleanTitle);
-        if (metadata) {
-            console.log(`[MetadataCascade] ✅ Correspondance validée via MangaDex pour "${rawTitle}" (Score: ${(metadata.totalScore*100).toFixed(0)}%)`);
-            return metadata;
+        // Dédoublonnage intelligent par provider + id ou titre normalisé
+        const seenKeys = new Set();
+        const uniqueCandidates = [];
+
+        for (const cand of allCandidates) {
+            const cleanT = (cand.title || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+            const key = cand.id || (cand.provider + '-' + cleanT);
+            if (!seenKeys.has(key)) {
+                seenKeys.add(key);
+                uniqueCandidates.push(cand);
+            }
         }
 
-        console.warn(`[MetadataCascade] 🛡️ Aucun résultat concordant pour "${rawTitle}"`);
-        return null;
+        // Tri : les Light Novels en priorité, puis par score de pertinence
+        uniqueCandidates.sort((a, b) => {
+            const aIsNovel = (a.format === 'NOVEL');
+            const bIsNovel = (b.format === 'NOVEL');
+            if (aIsNovel && !bIsNovel) return -1;
+            if (!aIsNovel && bIsNovel) return 1;
+            return (b.totalScore || b.matchScore || 0) - (a.totalScore || a.matchScore || 0);
+        });
+
+        console.log(`[MetadataCascade] 🎯 ${uniqueCandidates.length} candidats multi-sources trouvés pour "${rawTitle}"`);
+
+        const best = { ...uniqueCandidates[0] };
+        best.candidates = uniqueCandidates.slice(0, 8); // Top 8 candidats présentés à l'utilisateur
+        return best;
     }
 
     // =========================================================================

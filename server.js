@@ -3618,7 +3618,7 @@ const handleUpdateNovel = async (novelId, req, res) => {
     try {
         if (!novelId) return res.status(400).json({ success: false, error: 'ID du roman requis.' });
 
-        const { title, title_romaji, author, illustrator, synopsis, genres, tags, cover, publication_status, unit_type, allow_download } = req.body;
+        const { title, title_romaji, author, illustrator, synopsis, genres, tags, cover, publication_status, unit_type, allow_download, origin } = req.body;
 
         const catService = CatalogService;
         const data = catService.loadData();
@@ -3642,6 +3642,7 @@ const handleUpdateNovel = async (novelId, req, res) => {
         if (tags) novel.tags = Array.isArray(tags) ? tags : [tags];
         if (cover) novel.cover = cover;
         if (publication_status) novel.publication_status = publication_status;
+        if (origin) novel.origin = origin.trim();
         if (unit_type !== undefined) novel.unit_type = unit_type === "chapter" ? "chapter" : "volume";
         if (allow_download !== undefined) novel.allow_download = (allow_download === true || allow_download === "true");
         novel.updated_at = Date.now();

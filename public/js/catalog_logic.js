@@ -416,13 +416,16 @@
         const genres = (series.genres_fr || series.genres || []).slice(0, 3);
 
         let originTag = 'JP';
-        if ((series.origin || '').includes('Corée')) originTag = 'KR';
-        else if ((series.origin || '').includes('Chine')) originTag = 'CN';
+        const origStr = (series.origin || '').toLowerCase();
+        if (origStr.includes('corée') || origStr.includes('coree') || origStr.includes('kr')) originTag = 'KR';
+        else if (origStr.includes('chine') || origStr.includes('cn')) originTag = 'CN';
+        else if (origStr.includes('france') || origStr.includes('fr') || origStr.includes('original')) originTag = 'FR';
+        else if (origStr.includes('inter') || origStr.includes('us') || origStr.includes('en')) originTag = 'INT';
 
         cardWrap.innerHTML = `
             <div class="lnori-card">
                 <div class="lnori-card-cover-box">
-                    <span class="lnori-card-format-tag">${originTag}</span>
+                    <span class="lnori-card-format-tag ${originTag.toLowerCase()}">${originTag}</span>
                     <img src="${coverSrc}" alt="${series.title}" loading="lazy" decoding="async" onload="this.classList.add('loaded')" onerror="this.onerror=null;this.src='https://placehold.co/400x600/18181b/ffffff?text=${encodeURIComponent(series.title)}'">
                     <span class="lnori-card-vol-badge">${volCount} Vol.</span>
                 </div>
@@ -436,7 +439,7 @@
             <div class="lnori-card-popup">
                 <div class="popup-header">
                     <div class="popup-tags-row">
-                        <span class="popup-pill">${originTag}</span>
+                        <span class="popup-pill ${originTag.toLowerCase()}">${originTag}</span>
                         <span class="popup-pill popup-vol-pill"><i class="fa-solid fa-book"></i> ${volCount} Vol.</span>
                     </div>
                     <h4 class="popup-title">${series.title}</h4>

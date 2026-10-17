@@ -96,6 +96,11 @@ class ContributorManager {
     this.btnToggleNovelDownload = document.getElementById('btnToggleNovelDownload');
     this.labelToggleNovelDownload = document.getElementById('labelToggleNovelDownload');
     this.inpNovelUnitType = document.getElementById('contribNovelUnitType');
+    this.inpNovelOrigin = document.getElementById('contribNovelOrigin');
+    this.candidatesSection = document.getElementById('contribApiCandidatesSection');
+    this.candidatesGrid = document.getElementById('contribApiCandidatesGrid');
+    this.candidatesCountPill = document.getElementById('candidatesCountPill');
+    this.apiResultOrigin = document.getElementById('apiResultOrigin');
     this.volFormColTitle = document.getElementById('volFormColTitle');
     this.volFormColDesc = document.getElementById('volFormColDesc');
     this.volDropzoneMainPrompt = document.getElementById('volDropzoneMainPrompt');
@@ -426,40 +431,61 @@ class ContributorManager {
   }
 
   renderCandidatesSelector(candidates, activeId) {
-    const container = document.getElementById('contribApiCandidatesContainer');
-    const chipsBox = document.getElementById('contribApiCandidatesChips');
-    if (!container || !chipsBox) return;
+    const section = document.getElementById('contribApiCandidatesSection');
+    const grid = document.getElementById('contribApiCandidatesGrid');
+    const countPill = document.getElementById('candidatesCountPill');
+    if (!section || !grid) return;
 
     if (!candidates || candidates.length <= 1) {
-      container.classList.add('hidden');
+      section.classList.add('hidden');
       return;
     }
 
-    chipsBox.innerHTML = '';
+    if (countPill) countPill.textContent = `${candidates.length} résultat${candidates.length > 1 ? 's' : ''}`;
+    grid.innerHTML = '';
+
     candidates.forEach((cand, idx) => {
-      const chip = document.createElement('div');
-      const candId = cand.id || cand.title;
+      const candId = cand.id || (cand.provider + '-' + idx);
       const isActive = (candId === activeId) || (idx === 0 && !activeId);
       const isNovel = (cand.format === 'NOVEL');
+      const coverUrl = cand.cover || '/icons/icon-512x512.png';
+      const provider = (cand.provider || 'anilist').toLowerCase();
 
-      chip.className = `api-candidate-chip ${isActive ? 'active' : ''} ${isNovel ? 'format-novel' : 'format-manga'}`;
-      chip.innerHTML = `
-        <span class="chip-format">${cand.format_label || (isNovel ? 'Light Novel' : 'Manga')}</span>
-        <span class="chip-title" title="${cand.title}">${cand.title}</span>
-        ${cand.year ? `<span class="chip-year">(${cand.year})</span>` : ''}
+      // Flag / Country pill
+      let flagEmoji = '🇯🇵';
+      if ((cand.origin || '').includes('Corée') || cand.countryOfOrigin === 'KR') flagEmoji = '🇰🇷';
+      else if ((cand.origin || '').includes('Chine') || cand.countryOfOrigin === 'CN') flagEmoji = '🇨🇳';
+      else if ((cand.origin || '').includes('France') || cand.countryOfOrigin === 'FR') flagEmoji = '🇫🇷';
+
+      const card = document.createElement('div');
+      card.className = `api-candidate-card ${isActive ? 'active' : ''}`;
+      card.innerHTML = `
+        <img src="${coverUrl}" alt="Cover" class="api-candidate-thumb" onerror="this.src='/icons/icon-512x512.png'">
+        <div class="api-candidate-info">
+          <div>
+            <div class="api-candidate-title" title="${cand.title}">${cand.title}</div>
+            <div class="api-candidate-author">${cand.author || 'Auteur non précisé'}${cand.year ? ` &bull; ${cand.year}` : ''}</div>
+          </div>
+          <div class="api-candidate-badges">
+            <span class="api-source-badge ${provider}">${provider.toUpperCase()}</span>
+            <span class="api-origin-badge">${flagEmoji} ${cand.origin ? cand.origin.split(' ')[0] : 'Japon'}</span>
+            <span class="api-origin-badge ${isNovel ? 'format-novel' : 'format-manga'}">${cand.format_label || (isNovel ? 'Novel' : 'Manga')}</span>
+          </div>
+        </div>
       `;
 
-      chip.addEventListener('click', () => {
-        document.querySelectorAll('.api-candidate-chip').forEach(c => c.classList.remove('active'));
-        chip.classList.add('active');
+      card.addEventListener('click', () => {
+        document.querySelectorAll('.api-candidate-card').forEach(c => c.classList.remove('active'));
+        card.classList.add('active');
         this.fetchedApiData = cand;
         this.renderApiResultCard(cand);
       });
 
-      chipsBox.appendChild(chip);
+      grid.appendChild(card);
     });
 
-    container.classList.remove('hidden');
+    section.classList.remove('hidden');
+    section.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }
 
   renderApiResultCard(meta) {
@@ -470,6 +496,7 @@ class ContributorManager {
     if (this.apiResultTitle) this.apiResultTitle.textContent = meta.title || 'Sans titre';
     if (this.apiResultAuthor) this.apiResultAuthor.textContent = meta.author || 'Inconnu';
     if (this.apiResultStatus) this.apiResultStatus.textContent = meta.status_fr || meta.status || 'En cours';
+    if (this.apiResultOrigin) this.apiResultOrigin.textContent = meta.origin || 'Japon (Light Novel)';
     if (this.apiResultProvider) this.apiResultProvider.textContent = `Source : ${(meta.provider || 'AniList').toUpperCase()}`;
 
     if (this.apiResultSynopsis) {
@@ -496,6 +523,9 @@ class ContributorManager {
     if (this.inpIllustrator) this.inpIllustrator.value = meta.illustrator || '';
     if (this.inpSynopsis) this.inpSynopsis.value = meta.synopsis_fr || meta.synopsis || '';
     if (this.inpCoverUrl) this.inpCoverUrl.value = meta.cover || '';
+    if (meta.origin && this.inpNovelOrigin) {
+      this.inpNovelOrigin.value = meta.origin;
+    }
     this.syncCoverUI(meta.cover || '');
 
     // Apply genres
@@ -796,6 +826,8 @@ class ContributorManager {
     if (this.inpApiSearch) this.inpApiSearch.value = '';
 
     if (this.inpNovelUnitType) this.inpNovelUnitType.value = 'volume';
+    if (this.inpNovelOrigin) this.inpNovelOrigin.value = 'Japon (Light Novel)';
+    if (this.candidatesSection) this.candidatesSection.classList.add('hidden');
     if (this.inpNovelAllowDownload) this.inpNovelAllowDownload.checked = true;
     this.syncCoverUI('');
     this.switchMode('auto');
@@ -820,6 +852,8 @@ class ContributorManager {
     this.syncCoverUI(novel.cover || novel.cover_url || '');
     if (this.inpStatus) this.inpStatus.value = novel.publication_status || 'DRAFT';
     if (this.inpNovelUnitType) this.inpNovelUnitType.value = novel.unit_type || 'volume';
+    if (this.inpNovelOrigin) this.inpNovelOrigin.value = novel.origin || 'Japon (Light Novel)';
+    if (this.candidatesSection) this.candidatesSection.classList.add('hidden');
     if (this.inpNovelAllowDownload) this.inpNovelAllowDownload.checked = (novel.allow_download !== false);
 
     this.selectedGenres.clear();
@@ -878,6 +912,7 @@ class ContributorManager {
       tags: (this.inpTags?.value || '').split(',').map(s => s.trim()).filter(Boolean),
       publication_status: this.inpStatus?.value || 'DRAFT',
       unit_type: this.inpNovelUnitType?.value || 'volume',
+      origin: this.inpNovelOrigin?.value || 'Japon (Light Novel)',
       allow_download: this.inpNovelAllowDownload ? this.inpNovelAllowDownload.checked : true
     };
 

@@ -92,8 +92,8 @@
       } catch(e) {}
     })();
   </script>
-  <link rel="stylesheet" href="css/style.css?v=1792185709765">
-  <link rel="stylesheet" href="css/home_lnori.css?v=1792185709765">
+  <link rel="stylesheet" href="css/style.css?v=1792216314429">
+  <link rel="stylesheet" href="css/home_lnori.css?v=1792216314429">
   <link rel="stylesheet" href="css/app_themes.css?v=1792030000000">
   <!-- Coupe-circuit de production pour console propre & anti-fuite -->
   <script>
@@ -791,14 +791,14 @@
               </div>
 
               <div id="calendarMonthlyGrid" class="cal-monthly-grid" role="grid" aria-label="Grille mensuelle des parutions">
-                <!-- Cellules des 7 jours injectées par editorial_logic.js?v=1792185709765 -->
+                <!-- Cellules des 7 jours injectées par editorial_logic.js?v=1792216314429 -->
               </div>
             </div>
 
             <!-- VUE AGENDA / LISTE (Mobile & Bascule utilisateur) -->
             <div id="calendarAgendaWrapper" class="cal-agenda-wrapper hidden">
               <div id="calendarAgendaList" class="cal-agenda-list">
-                <!-- Événements groupés par date injectés par editorial_logic.js?v=1792185709765 -->
+                <!-- Événements groupés par date injectés par editorial_logic.js?v=1792216314429 -->
               </div>
             </div>
 
@@ -820,7 +820,7 @@
           <div class="modal-content cal-event-modal-content">
             <button type="button" id="calEventModalClose" class="modal-close-btn" aria-label="Fermer">&times;</button>
             <div id="calEventModalBody" class="cal-event-modal-body">
-              <!-- Injecté dynamiquement par editorial_logic.js?v=1792185709765 -->
+              <!-- Injecté dynamiquement par editorial_logic.js?v=1792216314429 -->
             </div>
           </div>
         </div>
@@ -1557,6 +1557,18 @@
               </div>
 
               <!-- API SEARCH RESULT PREVIEW CARD -->
+              <!-- CANDIDATS MULTI-RÉSULTATS DE RECHERCHE -->
+              <div id="contribApiCandidatesSection" class="contrib-api-candidates-section hidden">
+                <div class="api-candidates-header">
+                  <h4><i class="fa-solid fa-layer-group"></i> Plusieurs correspondances trouvées :</h4>
+                  <span class="candidates-count-pill" id="candidatesCountPill">0 résultat(s)</span>
+                </div>
+                <p class="api-candidates-hint">Sélectionnez la fiche correspondant à votre œuvre pour charger ses détails et l'appliquer :</p>
+                <div id="contribApiCandidatesGrid" class="contrib-candidates-grid">
+                  <!-- Injected dynamically by contributor_logic.js?v=1792216314429 -->
+                </div>
+              </div>
+
               <div id="contribApiResultCard" class="contrib-api-result-card hidden">
                 <div class="api-result-cover-wrap">
                   <img id="apiResultCover" src="" alt="Cover preview">
@@ -1568,7 +1580,8 @@
                   </div>
                   <p class="api-result-meta">
                     <span><strong>Auteur :</strong> <span id="apiResultAuthor">-</span></span> &bull; 
-                    <span><strong>Statut :</strong> <span id="apiResultStatus">En cours</span></span>
+                    <span><strong>Statut :</strong> <span id="apiResultStatus">En cours</span></span> &bull; 
+                    <span><strong>Origine :</strong> <span id="apiResultOrigin">Japon (Light Novel)</span></span>
                   </p>
                   <div class="api-result-genres" id="apiResultGenres"></div>
                   <p class="api-result-synopsis" id="apiResultSynopsis"></p>
@@ -1912,7 +1925,7 @@
                 </div>
                 
                 <div id="contribVolListContainer" class="contrib-vols-list">
-                  <!-- Dynamiquement rempli par contributor_logic.js?v=1792185709765 -->
+                  <!-- Dynamiquement rempli par contributor_logic.js?v=1792216314429 -->
                 </div>
               </div>
 
@@ -1990,7 +2003,7 @@
                 <span class="admin-widget-badge">Top Vues & Notes</span>
               </div>
               <div id="adminTopPerformingNovels" class="admin-top-novels-list">
-                <!-- Rempli dynamiquement par admin_logic.js?v=1792185709765 -->
+                <!-- Rempli dynamiquement par admin_logic.js?v=1792216314429 -->
               </div>
             </div>
 
@@ -2129,7 +2142,7 @@
                   </tr>
                 </thead>
                 <tbody id="adminSchedTableBody">
-                  <!-- Injected by admin_logic.js?v=1792185709765 -->
+                  <!-- Injected by admin_logic.js?v=1792216314429 -->
                 </tbody>
               </table>
             </div>
@@ -2159,7 +2172,7 @@
 
             <!-- LISTE DES ARTICLES EN LIGNE -->
             <div id="adminNewsCardsContainer" class="admin-ed-news-cards-grid">
-              <!-- Injected by admin_logic.js?v=1792185709765 -->
+              <!-- Injected by admin_logic.js?v=1792216314429 -->
             </div>
           </div>
 
@@ -2962,12 +2975,12 @@
   <script src="js/webnovel_reader.js?v=1789752407265"></script>
   <script src="js/home_lnori_logic.js?v=1790725844546"></script>
   <script src="js/catalog_logic.js?v=1790725844546"></script>
-  <script src="js/editorial_logic.js?v=1792185709765"></script>
+  <script src="js/editorial_logic.js?v=1792216314429"></script>
   <script src="js/series_logic.js?v=1791942152722"></script>
-  <script src="js/contributor_logic.js?v=1792185709765"></script>
-  <script src="js/admin_logic.js?v=1792185709765"></script>
+  <script src="js/contributor_logic.js?v=1792216314429"></script>
+  <script src="js/admin_logic.js?v=1792216314429"></script>
   <script src="js/pwa_manager.js?v=1790841520734"></script>
-  <script src="js/app.js?v=1792185709765"></script>
+  <script src="js/app.js?v=1792216314429"></script>
 
   <script>
     if ('serviceWorker' in navigator) {
