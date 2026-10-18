@@ -523,13 +523,27 @@ async function renderSeries(series) {
         } else {
             // LIGHT NOVEL VOLUMES GRID AVEC SUPPORT DES TYPES DE VOLUMES
             var allVols = series.volumes || [];
+
+            // Tri chronologique sécurisé des tomes
+            var parseVolSort = function(v) {
+                if (v.sort_order !== undefined) return Number(v.sort_order);
+                var numStr = String(v.volume_number || v.volumeNumber || v.number || 1).trim().replace(',', '.');
+                var partMatch = numStr.match(/(\d+(?:\.\d+)?)\s*(?:part(?:ie)?|pt|p|\-|\/)\s*(\d+)/i);
+                if (partMatch) {
+                    return parseFloat(partMatch[1]) + (parseFloat(partMatch[2]) / 100);
+                }
+                var floatMatch = numStr.match(/\d+(?:\.\d+)?/);
+                return floatMatch ? parseFloat(floatMatch[0]) : 1;
+            };
+            allVols.sort(function(a, b) { return parseVolSort(a) - parseVolSort(b); });
+
             var mainVols = allVols.filter(function(v) {
                 var t = (v.volume_type || 'main').toLowerCase();
-                return t === 'main' || t === 'canon' || (!v.volume_type && !String(v.volume_number).includes('.'));
+                return t === 'main' || t === 'canon';
             });
             var sideVols = allVols.filter(function(v) {
                 var t = (v.volume_type || '').toLowerCase();
-                return t === 'side_story' || t === 'spinoff' || t === 'alternative' || (v.volume_type !== 'main' && String(v.volume_number).includes('.'));
+                return t === 'side_story' || t === 'spinoff' || t === 'alternative';
             });
 
             var tabsHtml = '';
@@ -662,7 +676,7 @@ async function renderSeries(series) {
                         labelText = labelText.replace(/^volume\s+/i, 'Chapitre ');
                     }
 
-                    var volType = (vol.volume_type || (String(volNum).includes('.') ? 'side_story' : 'main')).toLowerCase();
+                    var volType = (vol.volume_type || 'main').toLowerCase();
                     volCard.className = 'volume-card modern-vol-card';
                     volCard.setAttribute('data-vol-num', volNum);
                     volCard.setAttribute('data-volume-type', volType);

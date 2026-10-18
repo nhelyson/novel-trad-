@@ -3958,11 +3958,29 @@ app.post('/api/contributor/novels/:id/volumes', contributorLimiter, requireContr
         }
 
         if (!novel.volumes) novel.volumes = [];
-        // FIX [Mo4]: Validate volume_number is a valid integer
-        const volNumInt = parseInt(volume_number || '1', 10);
-        if (isNaN(volNumInt) || volNumInt < 1 || volNumInt > 9999) {
-            return res.status(400).json({ success: false, error: 'Numéro de volume invalide. Doit être un entier entre 1 et 9999.' });
+
+        // Numéro de volume flexible (supporte "14.1", "6 Part 1", "0", "5", etc.)
+        const rawVolStr = String(volume_number || '1').trim();
+        if (!rawVolStr) {
+            return res.status(400).json({ success: false, error: 'Numéro de volume requis.' });
         }
+
+        // Helper extraction index de tri chronologique
+        const parseSortIndex = (val) => {
+            const s = String(val).trim().replace(',', '.');
+            const partMatch = s.match(/(\d+(?:\.\d+)?)\s*(?:part(?:ie)?|pt|p|\-|\/)\s*(\d+)/i);
+            if (partMatch) {
+                return parseFloat(partMatch[1]) + (parseFloat(partMatch[2]) / 100);
+            }
+            const floatMatch = s.match(/\d+(?:\.\d+)?/);
+            if (floatMatch) {
+                return parseFloat(floatMatch[0]);
+            }
+            return 1;
+        };
+
+        const sortIndex = parseSortIndex(rawVolStr);
+        const cleanVolSlug = rawVolStr.toLowerCase().replace(/[^a-z0-9_-]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '') || '1';
         
         // Build file info & extract cover if uploaded
         let fileInfo = null;
@@ -4013,20 +4031,21 @@ app.post('/api/contributor/novels/:id/volumes', contributorLimiter, requireContr
         const cleanGroupSlug = volGroup.toLowerCase().replace(/[^a-z0-9_-]/g, '-').replace(/-+/g, '-');
 
         // Generate unique identifier depending on volume type so Side Stories & Spin-offs NEVER collide with Main Story
-        let volIdSuffix = `vol_${volNumInt}`;
+        let volIdSuffix = `vol_${cleanVolSlug}`;
         if (volType === 'side_story') {
-            volIdSuffix = `side_vol_${volNumInt}`;
+            volIdSuffix = `side_vol_${cleanVolSlug}`;
         } else if (volType === 'spinoff') {
-            volIdSuffix = `spinoff_${cleanGroupSlug || 'spin'}_vol_${volNumInt}`;
+            volIdSuffix = `spinoff_${cleanGroupSlug || 'spin'}_vol_${cleanVolSlug}`;
         } else if (volType === 'alternative') {
-            volIdSuffix = `alt_${cleanGroupSlug || 'whatif'}_vol_${volNumInt}`;
+            volIdSuffix = `alt_${cleanGroupSlug || 'whatif'}_vol_${cleanVolSlug}`;
         }
 
         const newVolume = {
             id: `${novel.id}_${volIdSuffix}`,
-            volume_number: volNumInt,
-            volumeNumber: volNumInt,
-            title: (title || (volType === 'side_story' ? (novel.unit_type === 'chapter' ? `Hors-série ${volNumInt}` : `Side Story ${volNumInt}`) : (volType === 'spinoff' ? `Spin-off ${volNumInt}` : (novel.unit_type === 'chapter' ? `Chapitre ${volNumInt}` : `Volume ${volNumInt}`)))).trim(),
+            volume_number: rawVolStr,
+            volumeNumber: sortIndex,
+            sort_order: sortIndex,
+            title: (title || (volType === 'side_story' ? (novel.unit_type === 'chapter' ? `Hors-série ${rawVolStr}` : `Side Story ${rawVolStr}`) : (volType === 'spinoff' ? `Spin-off ${rawVolStr}` : (novel.unit_type === 'chapter' ? `Chapitre ${rawVolStr}` : `Volume ${rawVolStr}`)))).trim(),
             release_date: release_date || new Date().toISOString().split('T')[0],
             volume_type: volType,
             volume_group: volGroup,
@@ -4041,8 +4060,8 @@ app.post('/api/contributor/novels/:id/volumes', contributorLimiter, requireContr
         const existingIdx = novel.volumes.findIndex(v => {
             const vt = (v.volume_type || 'main').toLowerCase();
             const vg = (v.volume_group || '').trim().toLowerCase();
-            const vn = parseFloat(v.volume_number || v.number || 0);
-            return vt === volType && vg === volGroup.toLowerCase() && vn === volNumInt;
+            const vn = String(v.volume_number || v.number || '').trim().toLowerCase();
+            return vt === volType && vg === volGroup.toLowerCase() && vn === rawVolStr.toLowerCase();
         });
 
         if (existingIdx >= 0) {

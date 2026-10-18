@@ -1132,8 +1132,8 @@ class ContributorManager {
 
     // Auto calculate next volume number
     const vols = novel.volumes || [];
-    const maxNum = vols.reduce((max, v) => Math.max(max, v.volume_number || v.number || 0), 0);
-    if (this.inpVolNumber) this.inpVolNumber.value = maxNum + 1;
+    const maxNum = vols.reduce((max, v) => Math.max(max, parseFloat(v.volume_number || v.number || 0) || 0), 0);
+    if (this.inpVolNumber) this.inpVolNumber.value = (Math.floor(maxNum) + 1).toString();
 
     // Set today date
     const releaseDateInp = document.getElementById('contribVolReleaseDate');
@@ -1381,12 +1381,18 @@ class ContributorManager {
     e.preventDefault();
     if (!this.selectedNovelForVolumes) return;
 
-    const volume_number = parseFloat(this.inpVolNumber?.value || '1');
+    const rawVolNum = (this.inpVolNumber?.value || '1').trim();
     const volume_type = document.getElementById('contribVolType')?.value || 'main';
     const volume_group = document.getElementById('contribVolGroup')?.value.trim() || '';
     const isChap = this.currentUnitType === 'chapter';
     const defaultPrefix = isChap ? 'Chapitre' : 'Volume';
-    const title = this.inpVolTitle?.value.trim() || (volume_type === 'spinoff' ? (volume_group ? `${volume_group} - ${defaultPrefix} ${volume_number}` : `Spin-off ${defaultPrefix} ${volume_number}`) : `${defaultPrefix} ${volume_number}`);
+    let defaultTitle = `${defaultPrefix} ${rawVolNum}`;
+    if (volume_type === 'spinoff') {
+      defaultTitle = volume_group ? `${volume_group} - ${defaultPrefix} ${rawVolNum}` : `Spin-off ${defaultPrefix} ${rawVolNum}`;
+    } else if (volume_type === 'side_story') {
+      defaultTitle = `Hors-série ${rawVolNum}`;
+    }
+    const title = this.inpVolTitle?.value.trim() || defaultTitle;
     const release_date = document.getElementById('contribVolReleaseDate')?.value;
 
     const btnSubmit = document.getElementById('btnSubmitVolume');
@@ -1404,7 +1410,7 @@ class ContributorManager {
       if (progressText) progressText.textContent = 'Téléversement du fichier sur le serveur...';
 
       const formData = new FormData();
-      formData.append('volume_number', volume_number);
+      formData.append('volume_number', rawVolNum);
       formData.append('title', title);
       formData.append('volume_type', volume_type);
       if (volume_group) formData.append('volume_group', volume_group);
@@ -1444,9 +1450,9 @@ class ContributorManager {
         if (this.volForm) this.volForm.reset();
         
         // Auto increment for next volume
-        const vols = this.selectedNovelForVolumes.volumes;
-        const maxNum = vols.reduce((max, v) => Math.max(max, v.volume_number || v.number || 0), 0);
-        if (this.inpVolNumber) this.inpVolNumber.value = maxNum + 1;
+        const vols = this.selectedNovelForVolumes.volumes || [];
+        const maxNum = vols.reduce((max, v) => Math.max(max, parseFloat(v.volume_number || v.number || 0) || 0), 0);
+        if (this.inpVolNumber) this.inpVolNumber.value = (Math.floor(maxNum) + 1).toString();
         
         const releaseDateInp = document.getElementById('contribVolReleaseDate');
         if (releaseDateInp) releaseDateInp.value = new Date().toISOString().split('T')[0];
