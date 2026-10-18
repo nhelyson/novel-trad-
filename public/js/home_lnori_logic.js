@@ -511,7 +511,7 @@ initDeckCards() {
           // 2. TENDANCES EN COULISSES (Vues réelles collectées + Nouveauté des tomes sur 30 jours)
           const getTrendingScore = (s) => {
             const views = s.views || 0;
-            const volCount = s.volume_count || (s.volumes ? s.volumes.length : 1);
+            const volCount = (Array.isArray(s.volumes) && s.volumes.length > 0) ? s.volumes.length : (s.volume_count || 1);
             const relTime = getReleaseTime(s);
             const daysAgo = Math.max(0, (Date.now() - relTime) / (1000 * 60 * 60 * 24));
             const recencyBonus = daysAgo < 30 ? Math.round((30 - daysAgo) * 20) : 0;
@@ -551,7 +551,7 @@ initDeckCards() {
 
         const rawGridCover = series.cover || '';
         const coverSrc = rawGridCover ? (rawGridCover.startsWith('http') ? `/api/cover-proxy?url=${encodeURIComponent(rawGridCover)}&w=360` : rawGridCover) : 'https://placehold.co/400x600/18181b/ffffff?text=Cover';
-        const volCount = series.volume_count || (series.volumes ? series.volumes.length : 1);
+        const volCount = (Array.isArray(series.volumes) && series.volumes.length > 0) ? series.volumes.length : (series.volume_count || 1);
         const genres = (series.genres_fr || series.genres || []).slice(0, 3);
 
         let originTag = 'JP';

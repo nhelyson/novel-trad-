@@ -412,7 +412,7 @@
         const coverSrc = rawCover ? (rawCover.startsWith('http') ? `/api/cover-proxy?url=${encodeURIComponent(rawCover)}&w=360` : rawCover) : 'https://placehold.co/400x600/18181b/ffffff?text=Cover';
         const isWebnovel = series.type === 'webnovel' || (series.formats || []).includes('webnovel');
         const formatBadge = isWebnovel ? 'Webnovel' : (series.formats ? series.formats.join('/') : 'EPUB');
-        const volCount = series.volume_count || (series.volumes ? series.volumes.length : 1);
+        const volCount = (Array.isArray(series.volumes) && series.volumes.length > 0) ? series.volumes.length : (series.volume_count || 1);
         const genres = (series.genres_fr || series.genres || []).slice(0, 3);
 
         let originTag = 'JP';

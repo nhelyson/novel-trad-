@@ -236,7 +236,7 @@ async function renderSeries(series) {
     }
     if (elVolCount) {
       var isChap = series.unit_type === 'chapter';
-      var vCount = (series.volumes && series.volumes.length) || (series.volume_count) || 1;
+      var vCount = (Array.isArray(series.volumes) && series.volumes.length > 0) ? series.volumes.length : (series.volume_count || 1);
       var unitText = isChap ? 'Chapitre' : 'Volume';
       elVolCount.textContent = vCount + ' ' + unitText + (vCount > 1 ? 's' : '');
     }
@@ -889,8 +889,8 @@ async function renderSeriesRecommendations(currentSeries) {
             if ((b._matchScore || 0) !== (a._matchScore || 0)) {
                 return (b._matchScore || 0) - (a._matchScore || 0);
             }
-            var countA = (a.volumes && a.volumes.length) || a.volume_count || 1;
-            var countB = (b.volumes && b.volumes.length) || b.volume_count || 1;
+            var countA = (Array.isArray(a.volumes) && a.volumes.length > 0) ? a.volumes.length : (a.volume_count || 1);
+            var countB = (Array.isArray(b.volumes) && b.volumes.length > 0) ? b.volumes.length : (b.volume_count || 1);
             return countB - countA;
         });
 
@@ -905,7 +905,7 @@ async function renderSeriesRecommendations(currentSeries) {
             var rTitle = (rec.title || 'Roman').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
             var rCover = rec.cover || (rec.metadata && rec.metadata.cover) || '';
             var rGenre = (rec.genres_fr && rec.genres_fr[0]) || (rec.genres && rec.genres[0]) || 'Light Novel';
-            var rCount = (rec.volumes && rec.volumes.length) || rec.volume_count || 1;
+            var rCount = (Array.isArray(rec.volumes) && rec.volumes.length > 0) ? rec.volumes.length : (rec.volume_count || 1);
             var isChap = rec.unit_type === 'chapter';
             var countLabel = rCount + ' ' + (isChap ? (rCount > 1 ? 'Chapitres' : 'Chapitre') : (rCount > 1 ? 'Volumes' : 'Volume'));
             var recUrl = 'series.html?id=' + encodeURIComponent(rec.id);

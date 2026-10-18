@@ -278,7 +278,7 @@ class CatalogService {
             featured: !!s.featured,
             cover: s.cover || '',
             formats: s.formats || [],
-            volume_count: s.volume_count || (Array.isArray(s.volumes) ? s.volumes.length : 1),
+            volume_count: (Array.isArray(s.volumes) && s.volumes.length > 0) ? s.volumes.length : (s.volume_count || 1),
             synopsis: s.synopsis || '',
             synopsis_fr: s.synopsis_fr || s.synopsis || '',
             created_at: s.created_at || 0,
