@@ -598,18 +598,69 @@ async function renderSeries(series) {
 
             var volumesGrid = document.getElementById('seriesVolumesGrid');
             
-            // Wiring du champ de recherche rapide de tomes
+            // Wiring unifié du filtrage et recherche rapide de tomes
+            var currentTabFilter = 'all';
+
+            function applyVolumeFilters() {
+                var q = (inputSearch ? inputSearch.value || '' : '').trim().toLowerCase();
+                var cleanQ = q.replace(/^(?:tome|volume|vol|chapitre|chap|t|v)\.?\s*/i, '').trim();
+                var cards = volumesGrid.querySelectorAll('.volume-card');
+                var visibleCount = 0;
+
+                cards.forEach(function(card) {
+                    var type = (card.getAttribute('data-volume-type') || 'main').toLowerCase();
+                    var title = (card.querySelector('.volume-title')?.textContent || '').toLowerCase();
+                    var num = String(card.getAttribute('data-vol-num') || '').toLowerCase();
+
+                    // Filtrage par onglet (Tous / Principal / Hors-séries)
+                    var matchesTab = true;
+                    if (currentTabFilter === 'main') {
+                        matchesTab = (type === 'main' || type === 'canon');
+                    } else if (currentTabFilter === 'side') {
+                        matchesTab = (type !== 'main' && type !== 'canon');
+                    }
+
+                    // Filtrage par recherche texte
+                    var matchesSearch = true;
+                    if (q) {
+                        matchesSearch = title.includes(q) || 
+                                        num === q || 
+                                        (cleanQ && num === cleanQ) ||
+                                        ('volume ' + num).includes(q) || 
+                                        ('tome ' + num).includes(q) ||
+                                        ('chapitre ' + num).includes(q) ||
+                                        (cleanQ && title.includes(cleanQ));
+                    }
+
+                    var isVisible = matchesTab && matchesSearch;
+                    card.classList.toggle('vol-card-hidden', !isVisible);
+                    if (isVisible) visibleCount++;
+                });
+
+                // Message d'état si aucun résultat
+                var emptyMsg = volumesGrid.querySelector('.vol-search-empty-msg');
+                if (visibleCount === 0) {
+                    if (!emptyMsg) {
+                        emptyMsg = document.createElement('div');
+                        emptyMsg.className = 'vol-search-empty-msg';
+                        emptyMsg.style.cssText = 'grid-column: 1 / -1; padding: 36px 20px; text-align: center; color: var(--text-secondary); font-size: 14px;';
+                        emptyMsg.innerHTML = '<i class="fa-solid fa-magnifying-glass" style="margin-bottom: 8px; font-size: 22px; opacity: 0.5; display:block;"></i> Aucun volume ne correspond à votre recherche.';
+                        volumesGrid.appendChild(emptyMsg);
+                    }
+                    emptyMsg.style.display = 'block';
+                } else if (emptyMsg) {
+                    emptyMsg.style.display = 'none';
+                }
+            }
+
             var inputSearch = volumesSection.querySelector('#inputVolSearch');
             if (inputSearch) {
-                inputSearch.addEventListener('input', function() {
-                    var q = (this.value || '').trim().toLowerCase();
-                    var cards = volumesGrid.querySelectorAll('.volume-card');
-                    cards.forEach(function(card) {
-                        var title = (card.querySelector('.volume-title')?.textContent || '').toLowerCase();
-                        var num = String(card.getAttribute('data-vol-num') || '');
-                        var matches = !q || title.includes(q) || num === q || ('tome ' + num).includes(q) || ('volume ' + num).includes(q);
-                        card.style.display = matches ? '' : 'none';
-                    });
+                inputSearch.addEventListener('input', applyVolumeFilters);
+                inputSearch.addEventListener('keydown', function(e) {
+                    if (e.key === 'Escape') {
+                        this.value = '';
+                        applyVolumeFilters();
+                    }
                 });
             }
 
@@ -630,25 +681,15 @@ async function renderSeries(series) {
                 });
             }
 
-            // Wiring des onglets de filtrage de volumes si présents
+            // Wiring des onglets de filtrage
             var filterTabs = volumesSection.querySelectorAll('.vol-filter-tab');
             if (filterTabs.length > 0) {
                 filterTabs.forEach(function(tab) {
                     tab.addEventListener('click', function() {
                         filterTabs.forEach(function(t) { t.classList.remove('active'); });
                         this.classList.add('active');
-                        var filter = this.getAttribute('data-filter');
-                        var cards = volumesGrid.querySelectorAll('.volume-card');
-                        cards.forEach(function(card) {
-                            var type = (card.getAttribute('data-volume-type') || 'main').toLowerCase();
-                            var shouldShow = true;
-                            if (filter === 'main') {
-                                shouldShow = (type === 'main' || type === 'canon');
-                            } else if (filter === 'side') {
-                                shouldShow = (type !== 'main' && type !== 'canon');
-                            }
-                            card.classList.toggle('vol-card-hidden', !shouldShow);
-                        });
+                        currentTabFilter = this.getAttribute('data-filter') || 'all';
+                        applyVolumeFilters();
                     });
                 });
             }

@@ -18863,3 +18863,31 @@ html.theme-light .series-recommendations-section {
     border-radius: 4px !important;
   }
 }
+
+/* Règle prioritaire absolue pour le masquage instantané des cartes lors du filtrage de volumes */
+.volume-card.vol-card-hidden,
+.modern-vol-card.vol-card-hidden {
+  display: none !important;
+}
+
+@media (max-width: 640px) {
+  .series-volumes-header {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 14px !important;
+  }
+  .series-volumes-toolbar {
+    width: 100% !important;
+    display: flex !important;
+    gap: 8px !important;
+  }
+  .vol-search-input-wrap {
+    flex: 1 !important;
+  }
+  .vol-search-input {
+    width: 100% !important;
+  }
+  .vol-search-input:focus {
+    width: 100% !important;
+  }
+}
