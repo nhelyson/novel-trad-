@@ -18837,3 +18837,29 @@ html.theme-light .recom-title {
 html.theme-light .series-recommendations-section {
   border-top-color: rgba(0, 0, 0, 0.08) !important;
 }
+
+/* Responsive 2 colonnes pour les recommandations sur mobile (Style Crunchyroll / MangaDex) */
+@media (max-width: 640px) {
+  .series-recommendations-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 12px !important;
+  }
+  .recom-info {
+    padding: 10px 8px !important;
+    gap: 2px !important;
+  }
+  .recom-title {
+    font-size: 12px !important;
+    line-height: 1.3 !important;
+  }
+  .recom-genre {
+    font-size: 10px !important;
+  }
+  .recom-badge {
+    top: 6px !important;
+    right: 6px !important;
+    font-size: 9px !important;
+    padding: 2px 6px !important;
+    border-radius: 4px !important;
+  }
+}

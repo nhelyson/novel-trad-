@@ -866,7 +866,7 @@ async function renderSeriesRecommendations(currentSeries) {
             var rGenre = (rec.genres_fr && rec.genres_fr[0]) || (rec.genres && rec.genres[0]) || 'Light Novel';
             var rCount = (rec.volumes && rec.volumes.length) || rec.volume_count || 1;
             var isChap = rec.unit_type === 'chapter';
-            var countLabel = rCount + ' ' + (isChap ? 'chapitre' : 'tome') + (rCount > 1 ? 's' : '');
+            var countLabel = rCount + ' ' + (isChap ? (rCount > 1 ? 'Chapitres' : 'Chapitre') : (rCount > 1 ? 'Volumes' : 'Volume'));
             var recUrl = 'series.html?id=' + encodeURIComponent(rec.id);
 
             return `
