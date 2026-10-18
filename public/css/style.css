@@ -7639,13 +7639,13 @@ html.dark .premium-popover {
    DIRECTION C: LNORI EDITORIAL HERO DESIGN SYSTEM (HAUTE COUTURE TYPOGRAPHY)
    ========================================================================== */
 
-/* Arrière-plan cinématique panoramique sans rupture */
+/* Arrière-plan cinématique panoramique fluide (Style AniList / Crunchyroll) */
 .series-page-banner {
   width: 100% !important;
-  height: 380px !important;
+  height: 440px !important;
   position: relative !important;
   overflow: hidden !important;
-  background-color: #090a10 !important;
+  background-color: var(--bg-main, #090a10) !important;
   border-bottom: none !important;
   box-shadow: none !important;
   flex-shrink: 0 !important;
@@ -7653,35 +7653,60 @@ html.dark .premium-popover {
 
 .series-banner-bg {
   position: absolute !important;
-  inset: -30px !important;
+  inset: -15px !important;
   background-size: cover !important;
   background-position: center 25% !important;
   background-repeat: no-repeat !important;
-  transform: scale(1.08) !important;
-  filter: blur(28px) saturate(1.8) brightness(0.42) !important;
-  transition: opacity 0.4s ease !important;
   pointer-events: none !important;
+  transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s ease-out !important;
 }
 
+/* 1. Cas : Vraie bannière panoramique officielle (nette, lumineuse, style AniList) */
+.series-banner-bg.is-wide {
+  background-position: center 25% !important;
+  filter: brightness(0.72) contrast(1.05) saturate(1.1) !important;
+  transform: scale(1.02) !important;
+  opacity: 0.95 !important;
+}
+
+/* 2. Cas : Jaquette en arrière-plan d'ambiance (Aura cinématique douce et diffuse) */
+.series-banner-bg.is-ambient-glow,
 .series-banner-bg.is-cover {
   background-position: center 30% !important;
-  filter: blur(36px) saturate(1.9) brightness(0.38) !important;
+  filter: blur(55px) saturate(1.2) brightness(0.38) !important;
+  opacity: 0.65 !important;
+  transform: scale(1.2) !important;
 }
 
-.series-banner-bg.is-wide {
-  background-position: center 20% !important;
-  filter: blur(20px) saturate(1.6) brightness(0.48) !important;
-}
-
-/* Fondu multidirectionnel continu vers #090a10 (zéro coupure) */
+/* Fondu multicouche cinématique continu : ZÉRO rupture, intégration parfaite */
 .series-banner-overlay {
   position: absolute !important;
   inset: 0 !important;
   background: 
-    radial-gradient(ellipse 90% 70% at 50% 20%, transparent 10%, rgba(9, 10, 16, 0.75) 65%, #090a10 100%),
-    linear-gradient(180deg, rgba(9, 10, 16, 0.2) 0%, rgba(9, 10, 16, 0.65) 50%, #090a10 100%),
-    linear-gradient(90deg, #090a10 0%, transparent 20%, transparent 80%, #090a10 100%) !important;
+    linear-gradient(180deg, rgba(7, 8, 14, 0.5) 0%, transparent 22%),
+    linear-gradient(180deg, transparent 20%, rgba(9, 10, 16, 0.45) 55%, rgba(9, 10, 16, 0.85) 80%, var(--bg-main, #090a10) 100%),
+    linear-gradient(90deg, var(--bg-main, #090a10) 0%, transparent 15%, transparent 85%, var(--bg-main, #090a10) 100%),
+    radial-gradient(ellipse 90% 70% at 50% 30%, transparent 30%, rgba(9, 10, 16, 0.6) 80%, var(--bg-main, #090a10) 100%) !important;
   pointer-events: none !important;
+}
+
+/* Adaptation Thème Clair pour la bannière cinématique */
+html.theme-light .series-page-banner {
+  background-color: #f8fafc !important;
+}
+
+html.theme-light .series-banner-overlay {
+  background: 
+    linear-gradient(180deg, rgba(15, 23, 42, 0.25) 0%, transparent 22%),
+    linear-gradient(180deg, transparent 20%, rgba(248, 250, 252, 0.5) 55%, rgba(248, 250, 252, 0.9) 80%, #f8fafc 100%),
+    linear-gradient(90deg, #f8fafc 0%, transparent 15%, transparent 85%, #f8fafc 100%),
+    radial-gradient(ellipse 90% 70% at 50% 30%, transparent 30%, rgba(248, 250, 252, 0.6) 80%, #f8fafc 100%) !important;
+}
+
+html.theme-light .series-banner-bg.is-ambient-glow,
+html.theme-light .series-banner-bg.is-cover {
+  filter: blur(55px) saturate(1.15) brightness(0.7) !important;
+  opacity: 0.45 !important;
 }
 
 .series-page-content {
@@ -7697,7 +7722,7 @@ html.dark .premium-popover {
 .series-page-top {
   display: flex !important;
   gap: 36px !important;
-  margin-top: -180px !important;
+  margin-top: -190px !important;
   align-items: flex-end !important;
   padding: 0 !important;
 }
@@ -7722,14 +7747,20 @@ html.dark .premium-popover {
 
 .series-cover-ambient-glow {
   position: absolute !important;
-  inset: -12px !important;
+  inset: -14px !important;
   background-size: cover !important;
   background-position: center !important;
-  filter: blur(24px) saturate(2) brightness(0.6) !important;
-  opacity: 0.65 !important;
+  filter: blur(28px) saturate(1.25) brightness(0.5) !important;
+  opacity: 0.45 !important;
   z-index: -1 !important;
   border-radius: 20px !important;
   pointer-events: none !important;
+  transition: opacity 0.35s ease, filter 0.35s ease !important;
+}
+
+.series-page-cover-wrap:hover .series-cover-ambient-glow {
+  opacity: 0.75 !important;
+  filter: blur(34px) saturate(1.35) brightness(0.65) !important;
 }
 
 .series-page-cover {
@@ -8067,10 +8098,10 @@ html.dark .premium-popover {
   transform: rotate(180deg) !important;
 }
 
-/* RESPONSIVE HERO MOBILE */
+/* RESPONSIVE HERO MOBILE (Style AniList / Crunchyroll) */
 @media (max-width: 768px) {
   .series-page-banner {
-    height: 180px !important;
+    height: 250px !important;
   }
   
   .series-page-content {
@@ -8081,7 +8112,7 @@ html.dark .premium-popover {
     flex-direction: column !important;
     align-items: center !important;
     text-align: center !important;
-    margin-top: -90px !important;
+    margin-top: -115px !important;
     gap: 18px !important;
   }
 

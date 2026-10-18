@@ -170,23 +170,38 @@ async function renderSeries(series) {
                 if (dataUrl && seriesCoverEl.isConnected) {
                     seriesCoverEl.src = dataUrl;
                     if (seriesBannerEl) {
-                        seriesBannerEl.style.backgroundImage = "linear-gradient(to bottom, rgba(0,0,0,0.4) 0%, rgba(9,9,11,1) 100%), url('" + dataUrl + "')";
-                        seriesBannerEl.style.filter = 'none';
+                        var currentBg = seriesBannerEl.querySelector('.series-banner-bg');
+                        if (currentBg && !currentBg.classList.contains('is-wide')) {
+                            currentBg.style.backgroundImage = "url('" + dataUrl + "')";
+                        }
                     }
                 }
             }).catch(function() {});
         }
     }
 
-    // Banner (Seamless Full-Width Atmospheric Hero)
+    // Banner (Seamless Full-Width Atmospheric Hero - Style AniList / Crunchyroll)
     if (seriesBannerEl) {
-        var bannerImg = String(series.banner || (series.metadata && series.metadata.banner) || coverUrl || '');
-        var hasWideBanner = Boolean(series.banner || (series.metadata && series.metadata.banner));
+        var rawBanner = String(series.banner || (series.metadata && series.metadata.banner) || '');
+        var effectiveCover = coverUrl || series.cover || (series.metadata && series.metadata.cover) || '';
+        
+        // Vraie bannière panoramique : différente de la jaquette et pas un asset portrait (/cover/)
+        var isRealWide = Boolean(
+            rawBanner && 
+            rawBanner !== effectiveCover && 
+            !rawBanner.includes('/cover/large/') && 
+            !rawBanner.includes('/cover/medium/') &&
+            !rawBanner.includes('/covers/')
+        );
+        
+        var bannerImg = isRealWide ? rawBanner : effectiveCover;
         
         seriesBannerEl.innerHTML = '';
         var bgDiv = document.createElement('div');
-        bgDiv.className = 'series-banner-bg' + (hasWideBanner ? ' is-wide' : ' is-cover');
-        bgDiv.style.backgroundImage = bannerImg ? "url('" + bannerImg.replace(/'/g, "\\'") + "')" : 'none';
+        bgDiv.className = 'series-banner-bg ' + (isRealWide ? 'is-wide' : 'is-ambient-glow');
+        if (bannerImg) {
+            bgDiv.style.backgroundImage = "url('" + bannerImg.replace(/'/g, "\\'") + "')";
+        }
         seriesBannerEl.appendChild(bgDiv);
         
         var overlayDiv = document.createElement('div');
