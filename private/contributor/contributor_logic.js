@@ -1336,7 +1336,7 @@ class ContributorManager {
                 <i class="fa-solid fa-download"></i>
               </a>
             ` : ''}
-            <button type="button" class="btn-vol-delete" onclick="window.contributorManager.handleDeleteVolume('${this.selectedNovelForVolumes.id}', ${volNum})" title="${deleteTitle}">
+            <button type="button" class="btn-vol-delete" onclick="window.contributorManager.handleDeleteVolume('${this.selectedNovelForVolumes.id}', '${encodeURIComponent(String(v.id || volNum))}')" title="${deleteTitle}">
               <i class="fa-solid fa-trash-can"></i>
             </button>
           </div>
@@ -1345,7 +1345,8 @@ class ContributorManager {
     }).join('');
   }
 
-  async handleDeleteVolume(novelId, volNum) {
+  async handleDeleteVolume(novelId, encodedVol) {
+    const volNum = decodeURIComponent(encodedVol || '');
     const isChap = this.currentUnitType === 'chapter';
     const unitWord = isChap ? 'Chapitre' : 'Tome';
     if (!confirm(`Êtes-vous sûr de vouloir supprimer définitivement le ${unitWord} ${volNum} ?`)) {
@@ -1354,7 +1355,7 @@ class ContributorManager {
 
     try {
       const headers = await this.getHeaders();
-      const res = await fetch(`/api/contributor/novels/${novelId}/volumes/${volNum}`, {
+      const res = await fetch(`/api/contributor/novels/${novelId}/volumes/${encodeURIComponent(volNum)}`, {
         method: 'DELETE',
         headers
       });

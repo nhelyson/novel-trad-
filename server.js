@@ -4005,10 +4005,10 @@ app.post('/api/contributor/novels/:id/volumes', contributorLimiter, requireContr
                         const coverDir = path.join(__dirname, 'uploads', 'covers');
                         if (!fs.existsSync(coverDir)) fs.mkdirSync(coverDir, { recursive: true });
                         const coverExt = coverData.mediaType === 'image/png' ? '.png' : (coverData.mediaType === 'image/webp' ? '.webp' : '.jpg');
-                        const coverFileName = `${novel.id}_vol_${volNumInt}_${Date.now()}${coverExt}`;
+                        const coverFileName = `${novel.id}_vol_${cleanVolSlug}_${Date.now()}${coverExt}`;
                         fs.writeFileSync(path.join(coverDir, coverFileName), coverData.buffer);
                         extractedCoverUrl = `/uploads/covers/${coverFileName}`;
-                        console.log(`[Contributor] Couverture extraite pour le volume ${volNumInt}: ${extractedCoverUrl}`);
+                        console.log(`[Contributor] Couverture extraite pour le volume ${rawVolStr}: ${extractedCoverUrl}`);
                     }
                 } catch (covErr) {
                     console.warn('[Contributor] Impossible d\'extraire la cover de l\'EPUB:', covErr.message);
@@ -4089,13 +4089,15 @@ app.post('/api/contributor/novels/:id/volumes', contributorLimiter, requireContr
             const rankA = typeRank[(a.volume_type || 'main').toLowerCase()] || 1;
             const rankB = typeRank[(b.volume_type || 'main').toLowerCase()] || 1;
             if (rankA !== rankB) return rankA - rankB;
-            return (parseFloat(a.volume_number || a.number || 0)) - (parseFloat(b.volume_number || b.number || 0));
+            const orderA = a.sort_order !== undefined ? a.sort_order : (parseSortIndex(a.volume_number || a.number || 0));
+            const orderB = b.sort_order !== undefined ? b.sort_order : (parseSortIndex(b.volume_number || b.number || 0));
+            return orderA - orderB;
         });
         novel.volume_count = novel.volumes.length;
         novel.updated_at = Date.now();
         catService.saveData();
 
-        console.log(`[Contributor] Volume ${volNumInt} enregistré pour "${novel.title}"`);
+        console.log(`[Contributor] Volume "${rawVolStr}" enregistré pour "${novel.title}"`);
         res.json({ success: true, volume: newVolume, volumes: novel.volumes });
     } catch (e) {
         console.error('[Contributor] Erreur upload volume:', e);
@@ -4111,10 +4113,16 @@ app.delete('/api/contributor/novels/:id/volumes/:volNum', requireContributor, as
         const novel = (data.series || []).find(s => s.id === req.params.id);
 
         if (!novel) return res.status(404).json({ success: false, error: 'Roman introuvable.' });
-        const volNumInt = parseInt(req.params.volNum, 10);
+        const rawVolParam = decodeURIComponent(req.params.volNum || '').trim();
+        const volNumInt = parseInt(rawVolParam, 10);
         if (!novel.volumes) novel.volumes = [];
 
-        const targetVol = novel.volumes.find(v => (v.volume_number === volNumInt || v.number === volNumInt));
+        const targetVol = novel.volumes.find(v => (
+            (v.id && v.id === rawVolParam) ||
+            String(v.volume_number || '').trim().toLowerCase() === rawVolParam.toLowerCase() ||
+            String(v.number || '').trim().toLowerCase() === rawVolParam.toLowerCase() ||
+            (!isNaN(volNumInt) && (v.volume_number === volNumInt || v.number === volNumInt))
+        ));
         if (!targetVol) {
             return res.status(404).json({ success: false, error: 'Volume introuvable.' });
         }
@@ -4153,12 +4161,12 @@ app.delete('/api/contributor/novels/:id/volumes/:volNum', requireContributor, as
             }
         }
 
-        novel.volumes = novel.volumes.filter(v => (v.volume_number !== volNumInt && v.number !== volNumInt));
+        novel.volumes = novel.volumes.filter(v => v !== targetVol);
         novel.volume_count = novel.volumes.length;
         novel.updated_at = Date.now();
         catService.saveData();
 
-        console.log(`[Contributor] Volume ${volNumInt} supprimé du roman "${novel.title}"`);
+        console.log(`[Contributor] Volume "${targetVol.volume_number || targetVol.title}" supprimé du roman "${novel.title}"`);
         res.json({ success: true, volumes: novel.volumes });
     } catch (e) {
         console.error('[Contributor] Erreur suppression volume:', e);
