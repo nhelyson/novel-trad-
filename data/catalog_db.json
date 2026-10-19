@@ -1887,10 +1887,10 @@
     },
     {
       "id": "youkoso-jitsuryoku-shijou-shugi-no-kyoushitsu-e-mu0hkygf",
-      "title": "Classroom of the Elite",
-      "title_romaji": "Youkoso Jitsuryoku Shijou Shugi no Kyoushitsu e",
+      "title": "Youkoso Jitsuryoku Shijou Shugi no Kyoushitsu e",
+      "title_romaji": "",
       "originalTitle": "",
-      "author": "Shougo Kinugasa",
+      "author": "Inconnu",
       "illustrator": "",
       "translator": "",
       "origin": "Japon (Light Novel)",
@@ -1899,21 +1899,37 @@
       "status_fr": "En cours",
       "publication_status": "PUBLISHED",
       "genres": [
-        "Drame",
-        "Psychologique",
+        "Comédie",
+        "Vie scolaire",
         "Tranche de vie",
-        "Thriller"
+        "Drame",
+        "Romance",
+        "Psychologique",
+        "Mystère",
+        "Coming Of Age",
+        "Seinen",
+        "Action",
+        "Yaoi",
+        "High School"
       ],
       "genres_fr": [
-        "Drame",
-        "Psychologique",
+        "Comédie",
+        "Vie scolaire",
         "Tranche de vie",
-        "Thriller"
+        "Drame",
+        "Romance",
+        "Psychologique",
+        "Mystère",
+        "Coming Of Age",
+        "Seinen",
+        "Action",
+        "Yaoi",
+        "High School"
       ],
       "tags": [],
-      "synopsis": "Les étudiants de la prestigieuse Tokyo Metropolitan Advanced Nurturing High School bénéficient d'une liberté remarquable, s'ils peuvent gagner, échanger ou économiser suffisamment de points pour gravir les échelons ! Ayanokoji Kiyotaka a atterri au bas de l'échelle de la classe D méprisée, où il rencontre Horikita Suzune, déterminé à gravir les échelons jusqu'à la classe A. Pourront-ils vaincre le système dans une école où la compétition acharnée est le mot d'ordre ?\n\n(Source : Seven Seas Entertainment)\n\nComprend les volumes : 4.5, 7.5, 11.5\nChapitres inclus : 14 prologues, 13 épilogues, 1 supplémentaire",
-      "synopsis_fr": "Les étudiants de la prestigieuse Tokyo Metropolitan Advanced Nurturing High School bénéficient d'une liberté remarquable, s'ils peuvent gagner, échanger ou économiser suffisamment de points pour gravir les échelons ! Ayanokoji Kiyotaka a atterri au bas de l'échelle de la classe D méprisée, où il rencontre Horikita Suzune, déterminé à gravir les échelons jusqu'à la classe A. Pourront-ils vaincre le système dans une école où la compétition acharnée est le mot d'ordre ?\n\n(Source : Seven Seas Entertainment)\n\nComprend les volumes : 4.5, 7.5, 11.5\nChapitres inclus : 14 prologues, 13 épilogues, 1 supplémentaire",
-      "cover": "https://s4.anilist.co/file/anilistcdn/media/manga/cover/large/bx94970-q77X5sfRIKvU.jpg",
+      "synopsis": "Le lycée Koudo Ikusei est une école prestigieuse de premier plan dotée d'installations ultramodernes où près de 100 % des étudiants poursuivent leurs études universitaires ou trouvent un emploi. Les étudiants y ont la liberté de porter n'importe quelle coiffure et d'apporter tous les effets personnels qu'ils désirent. Koudo Ikusei est une école aux allures de paradis, mais la vérité est que seuls les élèves les plus supérieurs reçoivent un traitement de faveur. Ayanokouji Kiyotaka est un élève de la classe D, où l'école abandonne ses élèves « inférieurs » afin de les ridiculiser. Pour une certaine raison, Kiyotaka a été négligent lors de son examen d'entrée et a été placé en classe D. Après avoir rencontré Horikita Suzune et Kushida Kikyou, deux autres élèves de sa classe, la situation de Kiyotaka commence à changer. (Source : ANN)",
+      "synopsis_fr": "Le lycée Koudo Ikusei est une école prestigieuse de premier plan dotée d'installations ultramodernes où près de 100 % des étudiants poursuivent leurs études universitaires ou trouvent un emploi. Les étudiants y ont la liberté de porter n'importe quelle coiffure et d'apporter tous les effets personnels qu'ils désirent. Koudo Ikusei est une école aux allures de paradis, mais la vérité est que seuls les élèves les plus supérieurs reçoivent un traitement de faveur. Ayanokouji Kiyotaka est un élève de la classe D, où l'école abandonne ses élèves « inférieurs » afin de les ridiculiser. Pour une certaine raison, Kiyotaka a été négligent lors de son examen d'entrée et a été placé en classe D. Après avoir rencontré Horikita Suzune et Kushida Kikyou, deux autres élèves de sa classe, la situation de Kiyotaka commence à changer. (Source : ANN)",
+      "cover": "https://media.kitsu.app/manga/poster_images/36430/large.jpg",
       "banner": "https://media.kitsu.app/manga/poster_images/36430/large.jpg",
       "featured": false,
       "rating": 3.5,
@@ -1925,40 +1941,32 @@
       "volumes": [
         {
           "id": "youkoso-jitsuryoku-shijou-shugi-no-kyoushitsu-e-mu0hkygf_vol_1",
-          "volume_number": "1",
+          "volume_number": 1,
           "volumeNumber": 1,
-          "sort_order": 1,
-          "title": "3 -ème année",
-          "release_date": "2026-10-18",
-          "volume_type": "main",
-          "volume_group": "",
-          "uploaded_by": "5657d33e-952c-43d6-a222-8842b026699b",
-          "uploaded_by_email": "admin@noveltrad.com",
-          "uploaded_by_name": "admin",
-          "created_at": 1792343644641,
-          "file_path": "/uploads/volumes/youkoso-jitsuryoku-shijou-shugi-no-kyoushitsu-e-mu0hkygf_vol_1_1792343643895.epub",
+          "title": "Volume 1",
+          "release_date": "2026-09-14",
+          "created_at": 1789351791674,
+          "file_path": "/uploads/volumes/youkoso-jitsuryoku-shijou-shugi-no-kyoushitsu-e-mu0hkygf_vol_1_1789351791395.epub",
           "file_name": "Classroom of the Elite - Year 3 - Vol. 1_fr.epub",
           "file_size": 7927806,
           "file_type": "EPUB",
           "format": "epub",
-          "uploaded_at": 1792343644641,
-          "cover": "/uploads/covers/youkoso-jitsuryoku-shijou-shugi-no-kyoushitsu-e-mu0hkygf_vol_1_1792343644639.jpg",
-          "cover_url": "/uploads/covers/youkoso-jitsuryoku-shijou-shugi-no-kyoushitsu-e-mu0hkygf_vol_1_1792343644639.jpg"
+          "uploaded_at": 1789351791674,
+          "cover": "/uploads/covers/youkoso-jitsuryoku-shijou-shugi-no-kyoushitsu-e-mu0hkygf_vol_1_1789351791672.jpg",
+          "cover_url": "/uploads/covers/youkoso-jitsuryoku-shijou-shugi-no-kyoushitsu-e-mu0hkygf_vol_1_1789351791672.jpg"
         }
       ],
       "chapters": [],
       "created_by": "5657d33e-952c-43d6-a222-8842b026699b",
       "created_by_email": "admin@noveltrad.com",
       "created_at": 1789344611439,
-      "updated_at": 1792343669175,
+      "updated_at": 1789375882782,
       "volume_count": 1,
-      "submitted_at": 1792343652186,
+      "submitted_at": 1789344653710,
       "reviewed_by": "5657d33e-952c-43d6-a222-8842b026699b",
-      "approved_at": 1792343669175,
+      "approved_at": 1789344666292,
       "catalogStatus": "PUBLISHED",
-      "catalogRejectionReason": null,
-      "unit_type": "volume",
-      "allow_download": true
+      "catalogRejectionReason": null
     },
     {
       "id": "three-days-of-happiness-mu0gaoxh",
@@ -3944,5 +3952,5 @@
       "reviewed_by": "5657d33e-952c-43d6-a222-8842b026699b"
     }
   ],
-  "updatedAt": 1792343669175
+  "updatedAt": 1791136441162
 }
