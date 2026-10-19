@@ -352,6 +352,136 @@
   gap: 24px !important;
 }
 
+/* ==========================================================================
+   ALIGNEMENT HARMONISÉ DU STUDIO CONTRIBUTEUR AVEC LA NAVBAR (1320px)
+   Alignement pixel-perfect des bords gauche et droit avec la navbar Lnori
+   ========================================================================== */
+#contributorMountPoint {
+  width: 100% !important;
+  display: block !important;
+  margin: 0 auto !important;
+  padding: 0 !important;
+  box-sizing: border-box !important;
+}
+
+#contributorModuleContainer.contributor-module-container:not(.hidden),
+#contributorModuleContainer:not(.hidden),
+.contributor-module-container:not(.hidden) {
+  width: 100% !important;
+  max-width: 1320px !important;
+  margin: 0 auto !important;
+  padding: 32px 24px 60px 24px !important;
+  box-sizing: border-box !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 28px !important;
+}
+
+#contributorModuleContainer .account-header-section,
+#contributorModuleContainer .contrib-header-section {
+  width: 100% !important;
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: flex-end !important;
+  gap: 24px !important;
+  flex-wrap: wrap !important;
+  margin-bottom: 0 !important;
+  padding-bottom: 24px !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+  box-sizing: border-box !important;
+}
+
+#contributorModuleContainer .contrib-title-group {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+}
+
+#contributorModuleContainer .contrib-main-title,
+#contributorModuleContainer .account-main-title {
+  font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif !important;
+  font-size: 2rem !important;
+  font-weight: 700 !important;
+  color: #ffffff !important;
+  letter-spacing: -0.02em !important;
+  margin: 0 !important;
+  line-height: 1.2 !important;
+}
+
+#contributorModuleContainer .contrib-main-subtitle,
+#contributorModuleContainer .account-main-subtitle {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+  font-size: 0.95rem !important;
+  color: #94a3b8 !important;
+  max-width: 720px !important;
+  line-height: 1.55 !important;
+  margin: 0 !important;
+}
+
+#contributorModuleContainer .contrib-subnav-bar {
+  width: 100% !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  background: rgba(15, 19, 32, 0.65) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  padding: 6px !important;
+  border-radius: 12px !important;
+  margin: 0 !important;
+  box-sizing: border-box !important;
+  overflow-x: auto !important;
+}
+
+#contributorModuleContainer .contrib-section-view {
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+#contributorModuleContainer .contrib-stats-grid {
+  width: 100% !important;
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)) !important;
+  gap: 20px !important;
+  margin-bottom: 0 !important;
+  box-sizing: border-box !important;
+}
+
+#contributorModuleContainer .contrib-overview-body {
+  width: 100% !important;
+  display: grid !important;
+  grid-template-columns: 2fr 1.2fr !important;
+  gap: 24px !important;
+  box-sizing: border-box !important;
+}
+
+#contributorModuleContainer .contrib-toolbar {
+  width: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 16px !important;
+  flex-wrap: wrap !important;
+  margin-bottom: 24px !important;
+  box-sizing: border-box !important;
+}
+
+#contributorModuleContainer .contrib-novels-grid {
+  width: 100% !important;
+  display: grid !important;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)) !important;
+  gap: 24px !important;
+  box-sizing: border-box !important;
+}
+
+#contributorModuleContainer .contrib-form-container {
+  width: 100% !important;
+  max-width: 1000px !important;
+  margin: 0 auto !important;
+  box-sizing: border-box !important;
+}
+
+
 /* Modules secondaires compacts (Paramètres, Outils spécifiques) */
 /* Fiche Série : 100% PLEINE LARGEUR BORD-À-BORD (Bannière non centrée, naturelle comme à l'origine) */
 #seriesModule.series-module-full,
