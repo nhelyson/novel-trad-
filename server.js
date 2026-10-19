@@ -2394,6 +2394,30 @@ app.get('/api/catalog', async (req, res) => {
   }
 });
 
+app.post('/api/catalog/series/:id/toggle-original', async (req, res) => {
+  try {
+    const authUser = await authenticateUser(req);
+    if (!authUser) {
+      return res.status(401).json({ success: false, message: 'Authentification requise.' });
+    }
+    const { id } = req.params;
+    const series = CatalogService.getSeries(id, authUser);
+    if (!series) return res.status(404).json({ success: false, message: 'Série non trouvée.' });
+
+    const role = (authUser.role || '').toUpperCase();
+    const isAdmin = role === 'ADMIN' || (authUser.email || '').toLowerCase() === 'admin@noveltrad.com';
+
+    if (!isAdmin) {
+      return res.status(403).json({ success: false, message: 'Action strictement réservée aux administrateurs.' });
+    }
+
+    const result = CatalogService.toggleOriginal(id);
+    res.json({ success: true, ...result });
+  } catch (e) {
+    res.status(500).json({ success: false, message: e.message });
+  }
+});
+
 app.post('/api/catalog/series/:id/toggle-featured', async (req, res) => {
   try {
     const authUser = await authenticateUser(req);

@@ -223,6 +223,28 @@ async function renderSeries(series) {
     }
 
     var elVolCount = document.getElementById('seriesVolCount');
+    if (series.is_original) {
+      // 1. Marque-page sur la couverture
+      var coverWrap = document.querySelector('.series-page-cover-wrap');
+      if (coverWrap && !coverWrap.querySelector('.card-bookmark-ribbon')) {
+        var ribbon = document.createElement('div');
+        ribbon.className = 'card-bookmark-ribbon';
+        ribbon.title = 'Création Originale';
+        ribbon.innerHTML = '<i class="fa-solid fa-feather-pointed"></i><span>ORIGINAL</span>';
+        coverWrap.appendChild(ribbon);
+      }
+
+      // 2. Badge certifié dans les métadonnées de l'en-tête
+      var catalogBadgeContainer = document.getElementById('seriesCatalogBadge');
+      if (catalogBadgeContainer && !document.getElementById('badgeSeriesOriginalCreation')) {
+        var origPill = document.createElement('span');
+        origPill.id = 'badgeSeriesOriginalCreation';
+        origPill.className = 'series-badge-original-creation';
+        origPill.innerHTML = '<i class="fa-solid fa-feather-pointed"></i> Création Originale';
+        catalogBadgeContainer.appendChild(origPill);
+      }
+    }
+
     if (series.allow_download === false) {
       var headerActions = document.querySelector('.series-actions') || document.querySelector('.series-meta-row');
       var existingExcl = document.getElementById('badgeSeriesExclusiveOnline');

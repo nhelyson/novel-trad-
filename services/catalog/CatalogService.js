@@ -119,6 +119,15 @@ class CatalogService {
         return result.slice(0, 5);
     }
 
+    toggleOriginal(id) {
+        this.data = this.loadData();
+        const series = (this.data.series || []).find(s => s.id === id || s.id.toLowerCase() === (id || '').toLowerCase());
+        if (!series) return null;
+        series.is_original = !series.is_original;
+        this.saveData();
+        return { id: series.id, is_original: series.is_original, title: series.title };
+    }
+
     toggleFeatured(id) {
         this.data = this.loadData();
         const series = (this.data.series || []).find(s => s.id === id || s.id.toLowerCase() === (id || '').toLowerCase());
@@ -206,11 +215,13 @@ class CatalogService {
         // 4.5 Filter by Origin (JP, KR, CN, Japon, Corée, Chine)
         if (origin && origin !== 'all' && origin !== '') {
             const oUpper = origin.toUpperCase().trim();
+            const isOriginal = oUpper === 'ORIGINAL' || oUpper.includes('ORIGIN');
             const isJP = oUpper === 'JP' || oUpper.includes('JAPON') || oUpper.includes('JAPAN');
             const isKR = oUpper === 'KR' || oUpper.includes('CORÉE') || oUpper.includes('COREE') || oUpper.includes('KOREA');
             const isCN = oUpper === 'CN' || oUpper.includes('CHINE') || oUpper.includes('CHINA');
 
             list = list.filter(s => {
+                if (isOriginal) return s.is_original === true || (s.origin || '').toUpperCase().includes('ORIGINAL');
                 const sOrig = (s.origin || '').toUpperCase();
                 if (isJP) return sOrig.includes('JAPON') || sOrig.includes('JP') || sOrig.includes('JAPAN');
                 if (isKR) return sOrig.includes('CORÉE') || sOrig.includes('COREE') || sOrig.includes('KOREA') || sOrig.includes('KR');
@@ -276,6 +287,7 @@ class CatalogService {
             views: s.views || 0,
             likes: s.likes || 0,
             featured: !!s.featured,
+            is_original: !!s.is_original,
             cover: s.cover || '',
             formats: s.formats || [],
             volume_count: (Array.isArray(s.volumes) && s.volumes.length > 0) ? s.volumes.length : (s.volume_count || 1),

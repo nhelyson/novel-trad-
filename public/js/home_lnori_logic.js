@@ -95,12 +95,14 @@ initDeckCards() {
         card.dataset.genres = JSON.stringify(novel.genres_fr || novel.genres || []);
         card.dataset.banner = novel.banner || novel.cover || '';
         card.dataset.cover = novel.cover || '';
+        card.dataset.isOriginal = String(!!novel.is_original);
         card.setAttribute('aria-hidden', String(idx !== 0));
 
         const rawHeroCover = novel.cover || '';
         const coverSrc = rawHeroCover ? (rawHeroCover.startsWith('http') ? `/api/cover-proxy?url=${encodeURIComponent(rawHeroCover)}&w=480` : rawHeroCover) : 'https://placehold.co/400x600/18181b/ffffff?text=Couverture';
         card.innerHTML = `
           <div class="card-inner">
+            ${novel.is_original ? '<div class="card-bookmark-ribbon" title="Création Originale"><i class="fa-solid fa-feather-pointed"></i><span>ORIGINAL</span></div>' : ''}
             <img src="${coverSrc}" alt="${novel.title || ''}" loading="${idx === 0 ? 'eager' : 'lazy'}" decoding="async" onload="this.classList.add('loaded')">
             <div class="card-shine-glare"></div>
           </div>
@@ -317,7 +319,8 @@ initDeckCards() {
         synopsis: cardEl.dataset.synopsis,
         genres: genres,
         banner: cardEl.dataset.banner,
-        cover: cardEl.dataset.cover
+        cover: cardEl.dataset.cover,
+        is_original: cardEl.dataset.isOriginal === 'true'
       };
 
       this.updateHeroContent(item, true);
@@ -353,6 +356,12 @@ initDeckCards() {
       if (genresEl) {
         genresEl.innerHTML = '';
         const genres = (item.genres_fr || item.genres || []).slice(0, 4);
+        if (item.is_original) {
+          const origSpan = document.createElement('span');
+          origSpan.className = 'hero-genre-tag hero-badge-original';
+          origSpan.innerHTML = '<i class="fa-solid fa-feather-pointed"></i> CRÉATION ORIGINALE';
+          genresEl.appendChild(origSpan);
+        }
         genres.forEach(g => {
           const span = document.createElement('span');
           span.className = 'hero-genre-tag';
@@ -564,7 +573,7 @@ initDeckCards() {
         wrap.innerHTML = `
           <div class="lnori-card">
             <div class="lnori-card-cover-box">
-              
+              ${series.is_original ? '<div class="card-bookmark-ribbon" title="Création Originale"><i class="fa-solid fa-feather-pointed"></i><span>ORIGINAL</span></div>' : ''}
               <img src="${coverSrc}" alt="${series.title}" loading="lazy" decoding="async" onload="this.classList.add('loaded')" onerror="this.onerror=null;this.src='https://placehold.co/400x600/18181b/ffffff?text=${encodeURIComponent(series.title)}'">
               <span class="lnori-card-vol-badge">${volCount} Vol.</span>
             </div>

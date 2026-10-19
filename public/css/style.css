@@ -18891,3 +18891,91 @@ html.theme-light .series-recommendations-section {
     width: 100% !important;
   }
 }
+
+/* ==========================================================================
+   NOVELTRAD - RUBAN MARQUE-PAGE EN OR IMPÉRIAL (CRÉATIONS ORIGINALES)
+   ========================================================================== */
+.card-bookmark-ribbon {
+  position: absolute;
+  top: 0;
+  left: 10px;
+  z-index: 15;
+  width: 30px;
+  height: 48px;
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #b45309 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding-top: 5px;
+  color: #ffffff;
+  /* Queue d'hirondelle biseautée type marque-page traditionnel */
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 82%, 0 100%);
+  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.45), 0 2px 6px rgba(0, 0, 0, 0.6);
+  pointer-events: none;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), filter 0.25s ease;
+}
+
+.card-bookmark-ribbon i {
+  font-size: 12px;
+  color: #ffffff;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.6));
+  margin-bottom: 3px;
+}
+
+.card-bookmark-ribbon span {
+  font-size: 7.5px;
+  font-weight: 900;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: #ffffff;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  transform: rotate(180deg);
+  line-height: 1;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.7));
+}
+
+.lnori-card-wrapper:hover .card-bookmark-ribbon,
+.novel-series-card:hover .card-bookmark-ribbon,
+.hero-carousel-card:hover .card-bookmark-ribbon {
+  transform: translateY(3px) scale(1.05);
+  filter: brightness(1.15) drop-shadow(0 6px 18px rgba(245, 158, 11, 0.65));
+}
+
+/* Badge héro / slider */
+.hero-badge-original {
+  background: linear-gradient(135deg, #f59e0b 0%, #b45309 100%) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.35) !important;
+  font-weight: 800 !important;
+  box-shadow: 0 4px 16px rgba(245, 158, 11, 0.5) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+}
+
+/* Badge d'en-tête sur la page série */
+.series-badge-original-creation {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.22) 0%, rgba(217, 119, 6, 0.3) 100%);
+  border: 1px solid rgba(245, 158, 11, 0.65);
+  color: #fbbf24;
+  padding: 5px 14px;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  box-shadow: 0 0 16px rgba(245, 158, 11, 0.25);
+}
+
+.series-badge-original-creation i {
+  color: #f59e0b;
+}
+
+.series-page-cover-wrap {
+  position: relative;
+}

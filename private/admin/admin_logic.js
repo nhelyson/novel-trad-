@@ -583,6 +583,9 @@ class AdminManager {
                     </select>
                   </td>
                   <td>
+                    <button type="button" class="btn-contrib-action ${n.is_original ? 'original-active' : ''}" style="${n.is_original ? 'color: #f59e0b; border-color: rgba(245, 158, 11, 0.6); background: rgba(245, 158, 11, 0.18); font-weight: 700;' : 'color: #94a3b8; border-color: rgba(255, 255, 255, 0.1); font-size: 12px; padding: 5px 12px; margin-right: 6px;'}" onclick="window.adminManager.toggleOriginal('${n.id}')" title="${n.is_original ? 'Retirer le statut Création Originale' : 'Attribuer le badge Marque-Page Création Originale'}">
+                      <i class="fa-solid fa-feather-pointed" style="color: ${n.is_original ? '#f59e0b' : 'inherit'};"></i> ${n.is_original ? 'Original' : 'Adaptation'}
+                    </button>
                     <button type="button" class="btn-contrib-action ${n.featured ? 'featured-active' : ''}" style="${n.featured ? 'color: #f59e0b; border-color: rgba(245, 158, 11, 0.4); background: rgba(245, 158, 11, 0.12);' : 'color: #94a3b8; border-color: rgba(255, 255, 255, 0.1); font-size: 12px; padding: 5px 12px;'}" onclick="window.adminManager.toggleFeatured('${n.id}')" title="${n.featured ? 'Retirer du slider d\'accueil' : 'Mettre à la une sur le slider d\'accueil'}">
                       <i class="fa-${n.featured ? 'solid' : 'regular'} fa-star" style="color: ${n.featured ? '#f59e0b' : 'inherit'};"></i> ${n.featured ? 'À la une' : 'Standard'}
                     </button>
@@ -601,7 +604,28 @@ class AdminManager {
     `;
   }
 
-    async toggleFeatured(novelId) {
+    async toggleOriginal(novelId) {
+    try {
+      const headers = await this.getHeaders();
+      const res = await fetch(`/api/catalog/series/${encodeURIComponent(novelId)}/toggle-original`, {
+        method: 'POST',
+        headers
+      });
+      const data = await res.json();
+      if (data.success) {
+        if (window.toastManager && typeof window.toastManager.show === 'function') {
+          window.toastManager.show(data.is_original ? '✒️ Marqué comme Création Originale (Marque-Page activé) !' : 'Statut Création Originale retiré', 'success');
+        }
+        const novel = this.allNovels.find(n => n.id === novelId);
+        if (novel) novel.is_original = data.is_original;
+        this.renderCatalogList();
+      }
+    } catch(err) {
+      console.error('[Admin] Error toggleOriginal:', err);
+    }
+  }
+
+  async toggleFeatured(novelId) {
     try {
       const headers = await this.getHeaders();
       const res = await fetch(`/api/catalog/series/${encodeURIComponent(novelId)}/toggle-featured`, {
