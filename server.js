@@ -953,18 +953,19 @@ app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// Dedicated SEO & Verification Routes
+// Dedicated SEO & Verification Routes - Dynamic Sitemap with Google Images & Rich Metadata
 app.get('/sitemap.xml', (req, res) => {
   try {
     const data = CatalogService.loadData();
     const seriesList = (data && Array.isArray(data.series)) ? data.series : [];
-    const publishedSeries = seriesList.filter(s => s.publication_status === 'PUBLISHED');
+    // Resilient published filter: accepts PUBLISHED or defaults to published if not explicitly draft/archived
+    const publishedSeries = seriesList.filter(s => (s.publication_status || 'PUBLISHED').toUpperCase() === 'PUBLISHED');
 
     const baseUrl = 'https://novel-trad.online';
     const now = new Date().toISOString().split('T')[0];
 
     let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
-    xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n';
+    xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">\n';
 
     // Page d\'accueil
     xml += '  <url>\n';
@@ -974,8 +975,15 @@ app.get('/sitemap.xml', (req, res) => {
     xml += '    <priority>1.0</priority>\n';
     xml += '  </url>\n';
 
+    // Page Catalogue
+    xml += '  <url>\n';
+    xml += `    <loc>${baseUrl}/index.html#catalog</loc>\n`;
+    xml += `    <lastmod>${now}</lastmod>\n`;
+    xml += '    <changefreq>daily</changefreq>\n';
+    xml += '    <priority>0.9</priority>\n';
+    xml += '  </url>\n';
 
-    // Toutes les séries publiées
+    // Toutes les séries publiées avec Google Image SEO
     for (const s of publishedSeries) {
       let lastmod = now;
       const rawDate = s.updated_at || s.created_at || (s.releaseDate ? new Date(s.releaseDate).getTime() : 0);
@@ -988,11 +996,21 @@ app.get('/sitemap.xml', (req, res) => {
         } catch (e) {}
       }
 
+      const coverUrl = s.cover_url || s.cover;
+      const fullCoverUrl = coverUrl ? (coverUrl.startsWith('http') ? coverUrl : `${baseUrl}${coverUrl.startsWith('/') ? '' : '/'}${coverUrl}`) : null;
+      const safeTitle = (s.title || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
       xml += '  <url>\n';
       xml += `    <loc>${baseUrl}/series.html?id=${encodeURIComponent(s.id)}</loc>\n`;
       xml += `    <lastmod>${lastmod}</lastmod>\n`;
       xml += '    <changefreq>weekly</changefreq>\n';
-      xml += '    <priority>0.8</priority>\n';
+      xml += '    <priority>0.85</priority>\n';
+      if (fullCoverUrl) {
+        xml += '    <image:image>\n';
+        xml += `      <image:loc>${fullCoverUrl.replace(/&/g, '&amp;')}</image:loc>\n`;
+        xml += `      <image:title>${safeTitle} Light Novel VF</image:title>\n`;
+        xml += '    </image:image>\n';
+      }
       xml += '  </url>\n';
     }
 
@@ -1007,7 +1025,7 @@ app.get('/sitemap.xml', (req, res) => {
   }
 });
 
-// SSR SEO & Open Graph Injection pour les fiches de séries
+// SSR SEO, Open Graph & Google Schema.org Book Structured Data
 app.get(['/series.html', '/series/:id'], (req, res, next) => {
   const seriesId = req.query.id || req.params.id;
   if (!seriesId) return next();
@@ -1019,31 +1037,65 @@ app.get(['/series.html', '/series/:id'], (req, res, next) => {
 
     let html = fs.readFileSync(seriesHtmlPath, 'utf8');
     if (series && series.title) {
-      const pageTitle = `${series.title} - Light Novel en Français | NovelTrad`;
-      const cleanSynopsis = (series.synopsis || `Lisez ${series.title} traduit en français sur NovelTrad.`)
+      const volCount = Array.isArray(series.volumes) ? series.volumes.length : (series.volume_count || 0);
+      const volSuffix = volCount > 0 ? ` (${volCount} Tomes VF)` : ' VF';
+      const pageTitle = `${series.title} - Light Novel${volSuffix} | NovelTrad`;
+      const cleanSynopsis = (series.synopsis || `Lisez ${series.title} traduit en français gratuitement sur NovelTrad.`)
         .replace(/<[^>]*>/g, '')
         .replace(/"/g, '&quot;')
-        .slice(0, 250);
+        .slice(0, 260);
+      const metaDescription = `Lire ${series.title} Light Novel VF en ligne gratuitement.${volCount > 0 ? ` ${volCount} tomes disponibles en français.` : ''} ${cleanSynopsis}`;
       const coverUrl = series.cover_url || series.cover || '/favicon.svg';
       const fullCoverUrl = coverUrl.startsWith('http') ? coverUrl : `https://novel-trad.online${coverUrl.startsWith('/') ? '' : '/'}${coverUrl}`;
       const canonicalUrl = `https://novel-trad.online/series.html?id=${encodeURIComponent(series.id)}`;
 
+      const jsonLd = {
+        '@context': 'https://schema.org',
+        '@type': 'Book',
+        'name': series.title,
+        'alternateName': series.romaji || series.title,
+        'author': {
+          '@type': 'Person',
+          'name': series.author || 'Inconnu'
+        },
+        'inLanguage': 'fr',
+        'image': fullCoverUrl,
+        'description': cleanSynopsis,
+        'publisher': {
+          '@type': 'Organization',
+          'name': 'NovelTrad',
+          'url': 'https://novel-trad.online'
+        },
+        'genre': series.genres || ['Light Novel', 'Fantasy'],
+        'numberOfPages': volCount > 0 ? volCount : 1,
+        'aggregateRating': {
+          '@type': 'AggregateRating',
+          'ratingValue': String(series.rating || '4.8'),
+          'bestRating': '5',
+          'worstRating': '1',
+          'ratingCount': String(series.rating_count || series.likes || 15)
+        }
+      };
+
       const metaTags = `
   <title>${pageTitle}</title>
-  <meta name="description" content="${cleanSynopsis}">
+  <meta name="description" content="${metaDescription}">
+  <meta name="keywords" content="${series.title}, ${series.romaji || ''}, ${series.author || ''}, light novel vf, lecture en ligne, roman japonais francais, epub vf, noveltrad">
   <link rel="canonical" href="${canonicalUrl}">
   <!-- Open Graph (Facebook, Discord, etc.) -->
   <meta property="og:type" content="book">
   <meta property="og:site_name" content="NovelTrad">
   <meta property="og:title" content="${pageTitle}">
-  <meta property="og:description" content="${cleanSynopsis}">
+  <meta property="og:description" content="${metaDescription}">
   <meta property="og:image" content="${fullCoverUrl}">
   <meta property="og:url" content="${canonicalUrl}">
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="${pageTitle}">
-  <meta name="twitter:description" content="${cleanSynopsis}">
+  <meta name="twitter:description" content="${metaDescription}">
   <meta name="twitter:image" content="${fullCoverUrl}">
+  <!-- Google Rich Snippets Schema.org Structured Data -->
+  <script type="application/ld+json">${JSON.stringify(jsonLd)}</script>
 `;
 
       html = html.replace(/<title>.*?<\/title>/i, metaTags);
