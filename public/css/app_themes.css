@@ -24,18 +24,18 @@ html.theme-light {
   --surface-light: #f1f5f9;
   --border-color: #e2e8f0;
   --border-hover: #cbd5e1;
-  --border-accent: rgba(225, 29, 72, 0.4);
+  --border-accent: rgba(99, 102, 241, 0.4);
   --text-primary: #0f172a;
   --text-secondary: #334155;
   --text-tertiary: #475569;
   --text-muted: #64748b;
-  --accent: #e11d48;
-  --accent-hover: #be123c;
-  --accent-active: #9f1239;
-  --accent-glow: rgba(225, 29, 72, 0.15);
-  --accent-subtle: rgba(225, 29, 72, 0.08);
-  --accent-color: #e11d48;
-  --primary-color: #e11d48;
+  --accent: #6366f1;
+  --accent-hover: #4f46e5;
+  --accent-active: #3730a3;
+  --accent-glow: rgba(99, 102, 241, 0.15);
+  --accent-subtle: rgba(99, 102, 241, 0.08);
+  --accent-color: #6366f1;
+  --primary-color: #6366f1;
   color-scheme: light;
 }
 
@@ -94,8 +94,8 @@ html.theme-light .topnav-nav-links .nav-item-btn:hover {
 
 html.theme-light .topnav-nav-links .nav-item-btn.active {
   color: #fb7185 !important;
-  background: rgba(225, 29, 72, 0.15) !important;
-  border-color: rgba(225, 29, 72, 0.3) !important;
+  background: rgba(99, 102, 241, 0.15) !important;
+  border-color: rgba(99, 102, 241, 0.3) !important;
   font-weight: 600 !important;
 }
 
@@ -106,7 +106,7 @@ html.theme-light .nav-search-wrapper.search-input-wrapper {
 
 html.theme-light .nav-search-wrapper:focus-within {
   background: rgba(15, 23, 42, 0.8) !important;
-  border-color: rgba(225, 29, 72, 0.5) !important;
+  border-color: rgba(99, 102, 241, 0.5) !important;
 }
 
 html.theme-light .nav-search-input {
@@ -133,8 +133,8 @@ html.theme-light .filter-toggle-btn.nav-filter-btn:hover {
 }
 
 html.theme-light .btn-nav-auth-pill {
-  background: rgba(225, 29, 72, 0.15) !important;
-  border: 1px solid rgba(225, 29, 72, 0.35) !important;
+  background: rgba(99, 102, 241, 0.15) !important;
+  border: 1px solid rgba(99, 102, 241, 0.35) !important;
   color: #fb7185 !important;
   box-shadow: none !important;
 }
@@ -265,7 +265,7 @@ html.theme-light .home-resume-banner {
 }
 
 html.theme-light .resume-label {
-  color: #e11d48 !important;
+  color: #6366f1 !important;
 }
 
 html.theme-light .resume-title {
@@ -301,7 +301,7 @@ html.theme-light .home-section-link {
 }
 
 html.theme-light .home-section-link:hover {
-  color: #e11d48 !important;
+  color: #6366f1 !important;
 }
 
 /* Cartes de romans Lnori */
@@ -312,8 +312,8 @@ html.theme-light .lnori-card-cover-box {
 }
 
 html.theme-light .lnori-card:hover .lnori-card-cover-box {
-  border-color: rgba(225, 29, 72, 0.4) !important;
-  box-shadow: 0 12px 28px rgba(225, 29, 72, 0.15) !important;
+  border-color: rgba(99, 102, 241, 0.4) !important;
+  box-shadow: 0 12px 28px rgba(99, 102, 241, 0.15) !important;
 }
 
 html.theme-light .lnori-card-title {
@@ -405,8 +405,8 @@ html.theme-light .catalog-filter-pill:hover {
 }
 
 html.theme-light .catalog-filter-pill.active {
-  background: #e11d48 !important;
-  border-color: #e11d48 !important;
+  background: #6366f1 !important;
+  border-color: #6366f1 !important;
   color: #ffffff !important;
 }
 
@@ -437,9 +437,9 @@ html.theme-light .library-tab-btn {
 }
 
 html.theme-light .library-tab-btn.active {
-  background: #e11d48 !important;
+  background: #6366f1 !important;
   color: #ffffff !important;
-  border-color: #e11d48 !important;
+  border-color: #6366f1 !important;
 }
 
 /* --------------------------------------------------------------------------
@@ -496,9 +496,9 @@ html.theme-light .vol-filter-tab {
 }
 
 html.theme-light .vol-filter-tab.active {
-  background: #e11d48 !important;
+  background: #6366f1 !important;
   color: #ffffff !important;
-  border-color: #e11d48 !important;
+  border-color: #6366f1 !important;
 }
 
 html.theme-light .volume-card {
@@ -508,8 +508,8 @@ html.theme-light .volume-card {
 }
 
 html.theme-light .volume-card:hover {
-  border-color: rgba(225, 29, 72, 0.4) !important;
-  box-shadow: 0 10px 24px rgba(225, 29, 72, 0.12) !important;
+  border-color: rgba(99, 102, 241, 0.4) !important;
+  box-shadow: 0 10px 24px rgba(99, 102, 241, 0.12) !important;
 }
 
 html.theme-light .volume-title {
@@ -574,7 +574,7 @@ html.theme-light .account-shortcut-box {
 
 html.theme-light .account-shortcut-box:hover {
   background: #f1f5f9 !important;
-  border-color: rgba(225, 29, 72, 0.3) !important;
+  border-color: rgba(99, 102, 241, 0.3) !important;
 }
 
 html.theme-light .shortcut-text strong {
@@ -668,8 +668,8 @@ html.theme-light .nav-mobile-btn:hover {
 }
 
 html.theme-light .nav-mobile-btn.active {
-  background: rgba(225, 29, 72, 0.08) !important;
-  color: #e11d48 !important;
+  background: rgba(99, 102, 241, 0.08) !important;
+  color: #6366f1 !important;
 }
 
 html.theme-light .nav-mobile-label {
@@ -771,8 +771,8 @@ html.theme-light .nav-mobile-search-box input {
 }
 
 .theme-mode-card.mode-light .theme-mode-icon {
-  background: rgba(225, 29, 72, 0.08);
-  color: #e11d48;
+  background: rgba(99, 102, 241, 0.08);
+  color: #6366f1;
 }
 
 .theme-mode-card:hover {
@@ -781,8 +781,8 @@ html.theme-light .nav-mobile-search-box input {
 }
 
 .theme-mode-card.active {
-  border-color: #e11d48 !important;
-  box-shadow: 0 0 0 3px rgba(225, 29, 72, 0.25), 0 6px 20px rgba(225, 29, 72, 0.12) !important;
+  border-color: #6366f1 !important;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25), 0 6px 20px rgba(99, 102, 241, 0.12) !important;
 }
 
 /* Tiroir Mobile */
