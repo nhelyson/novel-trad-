@@ -914,7 +914,8 @@ const uploadCover = multer({
     limits: { fileSize: 15 * 1024 * 1024 }, // 15MB max
     fileFilter: (req, file, cb) => {
         const ext = path.extname(file.originalname).toLowerCase();
-        if (['.jpg', '.jpeg', '.png', '.webp', '.gif'].includes(ext) || (file.mimetype && file.mimetype.startsWith('image/'))) {
+        const safeImgExts = ['.jpg', '.jpeg', '.png', '.webp'];
+        if (safeImgExts.includes(ext) && (!file.mimetype || file.mimetype.startsWith('image/'))) {
             cb(null, true);
         } else {
             cb(new Error("Format d'image non supporté. Formats acceptés : JPG, PNG, WEBP."));
@@ -3032,7 +3033,7 @@ app.get(['/api/download-job/:jobId', '/api/download-job/:jobId/*'], async (req, 
       try {
         const base64Part = jobId.replace('external_', '');
         const p = Buffer.from(base64Part, 'base64').toString('utf8');
-        if (fs.existsSync(p) && fs.statSync(p).isFile()) {
+        if (isSafeBookPath(p) && fs.existsSync(p) && fs.statSync(p).isFile()) {
           targetFilePath = p;
         }
       } catch(e) {}
@@ -3258,9 +3259,10 @@ app.get(['/api/download-job/:jobId', '/api/download-job/:jobId/*'], async (req, 
   for (const candidate of [cleanId, decodedCleanId, rawParam, decodeURIComponent(rawParam), jobId, decodedJobId]) {
     if (!candidate) continue;
     const safeCandidate = path.basename(candidate);
+    const ext = path.extname(safeCandidate).toLowerCase();
+    if (!['.pdf', '.epub'].includes(ext)) continue;
     const localLibFile = path.join(__dirname, 'data', 'local_library', safeCandidate);
     if (fs.existsSync(localLibFile) && fs.statSync(localLibFile).isFile()) {
-      const ext = path.extname(localLibFile).toLowerCase();
       if (ext === '.pdf') res.setHeader('Content-Type', 'application/pdf');
       if (ext === '.epub') res.setHeader('Content-Type', 'application/epub+zip');
       res.setHeader('Content-Disposition', 'inline; filename="' + encodeURIComponent(candidate) + '"');
@@ -3272,9 +3274,10 @@ app.get(['/api/download-job/:jobId', '/api/download-job/:jobId/*'], async (req, 
   for (const candidate of [cleanId, decodedCleanId, rawParam, decodeURIComponent(rawParam), jobId, decodedJobId]) {
     if (!candidate) continue;
     const safeCatalogCandidate = path.basename(candidate);
+    const ext = path.extname(safeCatalogCandidate).toLowerCase();
+    if (!['.pdf', '.epub'].includes(ext)) continue;
     const catalogFile = path.join(__dirname, 'data', 'catalog', safeCatalogCandidate);
     if (fs.existsSync(catalogFile) && fs.statSync(catalogFile).isFile()) {
-      const ext = path.extname(catalogFile).toLowerCase();
       if (ext === '.pdf') res.setHeader('Content-Type', 'application/pdf');
       if (ext === '.epub') res.setHeader('Content-Type', 'application/epub+zip');
       res.setHeader('Content-Disposition', 'inline; filename="' + encodeURIComponent(candidate) + '"');
@@ -3398,13 +3401,13 @@ async function authenticateUser(req) {
             }
         }
 
-        // PRIORITÉ 3 : Métadonnées Supabase Auth de secours
+        // PRIORITÉ 3 : Métadonnées Supabase Auth de secours (app_metadata serveur uniquement)
         if (!roleFoundInSupabase && (!foundLocal || !foundLocal.role)) {
             if (user.app_metadata?.role) {
                 userRole = user.app_metadata.role.toUpperCase();
-            } else if (user.user_metadata?.role) {
-                userRole = user.user_metadata.role.toUpperCase();
             }
+            // Note de sécurité : user_metadata est modifiable côté client par les utilisateurs dans Supabase,
+            // on interdit formellement son utilisation pour obtenir un rôle privilégié (ADMIN ou CONTRIBUTOR).
         }
 
         // Seul l'administrateur officiel configuré ou rôle ADMIN confirmé en base
@@ -3593,19 +3596,66 @@ app.put('/api/auth/profile', requireAuth, async (req, res) => {
 
 
 
-// GET /api/proxy-image - Safe image proxy for Canvas quote cards to avoid CORS tainting
+// GET /api/proxy-image - Safe image proxy for Canvas quote cards (Hardened Anti-SSRF)
 app.get('/api/proxy-image', async (req, res) => {
   try {
     const rawUrl = req.query.url;
-    if (!rawUrl || (!rawUrl.startsWith('http://') && !rawUrl.startsWith('https://'))) {
-      return res.status(400).send('URL d\'image invalide.');
+    if (!rawUrl || typeof rawUrl !== 'string') {
+      return res.status(400).send('URL d\'image requise.');
     }
+
+    let parsed;
+    try {
+      parsed = new URL(rawUrl);
+    } catch(e) {
+      return res.status(400).send('Format d\'URL invalide.');
+    }
+
+    // N\'autoriser que HTTP et HTTPS
+    if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+      return res.status(400).send('Protocole non autorisé.');
+    }
+
+    // Protection Anti-SSRF : blocage strict des hôtes locaux et adresses privées
+    const hostname = parsed.hostname.toLowerCase();
+    const isPrivateOrLoopback = 
+      hostname === 'localhost' ||
+      hostname === '127.0.0.1' ||
+      hostname === '::1' ||
+      hostname === '0.0.0.0' ||
+      hostname.endsWith('.localhost') ||
+      hostname.endsWith('.local') ||
+      /^10\./.test(hostname) ||
+      /^192\.168\./.test(hostname) ||
+      /^172\.(1[6-9]|2[0-9]|3[0-1])\./.test(hostname) ||
+      /^169\.254\./.test(hostname); // Cloud metadata IP
+
+    if (isPrivateOrLoopback) {
+      return res.status(403).send('Accès aux adresses privées ou locales interdit.');
+    }
+
+    // Interdire les ports internes non standards pour les images
+    if (parsed.port && parsed.port !== '80' && parsed.port !== '443') {
+      return res.status(403).send('Port distant non autorisé.');
+    }
+
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 5000); // 5 secondes max
+
     const response = await fetch(rawUrl, {
-      headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)' }
+      signal: controller.signal,
+      headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) NovelTrad-QuoteProxy/1.0' }
     });
+    clearTimeout(timeout);
+
     if (!response.ok) return res.status(response.status).send('Erreur chargement image distante.');
-    const contentType = response.headers.get('content-type') || 'image/jpeg';
-    res.setHeader('Content-Type', contentType);
+
+    const contentType = (response.headers.get('content-type') || '').toLowerCase();
+    // Restriction absolue aux formats images
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/avif', 'image/gif'];
+    const safeType = allowedTypes.find(t => contentType.startsWith(t)) || 'image/jpeg';
+
+    res.setHeader('Content-Type', safeType);
     res.setHeader('Cache-Control', 'public, max-age=86400');
     const buffer = await response.arrayBuffer();
     res.send(Buffer.from(buffer));
@@ -3713,6 +3763,10 @@ app.post('/api/comments/:bookKey/:paragraphId', async (req, res) => {
       user = await authenticateUser(req);
     } catch (e) {}
 
+    const cleanVisitorName = visitor_name 
+      ? String(visitor_name).replace(/</g, '&lt;').replace(/>/g, '&gt;').trim().slice(0, 24) 
+      : '';
+
     let userId, userName, userAvatar, userRole;
     if (user) {
       userId = user.id;
@@ -3723,7 +3777,7 @@ app.post('/api/comments/:bookKey/:paragraphId', async (req, res) => {
       const clientIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1';
       const ipHash = Buffer.from(clientIp).toString('hex').slice(-4);
       userId = 'guest_' + ipHash;
-      userName = visitor_name ? String(visitor_name).trim().slice(0, 24) : 'Lecteur#' + ipHash;
+      userName = cleanVisitorName || ('Lecteur#' + ipHash);
       userAvatar = '';
       userRole = 'GUEST';
     }
@@ -4420,8 +4474,8 @@ app.post('/api/library/submit-to-catalog', requireAuth, async (req, res) => {
         if (fs.existsSync(checkLocal)) sourcePhysicalPath = checkLocal;
       }
 
-      if (!sourcePhysicalPath || !fs.existsSync(sourcePhysicalPath)) {
-        console.warn('[SubmitToCatalog] Fichier source introuvable pour le volume:', vol.title, sourcePhysicalPath);
+      if (!sourcePhysicalPath || !fs.existsSync(sourcePhysicalPath) || !isSafeBookPath(sourcePhysicalPath)) {
+        console.warn('[SubmitToCatalog] Fichier source introuvable ou non autorisé pour le volume:', vol.title, sourcePhysicalPath);
         continue;
       }
 
