@@ -1,10 +1,6 @@
 /**
- * NovelTrad - Catalog Lnori Controller
- * Inspiré de lnori.com/library :
- * - Recherche instantanée & panneau déroulant rétractable (Tools Panel)
- * - Filtres par Genre, Origine (JP/KR/CN), Format et Tri
- * - Bandeau dynamique de tags actifs
- * - Grille adaptative avec Flyout Popover directionnel intelligent (.popup-left / .popup-right)
+ * NovelTrad - Catalog Controller
+ * Grid layout and interactive filter controls.
  */
 "use strict";
 
@@ -139,7 +135,7 @@
     });
 
     function setupCatalogControls() {
-        // Barre de recherche unifiée (depuis la Navbar style Lnori)
+        // Barre de recherche unifiée
         const searchInput = document.getElementById('navGlobalSearchInput');
         const searchClearBtn = document.getElementById('navSearchClearBtn');
         const surpriseBtn = document.getElementById('catalogSurpriseBtn');
@@ -436,7 +432,7 @@
                 </div>
             </div>
 
-            <!-- POPOVER FLOTTANT DIRECTIONNEL LNORI -->
+            <!-- POPOVER FLOTTANT DIRECTIONNEL -->
             <div class="lnori-card-popup">
                 <div class="popup-header">
                     <div class="popup-tags-row">

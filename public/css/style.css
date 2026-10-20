@@ -3154,7 +3154,7 @@ html.dark .premium-popover {
 
 
 /* ==========================================================================
-   LIBRARY REDESIGN - ULTRA-PREMIUM MANGA & NOVEL STOREFRONT DESIGN SYSTEM
+   LIBRARY REDESIGN - NOVEL & MANGA STOREFRONT LAYOUT
    ========================================================================== */
 
 .library-module-container {
@@ -7636,7 +7636,7 @@ html.dark .premium-popover {
 
 
 /* ==========================================================================
-   DIRECTION C: LNORI EDITORIAL HERO DESIGN SYSTEM (HAUTE COUTURE TYPOGRAPHY)
+   EDITORIAL HERO SYSTEM (TYPOGRAPHY & ACCENTS)
    ========================================================================== */
 
 /* Arrière-plan cinématique panoramique fluide (Style AniList / Crunchyroll) */
@@ -8797,7 +8797,7 @@ html.theme-light .series-banner-bg.is-cover {
 /* END NOVELTRAD D4 NAVBAR */
 
 /* ==========================================================================
-   NOVELTRAD D4 - ULTRA-PREMIUM LIGHT NOVEL CATALOG (WORLD-CLASS DESIGN)
+   NOVELTRAD - LIGHT NOVEL CATALOG ARCHITECTURE
    ========================================================================== */
 
 /* Container Layout */
@@ -12870,7 +12870,7 @@ html.theme-light .series-banner-bg.is-cover {
   border-color: rgba(255, 255, 255, 0.25);
 }
 
-/* Badge Vues dans Popover Flyout LNori */
+/* Badge Vues dans Popover */
 .popup-views {
   display: inline-flex;
   align-items: center;
@@ -16962,7 +16962,7 @@ body.pwa-standalone .pwa-smart-banner {
 
 
 /* ==========================================================================
-   NOVELTRAD IN-LINE PARAGRAPH COMMENTS & SLIDING DRAWER (PHASE 2)
+   NOVELTRAD IN-LINE PARAGRAPH COMMENTS & SLIDING DRAWER
    ========================================================================== */
 
 /* Paragraph anchor */
@@ -17456,7 +17456,7 @@ body.pwa-standalone .pwa-smart-banner {
 
 
 /* ==========================================================================
-   NOVELTRAD QUOTE CARD GENERATOR & SELECTION TOOLTIP (PHASE 3)
+   NOVELTRAD QUOTE CARD GENERATOR & SELECTION TOOLTIP
    ========================================================================== */
 
 /* Floating Selection Tooltip */

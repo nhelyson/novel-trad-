@@ -115,7 +115,6 @@ window.checkIsDownloadRestricted = function(targetBook) {
       const cache = await caches.open(VOLUME_CACHE_NAME);
       const match = await cache.match(url);
       if (match) {
-        // log silenced
         return await match.arrayBuffer();
       }
     } catch (e) {
@@ -136,7 +135,6 @@ window.checkIsDownloadRestricted = function(targetBook) {
         }
       });
       await cache.put(url, response);
-      // log silenced.toFixed(1)} Mo)`);
     } catch (e) {
       console.warn('[VolumeCache] Cache save notice:', e);
     }
@@ -167,7 +165,6 @@ window.checkIsDownloadRestricted = function(targetBook) {
       if (resp.ok) {
         const buf = await resp.arrayBuffer();
         await saveVolumeToCache(fileUrl, buf);
-        // log silenced
       }
     } catch(e) {}
   };
@@ -636,7 +633,7 @@ window.checkIsDownloadRestricted = function(targetBook) {
   };
 
   // ==========================================================================
-  //  STREAMING ENGINE (LNori Architecture - On-Demand Chapter Streaming)
+  // STREAMING ENGINE (On-Demand Chapter Streaming)
   // ==========================================================================
   window._isStreamVolume = false;
   window._streamVolumeManifest = null;
@@ -1376,7 +1373,7 @@ window.checkIsDownloadRestricted = function(targetBook) {
       return;
     }
 
-    // 1. LNori Architecture : Streaming instantané par chapitres (~30 Ko)
+    // 1. Streaming instantané par chapitres (~30 Ko)
     const fileKey = extractVolumeFileKey(book, fileUrl);
     if (fileKey) {
       try {
@@ -1696,7 +1693,7 @@ window.checkIsDownloadRestricted = function(targetBook) {
     const textPercentEl = document.getElementById("textPercent");
     if (textPercentEl) textPercentEl.textContent = currentFontSize + "%";
 
-    // Application dynamique sur le conteneur de streaming LNori
+    // Application dynamique sur le conteneur de streaming
     const streamContainer = document.getElementById("streamChapterContainer");
     if (streamContainer) {
       const baseSize = 17; // Taille de police de référence ePub officiel

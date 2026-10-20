@@ -64,7 +64,6 @@
       try {
         const relatedApps = await navigator.getInstalledRelatedApps();
         if (Array.isArray(relatedApps) && relatedApps.length > 0) {
-          // log silenced:', relatedApps);
           markAsInstalled('os_registry');
           return true;
         } else {
@@ -72,7 +71,6 @@
           localStorage.removeItem('noveltrad_pwa_installed');
         }
       } catch (err) {
-        // log silenced
       }
     }
 
@@ -98,7 +96,6 @@
     document.body.classList.add('pwa-standalone');
     hideInstallButtons();
     closeInstallPopup(true);
-    // log silenced. Toutes les invites d\'installation sont désactivées.');
   }
 
   /**
@@ -114,7 +111,6 @@
               if (installingWorker) {
                 installingWorker.onstatechange = () => {
                   if (installingWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                    // log silenced
                   }
                 };
               }
@@ -179,7 +175,6 @@
       try {
         deferredInstallPrompt.prompt();
         const { outcome } = await deferredInstallPrompt.userChoice;
-        // log silenced
         if (outcome === 'accepted') {
           markAsInstalled('user_accepted_prompt');
         }

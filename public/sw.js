@@ -24,7 +24,7 @@ const APP_SHELL_ASSETS = [
   '/js/catalog_logic.js',
   '/js/editorial_logic.js',
   '/js/series_logic.js',
-  '/js/home_lnori_logic.js',
+  '/js/home_showcase_logic.js',
   '/js/pwa_manager.js',
   '/js/app.js',
   '/js/reader_audio.js',

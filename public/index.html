@@ -93,9 +93,9 @@
     })();
   </script>
   <link rel="stylesheet" href="css/style.css?v=1792448796062">
-  <link rel="stylesheet" href="css/home_lnori.css?v=1792448796062">
+  <link rel="stylesheet" href="css/home_showcase.css?v=1792448796062">
   <link rel="stylesheet" href="css/app_themes.css?v=1792446134613">
-  <!-- Coupe-circuit de production pour console propre & anti-fuite -->
+  <!-- Production console guard -->
   <script>
     if (window.location.hostname !== 'localhost' && !window.location.search.includes('debug=true')) {
       console.log = function() {};
@@ -111,7 +111,7 @@
   <div class="app-container">
     
     <!-- ═════════════════════════════════════════════════════════════════════ -->
-    <!-- TOPNAV CENTRÉE & GLASSMORPHISM PREMIUM (STYLE LNORI) -->
+    <!-- TOPNAV CENTRÉE & GLASSMORPHISM NOVELTRAD -->
     <!-- ═════════════════════════════════════════════════════════════════════ -->
     <nav class="topnav" id="mainHeader" role="banner">
       <div class="topnav-container">
@@ -224,9 +224,9 @@
           </div>
         </div>
 
-        <!-- ZONE DROITE : RECHERCHE UNIFIÉE & BOUTON FILTRE (STYLE LNORI) + PROFIL & MOBILE -->
+        <!-- ZONE DROITE : RECHERCHE UNIFIÉE & BOUTON FILTRE + PROFIL & MOBILE -->
         <div class="topnav-right-group">
-          <!-- Barre de recherche & Bouton Filtre combinés façon Lnori -->
+          <!-- Barre de recherche & Bouton Filtre combinés -->
           <div class="search-filter-container">
             <div class="nav-search-wrapper search-input-wrapper" id="navSearchWrapper">
               <i class="fa-solid fa-magnifying-glass nav-search-icon"></i>
@@ -234,7 +234,7 @@
               <button id="navSearchClearBtn" class="nav-search-clear hidden" title="Effacer"><i class="fa-solid fa-xmark"></i></button>
             </div>
 
-            <!-- Bouton Filtre Lnori intégré dans la navbar (ouvre le volet d'outils du catalogue) -->
+            <!-- Bouton Filtre intégré dans la navbar -->
             <button id="catalogFilterToggleBtn" class="filter-toggle-btn nav-filter-btn" title="Filtres du catalogue">
               <i class="fa-solid fa-sliders"></i>
               <span id="catalogFilterCountBadge" class="filter-count-badge hidden">0</span>
@@ -264,7 +264,7 @@
                   <i class="fa-solid fa-chevron-down nav-user-arrow"></i>
                 </div>
                 
-                <!-- Popover flottant type Lnori -->
+                <!-- Popover flottant -->
                 <div class="nav-user-dropdown avatar-popover hidden" id="navUserDropdown" role="menu">
                   <div class="nav-user-dropdown-header">
                     <span class="user-dropdown-label">Connecté en tant que</span>
@@ -311,7 +311,7 @@
             <!-- Éléments préservés pour compatibilité logique sans impact visuel -->
             <div class="status-badge hidden" id="apiStatusBadge">
               <span class="status-dot warning" id="statusDot"></span>
-              <span id="statusText">Vérification...</span>
+              <span id="statusText">En ligne</span>
             </div>
             <button id="tabAccountBtn" class="btn-sidebar hidden" title="Espace Compte">
               <i class="fa-solid fa-user-circle"></i> Compte
@@ -440,11 +440,11 @@
     <main class="main-content">
 
       <!-- ==================================================================== -->
-      <!-- MODULE 0 : ACCUEIL PRINCIPAL VITRINE (STYLE LNORI SANS BORDURE) -->
+      <!-- MODULE 0 : ACCUEIL PRINCIPAL VITRINE -->
       <!-- ==================================================================== -->
       <div id="homeModuleContainer" class="module-container home-container">
         
-        <!-- HERO CAROUSEL 3D IMMERSIF (STYLE LNORI) -->
+        <!-- HERO CAROUSEL 3D IMMERSIF -->
         <div id="homeLnoriHero" class="home-lnori-hero">
           <div id="homeHeroAmbient" class="home-hero-ambient" style="background-image: url('https://s4.anilist.co/file/anilistcdn/media/manga/cover/large/bx131534-7P6nh7lrxccb.jpg');"></div>
           <div id="homeHeroOverlay" class="home-hero-overlay"></div>
@@ -491,12 +491,12 @@
           <img id="resumeCoverImg" src="" alt="Cover" class="resume-cover">
           <div class="resume-info">
             <div class="resume-label">Continuer votre lecture</div>
-            <div id="resumeTitle" class="resume-title">Titre du roman</div>
+            <div id="resumeTitle" class="resume-title"></div>
             <div class="resume-progress-wrap">
               <div class="resume-progress-track">
                 <div id="resumeProgressBar" class="resume-progress-bar" style="width:0%"></div>
               </div>
-              <span id="resumePercentText" class="resume-percent">0%</span>
+              <span id="resumePercentText" class="resume-percent"></span>
             </div>
           </div>
           <button id="resumeActionBtn" class="btn-resume-action"><i class="fa-solid fa-play"></i> Reprendre</button>
@@ -528,7 +528,7 @@
         </li>
         <li style="margin-bottom:8px;">
           <a href="/series.html?id=your-name-another-side-earthbound-mupbvmkq" style="color:#60a5fa;font-weight:600;text-decoration:underline;">your name. Another Side: Earthbound</a>
-          <span style="color:#94a3b8;font-size:13px;"> - Lors des événements de votre nom., la rencontre miraculeuse de Mitsuha et Taki a changé à jamais leur vie et le destin de tous les habitants du petit ...</span>
+          <span style="color:#94a3b8;font-size:13px;"> - Lors des événements de your name., la rencontre miraculeuse de Mitsuha et Taki a changé à jamais leur vie et le destin de tous les habitants du petit ...</span>
         </li>
         <li style="margin-bottom:8px;">
           <a href="/series.html?id=josee-the-tiger-and-the-fish-mupbltjt" style="color:#60a5fa;font-weight:600;text-decoration:underline;">Josee, the Tiger and the Fish</a>
@@ -600,12 +600,12 @@
 
 
       <!-- ==================================================================== -->
-      <!-- MODULE 1 : CATALOGUE OFFICIEL LNORI (CLEAN, ADAPTATIF & TOOLS PANEL) -->
+      <!-- MODULE 1 : CATALOGUE OFFICIEL -->
       <!-- ==================================================================== -->
       <div id="catalogModule" class="module-container catalog-container hidden">
 
         <div class="catalog-lnori-header">
-          <!-- Barre d'état & actions du catalogue Lnori -->
+          <!-- Barre d'état & actions du catalogue -->
           <div class="catalog-subbar">
             <div class="catalog-subbar-left">
               <button id="catalogMobileFilterToggleBtn" class="catalog-mobile-filter-btn" title="Ouvrir les filtres">
@@ -702,7 +702,7 @@
           </div>
         </div>
 
-        <!-- GRILLE LNORI ADAPTATIVE (ratio 2:3 & Flyout Popovers directionnels) -->
+        <!-- GRILLE DE CATALOGUE ADAPTATIVE (ratio 2:3 & Flyout Popovers) -->
         <div id="catalogGrid" class="lnori-catalog-grid"></div>
 
         <!-- SENTINELLE INFINITE SCROLL & LOADER -->
@@ -1463,7 +1463,7 @@
       <div id="contributorMountPoint"></div>
       <div id="adminMountPoint"></div>
 
-        <!-- NOVELTRAD FOOTER MINIMALISTE (STYLE LNORI) -->
+        <!-- NOVELTRAD FOOTER MINIMALISTE -->
   <footer class="noveltrad-main-footer" id="noveltradFooter" role="contentinfo">
     <div class="footer-container">
       <nav class="footer-nav-grid" aria-label="Navigation de pied de page">
@@ -1493,7 +1493,7 @@
         <section class="footer-col" aria-labelledby="footer-col-community">
           <h3 id="footer-col-community" class="footer-col-heading">COMMUNAUTÉ</h3>
           <ul class="footer-links">
-            <li><a href="https://discord.gg" target="_blank" rel="noopener noreferrer">Rejoindre Discord</a></li>
+            <li><a href="https://discord.gg/noveltrad" target="_blank" rel="noopener noreferrer">Rejoindre Discord</a></li>
             <li><a href="/index.html#contributor">Studio Contributeur</a></li>
             <li><a href="mailto:contact@noveltrad.com">Contact & Support</a></li>
             <li><a href="/index.html#ethics">Charte du traducteur</a></li>
@@ -1521,9 +1521,9 @@
       <div class="footer-subbar">
         <span class="footer-copy">&copy; 2026 NovelTrad. Fait avec passion pour la communauté francophone.</span>
         <div class="footer-social-icons">
-          <a href="https://discord.gg" target="_blank" rel="noopener noreferrer" aria-label="Discord" title="Discord"><i class="fa-brands fa-discord"></i></a>
-          <a href="#" aria-label="Twitter / X" title="Twitter / X"><i class="fa-brands fa-x-twitter"></i></a>
-          <a href="#" aria-label="GitHub" title="GitHub"><i class="fa-brands fa-github"></i></a>
+          <a href="https://discord.gg/noveltrad" target="_blank" rel="noopener noreferrer" aria-label="Discord" title="Discord"><i class="fa-brands fa-discord"></i></a>
+          <a href="https://x.com/NovelTrad" target="_blank" rel="noopener noreferrer" aria-label="Twitter / X" title="Twitter / X"><i class="fa-brands fa-x-twitter"></i></a>
+          <a href="https://github.com/nhelyson/novel-trad-" target="_blank" rel="noopener noreferrer" aria-label="GitHub" title="GitHub"><i class="fa-brands fa-github"></i></a>
         </div>
       </div>
     </div>
@@ -2054,7 +2054,7 @@
   <script src="js/quote_card_generator.js?v=1792257157490"></script>
   <script src="js/pdf_reader.js?v=1792257157490"></script>
   <script src="js/webnovel_reader.js?v=1789752407265"></script>
-  <script src="js/home_lnori_logic.js?v=1790725844546"></script>
+  <script src="js/home_showcase_logic.js?v=1790725844546"></script>
   <script src="js/catalog_logic.js?v=1790725844546"></script>
   <script src="js/editorial_logic.js?v=1792255379186"></script>
   <script src="js/series_logic.js?v=1791942152722"></script>
@@ -2069,7 +2069,7 @@
     }
   </script>
 
-  <!-- IN-LINE PARAGRAPH COMMENTS DRAWER (PHASE 2) -->
+  <!-- IN-LINE PARAGRAPH COMMENTS DRAWER -->
   <div id="paraCommentsBackdrop" class="para-comments-backdrop hidden"></div>
   <aside id="paraCommentsDrawer" class="para-comments-drawer hidden" aria-label="Commentaires par paragraphe">
     <div class="para-comments-header">
@@ -2114,7 +2114,7 @@
   </aside>
 
   
-  <!-- QUOTE CARD GENERATOR MODAL (PHASE 3) -->
+  <!-- QUOTE CARD GENERATOR MODAL -->
   <div id="quoteCardModal" class="quote-card-modal-overlay hidden">
     <div id="quoteCardBackdrop" class="quote-card-backdrop"></div>
     <div class="quote-card-modal-container">

@@ -61,7 +61,7 @@ document.addEventListener('DOMContentLoaded', async function() {
             if (token) authHeaders['Authorization'] = 'Bearer ' + token;
         }
 
-        // [C3]: Direct unified query: local library & catalog handled cleanly
+        // Direct query: local library & catalog synchronization
         let data = null;
         if (seriesId && seriesId.startsWith('local_series_')) {
             if (window.libraryDB && typeof window.libraryDB.getLocalSeries === 'function') {
@@ -263,7 +263,7 @@ async function renderSeries(series) {
       elVolCount.textContent = vCount + ' ' + unitText + (vCount > 1 ? 's' : '');
     }
 
-    // --- Direction C : Sous-titre éditorial alternatif (Romaji / Japonais / Original) ---
+    // Sous-titre éditorial alternatif (Romaji / Original)
     // --- Titre alternatif masqué sur l'interface série (réservé en interne pour le rollback de recherche) ---
     var subTitleEl = document.getElementById('seriesSubtitle');
     if (subTitleEl) {
@@ -273,7 +273,7 @@ async function renderSeries(series) {
 
 
 
-    // --- Direction C : Illustrateur (si présent) ---
+    // Illustrateur (si présent)
     var illu = series.illustrator || (series.metadata && series.metadata.illustrator) || '';
     var illuItem = document.getElementById('seriesIllustratorItem');
     var illuEl = document.getElementById('seriesIllustrator');
@@ -1095,7 +1095,7 @@ async function checkAndRenderCatalogStatus(series) {
         if (series.catalogStatus === 'PENDING_REVIEW') {
             badgeContainer.innerHTML = '<span class="status-pill pending"><i class="fa-solid fa-clock-rotate-left"></i> En attente de validation</span>';
         } else if (series.catalogStatus === 'PUBLISHED') {
-            badgeContainer.innerHTML = ''; // Retiré selon demande utilisateur
+            badgeContainer.innerHTML = ''; 
         } else if (series.catalogStatus === 'DRAFT' && series.catalogRejectionReason) {
             badgeContainer.innerHTML = '<span class="status-pill rejected" title="' + (series.catalogRejectionReason || '').replace(/"/g, '&quot;') + '"><i class="fa-solid fa-triangle-exclamation"></i> Modifications demandées</span>';
             btnSubmit.innerHTML = '<i class="fa-solid fa-rotate-right"></i> <span>Re-soumettre au Catalogue</span>';
@@ -1112,7 +1112,7 @@ async function checkAndRenderCatalogStatus(series) {
         if (series.catalogStatus === 'PENDING_REVIEW') {
             badgeContainer.innerHTML = '<span class="status-pill pending"><i class="fa-solid fa-clock-rotate-left"></i> En attente de validation</span>';
         } else if (series.catalogStatus === 'PUBLISHED') {
-            badgeContainer.innerHTML = ''; // Retiré selon demande utilisateur
+            badgeContainer.innerHTML = ''; 
         }
         return;
     }

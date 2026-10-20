@@ -259,7 +259,7 @@
 
                 updateTopNavState();
 
-                // In-Line Paragraph Comments Hook removed by user request
+                // Paragraph comments hook
                 saveCurrentProgress(0);
 
             } else {

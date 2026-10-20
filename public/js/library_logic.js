@@ -351,7 +351,7 @@ async function connectLocalFolderNative() {
 }
 window.connectLocalFolderNative = connectLocalFolderNative;
 
-﻿// library_logic.js - Ultra-Premium Library & Series Engine
+﻿// library_logic.js - Library & Series Management Engine
 let allBooks = [];
 let allSeries = [];
 let currentFilter = 'all';
@@ -382,7 +382,7 @@ async function getAuthHeaders(extraHeaders = {}) {
     } catch (e) {
         console.warn('[Library Auth] Token lookup notice:', e);
     }
-    // Option A : Si l'utilisateur n'est pas connecté, transmettre son Guest Session ID unique
+    // Pour les sessions non connectées, transmettre l'identifiant invité
     if (!headers['Authorization']) {
         headers['X-Guest-ID'] = getGuestSessionId();
     }
@@ -567,7 +567,6 @@ async function syncLocalBookmarkedSeriesAndProgress() {
 }
 
 async function initLibrary(force = false) {
-    // log silenced' : '');
 
     if (force) {
         allSeries = [];

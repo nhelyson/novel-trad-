@@ -203,7 +203,7 @@ html.theme-light .topnav-hamburger {
 }
 
 /* --------------------------------------------------------------------------
-   3. HERO SLIDER : CONSERVE LES TEXTES BLANCS SUR LA JAQUETTE (DEMANDE UTILISATEUR)
+   3. HERO SLIDER : TEXTES BLANCS SUR LA JAQUETTE
    Le titre et l'auteur restent blancs immaculés avec ombre portée sur la bannière.
    -------------------------------------------------------------------------- */
 html.theme-light .home-hero-title {
@@ -304,7 +304,7 @@ html.theme-light .home-section-link:hover {
   color: #6366f1 !important;
 }
 
-/* Cartes de romans Lnori */
+/* Cartes de romans */
 html.theme-light .lnori-card-cover-box {
   background: #e2e8f0 !important;
   border: 1px solid #e2e8f0 !important;
@@ -690,7 +690,7 @@ html.theme-light .nav-mobile-search-box input {
 }
 
 /* --------------------------------------------------------------------------
-   11. FOOTER NOIR D'ORIGINE : PRESERVE A 100% (DEMANDE UTILISATEUR)
+   11. FOOTER NOIR UNIFIÉ
    Le footer reste dans son noir élégant avec toutes ses rubriques visibles.
    -------------------------------------------------------------------------- */
 /* Aucun override sur .noveltrad-main-footer pour que tous les textes restent 100% lisibles */

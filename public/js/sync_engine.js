@@ -28,7 +28,6 @@ class SyncEngine {
         // 1. Écouter les événements réseau
         if (typeof window !== 'undefined' && typeof window.addEventListener === 'function') {
             window.addEventListener('online', () => {
-                // log silenced
                 this._updateStatus(this.currentUser ? 'idle' : 'offline');
                 if (this.currentUser) {
                     this.syncAll({ trigger: 'online' });
@@ -36,7 +35,6 @@ class SyncEngine {
             });
 
             window.addEventListener('offline', () => {
-                // log silenced
                 this._updateStatus('offline');
             });
         }
@@ -81,7 +79,6 @@ class SyncEngine {
             // Lancer la première synchronisation en arrière-plan
             this.syncAll({ trigger: 'auth_login', isInitial: true });
         } else {
-            // log silenced. Moteur en veille.');
             this.currentUser = null;
             this.currentSession = null;
             this.syncInProgress = false;
@@ -98,7 +95,6 @@ class SyncEngine {
         try {
             const guestOps = await window.libraryDB.getSyncQueue('guest');
             if (guestOps && guestOps.length > 0) {
-                // log silenced invitée(s).`);
                 for (const op of guestOps) {
                     op.userId = newUserId;
                     await window.libraryDB.addToSyncQueue(op);
@@ -187,7 +183,6 @@ class SyncEngine {
         this._updateStatus('syncing');
 
         const userId = this.currentUser.id;
-        // log silenced`);
 
         try {
             // -----------------------------------------------------------------
@@ -514,7 +509,6 @@ class SyncEngine {
 
             this.lastSyncTime = Date.now();
             this._updateStatus('synced');
-            // log silenced.toLocaleTimeString()}`);
             if (typeof window.initLibrary === 'function') {
                 window.initLibrary();
             }

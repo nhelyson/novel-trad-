@@ -26,7 +26,6 @@ class LibraryDB {
             this.db = null;
         }
         this.currentDbName = targetDbName;
-        // log silenced
         this.initPromise = this.init(targetDbName);
         return this.initPromise;
     }

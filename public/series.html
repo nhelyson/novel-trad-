@@ -62,9 +62,9 @@
     })();
   </script>
   <link rel="stylesheet" href="css/style.css?v=1792448796062">
-  <link rel="stylesheet" href="css/home_lnori.css?v=1792448796062">
+  <link rel="stylesheet" href="css/home_showcase.css?v=1792448796062">
   <link rel="stylesheet" href="css/app_themes.css?v=1792030000000">
-  <!-- Coupe-circuit de production pour console propre & anti-fuite -->
+  <!-- Production console guard -->
   <script>
     if (window.location.hostname !== 'localhost' && !window.location.search.includes('debug=true')) {
       console.log = function() {};
@@ -79,7 +79,7 @@
   <div class="app-container">
     <!-- TOPNAV -->
     <!-- TOPNAV -->
-    <!-- TOPNAV CENTRÉE & GLASSMORPHISM PREMIUM (INSPIRÉE DE LNORI.COM) -->
+    <!-- TOPNAV CENTRÉE & GLASSMORPHISM NOVELTRAD -->
     <nav class="topnav" id="mainHeader" role="banner">
       <div class="topnav-container">
         
@@ -106,14 +106,14 @@
             <span class="logo-brand"><span class="logo-novel">Novel</span><span class="logo-trad">Trad</span><span class="logo-spark">✦</span></span>
           </a>
 
-          <!-- Liens de navigation épurés et directement accessibles (Style Lnori) -->
+          <!-- Liens de navigation épurés et directement accessibles -->
           <div class="topnav-nav-links" id="topnavCenter">
             <!-- Accueil -->
             <button id="tabHomeBtn" class="nav-item-btn active" title="Accueil">
               <span>Accueil</span>
             </button>
 
-            <!-- Catalogue (Direct comme sur Lnori /library) -->
+            <!-- Catalogue direct -->
             <!-- Catalogue -->
             <button id="tabCatalogBtn" class="nav-item-btn" title="Explorer le catalogue" onclick="window.location.href='index.html#catalog'">
               <span>Catalogue</span>
@@ -192,7 +192,7 @@
           </div>
         </div>
 
-        <!-- ZONE DROITE : RECHERCHE INTÉGRÉE (LNORI STYLE) + PROFIL & MOBILE -->
+        <!-- ZONE DROITE : RECHERCHE INTÉGRÉE + PROFIL & MOBILE -->
         <div class="topnav-right-group">
           <!-- Barre de recherche intégrée avec glassmorphism -->
           <div class="nav-search-wrapper search-input-wrapper" id="navSearchWrapper">
@@ -225,7 +225,7 @@
                   <i class="fa-solid fa-chevron-down nav-user-arrow"></i>
                 </div>
                 
-                <!-- Popover flottant type Lnori -->
+                <!-- Popover flottant -->
                 <div class="nav-user-dropdown avatar-popover hidden" id="navUserDropdown" role="menu">
                   <div class="nav-user-dropdown-header">
                     <span class="user-dropdown-label">Connecté en tant que</span>
@@ -272,7 +272,7 @@
             <!-- Éléments préservés pour compatibilité logique sans impact visuel -->
             <div class="status-badge hidden" id="apiStatusBadge">
               <span class="status-dot warning" id="statusDot"></span>
-              <span id="statusText">Vérification...</span>
+              <span id="statusText">En ligne</span>
             </div>
             <button id="tabAccountBtn" class="btn-sidebar hidden" title="Espace Compte">
               <i class="fa-solid fa-user-circle"></i> Compte
@@ -487,7 +487,7 @@
           </div>
         </div>
       </div>
-        <!-- NOVELTRAD FOOTER MINIMALISTE (STYLE LNORI) -->
+        <!-- NOVELTRAD FOOTER MINIMALISTE -->
   <footer class="noveltrad-main-footer" id="noveltradFooter" role="contentinfo">
     <div class="footer-container">
       <nav class="footer-nav-grid" aria-label="Navigation de pied de page">
@@ -517,7 +517,7 @@
         <section class="footer-col" aria-labelledby="footer-col-community">
           <h3 id="footer-col-community" class="footer-col-heading">COMMUNAUTÉ</h3>
           <ul class="footer-links">
-            <li><a href="https://discord.gg" target="_blank" rel="noopener noreferrer">Rejoindre Discord</a></li>
+            <li><a href="https://discord.gg/noveltrad" target="_blank" rel="noopener noreferrer">Rejoindre Discord</a></li>
             <li><a href="/index.html#contributor">Studio Contributeur</a></li>
             <li><a href="mailto:contact@noveltrad.com">Contact & Support</a></li>
             <li><a href="/index.html#ethics">Charte du traducteur</a></li>
@@ -545,9 +545,9 @@
       <div class="footer-subbar">
         <span class="footer-copy">&copy; 2026 NovelTrad. Fait avec passion pour la communauté francophone.</span>
         <div class="footer-social-icons">
-          <a href="https://discord.gg" target="_blank" rel="noopener noreferrer" aria-label="Discord" title="Discord"><i class="fa-brands fa-discord"></i></a>
-          <a href="#" aria-label="Twitter / X" title="Twitter / X"><i class="fa-brands fa-x-twitter"></i></a>
-          <a href="#" aria-label="GitHub" title="GitHub"><i class="fa-brands fa-github"></i></a>
+          <a href="https://discord.gg/noveltrad" target="_blank" rel="noopener noreferrer" aria-label="Discord" title="Discord"><i class="fa-brands fa-discord"></i></a>
+          <a href="https://x.com/NovelTrad" target="_blank" rel="noopener noreferrer" aria-label="Twitter / X" title="Twitter / X"><i class="fa-brands fa-x-twitter"></i></a>
+          <a href="https://github.com/nhelyson/novel-trad-" target="_blank" rel="noopener noreferrer" aria-label="GitHub" title="GitHub"><i class="fa-brands fa-github"></i></a>
         </div>
       </div>
     </div>
@@ -931,7 +931,7 @@
       });
     }
   </script>
-  <!-- Synopsis Expand Logic (inspired by Lnori, safe non-breaking) -->
+  <!-- Synopsis Expand Logic -->
   <script>
     (function() {
       const synEl = document.getElementById('seriesSynopsis');
@@ -1018,7 +1018,7 @@
   </div>
 
 
-  <!-- IN-LINE PARAGRAPH COMMENTS DRAWER (PHASE 2) -->
+  <!-- IN-LINE PARAGRAPH COMMENTS DRAWER -->
   <div id="paraCommentsBackdrop" class="para-comments-backdrop hidden"></div>
   <aside id="paraCommentsDrawer" class="para-comments-drawer hidden" aria-label="Commentaires par paragraphe">
     <div class="para-comments-header">
@@ -1063,7 +1063,7 @@
   </aside>
 
   
-  <!-- QUOTE CARD GENERATOR MODAL (PHASE 3) -->
+  <!-- QUOTE CARD GENERATOR MODAL -->
   <div id="quoteCardModal" class="quote-card-modal-overlay hidden">
     <div id="quoteCardBackdrop" class="quote-card-backdrop"></div>
     <div class="quote-card-modal-container">

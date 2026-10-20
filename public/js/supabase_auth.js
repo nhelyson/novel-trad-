@@ -228,7 +228,7 @@ class SupabaseAuthManager {
                 this.renderProfileView();
 
                 if (event === 'SIGNED_IN') {
-                    // Option 2 : Adoption automatique fluide des dossiers/livres de la session invité
+                    // Migration automatique des livres et favoris de la session invité
                     if (session && session.access_token) {
                         fetch('/api/library/adopt-guest', {
                             method: 'POST',
@@ -242,7 +242,6 @@ class SupabaseAuthManager {
                             try { return JSON.parse(text); } catch (e) { return null; }
                         }).then(data => {
                             if (data && data.adoptedCount > 0) {
-                                // log silenced invité adoptés avec succès par le compte.`);
                                 if (typeof initLibrary === 'function') initLibrary(true);
                             }
                         }).catch(() => {});

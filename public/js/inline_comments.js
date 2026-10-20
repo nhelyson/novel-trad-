@@ -1,7 +1,7 @@
 /**
  * inline_comments.js -> Evolved into Webtoon-style End-of-Volume Comments (NovelTrad)
  * 
- * - In-line paragraph comments removed per user request for pure, distraction-free reading.
+ * In-line paragraph reader module (distraction-free mode).
  * - End-of-Volume Webtoon comment system (Top comments, like/unlike, spoilers, guest/member auth).
  */
 (function() {
@@ -41,7 +41,7 @@
   //  1. SAFE NO-OP FOR LEGACY IN-LINE CALLS (PREVENTS ANY CRASHES)
   // =========================================================================
   window.initInlineParagraphComments = function() {
-    // In-line paragraph comments disabled by user request.
+    // In-line reader overlay disabled in minimalist view.
   };
 
   window.openParagraphComments = function() {
