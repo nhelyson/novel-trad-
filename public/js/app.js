@@ -380,6 +380,8 @@ document.addEventListener('DOMContentLoaded', () => {
       openContributorTab();
     } else if (hash === '#admin' || tabParam === 'admin') {
       openAdminTab();
+    } else if (hash === '#originals' || hash === '#original' || tabParam === 'originals') {
+      openOriginalsTab();
     }
   }
   window.addEventListener('hashchange', handleHashRouting);
@@ -446,6 +448,38 @@ document.addEventListener('DOMContentLoaded', () => {
       if (window.initCatalog) {
         window.initCatalog();
       }
+    });
+  }
+
+  const tabOriginalsBtn = document.getElementById('tabOriginalsBtn');
+  const mobileOriginalsBtn = document.getElementById('mobileOriginalsBtn');
+
+  function openOriginalsTab() {
+    const catalogMod = document.getElementById('catalogModule');
+    const catalogBtn = document.getElementById('tabCatalogBtn');
+    if (tabOriginalsBtn) {
+      setActiveTab(tabOriginalsBtn, catalogMod);
+    } else if (catalogBtn) {
+      setActiveTab(catalogBtn, catalogMod);
+    }
+    if (window.initCatalog) {
+      window.initCatalog();
+    }
+    if (typeof window.applyCatalogFilters === 'function') {
+      window.applyCatalogFilters({ origin: 'original', q: '' });
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  window.openOriginalsTab = openOriginalsTab;
+
+  if (tabOriginalsBtn) {
+    tabOriginalsBtn.addEventListener('click', openOriginalsTab);
+  }
+
+  if (mobileOriginalsBtn) {
+    mobileOriginalsBtn.addEventListener('click', () => {
+      if (typeof closeMobileDrawer === 'function') closeMobileDrawer();
+      openOriginalsTab();
     });
   }
 
