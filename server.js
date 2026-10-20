@@ -113,6 +113,27 @@ try {
 const app = express();
 app.set('trust proxy', 1);
 
+// ── TOP-LEVEL SECURITY HARDENING ──────────────────────────────────────────────
+app.disable('x-powered-by');
+
+// 1. En-têtes HTTP de sécurité avec Helmet
+app.use(helmet({
+  contentSecurityPolicy: false,
+  crossOriginResourcePolicy: { policy: 'cross-origin' },
+  crossOriginEmbedderPolicy: false,
+  frameguard: { action: 'sameorigin' }
+}));
+
+// 2. Limitation de débit (Rate Limiting) global protecteur
+const globalLimiter = rateLimit({
+  windowMs: 1 * 60 * 1000,
+  max: 350,
+  standardHeaders: true,
+  legacyHeaders: false
+});
+app.use(globalLimiter);
+
+
 // ── LEVIER 1 : HTTP COMPRESSION (GZIP/DEFLATE) ──
 app.use(compression({
   filter: (req, res) => {
@@ -353,6 +374,44 @@ app.get('/api/volume-stream/:fileKey', (req, res) => {
 
 // ── EPUB VOLUME ON-DEMAND CHAPTER STREAMING (Ultra-Fast 30 Ko Webnovel Mode) ──
 // ── SMART VOLUME RESOLVER (Exact, Prefix & Catalog DB lookup) ──
+
+function isSafeBookPath(targetPath) {
+  if (!targetPath || typeof targetPath !== 'string') return false;
+  try {
+    const normalized = path.normalize(path.resolve(targetPath)).toLowerCase();
+    
+    // Strict blocklist: Never allow reading .env, credentials, dotfiles, or sensitive server files
+    if (
+      normalized.includes('.env') ||
+      normalized.includes('.git') ||
+      normalized.includes('node_modules') ||
+      normalized.includes('users_roles.json') ||
+      normalized.includes('id_rsa') ||
+      normalized.includes('shadow') ||
+      normalized.includes('passwd')
+    ) {
+      return false;
+    }
+
+    // Must have a valid book or volume extension
+    const ext = path.extname(normalized);
+    if (!['.epub', '.pdf', '.cbz', '.txt'].includes(ext)) {
+      return false;
+    }
+
+    // Must be strictly inside authorized uploads or library directories
+    const allowedRoots = [
+      path.normalize(path.join(__dirname, 'uploads')).toLowerCase(),
+      path.normalize(path.join(__dirname, 'data', 'local_library')).toLowerCase(),
+      path.normalize(path.join(__dirname, 'data', 'jobs')).toLowerCase()
+    ];
+
+    return allowedRoots.some(root => normalized.startsWith(root));
+  } catch(e) {
+    return false;
+  }
+}
+
 function resolveVolumePath(fileKey) {
   if (!fileKey) return null;
 
@@ -361,7 +420,7 @@ function resolveVolumePath(fileKey) {
     try {
       const b64 = fileKey.replace(/^(local_|external_)/, '');
       const decodedPath = Buffer.from(b64, 'base64').toString('utf8');
-      if (fs.existsSync(decodedPath)) return decodedPath;
+      if (isSafeBookPath(decodedPath) && fs.existsSync(decodedPath)) return decodedPath;
     } catch(e) {}
   }
   const cleanKey = path.basename(fileKey).replace(/\.(epub|pdf)$/i, '');
@@ -912,14 +971,7 @@ app.use(compression({
   threshold: 1024
 }));
 
-// 3. Limitation de débit (Rate Limiting) protecteur et invisible pour l'utilisateur légitime
-const globalLimiter = rateLimit({
-  windowMs: 1 * 60 * 1000, // 1 minute
-  max: 350, // 350 requêtes/min par IP (très large, aucune gêne)
-  standardHeaders: true,
-  legacyHeaders: false
-});
-app.use(globalLimiter);
+// [Global rate limiter active at top of server]
 
 // Limiteur ciblé recherche métadonnées (protège quotas AniList / Google)
 const metadataLimiter = rateLimit({
@@ -3356,7 +3408,11 @@ async function authenticateUser(req) {
         }
 
         // Seul l'administrateur officiel configuré ou rôle ADMIN confirmé en base
-        if (userEmail === 'admin@noveltrad.com' || userEmail === 'japhetikoume@gmail.com' || userEmail === 'ikoumejaphet@gmail.com') {
+        const configuredAdmins = (process.env.ADMIN_EMAILS || 'admin@noveltrad.com')
+            .split(',')
+            .map(e => e.trim().toLowerCase())
+            .filter(Boolean);
+        if (configuredAdmins.includes(userEmail) || userEmail === 'admin@noveltrad.com') {
             userRole = 'ADMIN';
         }
 
