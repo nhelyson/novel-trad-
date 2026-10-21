@@ -380,6 +380,8 @@ document.addEventListener('DOMContentLoaded', () => {
       openContributorTab();
     } else if (hash === '#admin' || tabParam === 'admin') {
       openAdminTab();
+    } else if (hash === '#news' || hash === '#actualites' || hash === '#annonces' || tabParam === 'news') {
+      openNewsTab();
     }
   }
   window.addEventListener('hashchange', handleHashRouting);
@@ -416,14 +418,21 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  const newsModule = document.getElementById('newsModule');
+
+  function openNewsTab() {
+    if (tabNewsBtn && newsModule) {
+      setActiveTab(tabNewsBtn, newsModule);
+    }
+    if (window.NewsManager && typeof window.NewsManager.init === 'function') {
+      window.NewsManager.init();
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  window.openNewsTab = openNewsTab;
+
   if (tabNewsBtn) {
-    tabNewsBtn.addEventListener('click', () => {
-      setActiveTab(tabNewsBtn, editorialModule);
-      if (window.EditorialManager) {
-        window.EditorialManager.init();
-        window.EditorialManager.switchTab('news');
-      }
-    });
+    tabNewsBtn.addEventListener('click', openNewsTab);
   }
 
   if (mobilePlanningBtn) {
@@ -436,7 +445,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (mobileNewsBtn) {
     mobileNewsBtn.addEventListener('click', () => {
       if (typeof closeMobileDrawer === 'function') closeMobileDrawer();
-      if (tabNewsBtn) tabNewsBtn.click();
+      openNewsTab();
     });
   }
 

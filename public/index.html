@@ -92,7 +92,7 @@
       } catch(e) {}
     })();
   </script>
-  <link rel="stylesheet" href="css/noveltrad.app.min.css?v=1792467041992">
+  <link rel="stylesheet" href="css/noveltrad.app.min.css?v=1792596010476">
     <!-- Console Signature -->
   <script>
     (function() {
@@ -168,9 +168,11 @@
             </button>
 
             <!-- Éléments masqués temporairement (préservés pour éviter erreurs JS) -->
-            <div style="display:none !important;" hidden>
-              <button id="tabNewsBtn"></button>
-            </div>
+            <!-- Actualités & Annonces Officielles -->
+            <button id="tabNewsBtn" class="nav-item-btn" title="Actualités et annonces officielles">
+              <i class="fa-solid fa-bullhorn" style="color: #a855f7; margin-right: 5px; font-size: 0.9em;"></i>
+              <span>Actualités</span>
+            </button>
 
             <!-- Menu Déroulant Bibliothèque -->
             <div class="nav-dropdown" data-nav="library">
@@ -400,6 +402,9 @@
             </button>
             <button class="nav-mobile-btn" id="mobilePlanningBtn">
               <i class="fa-solid fa-calendar-days"></i> <span>Calendrier</span>
+            </button>
+            <button class="nav-mobile-btn" id="mobileNewsBtn">
+              <i class="fa-solid fa-bullhorn" style="color: #a855f7;"></i> <span>Actualités</span>
             </button>
           </div>
 
@@ -868,6 +873,86 @@
         </div>
 
       </div> <!-- END MODULE: CALENDRIER -->
+
+      <!-- ==================================================================== -->
+      <!-- MODULE : ACTUALITÉS & ANNONCES OFFICIELLES (PAGE DÉDIÉE)              -->
+      <!-- ==================================================================== -->
+      <div id="newsModule" class="module-container news-container hidden">
+        <div class="news-wrapper">
+          
+          <!-- En-tête des Actualités -->
+          <header class="news-page-header">
+            <div class="news-header-meta">
+              <span class="news-header-pill">
+                <i class="fa-solid fa-newspaper"></i> <span>Journal Officiel NovelTrad</span>
+              </span>
+              <span class="news-header-count" id="newsTotalCountBadge">Chargement...</span>
+            </div>
+            <h1 class="news-page-title">Actualités & Annonces</h1>
+            <p class="news-page-subtitle">
+              Retrouvez toutes les informations officielles, nouveautés du catalogue, parutions et communiqués de l'équipe.
+            </p>
+
+            <!-- Filtres de Catégories Interactifs -->
+            <div class="news-categories-bar" role="tablist" aria-label="Filtrer les actualités">
+              <button type="button" class="news-filter-btn active" data-category="all" role="tab" aria-selected="true">
+                <i class="fa-solid fa-layer-group"></i> <span>Toutes</span>
+              </button>
+              <button type="button" class="news-filter-btn" data-category="Annonce" role="tab" aria-selected="false">
+                <i class="fa-solid fa-bullhorn"></i> <span>Annonces</span>
+              </button>
+              <button type="button" class="news-filter-btn" data-category="Sortie" role="tab" aria-selected="false">
+                <i class="fa-solid fa-book-open"></i> <span>Sorties</span>
+              </button>
+              <button type="button" class="news-filter-btn" data-category="Mise à jour" role="tab" aria-selected="false">
+                <i class="fa-solid fa-wand-magic-sparkles"></i> <span>Mises à jour</span>
+              </button>
+              <button type="button" class="news-filter-btn" data-category="Communauté" role="tab" aria-selected="false">
+                <i class="fa-solid fa-users"></i> <span>Communauté</span>
+              </button>
+            </div>
+          </header>
+
+          <!-- Section 1 : Article Majeur À LA UNE (Hero Card) -->
+          <div id="newsHeroContainer" class="news-hero-container">
+            <div id="newsHeroCard" class="news-hero-wrapper"></div>
+          </div>
+
+          <!-- Section 2 : Grille des Articles Récents -->
+          <section class="news-grid-section">
+            <div class="news-section-header">
+              <h2 class="news-section-title"><i class="fa-solid fa-clock-rotate-left"></i> Récemment publiés</h2>
+            </div>
+            <div id="newsArticlesGrid" class="news-articles-grid" role="feed"></div>
+
+            <!-- État vide si aucune actualité pour le filtre sélectionné -->
+            <div id="newsEmptyNotice" class="news-empty-notice" style="display: none;">
+              <div class="news-empty-icon"><i class="fa-solid fa-inbox"></i></div>
+              <h3>Aucun article dans cette catégorie</h3>
+              <p>Revenez sur "Toutes" pour consulter l'ensemble des actualités de NovelTrad.</p>
+              <button type="button" class="btn-news-filter-reset" onclick="document.querySelector('.news-filter-btn[data-category=\'all\']').click();">
+                <i class="fa-solid fa-rotate-left"></i> Voir toutes les actualités
+              </button>
+            </div>
+          </section>
+
+        </div>
+
+        <!-- Modale de Lecture Plein Écran pour les Articles -->
+        <div id="newsReaderModal" class="news-reader-modal hidden" role="dialog" aria-modal="true" aria-labelledby="newsReaderTitle">
+          <div class="news-reader-backdrop" id="newsReaderBackdrop"></div>
+          <div class="news-reader-panel">
+            <button type="button" id="newsReaderCloseBtn" class="news-reader-close-btn" aria-label="Fermer la lecture">
+              <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div id="newsReaderBody" class="news-reader-body">
+              <!-- Injecté dynamiquement par news_logic.js -->
+            </div>
+          </div>
+        </div>
+
+      </div> <!-- END MODULE: ACTUALITÉS -->
+
 
       <!-- ==================================================================== -->
       <!-- MODULE 2 : MA BIBLIOTHÈQUE COMPLÈTE AVEC SEARCH DROPDOWN & SMART ADD -->
@@ -2049,7 +2134,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
   <script src="js/jszip.min.js?v=1792467041992"></script>
   <script src="js/epub.min.js?v=1792467041992"></script>
-  <script src="js/noveltrad.app.min.js?v=1792467041992"></script>
+  <script src="js/noveltrad.app.min.js?v=1792596010476"></script>
 
   <script>
     if ('serviceWorker' in navigator) {
