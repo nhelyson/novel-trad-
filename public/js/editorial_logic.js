@@ -265,33 +265,7 @@
       });
     });
 
-    // 4. Annonces et Actualités Officielles
-    state.newsItems.forEach(news => {
-      const newsDate = parseDate(news.createdAt);
-      if (!newsDate) return;
-
-      const newsKey = `news_${news.id}_${formatDateIso(newsDate)}`;
-      if (seenEventKeys.has(newsKey)) return;
-      seenEventKeys.add(newsKey);
-
-      list.push({
-        id: news.id || newsKey,
-        novelId: news.seriesId || null,
-        title: news.title || 'Annonce Officielle',
-        volume: news.category || 'Annonce',
-        cover: news.imageUrl || '',
-        date: newsDate,
-        dateIso: formatDateIso(newsDate),
-        type: 'announcements',
-        status: 'info',
-        statusLabel: '📢 Annonce',
-        badgeClass: 'badge-announcement',
-        badgeIcon: 'fa-bullhorn',
-        hasReader: false,
-        team: news.author || 'Équipe NovelTrad',
-        description: news.excerpt || news.content || 'Annonce et actualité officielle de la communauté NovelTrad.'
-      });
-    });
+    // 4. Les actualités & annonces sont désormais consultables sur la page dédiée #newsModule
 
     state.events = list;
   }
@@ -335,8 +309,7 @@
       all: monthEvents.length,
       translations: monthEvents.filter(ev => ev.type === 'translations' || ev.subType === 'translation').length,
       volumes: monthEvents.filter(ev => ev.type === 'volumes').length,
-      new: monthEvents.filter(ev => ev.type === 'new').length,
-      announcements: monthEvents.filter(ev => ev.type === 'announcements').length
+      new: monthEvents.filter(ev => ev.type === 'new').length
     };
 
     const countAllEl = document.getElementById('calCountAll');
@@ -350,9 +323,6 @@
 
     const countNewEl = document.getElementById('calCountNew');
     if (countNewEl) countNewEl.textContent = counts.new;
-
-    const countAnnEl = document.getElementById('calCountAnnouncements');
-    if (countAnnEl) countAnnEl.textContent = counts.announcements;
   }
 
   /**
