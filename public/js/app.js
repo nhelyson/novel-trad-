@@ -31,6 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const homeModuleContainer = document.getElementById('homeModuleContainer');
   const catalogModule = document.getElementById('catalogModule');
   const editorialModule = document.getElementById('editorialModule');
+  const newsModule = document.getElementById('newsModule');
   const libraryModule = document.getElementById('libraryModule');
   const docModuleContainer = document.getElementById('docModuleContainer');
     const contributorModuleContainer = document.getElementById('contributorModuleContainer');
@@ -116,6 +117,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (homeModuleContainer) homeModuleContainer.classList.add('hidden');
     if (catalogModule) catalogModule.classList.add('hidden');
     if (editorialModule) editorialModule.classList.add('hidden');
+    if (newsModule) newsModule.classList.add('hidden');
     if (docModuleContainer) docModuleContainer.classList.add('hidden');
     const curContribHide = document.getElementById('contributorModuleContainer'); if (curContribHide) curContribHide.classList.add('hidden');
     const curAdmHide = document.getElementById('adminModuleContainer'); if (curAdmHide) curAdmHide.classList.add('hidden');
@@ -417,8 +419,6 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   }
-
-  const newsModule = document.getElementById('newsModule');
 
   function openNewsTab() {
     if (tabNewsBtn && newsModule) {
