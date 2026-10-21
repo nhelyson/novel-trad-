@@ -2699,7 +2699,14 @@ app.put('/api/editorial/schedule/:id', async (req, res) => {
 app.get('/api/editorial/news', (req, res) => {
   try {
     const db = loadEditorialDb();
-    res.json({ success: true, news: db.news || [] });
+    const sanitized = (db.news || []).map(item => {
+      const clean = { ...item };
+      if (!clean.author || clean.author.includes('@')) {
+        clean.author = 'Équipe NovelTrad';
+      }
+      return clean;
+    });
+    res.json({ success: true, news: sanitized });
   } catch (e) {
     res.status(500).json({ success: false, message: e.message });
   }
@@ -2809,7 +2816,7 @@ app.post('/api/editorial/news', async (req, res) => {
       imageUrl: imageUrl || '',
       pinned: Boolean(pinned),
       seriesId: seriesId || null,
-      author: authUser.user_metadata?.full_name || authUser.email || 'Équipe NovelTrad',
+      author: authUser.user_metadata?.full_name || authUser.user_metadata?.username || 'Équipe NovelTrad',
       authorRole: 'admin',
       createdAt: new Date().toISOString()
     };
