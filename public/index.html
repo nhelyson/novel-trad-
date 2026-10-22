@@ -92,7 +92,7 @@
       } catch(e) {}
     })();
   </script>
-  <link rel="stylesheet" href="css/noveltrad.app.min.css?v=1792690596620">
+  <link rel="stylesheet" href="css/noveltrad.app.min.css?v=1792693268438">
     <!-- Console Signature -->
   <script>
     (function() {
@@ -1750,6 +1750,10 @@
         <button id="readerNextBtn" class="toolbar-btn nav-arrow" title="Suivant (→)"><i class="fa-solid fa-chevron-right"></i></button>
       </div>
       <div class="toolbar-right">
+        <button id="readerReportErrorBtn" class="toolbar-btn" title="Signaler une erreur de traduction" aria-label="Signaler" style="color: #ef4444; position: relative;">
+          <i class="fa-solid fa-flag"></i>
+          <span class="reader-tool-badge-new" id="reportNewBadge">NEW</span>
+        </button>
         <button id="readerDownloadBtn" class="toolbar-btn" title="Télécharger le volume" aria-label="Télécharger">
           <i class="fa-solid fa-download"></i>
         </button>
@@ -2124,7 +2128,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
   <script src="js/jszip.min.js?v=1792467041992"></script>
   <script src="js/epub.min.js?v=1792467041992"></script>
-  <script src="js/noveltrad.app.min.js?v=1792690596620"></script>
+  <script src="js/noveltrad.app.min.js?v=1792693268438"></script>
 
   <script>
     if ('serviceWorker' in navigator) {
@@ -2285,6 +2289,62 @@
 
 
   <!-- TOAST D'ONBOARDING DU SIGNALEMENT (AFFICHE 1 SEULE FOIS) -->
+  
+  <!-- MODALE DE SIGNALEMENT D'ERREUR DE TRADUCTION (LECTEUR UNIFIÉ) -->
+  <div id="readerReportModal" class="wn-modal-overlay hidden" style="z-index: 99999;">
+    <div class="wn-modal-card">
+      <div class="wn-modal-header">
+        <div class="wn-modal-title">
+          <i class="fa-solid fa-flag" style="color: #ef4444; margin-right: 8px;"></i>
+          <span>Signaler une erreur de traduction</span>
+        </div>
+        <button type="button" id="closeReaderReportModalBtn" class="wn-modal-close" title="Fermer"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div class="wn-modal-body">
+        <div class="wn-report-context-badge">
+          <i class="fa-solid fa-book-bookmark"></i>
+          <span id="readerReportContextText">Chargement...</span>
+        </div>
+
+        <div class="wn-form-group">
+          <label for="readerReportSelectedText">Passage / Phrase concernée <span style="color:#ef4444;">*</span></label>
+          <textarea id="readerReportSelectedText" class="wn-input wn-textarea" rows="3" placeholder="Surlignez ou collez ici la phrase problématique..."></textarea>
+          <small class="wn-form-hint"><i class="fa-solid fa-lightbulb" style="color:#fbbf24;"></i> Astuce : vous pouvez aussi surligner le passage directement dans le livre avant de cliquer sur le drapeau.</small>
+        </div>
+
+        <div class="wn-form-group">
+          <label for="readerReportReason">Type d'erreur</label>
+          <select id="readerReportReason" class="wn-input wn-select">
+            <option value="contresens">Contresens / Phrase confuse ou incohérente</option>
+            <option value="character_name">Mauvais nom de personnage / Inversion de genre</option>
+            <option value="typo">Faute d'orthographe / Frappe / Grammaire</option>
+            <option value="untranslated">Texte non traduit / Anglais ou Japonais résiduel</option>
+            <option value="formatting">Texte coupé / Problème de paragraphe</option>
+            <option value="other">Autre problème</option>
+          </select>
+        </div>
+
+        <div class="wn-form-group">
+          <label for="readerReportCorrection">Correction suggérée <span style="font-size:0.8rem; color:var(--text-tertiary);">(facultatif)</span></label>
+          <textarea id="readerReportCorrection" class="wn-input wn-textarea" rows="2" placeholder="Que proposeriez-vous à la place ?"></textarea>
+        </div>
+
+        <div class="wn-form-group">
+          <label for="readerReportComment">Remarque supplémentaire <span style="font-size:0.8rem; color:var(--text-tertiary);">(facultatif)</span></label>
+          <input type="text" id="readerReportComment" class="wn-input" placeholder="Détail utile pour l'équipe..." />
+        </div>
+      </div>
+
+      <div class="wn-modal-footer">
+        <button type="button" id="cancelReaderReportBtn" class="btn btn-secondary">Annuler</button>
+        <button type="button" id="submitReaderReportBtn" class="btn btn-danger" style="background:#ef4444; border-color:#dc2626; color:#fff;">
+          <i class="fa-solid fa-paper-plane" style="margin-right: 6px;"></i> Envoyer le signalement
+        </button>
+      </div>
+    </div>
+  </div>
+
   <div id="readerReportTipToast" class="reader-onboarding-toast hidden">
     <span>💡 <strong>Nouveau :</strong> Une faute ou un contresens ? Surlignez la phrase ou cliquez sur <i class="fa-solid fa-flag" style="color:#ef4444;"></i> pour la corriger !</span>
     <button type="button" id="closeReportTipBtn" class="reader-onboarding-toast-close" title="Compris">&times;</button>

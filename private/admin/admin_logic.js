@@ -135,6 +135,7 @@ class AdminManager {
       if (this.viewReports) this.viewReports.classList.remove('hidden');
       if (this.tabReportsBtn) this.tabReportsBtn.classList.add('active');
       this.renderReportsList();
+      this.loadReportsData().then(() => this.renderReportsList());
     }
   }
 
