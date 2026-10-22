@@ -39,12 +39,30 @@
         <button type="button" id="btnTooltipCopy" class="tooltip-action-btn" title="Copier le texte">
           <i class="fa-regular fa-copy"></i>
         </button>
+        <button type="button" id="btnTooltipReport" class="tooltip-action-btn" title="Signaler une erreur de traduction" style="color: #ef4444;">
+          <i class="fa-solid fa-flag"></i> <span>Signaler</span>
+        </button>
       `;
       document.body.appendChild(tooltip);
 
       const btnCard = tooltip.querySelector('#btnTooltipQuoteCard');
       const btnComment = null;
       const btnCopy = tooltip.querySelector('#btnTooltipCopy');
+      const btnReport = tooltip.querySelector('#btnTooltipReport');
+
+      if (btnReport) {
+        btnReport.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          const selText = window.getSelection().toString().trim();
+          tooltip.classList.add('hidden');
+          if (typeof window.openUnifiedReaderReportModal === 'function') {
+            window.openUnifiedReaderReportModal(selText);
+          } else if (typeof window.openReportModal === 'function') {
+            window.openReportModal(selText);
+          }
+        });
+      }
 
       if (btnCard) {
         btnCard.addEventListener('click', (e) => {
