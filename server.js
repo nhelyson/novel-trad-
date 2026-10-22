@@ -1,4 +1,5 @@
 const CommentService = require('./services/comments/CommentService');
+const ReportService = require('./services/reports/ReportService');
 
 const fs = require('fs');
 const path = require('path');
@@ -730,6 +731,11 @@ app.get('/api/volume-chapters/:fileKey/:chapterNum', async (req, res) => {
     }
     if (!chapterTitle) {
       chapterTitle = `Chapitre ${num}`;
+    }
+
+    // Appliquer les patchs de correction en direct
+    if (ReportService) {
+      bodyContent = ReportService.applyPatchesToHtml(bodyContent, fileKey, num);
     }
 
     const responsePayload = {
@@ -2587,8 +2593,11 @@ app.get('/api/catalog/series/:id', async (req, res) => {
 app.get('/api/catalog/series/:id/chapters/:num', (req, res) => {
   try {
     const { id, num } = req.params;
-    const chapter = CatalogService.getChapter(id, num);
+    let chapter = CatalogService.getChapter(id, num);
     if (chapter) {
+      if (ReportService && chapter.content) {
+        chapter = { ...chapter, content: ReportService.applyPatchesToHtml(chapter.content, id, num) };
+      }
       res.json({ success: true, chapter });
     } else {
       res.status(404).json({ success: false, message: 'Chapitre introuvable' });
@@ -4988,13 +4997,106 @@ app.get('/api/admin/stats', requireAdmin, async (req, res) => {
             draftNovels: allNovels.filter(s => s.publication_status === 'DRAFT').length,
             unknownStatus: allNovels.filter(s => !s.publication_status).length,
             totalUsers: totalUsersCount,
-            totalContributors: contributorsCount
+            totalContributors: contributorsCount,
+            pendingReports: ReportService ? ReportService.getPendingCount() : 0
         };
 
         res.json({ success: true, stats });
     } catch (e) {
         res.status(500).json({ success: false, error: e.message });
     }
+});
+
+
+// =============================================================================
+// NOVELTRAD — TRANSLATION ERROR REPORTS & LIVE PATCHING API
+// =============================================================================
+
+// POST /api/reports/translation - Soumettre un signalement d'erreur de traduction
+app.post('/api/reports/translation', async (req, res) => {
+  try {
+    const authUser = await authenticateUser(req);
+    const payload = {
+      ...req.body,
+      userId: authUser ? authUser.id : null,
+      userEmail: authUser ? authUser.email : null,
+      userName: authUser ? (authUser.display_name || authUser.email) : (req.body.userName || 'Lecteur Anonyme')
+    };
+
+    const report = ReportService.createReport(payload);
+    res.json({ success: true, report, message: 'Signalement enregistré avec succès. Merci pour votre aide !' });
+  } catch (err) {
+    res.status(400).json({ success: false, error: err.message });
+  }
+});
+
+// GET /api/admin/reports - Obtenir tous les signalements (ADMIN)
+app.get('/api/admin/reports', requireAdmin, (req, res) => {
+  try {
+    const { status, seriesId } = req.query;
+    const reports = ReportService.getReports({ status, seriesId });
+    const pendingCount = ReportService.getPendingCount();
+    res.json({ success: true, reports, pendingCount });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// POST /api/admin/reports/:id/resolve - Valider & appliquer une correction (ADMIN)
+app.post('/api/admin/reports/:id/resolve', requireAdmin, (req, res) => {
+  try {
+    const { id } = req.params;
+    const { correctedText, applyPatch } = req.body;
+    const result = ReportService.resolveReport(id, {
+      correctedText,
+      adminUser: req.user,
+      applyPatch: applyPatch !== false
+    });
+
+    // Invalider le cache RAM pour ce chapitre si c'était un volume
+    if (result.report) {
+      const cleanKey = String(result.report.seriesId || '').toLowerCase().replace(/\.(epub|pdf)$/i, '').trim();
+      const num = parseInt(result.report.chapterNum, 10);
+      parsedChaptersCache.delete(`${cleanKey}:${num}`);
+    }
+
+    res.json({ success: true, report: result.report, message: 'Correction validée et appliquée avec succès.' });
+  } catch (err) {
+    res.status(400).json({ success: false, error: err.message });
+  }
+});
+
+// POST /api/admin/reports/:id/reject - Rejeter un signalement (ADMIN)
+app.post('/api/admin/reports/:id/reject', requireAdmin, (req, res) => {
+  try {
+    const { id } = req.params;
+    const { reason } = req.body;
+    const result = ReportService.rejectReport(id, {
+      adminUser: req.user,
+      reason
+    });
+
+    if (result.report) {
+      const cleanKey = String(result.report.seriesId || '').toLowerCase().replace(/\.(epub|pdf)$/i, '').trim();
+      const num = parseInt(result.report.chapterNum, 10);
+      parsedChaptersCache.delete(`${cleanKey}:${num}`);
+    }
+
+    res.json({ success: true, report: result.report, message: 'Signalement rejeté.' });
+  } catch (err) {
+    res.status(400).json({ success: false, error: err.message });
+  }
+});
+
+// DELETE /api/admin/reports/:id - Supprimer un signalement (ADMIN)
+app.delete('/api/admin/reports/:id', requireAdmin, (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = ReportService.deleteReport(id);
+    res.json({ success: true, message: 'Signalement supprimé.' });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
 });
 
 // ── CUSTOM 404 ROUTE & SMART 404 HANDLER ──

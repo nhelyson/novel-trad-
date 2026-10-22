@@ -24,6 +24,12 @@ class AdminManager {
     this.tabCatalogBtn = document.getElementById('adminTabCatalogBtn');
     this.tabUsersBtn = document.getElementById('adminTabUsersBtn');
     this.tabEditorialBtn = document.getElementById('adminTabEditorialBtn');
+    this.tabReportsBtn = document.getElementById('adminTabReportsBtn');
+    this.viewReports = document.getElementById('adminReportsSection');
+    this.reportsBadge = document.getElementById('adminReportsCountBadge');
+    this.reportsContainer = document.getElementById('adminReportsList');
+    this.reports = [];
+    this.currentReportFilter = 'ALL';
     this.queueCountBadge = document.getElementById('adminQueueCountBadge');
 
     this.queueContainer = document.getElementById('adminQueueList');
@@ -47,6 +53,8 @@ class AdminManager {
     if (this.tabCatalogBtn) this.tabCatalogBtn.addEventListener('click', () => this.showView('catalog'));
     if (this.tabUsersBtn) this.tabUsersBtn.addEventListener('click', () => this.showView('users'));
     if (this.tabEditorialBtn) this.tabEditorialBtn.addEventListener('click', () => this.showView('editorial'));
+    if (this.tabReportsBtn) this.tabReportsBtn.addEventListener('click', () => this.showView('reports'));
+    this.bindReportsEvents();
     this.bindEditorialEvents();
 
     if (this.inpUserSearch) {
@@ -95,11 +103,11 @@ class AdminManager {
   }
 
   showView(viewName) {
-    [this.viewDashboard, this.viewQueue, this.viewCatalog, this.viewUsers, this.viewEditorial].forEach(v => {
+    [this.viewDashboard, this.viewQueue, this.viewCatalog, this.viewUsers, this.viewEditorial, this.viewReports].forEach(v => {
       if (v) v.classList.add('hidden');
     });
 
-    [this.tabDashBtn, this.tabQueueBtn, this.tabCatalogBtn, this.tabUsersBtn, this.tabEditorialBtn].forEach(b => {
+    [this.tabDashBtn, this.tabQueueBtn, this.tabCatalogBtn, this.tabUsersBtn, this.tabEditorialBtn, this.tabReportsBtn].forEach(b => {
       if (b) b.classList.remove('active');
     });
 
@@ -123,6 +131,10 @@ class AdminManager {
       if (this.viewEditorial) this.viewEditorial.classList.remove('hidden');
       if (this.tabEditorialBtn) this.tabEditorialBtn.classList.add('active');
       this.renderEditorialManagement();
+    } else if (viewName === 'reports') {
+      if (this.viewReports) this.viewReports.classList.remove('hidden');
+      if (this.tabReportsBtn) this.tabReportsBtn.classList.add('active');
+      this.renderReportsList();
     }
   }
 
@@ -130,7 +142,8 @@ class AdminManager {
     await Promise.all([
       this.loadPendingQueue(),
       this.loadCatalog(),
-      this.loadUsers()
+      this.loadUsers(),
+      this.loadReportsData()
     ]);
     this.updateDashboardStats();
   }
@@ -1681,6 +1694,333 @@ class AdminManager {
     }
   }
 
-}
 
-window.adminManager = new AdminManager();
+  // =========================================================================
+  // TRANSLATION REPORTS & PATCHES METHODS
+  // =========================================================================
+  bindReportsEvents() {
+    const btnRefresh = document.getElementById('btnAdminRefreshReports');
+    if (btnRefresh) {
+      btnRefresh.addEventListener('click', async () => {
+        btnRefresh.innerHTML = '<i class="fa-solid fa-arrows-rotate fa-spin"></i> Actualisation...';
+        await this.loadReportsData();
+        this.renderReportsList();
+        btnRefresh.innerHTML = '<i class="fa-solid fa-arrows-rotate"></i> Actualiser';
+      });
+    }
+
+    document.querySelectorAll('.admin-report-filter').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.admin-report-filter').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        this.currentReportFilter = btn.getAttribute('data-filter') || 'ALL';
+        this.renderReportsList();
+      });
+    });
+
+    const modal = document.getElementById('adminResolveReportModal');
+    const closeBtn = document.getElementById('closeResolveModalBtn');
+    const cancelBtn = document.getElementById('cancelResolveModalBtn');
+    const confirmBtn = document.getElementById('confirmResolveModalBtn');
+
+    if (closeBtn) closeBtn.onclick = () => this.closeResolveModal();
+    if (cancelBtn) cancelBtn.onclick = () => this.closeResolveModal();
+    if (confirmBtn) confirmBtn.onclick = () => this.confirmResolveReport();
+    if (modal) {
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) this.closeResolveModal();
+      });
+    }
+  }
+
+  async loadReportsData() {
+    try {
+      const headers = await this.getHeaders();
+      const res = await fetch('/api/admin/reports', { headers });
+      if (res.ok) {
+        const data = await res.json();
+        this.reports = data.reports || [];
+      } else {
+        this.reports = [];
+      }
+
+      this.updateReportsCounters();
+    } catch (err) {
+      console.error('[AdminManager] Error loadReportsData:', err);
+      this.reports = [];
+    }
+  }
+
+  updateReportsCounters() {
+    const all = this.reports.length;
+    const pending = this.reports.filter(r => (r.status || 'PENDING') === 'PENDING').length;
+    const resolved = this.reports.filter(r => r.status === 'RESOLVED').length;
+    const rejected = this.reports.filter(r => r.status === 'REJECTED').length;
+
+    const elAll = document.getElementById('countRepAll');
+    const elPending = document.getElementById('countRepPending');
+    const elResolved = document.getElementById('countRepResolved');
+    const elRejected = document.getElementById('countRepRejected');
+
+    if (elAll) elAll.textContent = all;
+    if (elPending) elPending.textContent = pending;
+    if (elResolved) elResolved.textContent = resolved;
+    if (elRejected) elRejected.textContent = rejected;
+
+    if (this.reportsBadge) {
+      this.reportsBadge.textContent = pending;
+      this.reportsBadge.style.display = pending > 0 ? 'inline-block' : 'none';
+    }
+  }
+
+  renderReportsList() {
+    if (!this.reportsContainer) return;
+    this.updateReportsCounters();
+
+    let list = this.reports || [];
+    if (this.currentReportFilter && this.currentReportFilter !== 'ALL') {
+      list = list.filter(r => (r.status || 'PENDING') === this.currentReportFilter);
+    }
+
+    if (list.length === 0) {
+      this.reportsContainer.innerHTML = `
+        <div style="text-align:center; padding:48px 20px; background:#18181b; border:1px dashed rgba(255,255,255,0.12); border-radius:14px; color:#a1a1aa;">
+          <i class="fa-solid fa-circle-check" style="font-size:2.5rem; color:#22c55e; margin-bottom:12px; display:block;"></i>
+          <h4 style="margin:0 0 6px 0; color:#fff; font-size:1.1rem;">Aucun signalement dans cette vue</h4>
+          <p style="margin:0; font-size:0.88rem;">Les signalements de traductions envoyés par les lecteurs s'afficheront ici.</p>
+        </div>
+      `;
+      return;
+    }
+
+    const reasonLabels = {
+      contresens: 'Contresens / Incompréhensible',
+      character_name: 'Mauvais nom de personnage',
+      typo: 'Faute de frappe / Orthographe',
+      untranslated: 'Texte non traduit',
+      formatting: 'Problème de mise en page',
+      other: 'Autre'
+    };
+
+    let html = '';
+    list.forEach(rep => {
+      const isPending = (rep.status || 'PENDING') === 'PENDING';
+      const isResolved = rep.status === 'RESOLVED';
+      const isRejected = rep.status === 'REJECTED';
+
+      let statusBadge = '<span style="background:rgba(245,158,11,0.15); border:1px solid rgba(245,158,11,0.4); color:#fbbf24; font-size:11.5px; padding:3px 10px; border-radius:12px; font-weight:700;">EN ATTENTE</span>';
+      if (isResolved) {
+        statusBadge = '<span style="background:rgba(34,197,94,0.15); border:1px solid rgba(34,197,94,0.4); color:#4ade80; font-size:11.5px; padding:3px 10px; border-radius:12px; font-weight:700;"><i class="fa-solid fa-check" style="margin-right:4px;"></i> CORRIGÉ & APPLIQUÉ</span>';
+      } else if (isRejected) {
+        statusBadge = '<span style="background:rgba(161,161,170,0.12); border:1px solid rgba(161,161,170,0.3); color:#a1a1aa; font-size:11.5px; padding:3px 10px; border-radius:12px; font-weight:700;">REJETÉ</span>';
+      }
+
+      const formattedDate = rep.createdAt ? new Date(rep.createdAt).toLocaleString('fr-FR', { dateStyle:'short', timeStyle:'short' }) : '';
+      const reasonLabel = reasonLabels[rep.reason] || rep.reason || 'Erreur signalée';
+
+      html += `
+        <div class="admin-report-card" data-report-id="${rep.id}" style="background:#18181b; border:1px solid rgba(255,255,255,0.1); border-radius:12px; padding:18px; display:flex; flex-direction:column; gap:12px; transition:border-color 0.2s ease;">
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:8px;">
+            <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+              <span style="font-weight:700; color:#fff; font-size:0.98rem;">${this.escape(rep.seriesTitle)}</span>
+              ${rep.volumeTitle ? `<span style="background:rgba(255,255,255,0.08); padding:2px 8px; border-radius:6px; font-size:11.5px; color:#d4d4d8;">${this.escape(rep.volumeTitle)}</span>` : ''}
+              <span style="background:rgba(225,29,72,0.12); color:#fda4af; padding:2px 8px; border-radius:6px; font-size:11.5px; font-weight:600;">${this.escape(rep.chapterTitle)}</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:10px;">
+              <span style="font-size:12px; color:#71717a;">${formattedDate}</span>
+              ${statusBadge}
+            </div>
+          </div>
+
+          <div style="font-size:12.5px; color:#a1a1aa; display:flex; align-items:center; gap:6px;">
+            <i class="fa-solid fa-user-pen" style="color:#a855f7;"></i>
+            <span>Signalé par <strong>${this.escape(rep.userName || 'Lecteur')}</strong></span>
+            <span>•</span>
+            <span style="color:#f43f5e; font-weight:600;">${this.escape(reasonLabel)}</span>
+          </div>
+
+          <div style="background:rgba(0,0,0,0.3); border-left:3px solid #ef4444; padding:10px 14px; border-radius:0 8px 8px 0; font-size:13.5px; color:#f4f4f5; line-height:1.5;">
+            <div style="font-size:11px; text-transform:uppercase; font-weight:700; color:#ef4444; margin-bottom:4px; letter-spacing:0.4px;">Extrait signalé :</div>
+            « ${this.escape(rep.selectedText)} »
+          </div>
+
+          ${rep.suggestedCorrection ? `
+            <div style="background:rgba(34,197,94,0.06); border-left:3px solid #22c55e; padding:10px 14px; border-radius:0 8px 8px 0; font-size:13.5px; color:#dcfce7; line-height:1.5;">
+              <div style="font-size:11px; text-transform:uppercase; font-weight:700; color:#22c55e; margin-bottom:4px; letter-spacing:0.4px;">Correction suggérée par le lecteur :</div>
+              « ${this.escape(rep.suggestedCorrection)} »
+            </div>
+          ` : ''}
+
+          ${isResolved && rep.correctedText ? `
+            <div style="background:rgba(59,130,246,0.08); border:1px solid rgba(59,130,246,0.25); padding:10px 14px; border-radius:8px; font-size:13px; color:#93c5fd; line-height:1.5;">
+              <div style="font-size:11px; text-transform:uppercase; font-weight:700; color:#60a5fa; margin-bottom:2px;">Correction active en ligne (Validée par ${this.escape(rep.resolvedBy || 'admin')}) :</div>
+              « ${this.escape(rep.correctedText)} »
+            </div>
+          ` : ''}
+
+          ${rep.comment ? `
+            <div style="font-size:12.5px; color:#94a3b8; font-style:italic;">
+              <strong>Note du lecteur :</strong> ${this.escape(rep.comment)}
+            </div>
+          ` : ''}
+
+          <div style="display:flex; justify-content:flex-end; align-items:center; gap:10px; margin-top:4px; border-top:1px solid rgba(255,255,255,0.06); padding-top:12px;">
+            <button type="button" class="btn-secondary btn-delete-report" data-id="${rep.id}" style="padding:6px 12px; font-size:12.5px; color:#f87171; border-color:rgba(239,68,68,0.25);">
+              <i class="fa-solid fa-trash"></i>
+            </button>
+
+            ${!isRejected ? `
+              <button type="button" class="btn-secondary btn-reject-report" data-id="${rep.id}" style="padding:6px 14px; font-size:12.5px;">
+                <i class="fa-solid fa-ban" style="margin-right:4px;"></i> Rejeter
+              </button>
+            ` : ''}
+
+            <button type="button" class="btn-primary btn-resolve-report" data-id="${rep.id}" style="background:#22c55e; border-color:#16a34a; padding:6px 16px; font-size:12.5px; font-weight:700;">
+              <i class="fa-solid fa-wand-magic-sparkles" style="margin-right:6px;"></i> ${isResolved ? 'Modifier la correction' : 'Corriger & Appliquer'}
+            </button>
+          </div>
+        </div>
+      `;
+    });
+
+    this.reportsContainer.innerHTML = html;
+
+    // Attach event listeners to card action buttons
+    this.reportsContainer.querySelectorAll('.btn-resolve-report').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.getAttribute('data-id');
+        const report = this.reports.find(r => r.id === id);
+        if (report) this.openResolveModal(report);
+      });
+    });
+
+    this.reportsContainer.querySelectorAll('.btn-reject-report').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const id = btn.getAttribute('data-id');
+        if (confirm('Rejeter ce signalement ? Aucun patch ne sera appliqué.')) {
+          await this.rejectReport(id);
+        }
+      });
+    });
+
+    this.reportsContainer.querySelectorAll('.btn-delete-report').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const id = btn.getAttribute('data-id');
+        if (confirm('Supprimer définitivement ce signalement et son patch éventuel ?')) {
+          await this.deleteReport(id);
+        }
+      });
+    });
+  }
+
+  openResolveModal(report) {
+    const modal = document.getElementById('adminResolveReportModal');
+    const idInp = document.getElementById('resolveReportId');
+    const contextEl = document.getElementById('resolveModalContext');
+    const origDisplay = document.getElementById('resolveOriginalTextDisplay');
+    const textInp = document.getElementById('resolveCorrectedTextInput');
+
+    if (!modal) return;
+    if (idInp) idInp.value = report.id;
+    if (contextEl) {
+      const volPart = report.volumeTitle ? ` • ${report.volumeTitle}` : '';
+      contextEl.textContent = `${report.seriesTitle}${volPart} • ${report.chapterTitle}`;
+    }
+    if (origDisplay) origDisplay.textContent = report.selectedText;
+    if (textInp) {
+      textInp.value = report.correctedText || report.suggestedCorrection || report.selectedText;
+    }
+
+    modal.classList.remove('hidden');
+    if (textInp) setTimeout(() => textInp.focus(), 50);
+  }
+
+  closeResolveModal() {
+    const modal = document.getElementById('adminResolveReportModal');
+    if (modal) modal.classList.add('hidden');
+  }
+
+  async confirmResolveReport() {
+    const idInp = document.getElementById('resolveReportId');
+    const textInp = document.getElementById('resolveCorrectedTextInput');
+    const confirmBtn = document.getElementById('confirmResolveModalBtn');
+    const id = idInp ? idInp.value : '';
+    const text = textInp ? textInp.value.trim() : '';
+
+    if (!id || !text) {
+      alert('Veuillez renseigner le texte corrigé.');
+      return;
+    }
+
+    const origBtnHtml = confirmBtn ? confirmBtn.innerHTML : '';
+    if (confirmBtn) {
+      confirmBtn.disabled = true;
+      confirmBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Application...';
+    }
+
+    try {
+      const headers = await this.getHeaders();
+      const res = await fetch(`/api/admin/reports/${encodeURIComponent(id)}/resolve`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ correctedText: text, applyPatch: true })
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || 'Erreur lors de l\'application');
+      }
+
+      this.closeResolveModal();
+      await this.loadReportsData();
+      this.renderReportsList();
+
+      if (typeof window.showToast === 'function') {
+        window.showToast('Correction validée et appliquée en direct !');
+      } else {
+        alert('Correction validée et appliquée en direct pour tous les lecteurs !');
+      }
+    } catch (err) {
+      console.error('[AdminManager] Erreur resolveReport:', err);
+      alert('Erreur : ' + err.message);
+    } finally {
+      if (confirmBtn) {
+        confirmBtn.disabled = false;
+        confirmBtn.innerHTML = origBtnHtml;
+      }
+    }
+  }
+
+  async rejectReport(id) {
+    try {
+      const headers = await this.getHeaders();
+      const res = await fetch(`/api/admin/reports/${encodeURIComponent(id)}/reject`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ reason: 'Non justifié' })
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) throw new Error(data.error || 'Erreur');
+      await this.loadReportsData();
+      this.renderReportsList();
+    } catch (err) {
+      alert('Impossible de rejeter : ' + err.message);
+    }
+  }
+
+  async deleteReport(id) {
+    try {
+      const headers = await this.getHeaders();
+      const res = await fetch(`/api/admin/reports/${encodeURIComponent(id)}`, {
+        method: 'DELETE',
+        headers
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) throw new Error(data.error || 'Erreur');
+      await this.loadReportsData();
+      this.renderReportsList();
+    } catch (err) {
+      alert('Impossible de supprimer : ' + err.message);
+    }
+  }
+
+}
