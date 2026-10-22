@@ -2837,6 +2837,156 @@ window.checkIsDownloadRestricted = function(targetBook) {
     alert("Le lien de téléchargement direct n'a pas pu être résolu pour ce volume.");
   };
 
+  
+  // =========================================================================
+  // UNIFIED READER TRANSLATION REPORT LOGIC
+  // =========================================================================
+  window.openUnifiedReaderReportModal = function(prefilledText = '') {
+    const modal = document.getElementById('readerReportModal') || document.getElementById('wnReportModal');
+    if (!modal) return;
+
+    if (typeof window.initUnifiedReportModalHandlers === 'function') {
+      window.initUnifiedReportModalHandlers();
+    }
+
+    const contextText = modal.querySelector('#readerReportContextText') || modal.querySelector('#wnReportContextText');
+    const selectedTextInput = modal.querySelector('#readerReportSelectedText') || modal.querySelector('#wnReportSelectedText');
+    const correctionInput = modal.querySelector('#readerReportCorrection') || modal.querySelector('#wnReportCorrection');
+    const commentInput = modal.querySelector('#readerReportComment') || modal.querySelector('#wnReportComment');
+
+    const activeBook = (typeof currentBookRef !== 'undefined' ? currentBookRef : null) || window.currentBookRef;
+    const readerTitleEl = document.getElementById('readerTitle') || document.getElementById('wnReaderTitle');
+
+    let bookTitle = activeBook ? (activeBook.title || 'Volume') : (readerTitleEl ? readerTitleEl.textContent.trim() : 'Livre');
+    let chapterNum = activeBook && activeBook.chapterNumber ? activeBook.chapterNumber : 1;
+    let chapterTitle = activeBook && activeBook.chapterTitle ? activeBook.chapterTitle : ('Chapitre ' + chapterNum);
+
+    if (contextText) {
+      contextText.textContent = bookTitle + ' • ' + chapterTitle;
+    }
+
+    let sel = prefilledText;
+    if (!sel) {
+      try {
+        if (window.getSelection) {
+          const s = window.getSelection().toString().trim();
+          if (s && s.length > 2) sel = s;
+        }
+      } catch(e) {}
+      if (!sel) {
+        try {
+          const viewer = document.getElementById('readerViewer');
+          const iframes = viewer ? viewer.querySelectorAll('iframe') : [];
+          for (const iframe of iframes) {
+            if (iframe.contentWindow && iframe.contentWindow.getSelection) {
+              const s = iframe.contentWindow.getSelection().toString().trim();
+              if (s && s.length > 2) { sel = s; break; }
+            }
+          }
+        } catch(e) {}
+      }
+    }
+
+    if (selectedTextInput) selectedTextInput.value = sel || '';
+    if (correctionInput) correctionInput.value = '';
+    if (commentInput) commentInput.value = '';
+
+    modal.classList.remove('hidden');
+    if (selectedTextInput) setTimeout(() => selectedTextInput.focus(), 60);
+  };
+
+  window.initUnifiedReportModalHandlers = function() {
+    const modal = document.getElementById('readerReportModal');
+    if (!modal || modal._isInit) return;
+    modal._isInit = true;
+
+    const closeBtn = document.getElementById('closeReaderReportModalBtn');
+    const cancelBtn = document.getElementById('cancelReaderReportBtn');
+    const submitBtn = document.getElementById('submitReaderReportBtn');
+
+    const closeModal = () => modal.classList.add('hidden');
+    if (closeBtn) closeBtn.onclick = closeModal;
+    if (cancelBtn) cancelBtn.onclick = closeModal;
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) closeModal();
+    });
+
+    if (submitBtn) {
+      submitBtn.onclick = async () => {
+        const selectedTextInput = document.getElementById('readerReportSelectedText');
+        const reasonSelect = document.getElementById('readerReportReason');
+        const correctionInput = document.getElementById('readerReportCorrection');
+        const commentInput = document.getElementById('readerReportComment');
+
+        const text = (selectedTextInput ? selectedTextInput.value : '').trim();
+        if (!text) {
+          alert('Veuillez renseigner ou coller la phrase concernée par l\'erreur.');
+          if (selectedTextInput) selectedTextInput.focus();
+          return;
+        }
+
+        const activeBook = (typeof currentBookRef !== 'undefined' ? currentBookRef : null) || window.currentBookRef;
+        const readerTitleEl = document.getElementById('readerTitle');
+        const bookTitle = activeBook ? (activeBook.title || 'Volume') : (readerTitleEl ? readerTitleEl.textContent.trim() : 'Livre');
+        const seriesId = activeBook ? (activeBook.fileKey || activeBook.key || activeBook.id || bookTitle) : bookTitle;
+        const chapterNum = activeBook && activeBook.chapterNumber ? activeBook.chapterNumber : 1;
+        const chapterTitle = activeBook && activeBook.chapterTitle ? activeBook.chapterTitle : ('Chapitre ' + chapterNum);
+
+        const payload = {
+          seriesId,
+          seriesTitle: bookTitle,
+          volumeTitle: bookTitle,
+          chapterNum,
+          chapterTitle,
+          selectedText: text,
+          reason: reasonSelect ? reasonSelect.value : 'contresens',
+          suggestedCorrection: correctionInput ? correctionInput.value.trim() : '',
+          comment: commentInput ? commentInput.value.trim() : ''
+        };
+
+        const originalBtnHtml = submitBtn.innerHTML;
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Envoi...';
+
+        try {
+          const headers = { 'Content-Type': 'application/json' };
+          if (window.authManager && typeof window.authManager.getAccessToken === 'function') {
+            const token = await window.authManager.getAccessToken();
+            if (token) headers['Authorization'] = 'Bearer ' + token;
+          }
+
+          const res = await fetch('/api/reports/translation', {
+            method: 'POST',
+            headers,
+            body: JSON.stringify(payload)
+          });
+
+          const data = await res.json();
+          if (!res.ok || !data.success) {
+            throw new Error(data.error || 'Erreur lors de l\'envoi du signalement');
+          }
+
+          closeModal();
+
+          const toast = document.getElementById('seriesToast') || document.getElementById('globalToast');
+          if (toast) {
+            toast.textContent = '🚩 Merci ! Votre signalement a été transmis à l\'équipe de traduction.';
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 4000);
+          } else {
+            alert('🚩 Merci ! Votre signalement a bien été transmis à l\'équipe.');
+          }
+        } catch (err) {
+          console.error('[TranslationReport] Erreur:', err);
+          alert('Impossible d\'envoyer le signalement : ' + err.message);
+        } finally {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = originalBtnHtml;
+        }
+      };
+    }
+  };
+
   document.addEventListener("DOMContentLoaded", function () {
     const readerOverlayEl = document.getElementById("readerOverlay");
     if (readerOverlayEl) {
@@ -2844,6 +2994,15 @@ window.checkIsDownloadRestricted = function(targetBook) {
       window.attachReaderScrollObserver(document.getElementById("readerMainContainer"));
     }
     const closeBtn = document.getElementById("closeReaderBtn");
+    const reportErrorBtn = document.getElementById("readerReportErrorBtn");
+    if (reportErrorBtn) {
+      reportErrorBtn.addEventListener("click", function() {
+        if (typeof window.openUnifiedReaderReportModal === "function") {
+          window.openUnifiedReaderReportModal();
+        }
+      });
+    }
+    window.initUnifiedReportModalHandlers && window.initUnifiedReportModalHandlers();
     const downloadBtn = document.getElementById("readerDownloadBtn");
     if (downloadBtn) {
       downloadBtn.addEventListener("click", function() {
