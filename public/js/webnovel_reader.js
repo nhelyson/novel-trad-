@@ -71,6 +71,7 @@
     // =========================================================================
     // API Dédiée : Lecture Rapide par Chapitre pour Volume EPUB (Mode Éco 30 Ko)
     window.openVolumeWebnovelReader = async function(volumeKey, chapterNum = 1, volumeTitle = '') {
+        window.triggerReportOnboardingTip && window.triggerReportOnboardingTip();
         await loadSettings();
         currentChapterNum = parseInt(chapterNum) || 1;
 
@@ -165,6 +166,7 @@
     }
 
     window.openWebnovelReader = async function(seriesId, chapterNum = 1, initialScroll = 0) {
+        window.triggerReportOnboardingTip && window.triggerReportOnboardingTip();
         await loadSettings();
         currentChapterNum = parseInt(chapterNum) || 1;
 

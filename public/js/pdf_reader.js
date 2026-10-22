@@ -479,6 +479,7 @@ window.checkIsDownloadRestricted = function(targetBook) {
   };
 
   window.openBookReader = async function (book) {
+    window.triggerReportOnboardingTip && window.triggerReportOnboardingTip();
     if (!book) return;
     currentBookRef = book;
     window.currentBookRef = book;
@@ -1932,6 +1933,7 @@ window.checkIsDownloadRestricted = function(targetBook) {
   };
 
   window.openPdfReader = async function (book) {
+    window.triggerReportOnboardingTip && window.triggerReportOnboardingTip();
     if (book && !book._forceRawPdf && typeof window.openBookReader === 'function') {
       return window.openBookReader(book);
     }
@@ -2841,6 +2843,39 @@ window.checkIsDownloadRestricted = function(targetBook) {
   // =========================================================================
   // UNIFIED READER TRANSLATION REPORT LOGIC
   // =========================================================================
+  
+  window.triggerReportOnboardingTip = function() {
+    try {
+      if (localStorage.getItem('noveltrad_reported_tip_seen')) {
+        document.querySelectorAll('#reportNewBadge').forEach(b => b.style.display = 'none');
+        return;
+      }
+      const toast = document.getElementById('readerReportTipToast');
+      if (!toast) return;
+
+      setTimeout(() => {
+        if (!localStorage.getItem('noveltrad_reported_tip_seen')) {
+          toast.classList.remove('hidden');
+          setTimeout(() => toast.classList.add('show'), 30);
+        }
+      }, 1200);
+
+      const dismiss = () => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.classList.add('hidden'), 350);
+        try { localStorage.setItem('noveltrad_reported_tip_seen', 'true'); } catch(e) {}
+        document.querySelectorAll('#reportNewBadge').forEach(b => b.style.display = 'none');
+      };
+
+      const closeBtn = document.getElementById('closeReportTipBtn');
+      if (closeBtn) closeBtn.onclick = dismiss;
+
+      setTimeout(() => {
+        if (toast.classList.contains('show')) dismiss();
+      }, 8000);
+    } catch(e) {}
+  };
+
   window.openUnifiedReaderReportModal = function(prefilledText = '') {
     const modal = document.getElementById('readerReportModal') || document.getElementById('wnReportModal');
     if (!modal) return;

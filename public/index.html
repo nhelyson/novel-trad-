@@ -92,7 +92,7 @@
       } catch(e) {}
     })();
   </script>
-  <link rel="stylesheet" href="css/noveltrad.app.min.css?v=1792689954539">
+  <link rel="stylesheet" href="css/noveltrad.app.min.css?v=1792690596620">
     <!-- Console Signature -->
   <script>
     (function() {
@@ -2124,7 +2124,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
   <script src="js/jszip.min.js?v=1792467041992"></script>
   <script src="js/epub.min.js?v=1792467041992"></script>
-  <script src="js/noveltrad.app.min.js?v=1792689954539"></script>
+  <script src="js/noveltrad.app.min.js?v=1792690596620"></script>
 
   <script>
     if ('serviceWorker' in navigator) {
@@ -2283,5 +2283,11 @@
     </div>
   </div>
 
+
+  <!-- TOAST D'ONBOARDING DU SIGNALEMENT (AFFICHE 1 SEULE FOIS) -->
+  <div id="readerReportTipToast" class="reader-onboarding-toast hidden">
+    <span>💡 <strong>Nouveau :</strong> Une faute ou un contresens ? Surlignez la phrase ou cliquez sur <i class="fa-solid fa-flag" style="color:#ef4444;"></i> pour la corriger !</span>
+    <button type="button" id="closeReportTipBtn" class="reader-onboarding-toast-close" title="Compris">&times;</button>
+  </div>
 </body>
 </html>

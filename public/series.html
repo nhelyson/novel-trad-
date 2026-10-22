@@ -61,7 +61,7 @@
       } catch(e) {}
     })();
   </script>
-  <link rel="stylesheet" href="css/noveltrad.app.min.css?v=1792689954539">
+  <link rel="stylesheet" href="css/noveltrad.app.min.css?v=1792690596620">
     <!-- Console Signature -->
   <script>
     (function() {
@@ -827,7 +827,7 @@
         </div>
 
         <button id="wnTocBtn" class="wn-tool-btn" title="Sommaire des Chapitres"><i class="fa-solid fa-list"></i></button>
-        <button id="wnReportErrorBtn" class="wn-tool-btn" title="Signaler une erreur de traduction"><i class="fa-solid fa-flag" style="color: #ef4444;"></i></button>
+        <button id="wnReportErrorBtn" class="wn-tool-btn" title="Signaler une erreur de traduction" style="position:relative;"><i class="fa-solid fa-flag" style="color: #ef4444;"></i><span class="reader-tool-badge-new" id="reportNewBadge">NEW</span></button>
         <span id="wnProgressText" class="history-badge" style="display:inline-block; font-size:0.75rem;">0%</span>
       </div>
     </header>
@@ -917,7 +917,7 @@
   <script src="js/epub.min.js?v=1789351336060"></script>
 
   <!-- Core NovelTrad Application Scripts -->
-  <script src="js/noveltrad.app.min.js?v=1792689954539"></script>
+  <script src="js/noveltrad.app.min.js?v=1792690596620"></script>
   <!-- PWA Service Worker -->
   <script>
     if ('serviceWorker' in navigator) {
@@ -1162,5 +1162,11 @@
     </div>
   </div>
 
+
+  <!-- TOAST D'ONBOARDING DU SIGNALEMENT (AFFICHE 1 SEULE FOIS) -->
+  <div id="readerReportTipToast" class="reader-onboarding-toast hidden">
+    <span>💡 <strong>Nouveau :</strong> Une faute ou un contresens ? Surlignez la phrase ou cliquez sur <i class="fa-solid fa-flag" style="color:#ef4444;"></i> pour la corriger !</span>
+    <button type="button" id="closeReportTipBtn" class="reader-onboarding-toast-close" title="Compris">&times;</button>
+  </div>
 </body>
 </html>
