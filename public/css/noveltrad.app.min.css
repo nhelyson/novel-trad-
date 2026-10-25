@@ -19307,37 +19307,156 @@ html.theme-light .series-recommendations-section {
 
 
 
+/* ── ONBOARDING REPORT TIP TOAST & NEW BADGE ── */
 .reader-onboarding-toast {
   position: fixed;
-  bottom: 24px;
+  bottom: 30px;
   left: 50%;
-  transform: translateX(-50%) translateY(20px);
-  background: rgba(24, 24, 27, 0.95);
+  transform: translateX(-50%) translateY(30px);
+  background: linear-gradient(135deg, rgba(20, 20, 26, 0.96) 0%, rgba(14, 14, 18, 0.98) 100%);
   border: 1px solid rgba(239, 68, 68, 0.45);
   color: #f4f4f5;
-  padding: 10px 18px;
-  border-radius: 9999px;
-  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.6), 0 0 20px rgba(239, 68, 68, 0.25);
+  padding: 14px 20px;
+  border-radius: 16px;
+  box-shadow: 0 20px 48px -10px rgba(0, 0, 0, 0.8), 0 0 28px rgba(239, 68, 68, 0.22);
   display: flex;
   align-items: center;
-  gap: 12px;
-  font-size: 13px;
-  z-index: 10005;
+  gap: 16px;
+  z-index: 100005;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1), transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  max-width: calc(100vw - 32px);
-  white-space: nowrap;
+  transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1), transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  max-width: 640px;
+  width: calc(100vw - 40px);
 }
 
-@media (max-width: 600px) {
+.reader-toast-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  color: #ef4444;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.15rem;
+  flex-shrink: 0;
+  box-shadow: 0 0 14px rgba(239, 68, 68, 0.2);
+}
+
+.reader-toast-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.reader-toast-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.reader-toast-pill {
+  background: #ef4444;
+  color: #ffffff;
+  font-size: 9px;
+  font-weight: 800;
+  padding: 2px 6px;
+  border-radius: 6px;
+  letter-spacing: 0.5px;
+  line-height: 1.1;
+  text-transform: uppercase;
+}
+
+.reader-toast-title {
+  color: #ffffff;
+  font-size: 13.5px;
+  font-weight: 700;
+  letter-spacing: -0.1px;
+}
+
+.reader-toast-text {
+  color: #d4d4d8;
+  font-size: 12px;
+  line-height: 1.45;
+  margin: 0;
+}
+
+.reader-toast-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.reader-toast-action-btn {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: #ffffff;
+  border: none;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 7px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
+  white-space: nowrap;
+  box-shadow: 0 2px 10px rgba(239, 68, 68, 0.35);
+}
+
+.reader-toast-action-btn:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(239, 68, 68, 0.5);
+}
+
+.reader-toast-action-btn:active {
+  transform: translateY(0);
+}
+
+.reader-onboarding-toast-close {
+  background: none;
+  border: none;
+  color: #a1a1aa;
+  font-size: 1.25rem;
+  cursor: pointer;
+  padding: 4px 6px;
+  line-height: 1;
+  transition: color 0.15s ease, transform 0.15s ease;
+}
+
+.reader-onboarding-toast-close:hover {
+  color: #ffffff;
+  transform: scale(1.1);
+}
+
+@media (max-width: 680px) {
   .reader-onboarding-toast {
-    white-space: normal;
+    bottom: 85px;
+    padding: 12px 14px;
+    gap: 12px;
     border-radius: 14px;
-    font-size: 12px;
-    bottom: 70px;
+    flex-wrap: wrap;
+  }
+  .reader-toast-icon {
+    width: 36px;
+    height: 36px;
+    font-size: 1rem;
+  }
+  .reader-toast-title {
+    font-size: 12.5px;
+  }
+  .reader-toast-text {
+    font-size: 11.5px;
+  }
+  .reader-toast-actions {
+    width: 100%;
+    justify-content: flex-end;
+    margin-top: 4px;
+    padding-top: 6px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
   }
 }
 
@@ -19349,21 +19468,6 @@ html.theme-light .series-recommendations-section {
 
 .reader-onboarding-toast.hidden {
   display: none !important;
-}
-
-.reader-onboarding-toast-close {
-  background: none;
-  border: none;
-  color: #a1a1aa;
-  font-size: 1.1rem;
-  cursor: pointer;
-  padding: 0 4px;
-  line-height: 1;
-  transition: color 0.15s ease;
-}
-
-.reader-onboarding-toast-close:hover {
-  color: #fff;
 }
 
 .reader-tool-badge-new {
@@ -19391,6 +19495,12 @@ html.theme-light .series-recommendations-section {
 
 #readerReportErrorBtn, #wnReportErrorBtn {
   position: relative !important;
+}
+
+/* Assurer la sélection fluide du texte dans le lecteur sur tactile / mobile et mode PWA */
+.pdf-reflow-content, .wn-chapter-body, .reader-text-container, [data-reader-selectable] {
+  user-select: text !important;
+  -webkit-user-select: text !important;
 }
 
 

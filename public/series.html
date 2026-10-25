@@ -1224,9 +1224,23 @@
     </div>
   </div>
 
-  <div id="readerReportTipToast" class="reader-onboarding-toast hidden">
-    <span>💡 <strong>Nouveau :</strong> Une faute ou un contresens ? Surlignez la phrase ou cliquez sur <i class="fa-solid fa-flag" style="color:#ef4444;"></i> pour la corriger !</span>
-    <button type="button" id="closeReportTipBtn" class="reader-onboarding-toast-close" title="Compris">&times;</button>
+  <div id="readerReportTipToast" class="reader-onboarding-toast hidden" role="alert" aria-live="polite">
+    <div class="reader-toast-icon">
+      <i class="fa-solid fa-flag"></i>
+    </div>
+    <div class="reader-toast-content">
+      <div class="reader-toast-header">
+        <span class="reader-toast-pill">NOUVEAU</span>
+        <strong class="reader-toast-title">Signalez les erreurs de traduction</strong>
+      </div>
+      <p class="reader-toast-text">
+        Une coquille ou un contresens ? Surlignez la phrase ou cliquez sur le drapeau <i class="fa-solid fa-flag" style="color:#ef4444; font-size:11px;"></i> pour suggérer une correction !
+      </p>
+    </div>
+    <div class="reader-toast-actions">
+      <button type="button" id="confirmReportTipBtn" class="reader-toast-action-btn">C'est compris !</button>
+      <button type="button" id="closeReportTipBtn" class="reader-onboarding-toast-close" title="Fermer" aria-label="Fermer">&times;</button>
+    </div>
   </div>
 </body>
 </html>

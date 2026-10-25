@@ -2844,38 +2844,61 @@ window.checkIsDownloadRestricted = function(targetBook) {
   // UNIFIED READER TRANSLATION REPORT LOGIC
   // =========================================================================
   
-  window.triggerReportOnboardingTip = function() {
+    window.triggerReportOnboardingTip = function(force = false) {
     try {
-      if (localStorage.getItem('noveltrad_reported_tip_seen')) {
-        document.querySelectorAll('#reportNewBadge').forEach(b => b.style.display = 'none');
-        return;
-      }
+      const STORAGE_KEY = 'noveltrad_reported_tip_seen_v2';
       const toast = document.getElementById('readerReportTipToast');
       if (!toast) return;
 
-      setTimeout(() => {
-        if (!localStorage.getItem('noveltrad_reported_tip_seen')) {
-          toast.classList.remove('hidden');
-          setTimeout(() => toast.classList.add('show'), 30);
-        }
-      }, 1200);
+      if (!force && localStorage.getItem(STORAGE_KEY)) {
+        document.querySelectorAll('#reportNewBadge').forEach(b => b.style.display = 'none');
+        return;
+      }
 
-      const dismiss = () => {
+      // Timer d'apparition douce
+      setTimeout(() => {
+        if (force || !localStorage.getItem(STORAGE_KEY)) {
+          toast.classList.remove('hidden');
+          setTimeout(() => toast.classList.add('show'), 40);
+        }
+      }, 1000);
+
+      // Fermeture et acquittement volontaire
+      const acknowledgeAndDismiss = () => {
         toast.classList.remove('show');
         setTimeout(() => toast.classList.add('hidden'), 350);
-        try { localStorage.setItem('noveltrad_reported_tip_seen', 'true'); } catch(e) {}
+        try { localStorage.setItem(STORAGE_KEY, 'true'); } catch(e) {}
         document.querySelectorAll('#reportNewBadge').forEach(b => b.style.display = 'none');
       };
 
-      const closeBtn = document.getElementById('closeReportTipBtn');
-      if (closeBtn) closeBtn.onclick = dismiss;
+      // Fermeture temporaire sans marquer définitivement comme vu
+      const softDismiss = () => {
+        if (toast.classList.contains('show')) {
+          toast.classList.remove('show');
+          setTimeout(() => toast.classList.add('hidden'), 350);
+        }
+      };
 
+      const closeBtn = document.getElementById('closeReportTipBtn');
+      if (closeBtn) closeBtn.onclick = acknowledgeAndDismiss;
+
+      const confirmBtn = document.getElementById('confirmReportTipBtn');
+      if (confirmBtn) confirmBtn.onclick = acknowledgeAndDismiss;
+
+      // Masquage doux après 14 secondes pour ne pas gêner la lecture
       setTimeout(() => {
-        if (toast.classList.contains('show')) dismiss();
-      }, 8000);
-    } catch(e) {}
+        softDismiss();
+      }, 14000);
+    } catch(e) {
+      console.warn('[Reader] Toast error:', e);
+    }
   };
 
+  window.showReportOnboardingToast = function(force = true) {
+    if (typeof window.triggerReportOnboardingTip === 'function') {
+      window.triggerReportOnboardingTip(force);
+    }
+  };
   window.openUnifiedReaderReportModal = function(prefilledText = '') {
     const modal = document.getElementById('readerReportModal') || document.getElementById('wnReportModal');
     if (!modal) return;
