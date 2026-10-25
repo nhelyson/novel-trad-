@@ -29035,3 +29035,57 @@ html.theme-light .nav-mobile-search-box input {
   font-size: 10.5px !important;
 }
 
+
+
+/* ── RESPONSIVITÉ PARFAITE DE LA BARRE D'OUTILS SUR MOBILE ── */
+@media (max-width: 600px) {
+  /* Transformer le badge NEW en micro-point rouge néon discret */
+  .reader-tool-badge-new {
+    top: 3px !important;
+    right: 3px !important;
+    width: 7px !important;
+    height: 7px !important;
+    padding: 0 !important;
+    font-size: 0 !important;
+    line-height: 0 !important;
+    border-radius: 50% !important;
+  }
+
+  /* Compacter la barre d'outils du lecteur PDF / EPUB */
+  .premium-reader-toolbar {
+    padding: 6px 8px !important;
+  }
+  .toolbar-left, .toolbar-right {
+    gap: 4px !important;
+  }
+  .toolbar-title {
+    max-width: 100px !important;
+    font-size: 12px !important;
+  }
+  #readerFullscreenBtn {
+    display: none !important;
+  }
+
+  /* Compacter la barre d'outils Webnovel */
+  .wn-toolbar {
+    padding: 0 10px !important;
+    height: 52px !important;
+  }
+  .wn-toolbar-left {
+    gap: 8px !important;
+  }
+  .wn-toolbar-right {
+    gap: 4px !important;
+  }
+  .wn-tool-btn {
+    padding: 6px 8px !important;
+    font-size: 0.95rem !important;
+  }
+  #wnTopPrevBtn, #wnTopNextBtn {
+    display: none !important;
+  }
+  .wn-font-controls {
+    display: none !important;
+  }
+}
+

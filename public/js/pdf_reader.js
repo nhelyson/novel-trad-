@@ -2844,34 +2844,50 @@ window.checkIsDownloadRestricted = function(targetBook) {
   // UNIFIED READER TRANSLATION REPORT LOGIC
   // =========================================================================
   
-    window.triggerReportOnboardingTip = function(force = false) {
+      window.triggerReportOnboardingTip = function(force = false) {
     try {
       const STORAGE_KEY = 'noveltrad_reported_tip_seen_v2';
+      const COUNT_KEY = 'noveltrad_report_tip_views_v2';
       const toast = document.getElementById('readerReportTipToast');
       if (!toast) return;
 
-      if (!force && localStorage.getItem(STORAGE_KEY)) {
+      // Si l'utilisateur a explicitement validé ("C'est compris !" ou croix), on ne l'affiche plus
+      if (!force && localStorage.getItem(STORAGE_KEY) === 'dismissed') {
+        document.querySelectorAll('#reportNewBadge').forEach(b => b.style.display = 'none');
+        return;
+      }
+
+      // Compteur d'affichages (max 3 fois au total sur différentes séries/lectures)
+      let views = parseInt(localStorage.getItem(COUNT_KEY) || '0', 10);
+      if (!force && views >= 3) {
         document.querySelectorAll('#reportNewBadge').forEach(b => b.style.display = 'none');
         return;
       }
 
       // Timer d'apparition douce
       setTimeout(() => {
-        if (force || !localStorage.getItem(STORAGE_KEY)) {
+        const isDismissed = localStorage.getItem(STORAGE_KEY) === 'dismissed';
+        const currentViews = parseInt(localStorage.getItem(COUNT_KEY) || '0', 10);
+        if (force || (!isDismissed && currentViews < 3)) {
           toast.classList.remove('hidden');
           setTimeout(() => toast.classList.add('show'), 40);
+          try {
+            localStorage.setItem(COUNT_KEY, String(currentViews + 1));
+          } catch(e) {}
         }
       }, 1000);
 
-      // Fermeture et acquittement volontaire
+      // Fermeture et acquittement volontaire définitif
       const acknowledgeAndDismiss = () => {
         toast.classList.remove('show');
         setTimeout(() => toast.classList.add('hidden'), 350);
-        try { localStorage.setItem(STORAGE_KEY, 'true'); } catch(e) {}
+        try { 
+          localStorage.setItem(STORAGE_KEY, 'dismissed'); 
+        } catch(e) {}
         document.querySelectorAll('#reportNewBadge').forEach(b => b.style.display = 'none');
       };
 
-      // Fermeture temporaire sans marquer définitivement comme vu
+      // Fermeture temporaire (après 14s sans clic) : ne bloque pas les prochaines lectures
       const softDismiss = () => {
         if (toast.classList.contains('show')) {
           toast.classList.remove('show');
@@ -2899,7 +2915,7 @@ window.checkIsDownloadRestricted = function(targetBook) {
       window.triggerReportOnboardingTip(force);
     }
   };
-  window.openUnifiedReaderReportModal = function(prefilledText = '') {
+window.openUnifiedReaderReportModal = function(prefilledText = '') {
     const modal = document.getElementById('readerReportModal') || document.getElementById('wnReportModal');
     if (!modal) return;
 
