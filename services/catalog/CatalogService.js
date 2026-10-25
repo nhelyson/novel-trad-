@@ -1,12 +1,29 @@
 const fs = require('fs');
 const path = require('path');
 
+// Helper parsing timestamp unifié (number ou string ISO/date)
+const parseTime = (val) => {
+    if (!val) return 0;
+    if (typeof val === 'number') return val;
+    const t = new Date(val).getTime();
+    return isNaN(t) ? 0 : t;
+};
+
 // Helper date réelle de parution (dernier volume ou publication de l'oeuvre)
 const getReleaseTime = (s) => {
-    let t = s.approved_at || s.created_at || (s.releaseDate ? new Date(s.releaseDate).getTime() : 0) || 0;
+    let t = Math.max(
+        parseTime(s.approved_at),
+        parseTime(s.updated_at),
+        parseTime(s.created_at),
+        parseTime(s.releaseDate)
+    );
     if (Array.isArray(s.volumes) && s.volumes.length > 0) {
         for (const v of s.volumes) {
-            const vt = v.uploaded_at || v.created_at || (v.release_date ? new Date(v.release_date).getTime() : 0) || 0;
+            const vt = Math.max(
+                parseTime(v.uploaded_at),
+                parseTime(v.created_at),
+                parseTime(v.release_date)
+            );
             if (vt > t) t = vt;
         }
     }
@@ -294,6 +311,7 @@ class CatalogService {
             synopsis_fr: s.synopsis_fr || s.synopsis || '',
             created_at: s.created_at || 0,
             approved_at: s.approved_at || 0,
+            updated_at: s.updated_at || 0,
             releaseDate: s.releaseDate || '',
             release_time: getReleaseTime(s),
             is_new: (Date.now() - getReleaseTime(s)) < (7 * 24 * 60 * 60 * 1000),
