@@ -514,18 +514,34 @@ initDeckCards() {
           const latestSelection = [...list].sort((a, b) => getReleaseTime(b) - getReleaseTime(a));
           this.renderLnoriGrid('homeLatestGrid', latestSelection.slice(0, 20));
 
-          // 2. TENDANCES EN COULISSES (Vues réelles collectées + Nouveauté des tomes sur 30 jours)
+          // 2. TENDANCES (Vues réelles pondérées par la vélocité récente, sans points magiques)
           const getTrendingScore = (s) => {
             const views = s.views || 0;
-            const volCount = (Array.isArray(s.volumes) && s.volumes.length > 0) ? s.volumes.length : (s.volume_count || 1);
+            // Une série sans aucune vue ne peut mathématiquement pas être une tendance
+            if (views === 0) return 0;
+
             const relTime = getReleaseTime(s);
             const daysAgo = Math.max(0, (Date.now() - relTime) / (1000 * 60 * 60 * 24));
-            const recencyBonus = daysAgo < 30 ? Math.round((30 - daysAgo) * 20) : 0;
-            return (views * 3) + (volCount * 12) + recencyBonus;
+            // Multiplicateur doux : de x1.8 aujourd'hui à x1.0 après 30 jours
+            const recencyMultiplier = daysAgo < 30 ? (1 + ((30 - daysAgo) / 30) * 0.8) : 1.0;
+            const ratingBonus = (parseFloat(s.rating) || 4.0) * 0.5;
+            return (views * recencyMultiplier) + ratingBonus;
           };
 
-          const trendingSelection = [...list].sort((a, b) => getTrendingScore(b) - getTrendingScore(a)).slice(0, 10);
-          this.renderLnoriGrid('homeTrendingGrid', trendingSelection);
+          const trendingSelection = [...list]
+            .filter(s => (s.views || 0) > 0)
+            .sort((a, b) => getTrendingScore(b) - getTrendingScore(a))
+            .slice(0, 10);
+
+          if (trendingSelection.length < 4) {
+            // Fallback gracieux pour catalogue neuf
+            const fallback = [...list]
+              .sort((a, b) => (b.views || 0) - (a.views || 0) || (b.rating || 0) - (a.rating || 0))
+              .slice(0, 10);
+            this.renderLnoriGrid('homeTrendingGrid', fallback);
+          } else {
+            this.renderLnoriGrid('homeTrendingGrid', trendingSelection);
+          }
 
           // 3. CHEFS-D'ŒUVRE MIEUX NOTÉS
           const topRated = [...list].sort((a, b) => {

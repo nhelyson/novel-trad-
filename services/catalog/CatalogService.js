@@ -232,25 +232,24 @@ class CatalogService {
 
         // 5. Sort Order (popular, rating, latest, az / title, za)
         if (sort === 'popular') {
-            const now = Date.now();
-            const getScore = (s) => {
-                const views = s.views || 0;
-                const relTime = getReleaseTime(s);
-                const daysAgo = Math.max(0, (now - relTime) / (1000 * 60 * 60 * 24));
-                // Bonus de visibilité pour les nouveautés : +35 points aujourd'hui, dégressif sur 14 jours
-                const recencyBoost = daysAgo < 14 ? Math.round((14 - daysAgo) * 2.5) : 0;
-                return views + recencyBoost;
-            };
-
             list.sort((a, b) => {
-                const diff = getScore(b) - getScore(a);
-                if (diff !== 0) return diff;
-                // En cas d'égalité, les parutions récentes passent systématiquement DEVANT
-                const timeDiff = getReleaseTime(b) - getReleaseTime(a);
-                if (timeDiff !== 0) return timeDiff;
-                const rA = (parseFloat(a.rating) || 4.0) * 10 + ((a.volumes || []).length * 2);
-                const rB = (parseFloat(b.rating) || 4.0) * 10 + ((b.volumes || []).length * 2);
-                return rB - rA;
+                // 1. Critère primaire : Vues réelles (la série avec le plus de lectures passe en tête)
+                const vA = a.views || 0;
+                const vB = b.views || 0;
+                if (vB !== vA) return vB - vA;
+
+                // 2. Critère secondaire : Note / Appréciation (en cas d'égalité de vues)
+                const rA = parseFloat(a.rating) || 4.0;
+                const rB = parseFloat(b.rating) || 4.0;
+                if (rB !== rA) return rB - rA;
+
+                // 3. Critère tertiaire : Nombre de volumes disponibles
+                const volA = (a.volumes || []).length;
+                const volB = (b.volumes || []).length;
+                if (volB !== volA) return volB - volA;
+
+                // 4. Dernier recours : Ordre alphabétique stable
+                return (a.title || '').localeCompare(b.title || '');
             });
         } else if (sort === 'rating') {
             list.sort((a, b) => (b.rating || 0) - (a.rating || 0));
