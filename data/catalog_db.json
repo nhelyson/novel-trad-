@@ -32,7 +32,7 @@
       "banner": "https://s4.anilist.co/file/anilistcdn/media/manga/cover/large/bx115935-8KLFsuYlRlDR.jpg",
       "featured": false,
       "rating": 4.8,
-      "views": 1,
+      "views": 0,
       "likes": 0,
       "formats": [
         "epub"
@@ -70,9 +70,7 @@
       "rejection_reason": null,
       "reviewed_by": "5657d33e-952c-43d6-a222-8842b026699b",
       "previous_rejection_reason": "le chapitre est anglais ",
-      "approved_at": 1791136441162,
-      "catalogStatus": "PUBLISHED",
-      "catalogRejectionReason": null
+      "approved_at": 1791136441162
     },
     {
       "id": "the-tunnel-to-summer-the-exit-of-goodbyes-muppodfl",
@@ -3954,5 +3952,5 @@
       "reviewed_by": "5657d33e-952c-43d6-a222-8842b026699b"
     }
   ],
-  "updatedAt": 1792922999055
+  "updatedAt": 1791136441162
 }
