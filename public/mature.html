@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="fr" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <title>Section Mature (+18) - Classement & Récits Adultes | NovelTrad</title>
+  <meta name="description" content="Découvrez le classement officiel et les dernières parutions des séries matures, dark fantasy et seinen de NovelTrad réservées aux lecteurs majeurs.">
+  <meta name="robots" content="noindex, follow">
+
+  <!-- Google Fonts: Inter, Outfit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@600;700;800;900&display=swap" rel="stylesheet">
+
+  <!-- FontAwesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="/css/mature.css?v=3">
+</head>
+<body>
+
+  <!-- =======================================================================
+       AGE GATE MODAL (+18)
+       ======================================================================= -->
+  <div class="m-age-gate-overlay" id="ageGateModal">
+    <div class="m-age-gate-card">
+      <div class="m-age-gate-icon">
+        <i class="fa-solid fa-shield-halved"></i>
+      </div>
+      <h2 class="m-age-gate-title">Avertissement de Contenu</h2>
+      <p class="m-age-gate-desc">
+        Cette section contient des œuvres de <strong>Dark Fantasy</strong>, des thématiques <strong>psychologiques intenses</strong>, de la violence et des scènes destinées exclusivement à un <strong>public averti (+18)</strong>.
+        <br><br>
+        En continuant, vous confirmez sur l'honneur avoir l'âge légal requis.
+      </p>
+      <div class="m-age-gate-actions">
+        <button type="button" class="m-btn-confirm-age" id="btnConfirmAge">
+          <i class="fa-solid fa-check"></i> J'ai au moins 18 ans — Entrer
+        </button>
+        <a href="/index.html" class="m-btn-cancel-age">
+          <i class="fa-solid fa-arrow-left"></i> Retour à l'accueil tout public
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- =======================================================================
+       NAVBAR (Logo + Searchbar with Modal Dropdown + Back Button)
+       ======================================================================= -->
+  <header class="m-nav">
+    <div class="m-container">
+      <div class="m-nav-inner">
+        <a href="/mature.html" class="m-logo-group" aria-label="NovelTrad Section Mature">
+          <div class="m-logo-brand">
+            <span>Novel<span style="color:#e11d48;">Trad</span></span>
+            <span class="m-logo-badge">+18</span>
+          </div>
+        </a>
+
+        <!-- Search bar inside Navbar -->
+        <div class="m-nav-search" id="navSearchWrapper">
+          <input type="search" id="navSearchInput" class="m-nav-search-input" placeholder="Rechercher une œuvre mature, auteur..." autocomplete="off">
+          <i class="fa-solid fa-magnifying-glass m-nav-search-icon"></i>
+
+          <!-- Modal Dropdown Search Results below search bar -->
+          <div class="m-search-dropdown" id="navSearchDropdown" role="listbox">
+            <div class="m-search-dropdown-header">
+              <span>Résultats de recherche</span>
+              <span id="navSearchCountBadge">0 résultat</span>
+            </div>
+            <div id="navSearchResultsList"></div>
+          </div>
+        </div>
+
+        <div class="m-nav-actions">
+          <a href="/index.html" class="m-btn-back" title="Revenir au site principal">
+            <i class="fa-solid fa-arrow-left"></i> <span class="hide-mobile">Espace Tout Public</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- =======================================================================
+       HERO HEADER (Pill Badge + Title + Subtitle + SLIDER in place of search bar)
+       ======================================================================= -->
+    <!-- =======================================================================
+       HERO SLIDER CARROUSEL (Directement en vedette sans texte superflus)
+       ======================================================================= -->
+  <section class="m-hero" style="padding: 20px 0 16px 0;">
+    <div class="m-container">
+      <div class="m-hero-slider-wrap" aria-label="Carrousel des romans en vedette">
+        <div class="m-slider-track" id="matureSliderTrack"></div>
+        
+        <!-- Controls -->
+        <button type="button" class="m-slider-btn prev" id="btnPrevSlide" aria-label="Précédent">
+          <i class="fa-solid fa-chevron-left"></i>
+        </button>
+        <button type="button" class="m-slider-btn next" id="btnNextSlide" aria-label="Suivant">
+          <i class="fa-solid fa-chevron-right"></i>
+        </button>
+        <div class="m-slider-dots" id="matureSliderDots"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =======================================================================
+       GRANDE SECTION : CLASSEMENT (1, 2, 3...) + TABS
+       ======================================================================= -->
+  <main class="m-section">
+    <div class="m-container">
+      <div class="m-section-header">
+        <div class="m-section-title-wrap">
+          <div class="m-section-icon">
+            <i class="fa-solid fa-ranking-star"></i>
+          </div>
+          <div>
+            <h2 class="m-section-title">Classement</h2>
+            <p class="m-section-sub">Les œuvres matures les plus plébiscitées par la communauté (1, 2, 3...)</p>
+          </div>
+        </div>
+
+
+      </div>
+
+      <!-- PODIUM TOP 1, 2, 3 -->
+      <div class="m-podium-grid" id="maturePodiumContainer"></div>
+
+      <!-- LEADERBOARD ROWS (4, 5, 6, 7, 8, 9, 10...) -->
+      <div class="m-leaderboard-list" id="matureLeaderboardContainer"></div>
+    </div>
+  </main>
+
+  <!-- =======================================================================
+       SECTION : DERNIERES SORTIES
+       ======================================================================= -->
+  <section class="m-section" style="border-top: 1px solid var(--m-border-subtle); margin-top: 20px;">
+    <div class="m-container">
+      <div class="m-section-header">
+        <div class="m-section-title-wrap">
+          <div class="m-section-icon" style="background: rgba(245, 158, 11, 0.12); color:#f59e0b; border-color: rgba(245, 158, 11, 0.3);">
+            <i class="fa-solid fa-bolt"></i>
+          </div>
+          <div>
+            <h2 class="m-section-title">Dernières Sorties</h2>
+            <p class="m-section-sub">Les tomes et chapitres matures récemment traduits</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="m-grid-releases" id="matureLatestContainer"></div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer style="padding: 40px 0; border-top: 1px solid var(--m-border-subtle); text-align: center; color: var(--m-text-muted); font-size: 13px;">
+    <div class="m-container">
+      <p style="margin-bottom: 8px;">NovelTrad After Dark &copy; 2026 — Réservé exclusivement aux lecteurs de 18 ans et plus.</p>
+      <p><a href="/index.html" style="color:var(--m-text-secondary); text-decoration:none;">Revenir au catalogue tout public</a></p>
+    </div>
+  </footer>
+
+  <!-- Script -->
+  <script src="/js/mature_logic.js?v=3"></script>
+</body>
+</html>

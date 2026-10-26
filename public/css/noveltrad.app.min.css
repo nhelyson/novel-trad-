@@ -29089,3 +29089,60 @@ html.theme-light .nav-mobile-search-box input {
   }
 }
 
+
+
+/* ==========================================================================
+   ONGLET MATURE (+18) DANS LA NAVBAR & LE DRAWER MOBILE
+   ========================================================================== */
+.nav-item-btn.mature-nav-link {
+  color: #fb7185 !important;
+  font-weight: 700;
+  text-decoration: none;
+  background: rgba(225, 29, 72, 0.1);
+  border: 1px solid rgba(225, 29, 72, 0.28);
+  margin-left: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 13px;
+  border-radius: 9999px;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 1px 6px rgba(225, 29, 72, 0.15);
+}
+
+.nav-item-btn.mature-nav-link i {
+  color: #f43f5e;
+  font-size: 12px;
+  transition: transform 0.25s ease;
+}
+
+.nav-item-btn.mature-nav-link:hover {
+  background: rgba(225, 29, 72, 0.22) !important;
+  color: #ffffff !important;
+  border-color: rgba(225, 29, 72, 0.6) !important;
+  box-shadow: 0 0 16px rgba(225, 29, 72, 0.35);
+  transform: translateY(-1px);
+}
+
+.nav-item-btn.mature-nav-link:hover i {
+  transform: scale(1.18);
+  color: #ff4d6d;
+}
+
+.nav-mobile-btn.mature-mobile-link {
+  color: #fb7185 !important;
+  font-weight: 700;
+  background: rgba(225, 29, 72, 0.08);
+  border: 1px solid rgba(225, 29, 72, 0.22);
+  text-decoration: none;
+  border-radius: 10px;
+  margin-top: 6px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+}
+
+.nav-mobile-btn.mature-mobile-link i {
+  color: #f43f5e;
+}

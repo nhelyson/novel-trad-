@@ -83,7 +83,7 @@ class CatalogService {
 
     getFeatured() {
         this.data = this.loadData();
-        const published = (this.data.series || []).filter(s => (s.publication_status || 'PUBLISHED').toUpperCase() === 'PUBLISHED');
+        const published = (this.data.series || []).filter(s => (s.publication_status || 'PUBLISHED').toUpperCase() === 'PUBLISHED' && s.is_mature !== true);
 
         // Helper date dernière activité (volume récent ou modif)
         const getActivityTime = (s) => {
@@ -160,10 +160,79 @@ class CatalogService {
         return { id: series.id, featured: series.featured, title: series.title };
     }
 
-    getExplore({ q = '', genre = '', status = '', format = '', origin = '', sort = 'popular', page = 1, limit = 24 } = {}) {
+        toggleMature(id) {
+        this.data = this.loadData();
+        const series = (this.data.series || []).find(s => s.id === id || s.id.toLowerCase() === (id || '').toLowerCase());
+        if (!series) return null;
+        series.is_mature = !series.is_mature;
+        if (series.is_mature) {
+            series.mature_flagged_at = Date.now();
+        } else {
+            delete series.mature_flagged_at;
+        }
+        this.saveData();
+        return { id: series.id, is_mature: series.is_mature, title: series.title };
+    }
+
+    getMatureCatalog({ sort = 'ranking', page = 1, limit = 20, period = 'week', q = '' } = {}) {
+        this.data = this.loadData();
+        let list = (this.data.series || []).filter(s => 
+            (s.publication_status || 'PUBLISHED').toUpperCase() === 'PUBLISHED' && 
+            s.is_mature === true
+        );
+
+        const normStr = str => (str || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+
+        if (q && q.trim().length > 0) {
+            const queryNorm = normStr(q);
+            list = list.filter(s => 
+                normStr(s.title).includes(queryNorm) || 
+                normStr(s.author).includes(queryNorm) ||
+                (s.genres || []).some(g => normStr(g).includes(queryNorm))
+            );
+        }
+
+        // Leaderboard ranking logic: note, vues et likes
+        list.sort((a, b) => {
+            const ratingA = typeof a.rating === 'number' ? a.rating : parseFloat(a.rating) || 4.5;
+            const ratingB = typeof b.rating === 'number' ? b.rating : parseFloat(b.rating) || 4.5;
+            const viewsA = a.views || 0;
+            const viewsB = b.views || 0;
+            const likesA = a.likes || 0;
+            const likesB = b.likes || 0;
+
+            const scoreB = (ratingB * 100) + Math.log10(Math.max(10, viewsB)) * 50 + (likesB * 5);
+            const scoreA = (ratingA * 100) + Math.log10(Math.max(10, viewsA)) * 50 + (likesA * 5);
+
+            if (scoreB !== scoreA) return scoreB - scoreA;
+            return viewsB - viewsA;
+        });
+
+        const rankedList = list.map((item, index) => ({
+            ...item,
+            rank: index + 1
+        }));
+
+        const latest = [...list].sort((a, b) => (b.updated_at || b.created_at || 0) - (a.updated_at || a.created_at || 0)).slice(0, 10);
+        const pageNum = Math.max(1, parseInt(page) || 1);
+        const limitNum = Math.max(1, parseInt(limit) || 20);
+        const startIndex = (pageNum - 1) * limitNum;
+
+        return {
+            rankings: rankedList.slice(startIndex, startIndex + limitNum),
+            podium: rankedList.slice(0, 3),
+            latest,
+            total: rankedList.length,
+            page: pageNum,
+            totalPages: Math.ceil(rankedList.length / limitNum) || 1
+        };
+    }
+
+    getExplore({ q = '', genre = '', status = '', format = '', origin = '', sort = 'popular', page = 1, limit = 24, mature = 'false' } = {}) {
         this.data = this.loadData();
         // Sécurité stricte : seuls les romans validés et publiés sont visibles au public
         let list = (this.data.series || []).filter(s => (s.publication_status || 'PUBLISHED').toUpperCase() === 'PUBLISHED');
+        if (mature === 'true') { list = list.filter(s => s.is_mature === true); } else if (mature !== 'all') { list = list.filter(s => s.is_mature !== true); }
 
         // Helper normalisation sans accents
         const normStr = str => (str || '').normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();

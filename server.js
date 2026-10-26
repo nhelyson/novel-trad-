@@ -2498,6 +2498,11 @@ app.get('/api/catalog', async (req, res) => {
     const isAdmin = authUser && authUser.role === 'ADMIN';
     if (!isAdmin || req.query.all !== 'true') {
       novels = novels.filter(s => (s.publication_status || 'PUBLISHED').toUpperCase() === 'PUBLISHED');
+      if (req.query.mature === 'true') {
+        novels = novels.filter(s => s.is_mature === true);
+      } else {
+        novels = novels.filter(s => s.is_mature !== true);
+      }
     }
     res.json({ success: true, novels });
   } catch (e) {
@@ -2527,6 +2532,44 @@ app.post('/api/catalog/series/:id/toggle-original', async (req, res) => {
   } catch (e) {
     res.status(500).json({ success: false, message: e.message });
   }
+});
+
+app.post('/api/catalog/series/:id/toggle-mature', async (req, res) => {
+  try {
+    const authUser = await authenticateUser(req);
+    if (!authUser) {
+      return res.status(401).json({ success: false, message: 'Authentification requise.' });
+    }
+    const { id } = req.params;
+    const series = CatalogService.getSeries(id, authUser);
+    if (!series) return res.status(404).json({ success: false, message: 'Série non trouvée.' });
+
+    const role = (authUser.role || '').toUpperCase();
+    const isAdmin = role === 'ADMIN' || (authUser.email || '').toLowerCase() === 'admin@noveltrad.com';
+
+    if (!isAdmin) {
+      return res.status(403).json({ success: false, message: 'Action strictement réservée aux administrateurs.' });
+    }
+
+    const result = CatalogService.toggleMature(id);
+    res.json({ success: true, ...result });
+  } catch (e) {
+    res.status(500).json({ success: false, message: e.message });
+  }
+});
+
+app.get('/api/catalog/mature', (req, res) => {
+  try {
+    res.set('Cache-Control', 'public, max-age=30, stale-while-revalidate=60');
+    const data = CatalogService.getMatureCatalog(req.query);
+    res.json({ success: true, ...data });
+  } catch (e) {
+    res.status(500).json({ success: false, message: e.message });
+  }
+});
+
+app.get(['/mature', '/mature.html'], (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'mature.html'));
 });
 
 app.post('/api/catalog/series/:id/toggle-featured', async (req, res) => {
@@ -4719,6 +4762,11 @@ app.post('/api/admin/novels/:id/approve', requireAdmin, async (req, res) => {
             novel.reviewed_by = req.user.id;
             novel.approved_at = Date.now();
             novel.updated_at = Date.now();
+            if (req.body && req.body.is_mature !== undefined) {
+                novel.is_mature = (req.body.is_mature === true);
+                if (novel.is_mature) novel.mature_flagged_at = Date.now();
+                else delete novel.mature_flagged_at;
+            }
             catService.saveData();
         }
 

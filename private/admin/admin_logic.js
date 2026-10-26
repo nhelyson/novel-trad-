@@ -284,14 +284,22 @@ class AdminManager {
         elQueueRecent.innerHTML = '<div class="admin-empty-clean"><i class="fa-solid fa-circle-check"></i> File de modération vide. Aucun roman en attente.</div>';
       } else {
         elQueueRecent.innerHTML = this.pendingQueue.slice(0, 3).map(n => `
-          <div class="admin-queue-mini-item">
+          <div class="admin-queue-mini-item" style="display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; padding:12px; background:rgba(255,255,255,0.02); border-radius:8px; margin-bottom:8px;">
             <div>
-              <strong>${n.title}</strong>
-              <span>Soumis par ${n.created_by_email || n.created_by || 'Contributeur'}</span>
+              <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+                <strong>${n.title}</strong>
+                ${(n.is_mature === true || (n.genres || []).some(g => /dark|gore|horreur|adulte|mature|psychologique|ecchi/i.test(g))) ? '<span style="background:rgba(225,29,72,0.18); border:1px solid rgba(225,29,72,0.45); color:#f43f5e; font-size:10px; padding:1px 6px; border-radius:4px; font-weight:800;"><i class="fa-solid fa-triangle-exclamation"></i> SENSIBLE</span>' : ''}
+              </div>
+              <span style="font-size:12px; color:var(--text-muted, #94a3b8);">Soumis par ${n.created_by_email || n.created_by || 'Contributeur'}</span>
             </div>
-            <button class="btn-admin-action approve" onclick="window.adminManager.approveNovel('${n.id}')">
-              <i class="fa-solid fa-check"></i> Valider
-            </button>
+            <div style="display:flex; gap:6px; align-items:center;">
+              <button class="btn-admin-action approve" onclick="window.adminManager.approveNovel('${n.id}', false)" title="Publier dans le catalogue général tout public" style="padding:6px 12px; font-size:12px;">
+                <i class="fa-solid fa-check"></i> Tout Public
+              </button>
+              <button class="btn-admin-action" style="background:#e11d48; border-color:#be123c; color:#fff; font-weight:700; box-shadow:0 2px 8px rgba(225,29,72,0.3); padding:6px 12px; font-size:12px; border-radius:6px; cursor:pointer;" onclick="window.adminManager.approveNovel('${n.id}', true)" title="Publier directement en Section Mature (+18)">
+                <i class="fa-solid fa-fire"></i> Mature (+18)
+              </button>
+            </div>
           </div>
         `).join('');
       }
@@ -397,7 +405,10 @@ class AdminManager {
           <img src="${cover}" alt="${novel.title}" class="admin-queue-cover">
           <div class="admin-queue-details">
             <div class="admin-queue-header">
-              <h3>${novel.title}</h3>
+              <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                <h3>${novel.title}</h3>
+                ${(novel.is_mature === true || (novel.genres || []).some(g => /dark|gore|horreur|adulte|mature|psychologique|ecchi/i.test(g))) ? '<span style="background:rgba(225,29,72,0.18); border:1px solid rgba(225,29,72,0.45); color:#f43f5e; font-size:10.5px; padding:2px 8px; border-radius:6px; font-weight:800; letter-spacing:0.5px;"><i class="fa-solid fa-triangle-exclamation"></i> CONTENU SENSIBLE DÉTECTÉ</span>' : ''}
+              </div>
               <span class="badge-pending"><i class="fa-solid fa-clock"></i> En attente de validation</span>
             </div>
             <p class="admin-queue-meta">
@@ -453,12 +464,15 @@ class AdminManager {
               `}
             </div>
 
-            <div class="admin-queue-actions">
-              <button class="btn-admin-action approve" onclick="window.adminManager.approveNovel('${novel.id}')">
-                <i class="fa-solid fa-check"></i> Approuver & Publier
+            <div class="admin-queue-actions" style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+              <button class="btn-admin-action approve" onclick="window.adminManager.approveNovel('${novel.id}', false)" title="Publier dans le catalogue général tout public">
+                <i class="fa-solid fa-check"></i> Publier Tout Public
               </button>
-              <button class="btn-admin-action reject" onclick="window.adminManager.rejectNovel('${novel.id}')">
-                <i class="fa-solid fa-xmark"></i> Rejeter (avec motif)
+              <button class="btn-admin-action" style="background:#e11d48; border-color:#be123c; color:#fff; font-weight:700; box-shadow:0 2px 10px rgba(225,29,72,0.35); padding:8px 16px; border-radius:8px; cursor:pointer;" onclick="window.adminManager.approveNovel('${novel.id}', true)" title="Publier directement et exclusivement dans la Section Mature (+18)">
+                <i class="fa-solid fa-fire"></i> Publier en Mature (+18)
+              </button>
+              <button class="btn-admin-action reject" onclick="window.adminManager.rejectNovel('${novel.id}')" title="Rejeter la soumission">
+                <i class="fa-solid fa-xmark"></i> Rejeter
               </button>
             </div>
           </div>
@@ -467,21 +481,33 @@ class AdminManager {
     }).join('');
   }
 
-  async approveNovel(novelId) {
-    if (!confirm('Voulez-vous approuver et publier ce Light Novel dans le catalogue officiel ?')) return;
+  async approveNovel(novelId, isMature = false) {
+    const dest = isMature ? 'DIRECTEMENT dans la Section Mature (+18)' : 'dans le catalogue Tout Public';
+    if (!confirm(`Voulez-vous approuver et publier ce roman ${dest} ?`)) return;
 
     try {
-      // Backend API handles status updates
-
       const headers = await this.getHeaders();
       const res = await fetch(`/api/admin/novels/${novelId}/approve`, {
         method: 'POST',
-        headers
+        headers: {
+          ...headers,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ is_mature: isMature })
       });
 
       if (!res.ok) throw new Error('Échec de l\'approbation du roman.');
 
-      alert('Le roman a été approuvé et publié avec succès !');
+      const msg = isMature 
+        ? '🔥 Le roman a été publié directement dans la Section Mature (+18) !'
+        : '✅ Le roman a été publié dans le catalogue Tout Public avec succès !';
+
+      if (window.toastManager && typeof window.toastManager.show === 'function') {
+        window.toastManager.show(msg, 'success');
+      } else {
+        alert(msg);
+      }
+
       await this.loadAllAdminData();
       this.renderQueueList();
     } catch (err) {
@@ -597,6 +623,9 @@ class AdminManager {
                     </select>
                   </td>
                   <td>
+                    <button type="button" class="btn-contrib-action ${n.is_mature ? 'mature-active' : ''}" style="${n.is_mature ? 'color: #fff; border-color: rgba(225, 29, 72, 0.7); background: #e11d48; font-weight: 700; box-shadow: 0 0 10px rgba(225,29,72,0.4);' : 'color: #94a3b8; border-color: rgba(255, 255, 255, 0.1); font-size: 12px; padding: 5px 10px; margin-right: 6px;'}" onclick="window.adminManager.toggleMature('${n.id}')" title="${n.is_mature ? 'Retirer de la Section Mature' : 'Classer dans la Section Mature (+18)'}">
+                      <i class="fa-solid fa-triangle-exclamation" style="color: ${n.is_mature ? '#fff' : '#f43f5e'};"></i> ${n.is_mature ? 'Mature +18' : 'Standard'}
+                    </button>
                     <button type="button" class="btn-contrib-action ${n.is_original ? 'original-active' : ''}" style="${n.is_original ? 'color: #f59e0b; border-color: rgba(245, 158, 11, 0.6); background: rgba(245, 158, 11, 0.18); font-weight: 700;' : 'color: #94a3b8; border-color: rgba(255, 255, 255, 0.1); font-size: 12px; padding: 5px 12px; margin-right: 6px;'}" onclick="window.adminManager.toggleOriginal('${n.id}')" title="${n.is_original ? 'Retirer le statut Création Originale' : 'Attribuer le badge Marque-Page Création Originale'}">
                       <i class="fa-solid fa-feather-pointed" style="color: ${n.is_original ? '#f59e0b' : 'inherit'};"></i> ${n.is_original ? 'Original' : 'Adaptation'}
                     </button>
@@ -618,7 +647,30 @@ class AdminManager {
     `;
   }
 
-    async toggleOriginal(novelId) {
+    async toggleMature(novelId) {
+    try {
+      const headers = await this.getHeaders();
+      const res = await fetch(`/api/catalog/series/${encodeURIComponent(novelId)}/toggle-mature`, {
+        method: 'POST',
+        headers
+      });
+      const data = await res.json();
+      if (data.success) {
+        if (window.toastManager && typeof window.toastManager.show === 'function') {
+          window.toastManager.show(data.is_mature ? '🔥 Classé dans la Section Mature (+18) !' : 'Retiré de la Section Mature (Standard)', 'success');
+        }
+        const novel = this.allNovels.find(n => n.id === novelId);
+        if (novel) novel.is_mature = data.is_mature;
+        this.renderCatalogList();
+      } else {
+        alert(data.message || 'Erreur lors de la modification');
+      }
+    } catch(err) {
+      console.error('[Admin] Error toggleMature:', err);
+    }
+  }
+
+  async toggleOriginal(novelId) {
     try {
       const headers = await this.getHeaders();
       const res = await fetch(`/api/catalog/series/${encodeURIComponent(novelId)}/toggle-original`, {
