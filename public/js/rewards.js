@@ -262,23 +262,52 @@
     }
   }
 
-  function checkPendingReward() {
-    if (window.authManager && window.authManager.userProfile) {
-      const prof = window.authManager.userProfile;
-      if (prof.pending_reward) {
+  async function checkPendingReward() {
+    const auth = window.authManager;
+    if (!auth) return;
+
+    // Attendre que l'authentification Supabase soit complètement initialisée
+    if (auth.initPromise) {
+      try { await auth.initPromise; } catch(e) {}
+    }
+
+    // Récupérer l'ID utilisateur soit depuis le profil, soit depuis la session auth
+    let userId = (auth.userProfile && auth.userProfile.id) || (auth.currentUser && auth.currentUser.id);
+    if (!userId && auth.client && auth.client.auth) {
+      try {
+        const { data: sessionData } = await auth.client.auth.getSession();
+        if (sessionData && sessionData.session && sessionData.session.user) {
+          userId = sessionData.session.user.id;
+        }
+      } catch(e) {}
+    }
+
+    if (!userId || !auth.client) return;
+
+    try {
+      const { data: prof, error } = await auth.client
+        .from('profiles')
+        .select('id, email, display_name, pending_reward, badge')
+        .eq('id', userId)
+        .single();
+
+      if (!error && prof && prof.pending_reward) {
         showRewardModal(prof.pending_reward, prof);
       }
+    } catch (err) {
+      console.warn('[Rewards] Erreur vérification directe Supabase:', err.message);
     }
   }
 
   window.addEventListener('user-role-changed', (e) => {
-    if (e.detail && e.detail.profile && e.detail.profile.pending_reward) {
-      showRewardModal(e.detail.profile.pending_reward, e.detail.profile);
-    }
+    checkPendingReward();
   });
 
+  // Tenter la détection à l'ouverture, et avec retries pour attendre la session
   document.addEventListener('DOMContentLoaded', () => {
-    setTimeout(checkPendingReward, 1200);
+    checkPendingReward();
+    setTimeout(checkPendingReward, 1500);
+    setTimeout(checkPendingReward, 3000);
   });
 
   window.rewardManager = { showRewardModal, checkPendingReward };
