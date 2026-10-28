@@ -60,7 +60,7 @@ class SupabaseAuthManager {
             try {
                 const { data: profData } = await this.client
                     .from('profiles')
-                    .select('role, display_name, avatar_url')
+                    .select('role, display_name, avatar_url, badge, pending_reward')
                     .eq('id', userId)
                     .single();
                 if (profData && profData.role) {
@@ -97,7 +97,9 @@ class SupabaseAuthManager {
             email: this.currentUser ? this.currentUser.email : '',
             display_name: displayName || (this.currentUser && this.currentUser.email ? this.currentUser.email.split('@')[0] : 'Lecteur'),
             avatar_url: avatarUrl || (this.currentUser?.user_metadata?.avatar_url || ''),
-            role: role
+            role: role,
+            badge: (typeof profData !== 'undefined' && profData && profData.badge) ? profData.badge : null,
+            pending_reward: (typeof profData !== 'undefined' && profData && profData.pending_reward) ? profData.pending_reward : null
         };
 
         this._notifyRoleChange();
