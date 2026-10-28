@@ -18,12 +18,11 @@ class EpubPatcher {
    */
   static buildXhtmlSearchRegex(rawPhrase) {
     const clean = (rawPhrase || '')
-      .replace(/[​‌‍﻿­⁠]/g, ' ')
-      .replace(/[‘’‛`ʼ]/g, "'")
-      .replace(/[“”«»‹›「」]/g, '"')
-      .replace(/[〈〉<>[\](){}]/g, ' ')
-      .replace(/[     	
-]/g, ' ')
+      .replace(/[\u200B\u200C\u200D\uFEFF\u00AD\u2060]/g, ' ')
+      .replace(/[\u2018\u2019\u201B`ʼ]/g, "'")
+      .replace(/[\u201C\u201D\u00AB\u00BB\u2039\u203A\u300C\u300D]/g, '"')
+      .replace(/[\u3008\u3009<>[\](){}]/g, ' ')
+      .replace(/[\u00A0\u202F\u2009\u2002\u2003\t\r\n]/g, ' ')
       .trim();
 
     const words = clean.split(/\s+/).filter(w => w.length > 0);
