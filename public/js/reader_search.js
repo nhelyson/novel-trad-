@@ -385,16 +385,29 @@
     return targets;
   }
 
-  // --- 4. NORMALISATION 1-POUR-1 (PRÉSERVE LES OFFSETS EXACTS) ---
+  // --- 4. NORMALISATION TOLÉRANTE (SIGNALEMENTS & GUILLEMETS) ---
   function normalize1to1(str) {
     return (str || '')
+      .replace(/[\u200B\u200C\u200D\uFEFF\u00AD\u2060]/g, ' ')
       .replace(/[\u2018\u2019\u201B`ʼ]/g, "'")
       .replace(/[\u201C\u201D\u00AB\u00BB\u2039\u203A\u300C\u300D]/g, '"')
       .replace(/[\u3008\u3009<>[\](){}]/g, ' ')
       .replace(/[\u2026]/g, '.')
       .replace(/[\u2013\u2014\u2015―–—]/g, '-')
-      .replace(/[\u00A0\u202F\t\r\n]/g, ' ')
+      .replace(/[\u00A0\u202F\u2009\u2002\u2003\t\r\n]/g, ' ')
+      .replace(/œ/gi, 'o')
+      .replace(/æ/gi, 'a')
       .normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  }
+
+  function sanitizeQuery(raw) {
+    if (!raw) return '';
+    let q = raw.trim();
+    q = q.replace(/^[\s«»"“'’`—–-]+/, '').replace(/[\s«»"“'’`—–-]+$/, '');
+    q = q.replace(/[\u200B\u200C\u200D\uFEFF\u00AD\u2060]/g, ' ');
+    q = q.replace(/[\r\n\t]+/g, ' ');
+    q = q.replace(/\s{2,}/g, ' ');
+    return q.trim();
   }
 
   function escapeRegExp(str) {
@@ -402,7 +415,10 @@
   }
 
   function buildSearchRegex(query) {
-    const norm = normalize1to1(query).trim().toLowerCase();
+    let q = (query || '')
+      .replace(/oe/gi, 'o')
+      .replace(/ae/gi, 'a');
+    const norm = normalize1to1(q).trim().toLowerCase();
     const tokens = norm.split(/[^a-z0-9]+/i).filter(t => t.length > 0).map(escapeRegExp);
     if (tokens.length === 0) return null;
     return new RegExp(tokens.join('[^a-z0-9]+'), 'gi');
@@ -465,17 +481,14 @@
     return textNodes;
   }
 
-  // --- 7. MOTEUR DE RECHERCHE ---
+  // --- 7. MOTEUR DE RECHERCHE ULTRA-TOLÉRANT (RECHERCHE EXACTE + RECHERCHE SEGMENT GLISSANT) ---
+  let currentSearchMode = 'exact';
+
   function performSearch(rawQuery) {
     clearHighlights();
 
-    if (!rawQuery || rawQuery.trim().length < 2) {
-      updateCounter();
-      return;
-    }
-
-    const regex = buildSearchRegex(rawQuery);
-    if (!regex) {
+    const cleaned = sanitizeQuery(rawQuery);
+    if (!cleaned || cleaned.length < 2) {
       updateCounter();
       return;
     }
@@ -486,94 +499,139 @@
       return;
     }
 
+    currentSearchMode = 'exact';
     let matchGlobalCounter = 0;
 
-    targets.forEach(target => {
-      const container = target.container;
-      const doc = target.doc || document;
+    function executeQueryOnTargets(rgx, isFallback) {
+      let foundAny = false;
 
-      const textNodes = collectTextNodes(container, doc);
-      if (textNodes.length === 0) return;
+      targets.forEach(target => {
+        const container = target.container;
+        const doc = target.doc || document;
 
-      let fullRawText = '';
-      const nodeMap = [];
-      textNodes.forEach(node => {
-        const start = fullRawText.length;
-        fullRawText += node.textContent;
-        const end = fullRawText.length;
-        nodeMap.push({ node, start, end });
-      });
+        const textNodes = collectTextNodes(container, doc);
+        if (textNodes.length === 0) return;
 
-      const fullNormText = normalize1to1(fullRawText);
+        let fullRawText = '';
+        const nodeMap = [];
+        let lastParentBlock = null;
 
-      const matches = [];
-      let m;
-      regex.lastIndex = 0;
-      while ((m = regex.exec(fullNormText)) !== null) {
-        matches.push({
-          start: m.index,
-          end: m.index + m[0].length,
-          rawMatchedText: fullRawText.substring(m.index, m.index + m[0].length),
-          matchId: 'nt_m_' + (++matchGlobalCounter)
-        });
-        if (m[0].length === 0) regex.lastIndex++;
-      }
-
-      if (matches.length === 0) return;
-
-      const sortedMatches = [...matches].reverse();
-
-      sortedMatches.forEach(bm => {
-        const matchMarks = [];
-
-        nodeMap.forEach(item => {
-          const node = item.node;
-          const start = item.start;
-          const end = item.end;
-
-          if (end > bm.start && start < bm.end) {
-            const sliceStart = Math.max(0, bm.start - start);
-            const sliceEnd = Math.min(node.textContent.length, bm.end - start);
-
-            if (sliceEnd > sliceStart) {
-              const parent = node.parentNode;
-              if (!parent) return;
-
-              const rawVal = node.textContent;
-              const before = rawVal.substring(0, sliceStart);
-              const matchVal = rawVal.substring(sliceStart, sliceEnd);
-              const after = rawVal.substring(sliceEnd);
-
-              const frag = doc.createDocumentFragment();
-              if (before.length > 0) frag.appendChild(doc.createTextNode(before));
-
-              const markNode = doc.createElement('mark');
-              markNode.className = 'nt-search-highlight';
-              markNode.dataset.matchId = bm.matchId;
-              markNode.textContent = matchVal;
-              frag.appendChild(markNode);
-              matchMarks.push(markNode);
-
-              if (after.length > 0) frag.appendChild(doc.createTextNode(after));
-
-              parent.replaceChild(frag, node);
-              item.node = markNode;
+        textNodes.forEach(node => {
+          const parentBlock = node.parentElement ? node.parentElement.closest('p, div, h1, h2, h3, h4, h5, h6, li, section, article, blockquote') : null;
+          if (lastParentBlock && parentBlock && lastParentBlock !== parentBlock) {
+            if (fullRawText.length > 0 && !/\s$/.test(fullRawText)) {
+              fullRawText += ' ';
             }
           }
+          lastParentBlock = parentBlock;
+
+          const start = fullRawText.length;
+          fullRawText += node.textContent;
+          const end = fullRawText.length;
+          nodeMap.push({ node, start, end });
         });
 
-        if (matchMarks.length > 0) {
-          searchMatches.unshift({
-            id: bm.matchId,
-            marks: matchMarks,
-            scrollTarget: matchMarks[0],
-            rawMatchedText: bm.rawMatchedText,
-            doc: doc,
-            targetCtx: target
+        const fullNormText = normalize1to1(fullRawText);
+
+        const matches = [];
+        let m;
+        rgx.lastIndex = 0;
+        while ((m = rgx.exec(fullNormText)) !== null) {
+          matches.push({
+            start: m.index,
+            end: m.index + m[0].length,
+            rawMatchedText: fullRawText.substring(m.index, m.index + m[0].length),
+            matchId: 'nt_m_' + (++matchGlobalCounter)
           });
+          if (m[0].length === 0) rgx.lastIndex++;
         }
+
+        if (matches.length === 0) return;
+        foundAny = true;
+
+        const sortedMatches = [...matches].reverse();
+
+        sortedMatches.forEach(bm => {
+          const matchMarks = [];
+
+          nodeMap.forEach(item => {
+            const node = item.node;
+            const start = item.start;
+            const end = item.end;
+
+            if (end > bm.start && start < bm.end) {
+              const sliceStart = Math.max(0, bm.start - start);
+              const sliceEnd = Math.min(node.textContent.length, bm.end - start);
+
+              if (sliceEnd > sliceStart) {
+                const parent = node.parentNode;
+                if (!parent) return;
+
+                const rawVal = node.textContent;
+                const before = rawVal.substring(0, sliceStart);
+                const matchVal = rawVal.substring(sliceStart, sliceEnd);
+                const after = rawVal.substring(sliceEnd);
+
+                const frag = doc.createDocumentFragment();
+                if (before.length > 0) frag.appendChild(doc.createTextNode(before));
+
+                const markNode = doc.createElement('mark');
+                markNode.className = 'nt-search-highlight' + (isFallback ? ' nt-segment-match' : '');
+                markNode.dataset.matchId = bm.matchId;
+                markNode.textContent = matchVal;
+                frag.appendChild(markNode);
+                matchMarks.push(markNode);
+
+                if (after.length > 0) frag.appendChild(doc.createTextNode(after));
+
+                parent.replaceChild(frag, node);
+                item.node = markNode;
+              }
+            }
+          });
+
+          if (matchMarks.length > 0) {
+            searchMatches.unshift({
+              id: bm.matchId,
+              marks: matchMarks,
+              scrollTarget: matchMarks[0],
+              rawMatchedText: bm.rawMatchedText,
+              doc: doc,
+              targetCtx: target,
+              isFallback: isFallback
+            });
+          }
+        });
       });
-    });
+
+      return foundAny;
+    }
+
+    // 1. Essai avec la phrase exacte
+    const regex = buildSearchRegex(cleaned);
+    if (regex) {
+      executeQueryOnTargets(regex, false);
+    }
+
+    // 2. Si 0 résultat et qu'il y a au moins 3 mots : recherche par segment glissant (Fuzzy Rescue)
+    const words = cleaned.split(/\s+/).filter(w => w.replace(/[^a-zA-Z0-9À-ÿ]/g, '').length >= 2);
+    if (searchMatches.length === 0 && words.length >= 3) {
+      const windowSize = Math.min(5, words.length);
+      for (let wSize = windowSize; wSize >= 3; wSize--) {
+        for (let i = 0; i <= words.length - wSize; i++) {
+          const subPhrase = words.slice(i, i + wSize).join(' ');
+          const subRgx = buildSearchRegex(subPhrase);
+          if (subRgx) {
+            matchGlobalCounter = 0;
+            if (executeQueryOnTargets(subRgx, true)) {
+              currentSearchMode = 'segment';
+              break;
+            }
+          }
+        }
+        if (searchMatches.length > 0) break;
+      }
+    }
 
     if (searchMatches.length > 0) {
       currentMatchIdx = 0;
@@ -601,7 +659,7 @@
       counter.className = 'nt-search-counter no-results';
       if (editBtn) editBtn.style.display = 'none';
     } else {
-      counter.textContent = `${currentMatchIdx + 1}/${searchMatches.length}`;
+      counter.textContent = currentSearchMode === 'segment' ? `${currentMatchIdx + 1}/${searchMatches.length} (approx)` : `${currentMatchIdx + 1}/${searchMatches.length}`;
       counter.className = 'nt-search-counter has-results';
       if (editBtn) editBtn.style.display = 'inline-flex';
     }

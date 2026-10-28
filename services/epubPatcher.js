@@ -18,10 +18,12 @@ class EpubPatcher {
    */
   static buildXhtmlSearchRegex(rawPhrase) {
     const clean = (rawPhrase || '')
-      .replace(/[\u2018\u2019\u201B`ʼ]/g, "'")
-      .replace(/[\u201C\u201D\u00AB\u00BB\u2039\u203A\u300C\u300D]/g, '"')
-      .replace(/[\u3008\u3009<>[\](){}]/g, ' ')
-      .replace(/[\u00A0\u202F\t\r\n]/g, ' ')
+      .replace(/[​‌‍﻿­⁠]/g, ' ')
+      .replace(/[‘’‛`ʼ]/g, "'")
+      .replace(/[“”«»‹›「」]/g, '"')
+      .replace(/[〈〉<>[\](){}]/g, ' ')
+      .replace(/[     	
+]/g, ' ')
       .trim();
 
     const words = clean.split(/\s+/).filter(w => w.length > 0);
@@ -31,10 +33,12 @@ class EpubPatcher {
       let p = EpubPatcher.escapeRegExp(w);
       p = p.replace(/'/g, "('|’|&rsquo;|&#39;|&#x27;)");
       p = p.replace(/"/g, '("|«|»|“|”|&laquo;|&raquo;|&quot;)');
+      p = p.replace(/(œ|oe)/gi, "(œ|oe|&oelig;|&OElig;)");
+      p = p.replace(/(æ|ae)/gi, "(æ|ae|&aelig;|&AElig;)");
       return p;
     });
 
-    const separator = '(\\s|<[^>]+>|&nbsp;|&#160;|&#8239;)+';
+    const separator = '(\\s|<[^>]+>|&nbsp;|&#160;|&#8239;|&shy;|&#173;)+';
     return new RegExp(wordPatterns.join(separator), 'gi');
   }
 
