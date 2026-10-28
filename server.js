@@ -5147,6 +5147,165 @@ app.delete('/api/admin/reports/:id', requireAdmin, (req, res) => {
   }
 });
 
+// POST /api/staff/correct-text - Correction chirurgicale in-place (EPUB et Webnovel) pour Staff
+const EpubPatcher = require('./services/epubPatcher');
+
+app.post('/api/staff/correct-text', async (req, res) => {
+  try {
+    let authUser = await authenticateUser(req);
+
+    // Filet de sécurité développement local : autoriser les requêtes sur localhost
+    const isLocalhost = req.hostname === 'localhost' || req.hostname === '127.0.0.1' || req.ip === '127.0.0.1' || req.ip === '::1';
+    if (!authUser && isLocalhost && process.env.NODE_ENV !== 'production') {
+      authUser = { id: 'local_dev_admin', email: 'admin@noveltrad.com', role: 'ADMIN', is_admin: true, is_contributor: true };
+    }
+
+    if (!authUser) {
+      return res.status(401).json({ success: false, error: 'Authentification requise.' });
+    }
+
+    const role = (authUser.role || 'USER').toUpperCase();
+    if (role !== 'CONTRIBUTOR' && role !== 'ADMIN' && !authUser.is_admin && !authUser.is_contributor) {
+      return res.status(403).json({ success: false, error: 'Accès refusé. Rôle Contributeur ou Admin requis.' });
+    }
+    req.user = authUser;
+
+    const { fileKey, originalText, correctedText, chapterHref, seriesId, chapterNum } = req.body;
+    if (!originalText || !correctedText) {
+      return res.status(400).json({ success: false, error: 'Texte original et texte corrigé requis.' });
+    }
+
+    let modified = false;
+    let details = {};
+
+    // 1. Mise à jour chirurgicale directe dans le fichier EPUB
+    if (fileKey) {
+      const fullPath = resolveVolumePath(fileKey);
+      if (fullPath && fs.existsSync(fullPath) && fullPath.endsWith('.epub')) {
+        const patchRes = await EpubPatcher.patchFile(fullPath, originalText, correctedText, { chapterHref });
+        modified = true;
+        details = patchRes;
+
+        // Invalider le cache des chapitres parsés pour ce livre
+        const cleanKey = path.basename(fileKey).replace(/\.(epub|pdf)$/i, '').trim();
+        for (const k of parsedChaptersCache.keys()) {
+          if (k.startsWith(cleanKey + ':')) parsedChaptersCache.delete(k);
+        }
+      }
+    }
+
+    // 2. Si c'est un Webnovel en base
+    if (seriesId && chapterNum) {
+      try {
+        const catPath = path.join(__dirname, 'data', 'catalog_db.json');
+        if (fs.existsSync(catPath)) {
+          const cat = JSON.parse(fs.readFileSync(catPath, 'utf8'));
+          const s = (cat.series || []).find(ser => ser.id === seriesId);
+          if (s && s.chapters) {
+            const ch = s.chapters.find(c => parseInt(c.chapter_number || c.num, 10) === parseInt(chapterNum, 10));
+            if (ch && ch.content && ch.content.includes(originalText.trim())) {
+              ch.content = ch.content.split(originalText.trim()).join(correctedText.trim());
+              fs.writeFileSync(catPath, JSON.stringify(cat, null, 2), 'utf8');
+              modified = true;
+            }
+          }
+        }
+      } catch(e) {}
+    }
+
+    // 3. Enregistrer également dans le système de patchs dynamiques pour synchronisation immédiate
+    try {
+      const activeKey = fileKey || seriesId || 'global';
+      const activeNum = chapterNum || 1;
+      const data = ReportService.loadData();
+      data.patches = (data.patches || []);
+      data.patches.push({
+        id: `pat_staff_${Date.now()}`,
+        seriesId: activeKey,
+        chapterNum: activeNum,
+        originalText: originalText.trim(),
+        correctedText: correctedText.trim(),
+        createdAt: new Date().toISOString(),
+        author: req.user?.email || 'staff'
+      });
+      ReportService.saveData(data);
+    } catch(e) {}
+
+    res.json({
+      success: true,
+      message: 'Correction appliquée avec succès ! L\'EPUB a été mis à jour.',
+      details
+    });
+  } catch (err) {
+    console.error('[CorrectText] Erreur :', err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// POST /api/staff/restore-epub - Restauration automatique 1-clic de l'EPUB original (.bak)
+app.post('/api/staff/restore-epub', async (req, res) => {
+  try {
+    let authUser = await authenticateUser(req);
+    const isLocalhost = req.hostname === 'localhost' || req.hostname === '127.0.0.1' || req.ip === '127.0.0.1' || req.ip === '::1';
+    if (!authUser && isLocalhost && process.env.NODE_ENV !== 'production') {
+      authUser = { id: 'local_dev_admin', email: 'admin@noveltrad.com', role: 'ADMIN', is_admin: true, is_contributor: true };
+    }
+
+    if (!authUser) {
+      return res.status(401).json({ success: false, error: 'Authentification requise.' });
+    }
+
+    const role = (authUser.role || 'USER').toUpperCase();
+    if (role !== 'CONTRIBUTOR' && role !== 'ADMIN' && !authUser.is_admin && !authUser.is_contributor) {
+      return res.status(403).json({ success: false, error: 'Accès refusé. Rôle Contributeur ou Admin requis.' });
+    }
+
+    const { fileKey } = req.body;
+    if (!fileKey) {
+      return res.status(400).json({ success: false, error: 'Clé de fichier requise.' });
+    }
+
+    const fullPath = resolveVolumePath(fileKey);
+    if (!fullPath || !fs.existsSync(fullPath)) {
+      return res.status(404).json({ success: false, error: 'Fichier EPUB introuvable.' });
+    }
+
+    const result = await EpubPatcher.restoreBackup(fullPath);
+
+    // Invalider le cache des chapitres parsés
+    const cleanKey = path.basename(fileKey).replace(/\.(epub|pdf)$/i, '').trim();
+    for (const k of parsedChaptersCache.keys()) {
+      if (k.startsWith(cleanKey + ':')) parsedChaptersCache.delete(k);
+    }
+
+    // Supprimer les patchs dynamiques correspondants pour ce livre
+    try {
+      const data = ReportService.loadData();
+      data.patches = (data.patches || []).filter(p => !p.seriesId?.includes(cleanKey));
+      ReportService.saveData(data);
+    } catch(e) {}
+
+    res.json({
+      success: true,
+      message: 'L\'EPUB original a été restauré avec succès !'
+    });
+  } catch (err) {
+    console.error('[RestoreEpub] Erreur :', err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// GET /api/staff/has-backup/:fileKey - Vérifier si une sauvegarde existe
+app.get('/api/staff/has-backup/:fileKey', async (req, res) => {
+  try {
+    const fullPath = resolveVolumePath(req.params.fileKey);
+    const hasBak = fullPath ? EpubPatcher.hasBackup(fullPath) : false;
+    res.json({ success: true, hasBackup: hasBak });
+  } catch(e) {
+    res.json({ success: false, hasBackup: false });
+  }
+});
+
 // ── CUSTOM 404 ROUTE & SMART 404 HANDLER ──
 app.get('/404', (req, res) => {
   res.status(404).sendFile(path.join(__dirname, 'public', '404.html'));
