@@ -1368,3 +1368,52 @@
     color: #cbd5e1 !important;
   }
 }
+
+
+/* ==========================================================================
+   HOMEPAGE SLIDER 60-120FPS GPU ACCELERATION & MOBILE OPTIMIZATIONS
+   ========================================================================== */
+.hero-carousel-card {
+  transition: transform 0.36s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.32s ease !important;
+  will-change: transform, opacity !important;
+  backface-visibility: hidden !important;
+  -webkit-backface-visibility: hidden !important;
+  transform-style: preserve-3d !important;
+}
+
+/* Remove laggy blur filter animations across card deck */
+.hero-carousel-card,
+.hero-carousel-card.card-discard,
+.hero-carousel-card.card-0,
+.hero-carousel-card.card-1,
+.hero-carousel-card.card-2,
+.hero-carousel-card.card-3,
+.hero-carousel-card.card-4 {
+  filter: none !important;
+}
+
+/* Mobile specific GPU optimizations */
+@media (max-width: 768px) {
+  /* Fast responsive card transition on mobile touch */
+  .hero-carousel-card {
+    transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.28s ease !important;
+  }
+
+  /* Reduce heavy multi-layer box shadows to prevent mobile GPU overdraw */
+  .hero-carousel-card .card-inner {
+    box-shadow: 0 10px 22px -6px rgba(0, 0, 0, 0.7) !important;
+  }
+
+  .hero-carousel-card.card-2 .card-inner,
+  .hero-carousel-card.card-3 .card-inner,
+  .hero-carousel-card.card-4 .card-inner {
+    box-shadow: none !important; /* No shadow on deep background cards */
+  }
+
+  /* Optimize ambient glow on mobile: reduce expensive 45px Gaussian blur to 18px */
+  #homeHeroAmbient.home-hero-ambient,
+  .home-hero-ambient {
+    filter: blur(18px) saturate(1.8) brightness(0.6) !important;
+    transition: opacity 0.3s ease !important;
+  }
+}

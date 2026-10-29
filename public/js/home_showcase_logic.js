@@ -151,7 +151,7 @@ initDeckCards() {
         ? 'translate(35px, -70px) rotate(10deg) scale(0.85)' 
         : 'translate(55px, -110px) rotate(12deg) scale(0.82)';
       topCard.style.opacity = '0';
-      topCard.style.filter = 'blur(10px)';
+      // filter blur removed for 60fps GPU speed
 
       // 3. SIMULTANÉMENT (0.00ms) : Toutes les autres cartes avancent d'un rang !
       // La nouvelle carte 1 devient IMMÉDIATEMENT la SEULE carte-0 au même instant que le titre change !
@@ -175,7 +175,7 @@ initDeckCards() {
           topCard.style.zIndex = '';
         }
         this.isAnimating = false;
-      }, 700);
+      }, 360);
     },
 
     prevSlide() {
@@ -207,9 +207,9 @@ initDeckCards() {
         ? 'translate(45px, -50px) rotate(10deg) scale(0.85)'
         : 'translate(65px, -110px) rotate(12deg) scale(0.82)';
       bottomCard.style.opacity = '0';
-      bottomCard.style.filter = 'blur(10px)';
+      // filter blur removed for 60fps GPU speed
 
-      void bottomCard.offsetWidth; // force reflow
+      // reflow removed
 
       // 3. Décaler toutes les autres cartes vers l'arrière
       for (let t = total - 2; t >= 0; t--) {
@@ -234,7 +234,7 @@ initDeckCards() {
           bottomCard.style.zIndex = '';
         }
         this.isAnimating = false;
-      }, 700);
+      }, 360);
     },
 
     goToIndex(targetOriginalIndex) {
@@ -272,7 +272,7 @@ initDeckCards() {
           ? 'translate(35px, -70px) rotate(10deg) scale(0.85)'
           : 'translate(55px, -110px) rotate(12deg) scale(0.82)';
         topCard.style.opacity = '0';
-        topCard.style.filter = 'blur(10px)';
+        // filter blur removed for 60fps GPU speed
       }
 
       // Décaler immédiatement toutes les autres cartes
@@ -297,7 +297,7 @@ initDeckCards() {
           topCard.style.zIndex = '';
         }
         this.isAnimating = false;
-      }, 700);
+      }, 360);
     },
 
     syncContentFromCard(cardEl) {
@@ -335,7 +335,7 @@ initDeckCards() {
         ambient.style.backgroundImage = coverUrl ? `url('${coverUrl}')` : 'none';
         if (animate) {
           ambient.classList.remove('ambient-animate');
-          void ambient.offsetWidth;
+          // ambient reflow removed
           ambient.classList.add('ambient-animate');
         }
       }
@@ -396,7 +396,7 @@ initDeckCards() {
         const detailsEl = document.querySelector('.home-hero-details');
         if (detailsEl) {
           detailsEl.classList.remove('hero-slide-enter');
-          void detailsEl.offsetWidth;
+          // details reflow removed
           detailsEl.classList.add('hero-slide-enter');
         }
       }
