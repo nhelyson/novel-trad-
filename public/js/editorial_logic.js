@@ -752,23 +752,25 @@
     const formattedDate = ev.date ? `${ev.date.getDate()} ${MONTH_NAMES_FR[ev.date.getMonth()]} ${ev.date.getFullYear()}` : '';
 
     bodyEl.innerHTML = `
-      <div class="cal-modal-header-hero">
-        <div class="cal-modal-cover-box">
+      <div class="cal-modal-header">
+        <div class="cal-modal-cover-wrapper">
           <img src="${escapeHtml(coverUrl)}" class="cal-modal-cover" alt="" onerror="window.handleCalCoverError(this)">
         </div>
         <div class="cal-modal-info">
-          <span class="cal-badge-pill ${ev.badgeClass}">${escapeHtml(ev.statusLabel)}</span>
+          <div class="cal-modal-badges-row">
+            <span class="cal-badge-pill ${ev.badgeClass}">${escapeHtml(ev.statusLabel)}</span>
+          </div>
           <h2 class="cal-modal-title" id="calModalTitle">${escapeHtml(ev.title)}</h2>
-          <div class="cal-modal-meta">
-            <span>${escapeHtml(ev.volume)}</span>
-            ${formattedDate ? `<span>• Sortie le ${formattedDate}</span>` : ''}
-            ${ev.team ? `<span>• Par ${escapeHtml(ev.team)}</span>` : ''}
+          <div class="cal-modal-vol-tag">${escapeHtml(ev.volume)}</div>
+          <div class="cal-modal-meta-list">
+            ${formattedDate ? `<div class="cal-modal-meta-item"><i class="fa-regular fa-calendar-check"></i> <span>Sortie le ${formattedDate}</span></div>` : ''}
+            ${ev.team ? `<div class="cal-modal-meta-item"><i class="fa-solid fa-feather-pointed"></i> <span>${escapeHtml(ev.team)}</span></div>` : ''}
           </div>
         </div>
       </div>
       <div class="cal-modal-synopsis">
-        <h4>Synopsis</h4>
-        <p>${escapeHtml(ev.description || 'Aucun synopsis renseigné pour ce volume.')}</p>
+        <h4 class="cal-modal-synopsis-label">Synopsis</h4>
+        <p class="cal-modal-synopsis-text">${escapeHtml(ev.description || 'Aucun synopsis disponible pour cette parution.')}</p>
       </div>
       <div class="cal-modal-actions">
         ${ev.hasReader ? `
