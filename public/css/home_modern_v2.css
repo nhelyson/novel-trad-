@@ -855,8 +855,8 @@
   display: flex !important;
   align-items: center !important;
   gap: 10px !important;
-  width: 260px !important;
-  height: 40px !important;
+  width: 250px !important;
+  height: 38px !important;
   padding: 0 14px !important;
   border-radius: 9999px !important;
   background: rgba(15, 23, 42, 0.75) !important;
@@ -864,20 +864,33 @@
   backdrop-filter: blur(12px) !important;
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
+  box-sizing: border-box !important;
 }
 
 .nav-search-wrapper:focus-within {
-  width: 340px !important;
+  width: 320px !important;
   background: rgba(15, 23, 42, 0.95) !important;
   border-color: rgba(99, 102, 241, 0.5) !important;
   box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15), 0 8px 24px rgba(0, 0, 0, 0.5) !important;
 }
 
 .nav-search-icon {
-  font-size: 13.5px !important;
+  position: static !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 13px !important;
+  line-height: 1 !important;
+  height: 14px !important;
+  width: 14px !important;
   color: #64748b !important;
   transition: color 0.2s ease !important;
   flex-shrink: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  transform: none !important;
+  top: auto !important;
+  left: auto !important;
 }
 
 .nav-search-wrapper:focus-within .nav-search-icon {
@@ -892,13 +905,19 @@
   color: #f1f5f9 !important;
   font-family: inherit !important;
   font-size: 13px !important;
+  height: 100% !important;
+  line-height: normal !important;
   padding: 0 !important;
+  margin: 0 !important;
   min-width: 0 !important;
+  display: flex !important;
+  align-items: center !important;
 }
 
 .nav-search-input::placeholder {
   color: #64748b !important;
   font-size: 12.5px !important;
+  line-height: normal !important;
 }
 
 .nav-search-kbd {
@@ -913,6 +932,9 @@
   letter-spacing: 0.3px !important;
   flex-shrink: 0 !important;
   pointer-events: none !important;
+  line-height: 1.2 !important;
+  display: inline-flex !important;
+  align-items: center !important;
   transition: opacity 0.2s ease !important;
 }
 
@@ -926,11 +948,15 @@
   color: #94a3b8 !important;
   font-size: 13px !important;
   cursor: pointer !important;
-  padding: 4px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  width: 20px !important;
+  height: 20px !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
   transition: color 0.2s ease !important;
+  flex-shrink: 0 !important;
 }
 
 .nav-search-clear:hover {

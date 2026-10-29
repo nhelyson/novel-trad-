@@ -1,3 +1,59 @@
+
+// --- SMART FUZZY & TOKENIZED SEARCH HELPERS ---
+function levenshteinDist(a, b) {
+    if (a === b) return 0;
+    if (!a.length) return b.length;
+    if (!b.length) return a.length;
+    const matrix = [];
+    for (let i = 0; i <= b.length; i++) matrix[i] = [i];
+    for (let j = 0; j <= a.length; j++) matrix[0][j] = j;
+    for (let i = 1; i <= b.length; i++) {
+        for (let j = 1; j <= a.length; j++) {
+            if (b.charAt(i - 1) === a.charAt(j - 1)) {
+                matrix[i][j] = matrix[i - 1][j - 1];
+            } else {
+                matrix[i][j] = Math.min(
+                    matrix[i - 1][j - 1] + 1,
+                    matrix[i][j - 1] + 1,
+                    matrix[i - 1][j] + 1
+                );
+            }
+        }
+    }
+    return matrix[b.length][a.length];
+}
+
+function normalizeSearchText(str) {
+    return (str || '')
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase();
+}
+
+function extractSearchTokens(str) {
+    return normalizeSearchText(str)
+        .replace(/[^\p{L}\p{N}]+/gu, ' ')
+        .trim()
+        .split(/\s+/)
+        .filter(Boolean);
+}
+
+function compactSearchText(str) {
+    return normalizeSearchText(str).replace(/[^\p{L}\p{N}]+/gu, '');
+}
+
+function isTokenMatch(token, wordList) {
+    if (wordList.includes(token)) return true;
+    for (const w of wordList) {
+        if (w.includes(token)) return true;
+        if (token.length >= 4 && w.length >= 4) {
+            const maxDiff = token.length >= 7 ? 2 : 1;
+            if (levenshteinDist(token, w) <= maxDiff) return true;
+        }
+    }
+    return false;
+}
+
 const fs = require('fs');
 const path = require('path');
 
@@ -237,21 +293,87 @@ class CatalogService {
         // Helper normalisation sans accents
         const normStr = str => (str || '').normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
 
-        // 1. Live Search (Title, alternative titles, author, translator, genres)
+                // 1. Live Search (Smart Multi-Word Tokenized, Punctuation-Agnostic & Fuzzy Typo Tolerance)
         if (q && q.trim().length > 0) {
-            const queryNorm = normStr(q);
-            list = list.filter(s => {
-                const matchTitle = normStr(s.title).includes(queryNorm);
-                const matchAlt = normStr(s.originalTitle).includes(queryNorm) || 
-                                 normStr(s.title_romaji).includes(queryNorm) || 
-                                 normStr(s.metadata?.title_romaji).includes(queryNorm) ||
-                                 normStr(s.romaji).includes(queryNorm);
-                const matchAuthor = normStr(s.author).includes(queryNorm);
-                const matchTrans = normStr(s.translator).includes(queryNorm);
-                const matchGenres = (s.genres || []).some(g => normStr(g).includes(queryNorm)) ||
-                                    (s.genres_fr || []).some(g => normStr(g).includes(queryNorm));
-                return matchTitle || matchAlt || matchAuthor || matchTrans || matchGenres;
-            });
+            const rawQ = q.trim();
+            const qTokens = extractSearchTokens(rawQ);
+            const qCompact = compactSearchText(rawQ);
+
+            if (qTokens.length > 0) {
+                const scoredList = [];
+
+                for (const s of list) {
+                    const titleNorm = normalizeSearchText(s.title);
+                    const titleTokens = extractSearchTokens(s.title);
+                    const titleCompact = compactSearchText(s.title);
+
+                    const altStr = `${s.originalTitle || ''} ${s.title_romaji || ''} ${s.romaji || ''} ${s.metadata?.title_romaji || ''}`;
+                    const altNorm = normalizeSearchText(altStr);
+                    const altTokens = extractSearchTokens(altStr);
+                    const altCompact = compactSearchText(altStr);
+
+                    const authorNorm = normalizeSearchText(s.author || '');
+                    const authorTokens = extractSearchTokens(authorNorm);
+
+                    const transNorm = normalizeSearchText(s.translator || '');
+                    const genresTokens = extractSearchTokens((s.genres || []).concat(s.genres_fr || []).join(' '));
+                    const tagsTokens = extractSearchTokens((s.tags || []).join(' '));
+                    const synopsisNorm = normalizeSearchText(`${s.synopsis || ''} ${s.synopsis_fr || ''}`);
+
+                    const allCorpus = `${titleNorm} ${altNorm} ${authorNorm} ${transNorm} ${genresTokens.join(' ')} ${tagsTokens.join(' ')}`;
+                    const allCompact = `${titleCompact}${altCompact}${compactSearchText(authorNorm)}`;
+                    const allWords = [...new Set([...titleTokens, ...altTokens, ...authorTokens, ...genresTokens, ...tagsTokens])];
+
+                    let isMatch = false;
+                    let relevance = 0;
+
+                    // A. Exact or Prefix Compact Match (ex: "re zero" matches "Re:Zero", "danmachi" matches "DanMachi...")
+                    if (titleCompact === qCompact) {
+                        isMatch = true;
+                        relevance += 1000;
+                    } else if (titleCompact.startsWith(qCompact)) {
+                        isMatch = true;
+                        relevance += 500;
+                    } else if (titleCompact.includes(qCompact)) {
+                        isMatch = true;
+                        relevance += 300;
+                    } else if (allCompact.includes(qCompact)) {
+                        isMatch = true;
+                        relevance += 150;
+                    }
+
+                    // B. Multi-word Token Matching (ex: "mushoku jobless" matches "Mushoku Tensei: Jobless...")
+                    const allTokensFound = qTokens.every(tok => 
+                        allCorpus.includes(tok) || allCompact.includes(tok) || isTokenMatch(tok, allWords)
+                    );
+
+                    if (allTokensFound) {
+                        isMatch = true;
+                        const allTokensInTitle = qTokens.every(tok => 
+                            titleNorm.includes(tok) || titleCompact.includes(tok) || isTokenMatch(tok, titleTokens)
+                        );
+                        if (allTokensInTitle) {
+                            relevance += 250;
+                        } else {
+                            relevance += 100;
+                        }
+                    }
+
+                    // C. Fallback: single specific word in synopsis
+                    if (!isMatch && qTokens.length === 1 && qTokens[0].length >= 4 && synopsisNorm.includes(qTokens[0])) {
+                        isMatch = true;
+                        relevance += 30;
+                    }
+
+                    if (isMatch) {
+                        scoredList.push({ series: s, relevance });
+                    }
+                }
+
+                // Trier par pertinence si recherche active (puis par vues)
+                scoredList.sort((a, b) => b.relevance - a.relevance || (b.series.views || 0) - (a.series.views || 0));
+                list = scoredList.map(item => item.series);
+            }
         }
 
         // 2. Filter by Genre
