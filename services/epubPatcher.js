@@ -15,35 +15,73 @@ class EpubPatcher {
 
   /**
    * Construit un regex tolérant pour retrouver une phrase dans du code XHTML brut
+   * (tolérant aux accents, entités HTML, ponctuations et balises internes)
    */
   static buildXhtmlSearchRegex(rawPhrase) {
     const clean = (rawPhrase || '')
       .replace(/[\u200B\u200C\u200D\uFEFF\u00AD\u2060]/g, ' ')
       .replace(/[\u2018\u2019\u201B`ʼ]/g, "'")
       .replace(/[\u201C\u201D\u00AB\u00BB\u2039\u203A\u300C\u300D]/g, '"')
-      .replace(/[\u3008\u3009<>[\](){}]/g, ' ')
+      .replace(/[\u3008\u3009<>\[\](){}]/g, ' ')
+      .replace(/[\u2026]/g, '.')
+      .replace(/[\u2013\u2014\u2015―–—]/g, '-')
       .replace(/[\u00A0\u202F\u2009\u2002\u2003\t\r\n]/g, ' ')
       .trim();
 
-    const words = clean.split(/\s+/).filter(w => w.length > 0);
-    if (words.length === 0) return null;
+    const tokens = clean.split(/\s+/).filter(w => w.length > 0);
+    if (tokens.length === 0) return null;
 
-    const wordPatterns = words.map(w => {
-      let p = EpubPatcher.escapeRegExp(w);
+    const tokenPatterns = tokens.map(token => {
+      let leadingPunct = '';
+      let core = token;
+      let trailingPunct = '';
+
+      const leadMatch = core.match(/^[.,;!?:'"«»“”—–\-]+/);
+      if (leadMatch) {
+        leadingPunct = leadMatch[0];
+        core = core.substring(leadingPunct.length);
+      }
+      const trailMatch = core.match(/[.,;!?:'"«»“”—–\-]+$/);
+      if (trailMatch) {
+        trailingPunct = trailMatch[0];
+        core = core.substring(0, core.length - trailingPunct.length);
+      }
+
+      let p = EpubPatcher.escapeRegExp(core);
+      p = p.replace(/[eéèêëEÉÈÊË]/gi, "([eéèêëEÉÈÊË]|&eacute;|&egrave;|&ecirc;|&euml;|&#233;|&#232;|&#234;|&#235;|&#xe9;|&#xe8;|&#xea;|&#xeb;)");
+      p = p.replace(/[aàâäAÀÂÄ]/gi, "([aàâäAÀÂÄ]|&agrave;|&acirc;|&auml;|&#224;|&#226;|&#228;|&#xe0;|&#xe2;|&#xe4;)");
+      p = p.replace(/[iîïIÎÏ]/gi, "([iîïIÎÏ]|&icirc;|&iuml;|&#238;|&#239;|&#xee;|&#xef;)");
+      p = p.replace(/[oôöOÔÖ]/gi, "([oôöOÔÖ]|&ocirc;|&ouml;|&#244;|&#246;|&#xf4;|&#xf6;)");
+      p = p.replace(/[uùûüUÙÛÜ]/gi, "([uùûüUÙÛÜ]|&ugrave;|&ucirc;|&uuml;|&#249;|&#251;|&#252;|&#xf9;|&#xfb;|&#xfc;)");
+      p = p.replace(/[cçCÇ]/gi, "([cçCÇ]|&ccedil;|&#231;|&#xe7;)");
       p = p.replace(/'/g, "('|’|&rsquo;|&#39;|&#x27;)");
       p = p.replace(/"/g, '("|«|»|“|”|&laquo;|&raquo;|&quot;)');
       p = p.replace(/(œ|oe)/gi, "(œ|oe|&oelig;|&OElig;)");
       p = p.replace(/(æ|ae)/gi, "(æ|ae|&aelig;|&AElig;)");
-      return p;
+
+      let leadPattern = leadingPunct ? EpubPatcher.escapeRegExp(leadingPunct) : '';
+      let trailPattern = trailingPunct ? EpubPatcher.escapeRegExp(trailingPunct) : '';
+
+      if (leadPattern) {
+        leadPattern = leadPattern
+          .replace(/'/g, "('|’|&rsquo;|&#39;|&#x27;)")
+          .replace(/"/g, '("|«|»|“|”|&laquo;|&raquo;|&quot;)');
+        leadPattern = `(?:${leadPattern})?`;
+      }
+      if (trailPattern) {
+        trailPattern = trailPattern
+          .replace(/'/g, "('|’|&rsquo;|&#39;|&#x27;)")
+          .replace(/"/g, '("|«|»|“|”|&laquo;|&raquo;|&quot;)');
+        trailPattern = `(?:${trailPattern})?`;
+      }
+
+      return `${leadPattern}${p}${trailPattern}`;
     });
 
-    const separator = '(\\s|<[^>]+>|&nbsp;|&#160;|&#8239;|&shy;|&#173;)+';
-    return new RegExp(wordPatterns.join(separator), 'gi');
+    const separator = '(\\s|<[^>]+>|&nbsp;|&#160;|&#8239;|&shy;|&#173;|[.,;!?:…«»“”—–\\-])+';
+    return new RegExp(tokenPatterns.join(separator), 'gi');
   }
 
-  /**
-   * Vérifie si une sauvegarde (.bak) existe pour ce fichier
-   */
   static hasBackup(fullPath) {
     if (!fullPath) return false;
     return fs.existsSync(fullPath + '.bak');

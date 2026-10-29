@@ -354,7 +354,9 @@ app.get('/api/volume-stream/:fileKey', (req, res) => {
                 'Content-Type': 'application/octet-stream',
                 'Content-Length': stat.size,
                 'Accept-Ranges': 'bytes',
-                'Cache-Control': isDownload ? 'no-cache' : 'public, max-age=31536000, immutable',
+                'ETag': `"${stat.mtimeMs.toString(36)}-${stat.size.toString(36)}"`,
+                'Last-Modified': stat.mtime.toUTCString(),
+                'Cache-Control': isDownload ? 'no-cache' : 'public, max-age=3600, must-revalidate',
                 'Access-Control-Allow-Origin': '*',
                 'Access-Control-Allow-Headers': 'Range, ngrok-skip-browser-warning, Accept, *',
                 'Access-Control-Expose-Headers': 'Content-Range, Content-Length, Accept-Ranges'
@@ -675,7 +677,7 @@ app.get('/api/volume-chapters/:fileKey/:chapterNum', async (req, res) => {
 
     // 1. Cache HIT RAM instantané (<1ms, 0 I/O disque)
     if (parsedChaptersCache.has(cacheKey)) {
-      res.setHeader('Cache-Control', 'public, max-age=86400, stale-while-revalidate=604800');
+      res.setHeader('Cache-Control', 'no-cache, must-revalidate');
       return res.json(parsedChaptersCache.get(cacheKey));
     }
     const epub = await getEpubSpine(fileKey);
@@ -5104,8 +5106,12 @@ app.post('/api/admin/reports/:id/resolve', requireAdmin, (req, res) => {
     // Invalider le cache RAM pour ce chapitre si c'était un volume
     if (result.report) {
       const cleanKey = String(result.report.seriesId || '').toLowerCase().replace(/\.(epub|pdf)$/i, '').trim();
-      const num = parseInt(result.report.chapterNum, 10);
-      parsedChaptersCache.delete(`${cleanKey}:${num}`);
+      for (const k of volumeChaptersCache.keys()) {
+        if (k === cleanKey || k.includes(cleanKey)) volumeChaptersCache.delete(k);
+      }
+      for (const k of parsedChaptersCache.keys()) {
+        if (k.includes(cleanKey)) parsedChaptersCache.delete(k);
+      }
     }
 
     res.json({ success: true, report: result.report, message: 'Correction validée et appliquée avec succès.' });
@@ -5186,10 +5192,17 @@ app.post('/api/staff/correct-text', async (req, res) => {
         modified = true;
         details = patchRes;
 
-        // Invalider le cache des chapitres parsés pour ce livre
+        // Invalider le cache des chapitres parsés et de la structure pour ce livre
         const cleanKey = path.basename(fileKey).replace(/\.(epub|pdf)$/i, '').trim();
+        for (const k of volumeChaptersCache.keys()) {
+          if (k === cleanKey || k.includes(cleanKey) || (fileKey && k.includes(fileKey))) {
+            volumeChaptersCache.delete(k);
+          }
+        }
         for (const k of parsedChaptersCache.keys()) {
-          if (k.startsWith(cleanKey + ':')) parsedChaptersCache.delete(k);
+          if (k.includes(cleanKey) || (fileKey && k.includes(fileKey))) {
+            parsedChaptersCache.delete(k);
+          }
         }
       }
     }
@@ -5272,10 +5285,17 @@ app.post('/api/staff/restore-epub', async (req, res) => {
 
     const result = await EpubPatcher.restoreBackup(fullPath);
 
-    // Invalider le cache des chapitres parsés
+    // Invalider le cache des chapitres parsés et de la structure
     const cleanKey = path.basename(fileKey).replace(/\.(epub|pdf)$/i, '').trim();
+    for (const k of volumeChaptersCache.keys()) {
+      if (k === cleanKey || k.includes(cleanKey) || (fileKey && k.includes(fileKey))) {
+        volumeChaptersCache.delete(k);
+      }
+    }
     for (const k of parsedChaptersCache.keys()) {
-      if (k.startsWith(cleanKey + ':')) parsedChaptersCache.delete(k);
+      if (k.includes(cleanKey) || (fileKey && k.includes(fileKey))) {
+        parsedChaptersCache.delete(k);
+      }
     }
 
     // Supprimer les patchs dynamiques correspondants pour ce livre
@@ -5325,7 +5345,8 @@ app.use((req, res) => {
 
   // 2. Fichiers statiques manquants (images, CSS, JS, polices)
   const ext = path.extname(req.path).toLowerCase();
-  if (['.jpg', '.jpeg', '.png', '.webp', '.gif', '.svg', '.css', '.js', '.map', '.woff', '.woff2', '.ttf'].includes(ext)) {
+  if (ext === '.map') { return res.status(204).end(); }
+  if (['.jpg', '.jpeg', '.png', '.webp', '.gif', '.svg', '.css', '.js', '.woff', '.woff2', '.ttf'].includes(ext)) {
     return res.status(404).send('Fichier introuvable');
   }
 

@@ -372,7 +372,7 @@
         } catch(e) {}
       });
 
-      const streamContainer = epubViewer.querySelector('.pdf-webtoon-container, .stream-chapters-wrap');
+      const streamContainer = epubViewer.querySelector('.stream-chapter-container, .stream-chapters-wrap, .pdf-webtoon-container, #streamChapterContainer');
       if (streamContainer && streamContainer.textContent.trim().length > 0) {
         injectStyles(document);
         targets.push({ doc: document, container: streamContainer, type: 'epub-stream' });
@@ -735,6 +735,32 @@
   }
 
   // --- 10. TIROIR ET LOGIQUE D'ÉDITION IN-PLACE ---
+  // --- VÉRIFICATION ÉTAT DU BACKUP ORIGINAL ---
+  async function checkBackupStatus() {
+    const restoreBtn = document.getElementById('ntReaderRestoreBtn');
+    if (!restoreBtn) return;
+    const fileKey = resolveActiveBookKey();
+    if (!fileKey) {
+      restoreBtn.classList.add('hidden');
+      return;
+    }
+    try {
+      const resp = await fetch('/api/staff/has-backup/' + encodeURIComponent(fileKey));
+      if (resp.ok) {
+        const data = await resp.json();
+        if (data && data.hasBackup) {
+          restoreBtn.classList.remove('hidden');
+        } else {
+          restoreBtn.classList.add('hidden');
+        }
+      } else {
+        restoreBtn.classList.add('hidden');
+      }
+    } catch (e) {
+      restoreBtn.classList.add('hidden');
+    }
+  }
+
   function openEditDrawer() {
     if (searchMatches.length === 0 || currentMatchIdx < 0) return;
     const matchObj = searchMatches[currentMatchIdx];
@@ -865,6 +891,27 @@
       }
 
       matchObj.rawMatchedText = newText;
+
+      // Invalidation immédiate du cache local (CacheStorage & mémoire RAM de streaming)
+      try {
+        if (typeof window.clearReaderVolumeCache === 'function') {
+          window.clearReaderVolumeCache(fileKey);
+        } else if ('caches' in window) {
+          caches.open('noveltrad-volumes-v1').then(cache => {
+            cache.keys().then(keys => {
+              keys.forEach(req => {
+                if (req.url.includes(fileKey) || req.url.includes(encodeURIComponent(fileKey))) {
+                  cache.delete(req);
+                }
+              });
+            });
+          }).catch(() => {});
+        }
+        if (window._streamChapterMemoryCache) {
+          window._streamChapterMemoryCache.clear();
+        }
+      } catch(e) {}
+
       closeEditDrawer();
       showToastNotification("Correction enregistrée ! L'EPUB a été mis à jour.");
 

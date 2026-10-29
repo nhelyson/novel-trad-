@@ -131,7 +131,7 @@ window.checkIsDownloadRestricted = function(targetBook) {
         headers: {
           'Content-Type': 'application/octet-stream',
           'Content-Length': buffer.byteLength.toString(),
-          'Cache-Control': 'public, max-age=31536000, immutable'
+          'Cache-Control': 'public, max-age=86400, must-revalidate'
         }
       });
       await cache.put(url, response);
@@ -139,6 +139,23 @@ window.checkIsDownloadRestricted = function(targetBook) {
       console.warn('[VolumeCache] Cache save notice:', e);
     }
   }
+  // Permet de purger le cache local d'un volume après modification
+  window.clearReaderVolumeCache = async function(fileKey) {
+    if (!('caches' in window)) return;
+    try {
+      const cache = await caches.open(VOLUME_CACHE_NAME);
+      const keys = await cache.keys();
+      for (const req of keys) {
+        if (!fileKey || req.url.includes(fileKey) || req.url.includes(encodeURIComponent(fileKey))) {
+          await cache.delete(req);
+        }
+      }
+      if (typeof _streamChapterMemoryCache !== 'undefined' && _streamChapterMemoryCache) {
+        _streamChapterMemoryCache.clear();
+      }
+      console.log('[VolumeCache] Cache purgé pour:', fileKey || 'tous');
+    } catch(e) {}
+  };
 
   // Pre-fetch volume in background while user views synopsis / catalog
   window.prefetchBook = async function(book) {
@@ -724,6 +741,8 @@ window.checkIsDownloadRestricted = function(targetBook) {
       return _streamChapterMemoryCache.get(key);
     }
     const resp = await fetch('/api/volume-chapters/' + encodeURIComponent(fileKey) + '/' + num, {
+      cache: 'no-cache',
+      cache: 'no-cache',
       headers: { 'ngrok-skip-browser-warning': 'true' }
     });
     if (!resp.ok) throw new Error('HTTP ' + resp.status);
