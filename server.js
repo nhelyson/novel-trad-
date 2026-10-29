@@ -1,4 +1,5 @@
 const CommentService = require('./services/comments/CommentService');
+const ReadingProgressService = require('./services/readingProgressService');
 const ReportService = require('./services/reports/ReportService');
 
 const fs = require('fs');
@@ -3797,7 +3798,8 @@ setInterval(() => {
 app.post('/api/comments/:bookKey/:paragraphId', async (req, res) => {
   try {
     const { bookKey, paragraphId } = req.params;
-    const { content, is_spoiler, visitor_name, excerpt } = req.body || {};
+    const { content, is_spoiler, visitor_name, excerpt, parent_id, parentId } = req.body || {};
+    const cleanParentId = parent_id || parentId || null;
 
     const clientIp = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket.remoteAddress || '127.0.0.1';
     const cooldownKey = `${clientIp}_${bookKey}`;
@@ -3852,7 +3854,8 @@ app.post('/api/comments/:bookKey/:paragraphId', async (req, res) => {
       userAvatar,
       userRole,
       content: cleanContent,
-      isSpoiler: Boolean(is_spoiler)
+      isSpoiler: Boolean(is_spoiler),
+      parentId: cleanParentId
     });
 
     res.json({ success: true, comment });
@@ -3862,6 +3865,49 @@ app.post('/api/comments/:bookKey/:paragraphId', async (req, res) => {
 });
 
 
+
+
+// =============================================================================
+// CROSS-DEVICE REALTIME READING PROGRESS SYNC
+// =============================================================================
+
+// POST /api/user/reading-progress - Sauvegarder la position de lecture temps-réel (Debounced)
+app.post('/api/user/reading-progress', async (req, res) => {
+  try {
+    let authUser = null;
+    try {
+      authUser = await authenticateUser(req);
+    } catch (e) {}
+
+    const clientIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1';
+    const userId = authUser ? authUser.id : ('guest_' + Buffer.from(clientIp).toString('hex').slice(-6));
+
+    const progress = await ReadingProgressService.saveProgress(userId, req.body);
+    res.json({ success: true, progress });
+  } catch (err) {
+    console.error('[ReadingProgress] Error saving progress:', err.message);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// GET /api/user/latest-reading - Récupérer la dernière lecture pour le bandeau "Reprendre"
+app.get('/api/user/latest-reading', async (req, res) => {
+  try {
+    let authUser = null;
+    try {
+      authUser = await authenticateUser(req);
+    } catch (e) {}
+
+    const clientIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1';
+    const userId = authUser ? authUser.id : ('guest_' + Buffer.from(clientIp).toString('hex').slice(-6));
+
+    const latest = await ReadingProgressService.getLatestProgress(userId);
+    res.json({ success: true, hasProgress: Boolean(latest), progress: latest });
+  } catch (err) {
+    console.error('[ReadingProgress] Error fetching latest:', err.message);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
 
 // ── 2. CONTRIBUTOR STUDIO ENDPOINTS ──────────────────────────────────────────
 

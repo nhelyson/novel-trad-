@@ -139,6 +139,11 @@ class LibraryDB {
         // 3. Notifier SyncEngine (non-bloquant)
         this._notifySyncEngine('progress', bookId, 'upsert', record);
 
+        // 4. Synchronisation instantanée Cross-Device vers le serveur
+        if (typeof window.syncReadingProgressToServer === 'function') {
+            window.syncReadingProgressToServer(record);
+        }
+
         return record;
     }
 

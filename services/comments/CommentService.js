@@ -119,7 +119,7 @@ class CommentService {
     return this.getLocalComments(bookKey, paragraphId);
   }
 
-  static async addComment({ bookKey, paragraphId, excerpt, userId, userName, userAvatar, userRole, content, isSpoiler }) {
+  static async addComment({ bookKey, paragraphId, excerpt, userId, userName, userAvatar, userRole, content, isSpoiler, parentId }) {
     if (!bookKey || !paragraphId) throw new Error('bookKey et paragraphId requis.');
     const cleanContent = String(content || '').trim().replace(/[<>]/g, '');
     if (cleanContent.length < 2) throw new Error('Le commentaire doit comporter au moins 2 caractères.');
@@ -127,6 +127,7 @@ class CommentService {
 
     const newComment = {
       id: 'cmt_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7),
+      parent_id: (parentId && String(parentId).trim()) ? String(parentId).trim() : null,
       book_key: String(bookKey),
       paragraph_id: String(paragraphId),
       excerpt: String(excerpt || '').slice(0, 300),
@@ -155,6 +156,7 @@ class CommentService {
           id: newComment.id,
           book_key: newComment.book_key,
           paragraph_id: newComment.paragraph_id,
+          parent_id: newComment.parent_id || null,
           excerpt: newComment.excerpt,
           user_id: (/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(newComment.user_id)) ? newComment.user_id : null,
           user_name: newComment.user_name,

@@ -229,13 +229,15 @@
       }
     }
 
-    function renderCommentsList() {
+        function renderCommentsList() {
       const count = commentsData.length;
-      countBadge.textContent = count + (count > 1 ? ' avis' : ' avis');
+      if (countBadge) {
+        countBadge.textContent = count + (count > 1 ? ' avis' : ' avis');
+      }
 
-      // 1. TOP COMMENTS SPOTLIGHT (Style Webtoon)
-      // Comments with >= 1 like, sorted by likes desc, top 3
-      const likedComments = commentsData.filter(c => (c.likes || 0) > 0);
+      // 1. TOP SPOTLIGHT (Uniquement commentaires principaux)
+      const topLevelAll = commentsData.filter(c => !c.parent_id);
+      const likedComments = [...topLevelAll].filter(c => (c.likes || 0) > 0);
       likedComments.sort((a, b) => (b.likes || 0) - (a.likes || 0));
       const top3 = likedComments.slice(0, 3);
 
@@ -243,7 +245,7 @@
         topSpotlight.classList.remove('hidden');
         topSpotlightList.innerHTML = '';
         top3.forEach((c, idx) => {
-          topSpotlightList.appendChild(buildCommentCard(c, true, idx + 1));
+          topSpotlightList.appendChild(buildCommentCard(c, true, idx + 1, false, []));
         });
       } else {
         topSpotlight.classList.add('hidden');
@@ -262,25 +264,40 @@
         return;
       }
 
-      // Sort comments
-      let sorted = [...commentsData];
+      // Séparer les commentaires principaux et les réponses
+      const topLevelComments = commentsData.filter(c => !c.parent_id);
+      const repliesMap = new Map();
+      commentsData.filter(c => c.parent_id).forEach(r => {
+        if (!repliesMap.has(r.parent_id)) repliesMap.set(r.parent_id, []);
+        repliesMap.get(r.parent_id).push(r);
+      });
+
+      // Trier les réponses par ordre chronologique
+      repliesMap.forEach(list => {
+        list.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+      });
+
+      // Trier les commentaires principaux
       if (activeSort === 'top') {
-        sorted.sort((a, b) => (b.likes || 0) - (a.likes || 0) || new Date(b.created_at) - new Date(a.created_at));
+        topLevelComments.sort((a, b) => (b.likes || 0) - (a.likes || 0) || new Date(b.created_at) - new Date(a.created_at));
       } else {
-        sorted.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+        topLevelComments.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
       }
 
       feed.innerHTML = '';
-      sorted.forEach(c => {
-        feed.appendChild(buildCommentCard(c, false));
+      topLevelComments.forEach(c => {
+        const replies = repliesMap.get(c.id) || [];
+        feed.appendChild(buildCommentCard(c, false, null, false, replies));
       });
 
       bindFeedEvents();
     }
 
-    function buildCommentCard(c, isTopCard, rank) {
+    function buildCommentCard(c, isTopCard, rank, isReply = false, replies = []) {
       const card = document.createElement('div');
-      card.className = 'vol-comment-card' + (isTopCard ? ' is-top-rank' : '');
+      card.className = isReply 
+        ? 'vol-comment-card vol-reply-card' 
+        : ('vol-comment-card' + (isTopCard ? ' is-top-rank' : ''));
       card.id = 'vcmt-' + c.id;
 
       const avatarMarkup = c.user_avatar
@@ -321,6 +338,49 @@
       const isAdmin = auth && auth.isAdmin && auth.isAdmin();
       const canDelete = isAdmin || (currentUserId && currentUserId === c.user_id);
 
+      // Reply badge if this is a reply
+      const replyToMarkup = (isReply && c.excerpt && c.excerpt.startsWith('Réponse à '))
+        ? `<span class="vol-reply-to-pill"><i class="fa-solid fa-reply fa-xs"></i> ${escapeHtml(c.excerpt)}</span>`
+        : '';
+
+      let repliesSectionMarkup = '';
+      if (!isReply) {
+        // Build thread of replies
+        let repliesHtml = '';
+        if (replies.length > 0) {
+          replies.forEach(r => {
+            const replyCard = buildCommentCard(r, false, null, true, []);
+            repliesHtml += replyCard.outerHTML;
+          });
+        }
+
+        repliesSectionMarkup = `
+          <!-- Tiroir inline de réponse -->
+          <div class="vol-reply-drawer hidden" id="replyDrawer-${c.id}">
+            <div class="vol-reply-input-wrap">
+              <div class="vol-reply-to-hint">
+                <i class="fa-solid fa-reply" style="color:#f59e0b;"></i>
+                <span>Répondre à <strong style="color:#fbbf24;">@${escapeHtml(c.user_name)}</strong></span>
+              </div>
+              <textarea class="vol-reply-textarea" id="replyText-${c.id}" placeholder="Votre réponse bienveillante..." rows="2" maxlength="500"></textarea>
+              <div class="vol-reply-actions-row">
+                <button type="button" class="vol-btn-cancel-reply" data-cid="${c.id}">Annuler</button>
+                <button type="button" class="vol-btn-send-reply" data-cid="${c.id}" data-author="${escapeHtml(c.user_name)}">
+                  <i class="fa-solid fa-paper-plane"></i> <span>Répondre</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Fil de discussion des réponses -->
+          <div class="vol-replies-thread ${replies.length > 0 ? '' : 'hidden'}" id="repliesThread-${c.id}">
+            <div class="vol-replies-list" id="repliesList-${c.id}">
+              ${repliesHtml}
+            </div>
+          </div>
+        `;
+      }
+
       card.innerHTML = `
         <div class="vol-card-header">
           <div class="vol-card-author-group">
@@ -328,6 +388,7 @@
             <div class="vol-card-author-meta">
               <div class="vol-card-name-row">
                 <strong class="vol-card-username">${escapeHtml(c.user_name)}</strong>
+                ${replyToMarkup}
                 ${roleBadge}
                 ${topBadgeMarkup}
               </div>
@@ -346,13 +407,126 @@
             <i class="fa-regular fa-heart"></i>
             <span class="vol-like-count">${c.likes || 0}</span>
           </button>
+          ${!isReply ? `
+            <button type="button" class="vol-btn-reply" data-cid="${c.id}" data-author="${escapeHtml(c.user_name)}">
+              <i class="fa-solid fa-reply"></i>
+              <span>Répondre</span>
+              ${replies.length > 0 ? `<span class="vol-reply-count-badge">${replies.length}</span>` : ''}
+            </button>
+          ` : ''}
         </div>
+
+        ${repliesSectionMarkup}
       `;
 
       return card;
     }
 
     function bindFeedEvents() {
+      // 1. Bouton Répondre : ouvre le tiroir inline
+      mountContainer.querySelectorAll('.vol-btn-reply').forEach(btn => {
+        btn.onclick = (e) => {
+          e.stopPropagation();
+          const cId = btn.getAttribute('data-cid');
+          const drawer = mountContainer.querySelector('#replyDrawer-' + cId);
+          if (drawer) {
+            const isHidden = drawer.classList.contains('hidden');
+            // Fermer les autres tiroirs
+            mountContainer.querySelectorAll('.vol-reply-drawer').forEach(d => d.classList.add('hidden'));
+            if (isHidden) {
+              drawer.classList.remove('hidden');
+              const txt = drawer.querySelector('.vol-reply-textarea');
+              if (txt) {
+                txt.focus();
+              }
+            }
+          }
+        };
+      });
+
+      // 2. Bouton Annuler réponse
+      mountContainer.querySelectorAll('.vol-btn-cancel-reply').forEach(btn => {
+        btn.onclick = (e) => {
+          e.stopPropagation();
+          const cId = btn.getAttribute('data-cid');
+          const drawer = mountContainer.querySelector('#replyDrawer-' + cId);
+          if (drawer) {
+            drawer.classList.add('hidden');
+            const txt = drawer.querySelector('.vol-reply-textarea');
+            if (txt) txt.value = '';
+          }
+        };
+      });
+
+      // 3. Bouton Envoyer la réponse
+      mountContainer.querySelectorAll('.vol-btn-send-reply').forEach(btn => {
+        btn.onclick = async (e) => {
+          e.stopPropagation();
+          const cId = btn.getAttribute('data-cid');
+          const parentAuthor = btn.getAttribute('data-author') || 'Lecteur';
+          const drawer = mountContainer.querySelector('#replyDrawer-' + cId);
+          if (!drawer) return;
+          const txt = drawer.querySelector('.vol-reply-textarea');
+          const replyText = txt ? txt.value.trim() : '';
+
+          if (!replyText || replyText.length < 2) {
+            alert('Veuillez saisir au moins 2 caractères pour répondre.');
+            return;
+          }
+
+          btn.disabled = true;
+          btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Envoi...';
+
+          try {
+            const auth = window.authManager;
+            const token = auth ? await auth.getAccessToken() : null;
+            const headers = { 'Content-Type': 'application/json' };
+            if (token) headers['Authorization'] = 'Bearer ' + token;
+
+            let visitorName = '';
+            if (guestInput && !guestInput.classList.contains('hidden')) {
+              visitorName = guestInput.value.trim();
+            }
+
+            const payload = {
+              content: replyText,
+              parent_id: cId,
+              parentId: cId,
+              visitor_name: visitorName,
+              excerpt: 'Réponse à @' + parentAuthor
+            };
+
+            const res = await fetch(`/api/comments/${encodeURIComponent(cleanBookKey)}/volume_end`, {
+              method: 'POST',
+              headers,
+              body: JSON.stringify(payload)
+            });
+
+            const data = await res.json();
+            if (!res.ok || !data.success) {
+              throw new Error(data.error || 'Impossible d\'envoyer la réponse.');
+            }
+
+            // Ajouter la nouvelle réponse à la liste locale et rafraîchir
+            commentsData.push(data.comment || data);
+            renderCommentsList();
+
+            // Notification visuelle
+            const newCard = mountContainer.querySelector('#vcmt-' + (data.comment?.id || data.id));
+            if (newCard) {
+              newCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              newCard.style.outline = '2px solid #f59e0b';
+              setTimeout(() => { newCard.style.outline = ''; }, 2500);
+            }
+
+          } catch (err) {
+            alert(err.message || 'Erreur lors de l\'envoi de la réponse.');
+          } finally {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> <span>Répondre</span>';
+          }
+        };
+      });
       // Like button handlers
       mountContainer.querySelectorAll('.vol-btn-like').forEach(btn => {
         btn.onclick = async (e) => {
