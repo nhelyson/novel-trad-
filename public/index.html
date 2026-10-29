@@ -93,7 +93,7 @@
     })();
   </script>
   <link rel="stylesheet" href="css/noveltrad.app.min.css?v=1793043817398">
-  <link rel="stylesheet" href="css/home_modern_v2.css?v=1793288279108">
+  <link rel="stylesheet" href="css/home_modern_v2.css?v=1793292340925">
     <!-- Console Signature -->
   <script>
     (function() {
@@ -802,72 +802,85 @@
       <div id="editorialModule" class="module-container cal-page-container hidden">
         <div class="cal-wrapper">
           
-          <!-- En-tête du Calendrier -->
-          <header class="cal-header">
-            <div class="cal-header-info">
-              <h1 class="cal-title">Calendrier</h1>
-              <p class="cal-subtitle">Retrouvez les prochaines sorties, traductions et mises à jour de NovelTrad.</p>
+          <!-- En-tête Moderne du Calendrier / Release Radar -->
+          <header class="cal-header-v2">
+            <div class="cal-header-top">
+              
+              <h1 class="cal-title">Planning des Sorties</h1>
+              <p class="cal-subtitle">Suivez en temps réel les traductions officielles, parutions de tomes et nouveaux chapitres.</p>
             </div>
 
-            <!-- Barre de navigation des mois -->
-            <div class="cal-nav-bar">
+            <!-- Barre de Contrôles & Navigation Haute Performance -->
+            <div class="cal-toolbar">
+              <!-- Sélecteur de Mois avec Boutons Fléchés Glass -->
               <div class="cal-month-nav">
                 <button type="button" id="calPrevMonthBtn" class="cal-nav-btn" aria-label="Mois précédent" title="Mois précédent">
                   <i class="fa-solid fa-chevron-left"></i>
-                  <span class="cal-nav-btn-txt">Mois précédent</span>
                 </button>
 
                 <div class="cal-current-month-display" id="calCurrentMonthDisplay">
-                  <span id="calCurrentMonthName">Septembre</span>
+                  <i class="fa-regular fa-calendar" style="color: #818cf8; font-size: 14px;"></i>
+                  <span id="calCurrentMonthName">Octobre</span>
                   <span id="calCurrentYear" class="cal-year-tag">2026</span>
                 </div>
 
                 <button type="button" id="calNextMonthBtn" class="cal-nav-btn" aria-label="Mois suivant" title="Mois suivant">
-                  <span class="cal-nav-btn-txt">Mois suivant</span>
                   <i class="fa-solid fa-chevron-right"></i>
                 </button>
               </div>
 
-              <div class="cal-nav-actions">
-                <button type="button" id="calTodayBtn" class="cal-today-btn" title="Revenir à la date d'aujourd'hui">
-                  <i class="fa-solid fa-calendar-day"></i>
+              <!-- Recherche Rapide dans le Planning -->
+              <div class="cal-search-wrapper">
+                <i class="fa-solid fa-magnifying-glass cal-search-icon"></i>
+                <input type="text" id="calNovelSearchInput" class="cal-search-input" placeholder="Rechercher une série, un tome..." autocomplete="off">
+                <button type="button" id="calSearchClearBtn" class="cal-search-clear hidden" aria-label="Effacer">&times;</button>
+              </div>
+
+              <!-- Actions Rapides & Bascule Vue -->
+              <div class="cal-toolbar-actions">
+                <button type="button" id="calTodayBtn" class="cal-today-btn" title="Revenir au jour actuel">
+                  <i class="fa-solid fa-crosshairs"></i>
                   <span>Aujourd'hui</span>
                 </button>
 
-                <!-- Bascule Vue Grille / Vue Liste (mobile-friendly) -->
+                <!-- Bascule Vue Radar (Timeline) / Grille -->
                 <div class="cal-view-switch" role="group" aria-label="Mode d'affichage">
-                  <button type="button" id="calViewGridBtn" class="cal-switch-btn active" title="Affichage Grille mensuelle" aria-pressed="true">
+                  <button type="button" id="calViewAgendaBtn" class="cal-switch-btn active" title="Affichage Radar / Timeline" aria-pressed="true">
+                    <i class="fa-solid fa-list-ul"></i>
+                    <span class="cal-btn-txt">Timeline</span>
+                  </button>
+                  <button type="button" id="calViewGridBtn" class="cal-switch-btn" title="Affichage Grille mensuelle" aria-pressed="false">
                     <i class="fa-solid fa-calendar-days"></i>
                     <span class="cal-btn-txt">Grille</span>
                   </button>
-                  <button type="button" id="calViewAgendaBtn" class="cal-switch-btn" title="Affichage Liste / Agenda" aria-pressed="false">
-                    <i class="fa-solid fa-list-ul"></i>
-                    <span class="cal-btn-txt">Agenda</span>
-                  </button>
                 </div>
               </div>
+            </div>
 
-            <!-- RUBAN HORIZONTAL DE JOURS DU MOIS (MOBILE & AGENDA) -->
-            <div id="calDayStrip" class="cal-day-strip" role="tablist" aria-label="Sélection rapide du jour"></div>
+            <!-- RUBAN HORIZONTAL DE JOURS DU MOIS (DÉFILEMENT FLUIDE & TACTILE) -->
+            <div class="cal-strip-container">
+              <div id="calDayStrip" class="cal-day-strip" role="tablist" aria-label="Sélection rapide du jour">
+                <!-- Pastilles de jours injectées dynamiquement -->
+              </div>
             </div>
           </header>
 
-          <!-- Filtres Fonctionnels -->
+          <!-- Filtres de Catégories (Pilules Glassmorphism) -->
           <div class="cal-filters-bar" role="tablist" aria-label="Filtrer les événements">
             <button type="button" class="cal-filter-btn active" data-filter="all" role="tab" aria-selected="true">
-              <span>Tous</span>
+              <span class="cal-filter-label">Toutes les sorties</span>
               <span class="cal-filter-count" id="calCountAll">0</span>
             </button>
-            <button type="button" class="cal-filter-btn" data-filter="translations" role="tab" aria-selected="false">
-              <span>📖 Traductions</span>
-              <span class="cal-filter-count" id="calCountTranslations">0</span>
-            </button>
             <button type="button" class="cal-filter-btn" data-filter="volumes" role="tab" aria-selected="false">
-              <span>📚 Volumes</span>
+              <span class="cal-filter-label">📚 Nouveaux Tomes</span>
               <span class="cal-filter-count" id="calCountVolumes">0</span>
             </button>
+            <button type="button" class="cal-filter-btn" data-filter="translations" role="tab" aria-selected="false">
+              <span class="cal-filter-label">📖 Traductions</span>
+              <span class="cal-filter-count" id="calCountTranslations">0</span>
+            </button>
             <button type="button" class="cal-filter-btn" data-filter="new" role="tab" aria-selected="false">
-              <span>🆕 Nouveautés</span>
+              <span class="cal-filter-label">✨ Nouvelles Séries</span>
               <span class="cal-filter-count" id="calCountNew">0</span>
             </button>
           </div>
@@ -875,49 +888,52 @@
           <!-- Conteneur Principal du Calendrier -->
           <div class="cal-main-content">
             
-            <!-- VUE GRILLE (Desktop / Tablette) -->
-            <div id="calendarGridWrapper" class="cal-grid-wrapper">
+            <!-- VUE TIMELINE / RADAR (Par Défaut sur Mobile & Bureau) -->
+            <div id="calendarAgendaWrapper" class="cal-agenda-wrapper">
+              <div id="calendarAgendaList" class="cal-agenda-list">
+                <!-- Événements groupés par date injectés dynamiquement -->
+              </div>
+            </div>
+
+            <!-- VUE GRILLE MENSUELLE (Bureau / Tablette) -->
+            <div id="calendarGridWrapper" class="cal-grid-wrapper hidden">
               <div class="cal-weekdays-header">
-                <div class="cal-weekday-cell">Lundi</div>
-                <div class="cal-weekday-cell">Mardi</div>
-                <div class="cal-weekday-cell">Mercredi</div>
-                <div class="cal-weekday-cell">Jeudi</div>
-                <div class="cal-weekday-cell">Vendredi</div>
-                <div class="cal-weekday-cell">Samedi</div>
-                <div class="cal-weekday-cell">Dimanche</div>
+                <div class="cal-weekday-cell">Lun</div>
+                <div class="cal-weekday-cell">Mar</div>
+                <div class="cal-weekday-cell">Mer</div>
+                <div class="cal-weekday-cell">Jeu</div>
+                <div class="cal-weekday-cell">Ven</div>
+                <div class="cal-weekday-cell">Sam</div>
+                <div class="cal-weekday-cell">Dim</div>
               </div>
 
               <div id="calendarMonthlyGrid" class="cal-monthly-grid" role="grid" aria-label="Grille mensuelle des parutions">
-                <!-- Cellules des 7 jours injectées par editorial_logic.js?v=1792255379186 -->
+                <!-- Cellules des 7 jours injectées dynamiquement -->
               </div>
             </div>
 
-            <!-- VUE AGENDA / LISTE (Mobile & Bascule utilisateur) -->
-            <div id="calendarAgendaWrapper" class="cal-agenda-wrapper hidden">
-              <div id="calendarAgendaList" class="cal-agenda-list">
-                <!-- Événements groupés par date injectés par editorial_logic.js?v=1792255379186 -->
-              </div>
-            </div>
-
-            <!-- État Vide -->
+            <!-- État Vide Épuré -->
             <div id="calendarEmptyState" class="cal-empty-state hidden">
               <div class="cal-empty-icon">
                 <i class="fa-regular fa-calendar-xmark"></i>
               </div>
-              <h3 class="cal-empty-title">Aucun événement pour ce mois</h3>
-              <p class="cal-empty-desc">Aucune sortie, traduction ou annonce ne correspond à votre filtre actuel.</p>
-              <button type="button" id="calResetFilterBtn" class="btn-secondary">Voir tous les événements</button>
+              <h3 class="cal-empty-title">Aucune parution trouvée</h3>
+              <p class="cal-empty-desc">Aucune sortie ou mise à jour ne correspond à vos critères actuels.</p>
+              <button type="button" id="calResetFilterBtn" class="cal-empty-btn">
+                <i class="fa-solid fa-arrows-rotate"></i>
+                <span>Réinitialiser les filtres</span>
+              </button>
             </div>
 
           </div>
         </div>
 
-        <!-- Modale Détail Événement -->
+        <!-- Modale de Détail Événement / Parution -->
         <div id="calEventModal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="calModalTitle">
           <div class="modal-content cal-event-modal-content">
             <button type="button" id="calEventModalClose" class="modal-close-btn" aria-label="Fermer">&times;</button>
             <div id="calEventModalBody" class="cal-event-modal-body">
-              <!-- Injecté dynamiquement par editorial_logic.js?v=1792255379186 -->
+              <!-- Injecté dynamiquement -->
             </div>
           </div>
         </div>
@@ -2182,7 +2198,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
   <script src="js/jszip.min.js?v=1792467041992"></script>
   <script src="js/epub.min.js?v=1792467041992"></script>
-  <script src="js/noveltrad.app.min.js?v=1793288279108"></script>
+  <script src="js/noveltrad.app.min.js?v=1793292340925"></script>
 
   <script>
     if ('serviceWorker' in navigator) {

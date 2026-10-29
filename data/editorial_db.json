@@ -14,5 +14,23 @@
       "createdAt": "2026-09-30T15:24:12.250Z"
     }
   ],
-  "schedule": []
+  "schedule": [
+    {
+      "id": "sched_1793291622700_tj8u",
+      "seriesId": "a-certain-magical-index",
+      "seriesTitle": "A Certain Magical Index",
+      "volumeOrChapter": "60",
+      "type": "light_novel",
+      "releaseDate": "2026-10-29",
+      "dayOfWeek": 4,
+      "dayName": "Jeudi",
+      "time": "18:00",
+      "status": "upcoming",
+      "statusLabel": "À paraître",
+      "team": "Team NovelTrad",
+      "coverUrl": "https://s4.anilist.co/file/anilistcdn/media/manga/cover/large/bx42854-IOa3uoHblsCB.png",
+      "createdBy": "5657d33e-952c-43d6-a222-8842b026699b",
+      "updatedAt": "2026-10-29T16:33:42.700Z"
+    }
+  ]
 }
