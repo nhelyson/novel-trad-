@@ -1,0 +1,788 @@
+/* ==========================================================================
+   NOVELTRAD - INTERFACE SÉRIE PRO (STYLE MANGADEX / WEBNOVEL / ANILIST)
+   Architecture : Clean Grid, Unified Atmospheric Hero, Pro Tabs Navigation
+   ========================================================================== */
+
+:root {
+  --sp-bg: #0b0e17;
+  --sp-surface: #121726;
+  --sp-surface-light: #1a2236;
+  --sp-border: rgba(255, 255, 255, 0.08);
+  --sp-border-hover: rgba(99, 102, 241, 0.4);
+  --sp-primary: #6366f1;
+  --sp-primary-hover: #4f46e5;
+  --sp-text: #f1f5f9;
+  --sp-text-muted: #94a3b8;
+  --sp-radius: 10px;
+  --sp-font: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --sp-spring: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+   1. STRUCTURE GÉNÉRALE & FOND
+   ────────────────────────────────────────────────────────────────────────── */
+#seriesModule.series-module-full {
+  background-color: var(--sp-bg) !important;
+  color: var(--sp-text) !important;
+  min-height: 100vh !important;
+  font-family: var(--sp-font) !important;
+  padding-bottom: 80px !important;
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+   2. HERO UNIFIÉ & IMMERSIF (STYLE ANILIST / CRUNCHYROLL)
+   ────────────────────────────────────────────────────────────────────────── */
+.series-page-banner {
+  position: relative !important;
+  width: 100% !important;
+  height: 280px !important;
+  overflow: hidden !important;
+  background: var(--sp-bg) !important;
+}
+
+.series-banner-bg {
+  position: absolute !important;
+  inset: -20px !important;
+  background-size: cover !important;
+  background-position: center 25% !important;
+  filter: blur(24px) brightness(0.35) saturate(1.3) !important;
+  transform: scale(1.05) !important;
+}
+
+.series-banner-bg.is-wide {
+  filter: blur(12px) brightness(0.5) saturate(1.15) !important;
+}
+
+.series-banner-overlay {
+  position: absolute !important;
+  inset: 0 !important;
+  background: linear-gradient(
+    to bottom,
+    rgba(11, 14, 23, 0.1) 0%,
+    rgba(11, 14, 23, 0.6) 50%,
+    rgba(11, 14, 23, 0.95) 85%,
+    var(--sp-bg) 100%
+  ) !important;
+}
+
+.series-page-content {
+  max-width: 1240px !important;
+  margin: 0 auto !important;
+  padding: 0 24px !important;
+  position: relative !important;
+  z-index: 10 !important;
+}
+
+/* Top Hero Flex */
+.series-page-top {
+  display: flex !important;
+  gap: 36px !important;
+  margin-top: -140px !important;
+  align-items: flex-end !important;
+}
+
+/* Couverture Droite et Pro (Format Affiche Nette) */
+.series-page-cover-wrap {
+  width: 210px !important;
+  flex-shrink: 0 !important;
+  position: relative !important;
+  border-radius: var(--sp-radius) !important;
+  background: var(--sp-surface) !important;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.65) !important;
+  overflow: hidden !important;
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  transition: transform 0.3s var(--sp-spring), box-shadow 0.3s var(--sp-spring) !important;
+}
+
+.series-page-cover-wrap:hover {
+  transform: translateY(-4px) !important;
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.8) !important;
+  border-color: rgba(99, 102, 241, 0.4) !important;
+}
+
+.series-cover-ambient-glow {
+  display: none !important; /* Pas d'effets néon superflus, netteté avant tout */
+}
+
+.series-page-cover {
+  width: 100% !important;
+  aspect-ratio: 2 / 3 !important;
+  object-fit: cover !important;
+  display: block !important;
+}
+
+/* Ribbon Original Creation */
+.card-bookmark-ribbon {
+  position: absolute !important;
+  top: 10px !important;
+  right: 0 !important;
+  background: #e11d48 !important;
+  color: #ffffff !important;
+  padding: 4px 10px !important;
+  font-size: 11px !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.5px !important;
+  border-radius: 4px 0 0 4px !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4) !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+  z-index: 5 !important;
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+   3. INFORMATIONS DU HERO (HIÉRARCHIE SOBRE & PRO)
+   ────────────────────────────────────────────────────────────────────────── */
+.series-page-meta {
+  flex: 1 !important;
+  padding-bottom: 4px !important;
+}
+
+.series-title-row {
+  display: flex !important;
+  align-items: baseline !important;
+  flex-wrap: wrap !important;
+  gap: 12px !important;
+  margin-bottom: 8px !important;
+}
+
+#seriesTitle {
+  font-family: var(--sp-font) !important;
+  font-size: clamp(26px, 3.5vw, 36px) !important;
+  font-weight: 800 !important;
+  line-height: 1.2 !important;
+  color: #ffffff !important;
+  margin: 0 !important;
+  letter-spacing: -0.4px !important;
+}
+
+.series-badge-original-creation {
+  background: rgba(225, 29, 72, 0.15) !important;
+  border: 1px solid rgba(225, 29, 72, 0.3) !important;
+  color: #fb7185 !important;
+  padding: 3px 10px !important;
+  border-radius: 6px !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+}
+
+/* Ligne Auteur & Statut */
+.series-details-grid {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  gap: 16px 24px !important;
+  margin: 10px 0 14px 0 !important;
+  padding: 0 !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.series-meta-item {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  font-size: 13.5px !important;
+}
+
+.series-meta-label {
+  color: var(--sp-text-muted) !important;
+  font-weight: 500 !important;
+  font-size: 12.5px !important;
+  text-transform: capitalize !important;
+}
+
+.series-meta-label::after {
+  content: ":" !important;
+  margin-left: 2px !important;
+}
+
+.series-meta-val {
+  color: #f1f5f9 !important;
+  font-weight: 600 !important;
+}
+
+.status-indicator-dot {
+  width: 7px !important;
+  height: 7px !important;
+  border-radius: 50% !important;
+  display: inline-block !important;
+}
+
+.status-indicator-dot.ongoing {
+  background: #10b981 !important;
+  box-shadow: 0 0 6px rgba(16, 185, 129, 0.6) !important;
+}
+
+.status-indicator-dot.completed {
+  background: #8b5cf6 !important;
+  box-shadow: 0 0 6px rgba(139, 92, 246, 0.6) !important;
+}
+
+/* Genres Tags (Style Reddit / MangaDex) */
+.series-tags {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 6px !important;
+  margin-bottom: 20px !important;
+}
+
+.series-tag {
+  background: var(--sp-surface) !important;
+  border: 1px solid var(--sp-border) !important;
+  padding: 4px 12px !important;
+  border-radius: 6px !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  color: #cbd5e1 !important;
+  text-decoration: none !important;
+  transition: all 0.2s ease !important;
+}
+
+.series-tag:hover {
+  background: rgba(99, 102, 241, 0.15) !important;
+  border-color: rgba(99, 102, 241, 0.35) !important;
+  color: #a5b4fc !important;
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+   4. BOUTONS D'ACTION (CTA DIRECT NIVEAU WEBNOVEL)
+   ────────────────────────────────────────────────────────────────────────── */
+.series-page-actions {
+  display: flex !important;
+  gap: 10px !important;
+  align-items: center !important;
+  flex-wrap: wrap !important;
+  margin-top: 14px !important;
+}
+
+/* Bouton Principal Plein */
+.btn-series-hero-primary {
+  padding: 11px 24px !important;
+  border-radius: 8px !important;
+  font-family: var(--sp-font) !important;
+  font-size: 14.5px !important;
+  font-weight: 700 !important;
+  background: var(--sp-primary) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 9px !important;
+  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4) !important;
+  transition: all 0.2s ease !important;
+  text-decoration: none !important;
+}
+
+.btn-series-hero-primary:hover {
+  background: var(--sp-primary-hover) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 18px rgba(99, 102, 241, 0.5) !important;
+}
+
+.btn-series-hero-primary.is-resume {
+  background: linear-gradient(135deg, #4f46e5, #0284c7) !important;
+  box-shadow: 0 4px 14px rgba(2, 132, 199, 0.35) !important;
+}
+
+.btn-resume-content {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  line-height: 1.2 !important;
+}
+
+.btn-resume-label {
+  font-weight: 700 !important;
+  font-size: 13.5px !important;
+}
+
+.btn-resume-sub {
+  font-size: 11px !important;
+  opacity: 0.85 !important;
+}
+
+/* Bouton Recommencer */
+.btn-series-hero-restart {
+  width: 42px !important;
+  height: 42px !important;
+  border-radius: 8px !important;
+  background: var(--sp-surface) !important;
+  border: 1px solid var(--sp-border) !important;
+  color: var(--sp-text-muted) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+}
+
+.btn-series-hero-restart:hover {
+  background: var(--sp-surface-light) !important;
+  color: #ffffff !important;
+}
+
+/* Boutons Secondaires (Bibliothèque, Partager) */
+.btn-series-hero-secondary {
+  padding: 11px 20px !important;
+  border-radius: 8px !important;
+  font-family: var(--sp-font) !important;
+  font-size: 13.5px !important;
+  font-weight: 600 !important;
+  background: var(--sp-surface) !important;
+  border: 1px solid var(--sp-border) !important;
+  color: #e2e8f0 !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  transition: all 0.2s ease !important;
+}
+
+.btn-series-hero-secondary:hover {
+  background: var(--sp-surface-light) !important;
+  border-color: rgba(255, 255, 255, 0.16) !important;
+  color: #ffffff !important;
+}
+
+.btn-series-hero-secondary.in-library {
+  background: rgba(16, 185, 129, 0.12) !important;
+  border-color: rgba(16, 185, 129, 0.35) !important;
+  color: #34d399 !important;
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+   5. BARRE D'ONGLETS SÉRIE (STYLE MANGADEX / WEBNOVEL)
+   ────────────────────────────────────────────────────────────────────────── */
+.series-nav-tabs-bar {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  margin: 36px 0 24px 0 !important;
+  border-bottom: 1px solid var(--sp-border) !important;
+  padding-bottom: 0 !important;
+}
+
+.series-tab-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  padding: 12px 20px !important;
+  background: transparent !important;
+  border: none !important;
+  border-bottom: 2px solid transparent !important;
+  color: var(--sp-text-muted) !important;
+  font-family: var(--sp-font) !important;
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  margin-bottom: -1px !important;
+}
+
+.series-tab-btn:hover {
+  color: #ffffff !important;
+}
+
+.series-tab-btn.active {
+  color: #ffffff !important;
+  border-bottom-color: var(--sp-primary) !important;
+}
+
+.tab-count-pill {
+  background: rgba(99, 102, 241, 0.2) !important;
+  color: #818cf8 !important;
+  padding: 2px 7px !important;
+  border-radius: 9999px !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+}
+
+.series-tab-btn.active .tab-count-pill {
+  background: var(--sp-primary) !important;
+  color: #ffffff !important;
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+   6. CONTENU DE L'ONGLET VOLUMES (GRILLE DE TOMES OFFICIELLE)
+   ────────────────────────────────────────────────────────────────────────── */
+.series-volumes-section {
+  width: 100% !important;
+}
+
+.series-volumes-header {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  flex-wrap: wrap !important;
+  gap: 16px !important;
+  margin-bottom: 20px !important;
+}
+
+.series-volumes-title-group h3 {
+  font-size: 18px !important;
+  font-weight: 800 !important;
+  color: #ffffff !important;
+  margin: 0 !important;
+}
+
+/* Filtres tabs (Tous / Principal / Spin-offs) */
+.series-volume-filter-tabs {
+  display: inline-flex !important;
+  background: var(--sp-surface) !important;
+  padding: 3px !important;
+  border-radius: 8px !important;
+  border: 1px solid var(--sp-border) !important;
+  gap: 3px !important;
+}
+
+.vol-filter-tab {
+  padding: 5px 12px !important;
+  border-radius: 6px !important;
+  border: none !important;
+  background: transparent !important;
+  color: var(--sp-text-muted) !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+}
+
+.vol-filter-tab.active {
+  background: var(--sp-surface-light) !important;
+  color: #ffffff !important;
+}
+
+/* Barre d'outils recherche & tri */
+.series-volumes-toolbar {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+
+.vol-search-input-wrap {
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  background: var(--sp-surface) !important;
+  border: 1px solid var(--sp-border) !important;
+  padding: 6px 12px !important;
+  border-radius: 8px !important;
+  color: var(--sp-text-muted) !important;
+}
+
+.vol-search-input {
+  background: transparent !important;
+  border: none !important;
+  outline: none !important;
+  color: #ffffff !important;
+  font-size: 13px !important;
+  width: 120px !important;
+}
+
+.btn-vol-sort {
+  width: 34px !important;
+  height: 34px !important;
+  border-radius: 8px !important;
+  background: var(--sp-surface) !important;
+  border: 1px solid var(--sp-border) !important;
+  color: var(--sp-text-muted) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+}
+
+.btn-vol-sort:hover {
+  background: var(--sp-surface-light) !important;
+  color: #ffffff !important;
+}
+
+/* Grille des volumes nette */
+.series-volumes-grid {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)) !important;
+  gap: 20px 16px !important;
+}
+
+/* Carte de Volume Épurée (Façon Affiche Nette) */
+.volume-card.modern-vol-card {
+  position: relative !important;
+  display: flex !important;
+  flex-direction: column !important;
+  cursor: pointer !important;
+  transition: transform 0.25s ease !important;
+}
+
+.volume-card.modern-vol-card.vol-card-hidden {
+  display: none !important;
+}
+
+.volume-cover-wrap {
+  position: relative !important;
+  width: 100% !important;
+  aspect-ratio: 2 / 3 !important;
+  border-radius: 8px !important;
+  overflow: hidden !important;
+  background: var(--sp-surface) !important;
+  border: 1px solid var(--sp-border) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4) !important;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease !important;
+}
+
+/* Suppression de la fausse reliure blanche bizarre */
+.volume-book-spine {
+  display: none !important;
+}
+
+.volume-cover {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  display: block !important;
+  transition: transform 0.3s ease !important;
+}
+
+/* Overlay & Bouton Lire au survol */
+.volume-glass-overlay {
+  position: absolute !important;
+  inset: 0 !important;
+  background: rgba(11, 14, 23, 0.6) !important;
+  opacity: 0 !important;
+  transition: opacity 0.2s ease !important;
+  z-index: 4 !important;
+}
+
+.volume-hover-action {
+  position: absolute !important;
+  inset: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  opacity: 0 !important;
+  transition: opacity 0.2s ease !important;
+  z-index: 5 !important;
+}
+
+.btn-read-volume {
+  padding: 8px 18px !important;
+  border-radius: 6px !important;
+  background: var(--sp-primary) !important;
+  color: #ffffff !important;
+  border: none !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4) !important;
+  cursor: pointer !important;
+}
+
+/* Jauge de progression */
+.volume-progress-bar {
+  position: absolute !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  width: 100% !important;
+  height: 3px !important;
+  background: rgba(0, 0, 0, 0.5) !important;
+  z-index: 6 !important;
+}
+
+.volume-progress-fill {
+  height: 100% !important;
+  background: #10b981 !important;
+}
+
+/* Survol de la carte de tome */
+.volume-card.modern-vol-card:hover {
+  transform: translateY(-4px) !important;
+}
+
+.volume-card.modern-vol-card:hover .volume-cover-wrap {
+  border-color: var(--sp-primary) !important;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.6) !important;
+}
+
+.volume-card.modern-vol-card:hover .volume-cover {
+  transform: scale(1.03) !important;
+}
+
+.volume-card.modern-vol-card:hover .volume-glass-overlay,
+.volume-card.modern-vol-card:hover .volume-hover-action {
+  opacity: 1 !important;
+}
+
+/* Titre du volume & badges */
+.volume-info {
+  padding-top: 8px !important;
+}
+
+.volume-badge-row {
+  display: flex !important;
+  gap: 4px !important;
+  margin-bottom: 2px !important;
+}
+
+.volume-pill-tag {
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  padding: 1px 6px !important;
+  border-radius: 4px !important;
+  background: var(--sp-surface-light) !important;
+  color: var(--sp-text-muted) !important;
+}
+
+.volume-pct-tag {
+  font-size: 11px !important;
+  color: #10b981 !important;
+  font-weight: 700 !important;
+}
+
+.volume-title {
+  font-size: 13.5px !important;
+  font-weight: 700 !important;
+  color: #f1f5f9 !important;
+  line-height: 1.3 !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+  transition: color 0.2s ease !important;
+}
+
+.volume-card.modern-vol-card:hover .volume-title {
+  color: #818cf8 !important;
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+   7. CONTENU DE L'ONGLET SYNOPSIS (PANNEAU SOBRE ET ÉDITORIAL)
+   ────────────────────────────────────────────────────────────────────────── */
+.series-synopsis-section {
+  background: var(--sp-surface) !important;
+  border: 1px solid var(--sp-border) !important;
+  border-radius: var(--sp-radius) !important;
+  padding: 24px 28px !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25) !important;
+}
+
+.series-synopsis-section .series-section-header h3 {
+  font-size: 18px !important;
+  font-weight: 800 !important;
+  color: #ffffff !important;
+  margin: 0 0 14px 0 !important;
+}
+
+.series-synopsis-content {
+  font-size: 15px !important;
+  line-height: 1.8 !important;
+  color: #cbd5e1 !important;
+}
+
+.btn-synopsis-expand {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  background: var(--sp-surface-light) !important;
+  border: 1px solid var(--sp-border) !important;
+  color: var(--sp-text-muted) !important;
+  padding: 5px 12px !important;
+  border-radius: 6px !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  margin-top: 14px !important;
+}
+
+.btn-synopsis-expand:hover {
+  color: #ffffff !important;
+}
+
+/* Section 8: Recommandations laissées 100% avec le design original d'origine */
+
+/* ──────────────────────────────────────────────────────────────────────────
+   9. RESPONSIVE MOBILE (< 768px)
+   ────────────────────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .series-page-banner {
+    height: 180px !important;
+  }
+
+  .series-page-top {
+    flex-direction: column !important;
+    align-items: center !important;
+    text-align: center !important;
+    margin-top: -90px !important;
+    gap: 16px !important;
+  }
+
+  .series-page-cover-wrap {
+    width: 150px !important;
+  }
+
+  .series-page-meta {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    width: 100% !important;
+  }
+
+  .series-title-row {
+    justify-content: center !important;
+  }
+
+  #seriesTitle {
+    font-size: 22px !important;
+  }
+
+  .series-details-grid {
+    justify-content: center !important;
+  }
+
+  .series-tags {
+    justify-content: center !important;
+  }
+
+  .series-page-actions {
+    justify-content: center !important;
+    width: 100% !important;
+  }
+
+  .btn-series-hero-primary,
+  .btn-series-hero-secondary {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+
+  .series-nav-tabs-bar {
+    overflow-x: auto !important;
+    width: 100% !important;
+  }
+
+  .series-tab-btn {
+    padding: 10px 14px !important;
+    font-size: 13.5px !important;
+    white-space: nowrap !important;
+  }
+
+  .series-volumes-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 14px 10px !important;
+  }
+
+  .series-volumes-header {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+  }
+
+  .series-volumes-toolbar {
+    width: 100% !important;
+    justify-content: space-between !important;
+  }
+}

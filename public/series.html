@@ -62,6 +62,7 @@
     })();
   </script>
   <link rel="stylesheet" href="css/noveltrad.app.min.css?v=1793043817398">
+  <link rel="stylesheet" href="css/series_platform_pro.css?v=2">
     <!-- Console Signature -->
   <script>
     (function() {
@@ -471,7 +472,19 @@
             </div>
           </div>
           
-          <div class="series-page-body">
+                    <div class="series-page-body">
+            <!-- TABS BAR PRO (MANGADEX / WEBNOVEL STYLE) -->
+            <div class="series-nav-tabs-bar" id="seriesNavTabsBar">
+              <button type="button" class="series-tab-btn active" data-tab="volumes">
+                <i class="fa-solid fa-book-bookmark"></i>
+                <span>Volumes & Chapitres</span>
+                <span id="seriesTabVolCount" class="tab-count-pill">--</span>
+              </button>
+              <button type="button" class="series-tab-btn" data-tab="synopsis">
+                <i class="fa-solid fa-align-left"></i>
+                <span>Synopsis & Détails</span>
+              </button>
+            </div>
             <div class="series-synopsis-section" id="seriesSynopsisSection">
               <div class="series-section-header">
                 <h3>Synopsis</h3>
@@ -1253,5 +1266,52 @@
   </div>
   <script src="/js/reader_search.min.js?v=1793191021438"></script>
   <script src="/js/rewards.min.js?v=1793197762780"></script>
+  <!-- SCRIPT SWITCHER D'ONGLETS SÉRIE (PRO) -->
+  <script>
+    (function() {
+      document.addEventListener('DOMContentLoaded', function() {
+        var tabsBar = document.getElementById('seriesNavTabsBar');
+        if (!tabsBar) return;
+        var tabBtns = tabsBar.querySelectorAll('.series-tab-btn');
+        var synopsisSec = document.getElementById('seriesSynopsisSection');
+        var volumesSec = document.querySelector('.series-volumes-section');
+        var recSec = document.getElementById('seriesRecommendationsSection');
+
+        function switchTab(targetTab) {
+          tabBtns.forEach(function(btn) {
+            btn.classList.toggle('active', btn.getAttribute('data-tab') === targetTab);
+          });
+          if (volumesSec) volumesSec.style.display = (targetTab === 'volumes') ? 'block' : 'none';
+          if (synopsisSec) synopsisSec.style.display = (targetTab === 'synopsis') ? 'block' : 'none';
+          // Recommandations toujours visibles en bas avec leur design original d'origine
+          if (recSec) recSec.style.display = 'block';
+        }
+
+        tabBtns.forEach(function(btn) {
+          btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            switchTab(this.getAttribute('data-tab'));
+          });
+        });
+
+        // Set default to volumes view
+        switchTab('volumes');
+
+        // Dynamically reflect volume count
+        var countTimer = setInterval(function() {
+          var volEl = document.getElementById('seriesVolCount');
+          var pill = document.getElementById('seriesTabVolCount');
+          if (volEl && pill && volEl.textContent) {
+            var m = volEl.textContent.match(/\d+/);
+            if (m) {
+              pill.textContent = m[0];
+              clearInterval(countTimer);
+            }
+          }
+        }, 300);
+        setTimeout(function() { clearInterval(countTimer); }, 6000);
+      });
+    })();
+  </script>
 </body>
 </html>

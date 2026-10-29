@@ -1,8 +1,8 @@
 // sw.js - NovelTrad Progressive Web App Service Worker (v10)
 // Stratégie hybride Stale-While-Revalidate & Network-First avec support Hors-ligne complet
 
-const CACHE_NAME = 'noveltrad-pwa-v32';
-const RUNTIME_CACHE = 'noveltrad-runtime-v32';
+const CACHE_NAME = 'noveltrad-pwa-v33';
+const RUNTIME_CACHE = 'noveltrad-runtime-v33';
 
 // Fichiers vitaux de l'App Shell
 const APP_SHELL_ASSETS = [
@@ -19,6 +19,8 @@ const APP_SHELL_ASSETS = [
   '/icons/icon-512x512.png',
   '/icons/icon-maskable-512x512.png',
   '/css/noveltrad.app.min.css',
+  '/css/home_modern_v2.css',
+  '/css/series_platform_pro.css',
   '/js/noveltrad.app.min.js',
   '/js/epub.min.js',
   '/js/jszip.min.js'

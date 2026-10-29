@@ -93,6 +93,7 @@
     })();
   </script>
   <link rel="stylesheet" href="css/noveltrad.app.min.css?v=1793043817398">
+  <link rel="stylesheet" href="css/home_modern_v2.css?v=1793278904050">
     <!-- Console Signature -->
   <script>
     (function() {
@@ -238,26 +239,23 @@
             <!-- Espace Mature (+18) -->
             <a href="/mature.html" class="nav-item-btn mature-nav-link" id="navMatureLink" title="Accéder à la Section Mature (+18)">
               <i class="fa-solid fa-fire"></i>
-              <span>Mature (+18)</span>
+              <span>+18</span>
             </a>
+
+
           </div>
         </div>
 
         <!-- ZONE DROITE : RECHERCHE UNIFIÉE & BOUTON FILTRE + PROFIL & MOBILE -->
         <div class="topnav-right-group">
-          <!-- Barre de recherche & Bouton Filtre combinés -->
+          <!-- Barre de recherche unifiée moderne avec raccourci Ctrl+K -->
           <div class="search-filter-container">
             <div class="nav-search-wrapper search-input-wrapper" id="navSearchWrapper">
               <i class="fa-solid fa-magnifying-glass nav-search-icon"></i>
-              <input type="search" name="search_global" id="navGlobalSearchInput" class="nav-search-input" placeholder="Rechercher par titre, auteur, genre..." autocomplete="off">
+              <input type="search" name="search_global" id="navGlobalSearchInput" class="nav-search-input" placeholder="Rechercher un roman, auteur, genre..." autocomplete="off">
+              <kbd class="nav-search-kbd" id="navSearchKbd">Ctrl K</kbd>
               <button id="navSearchClearBtn" class="nav-search-clear hidden" title="Effacer"><i class="fa-solid fa-xmark"></i></button>
             </div>
-
-            <!-- Bouton Filtre intégré dans la navbar -->
-            <button id="catalogFilterToggleBtn" class="filter-toggle-btn nav-filter-btn" title="Filtres du catalogue">
-              <i class="fa-solid fa-sliders"></i>
-              <span id="catalogFilterCountBadge" class="filter-count-badge hidden">0</span>
-            </button>
           </div>
 
           <!-- Actions de droite : Loupe mobile, Auth pill, Hamburger -->
@@ -289,6 +287,9 @@
                     <span class="user-dropdown-label">Connecté en tant que</span>
                     <strong class="user-dropdown-email" id="dropdownUserEmail"></strong>
                   </div>
+                                    <button class="nav-dropdown-item" id="btnNavDocs" role="menuitem" onclick="document.getElementById('tabDocsBtn')?.click()">
+                    <i class="fa-solid fa-file-pdf"></i> Outils de Traduction
+                  </button>
                   <div class="nav-user-dropdown-divider"></div>
                   <button class="nav-dropdown-item hidden" id="btnNavContributorStudio" role="menuitem">
                     <i class="fa-solid fa-feather-pointed"></i> Studio Contributeur
@@ -621,6 +622,50 @@
           <div id="homeTopRatedGrid" class="lnori-catalog-grid"></div>
         </section>
 
+        <!-- GENRES TAGS / PASTILLES WEBTOON & NOVEL -->
+        <div class="home-genres-bar">
+          <a href="#catalog?genre=Isekai" class="genre-pill-card isekai">
+            <span class="genre-pill-icon"><i class="fa-solid fa-meteor"></i></span>
+            <span class="genre-pill-name">Isekai</span>
+          </a>
+          <a href="#catalog?genre=Fantaisie" class="genre-pill-card fantasy">
+            <span class="genre-pill-icon"><i class="fa-solid fa-wand-magic-sparkles"></i></span>
+            <span class="genre-pill-name">Fantaisie</span>
+          </a>
+          <a href="#catalog?genre=Action" class="genre-pill-card action">
+            <span class="genre-pill-icon"><i class="fa-solid fa-fire"></i></span>
+            <span class="genre-pill-name">Action</span>
+          </a>
+          <a href="#catalog?genre=Romance" class="genre-pill-card romance">
+            <span class="genre-pill-icon"><i class="fa-solid fa-heart"></i></span>
+            <span class="genre-pill-name">Romance</span>
+          </a>
+          <a href="#catalog?genre=Drame" class="genre-pill-card drama">
+            <span class="genre-pill-icon"><i class="fa-solid fa-masks-theater"></i></span>
+            <span class="genre-pill-name">Drame</span>
+          </a>
+          <a href="#catalog?genre=Comédie" class="genre-pill-card comedy">
+            <span class="genre-pill-icon"><i class="fa-solid fa-face-laugh-squint"></i></span>
+            <span class="genre-pill-name">Comédie</span>
+          </a>
+          <a href="#catalog?genre=Science-Fiction" class="genre-pill-card scifi">
+            <span class="genre-pill-icon"><i class="fa-solid fa-rocket"></i></span>
+            <span class="genre-pill-name">Science-Fiction</span>
+          </a>
+          <a href="#catalog?genre=Mystère" class="genre-pill-card mystery">
+            <span class="genre-pill-icon"><i class="fa-solid fa-magnifying-glass"></i></span>
+            <span class="genre-pill-name">Mystère</span>
+          </a>
+          <a href="#catalog?genre=Tranche de vie" class="genre-pill-card slice">
+            <span class="genre-pill-icon"><i class="fa-solid fa-mug-hot"></i></span>
+            <span class="genre-pill-name">Tranche de vie</span>
+          </a>
+          <a href="#catalog?genre=Seinen" class="genre-pill-card seinen">
+            <span class="genre-pill-icon"><i class="fa-solid fa-dragon"></i></span>
+            <span class="genre-pill-name">Seinen</span>
+          </a>
+        </div>
+
       </div> <!-- END MODULE 0: HOME -->
 
 
@@ -633,9 +678,9 @@
           <!-- Barre d'état & actions du catalogue -->
           <div class="catalog-subbar">
             <div class="catalog-subbar-left">
-              <button id="catalogMobileFilterToggleBtn" class="catalog-mobile-filter-btn" title="Ouvrir les filtres">
+              <button id="catalogFilterToggleBtn" class="catalog-filter-btn" title="Ouvrir les filtres du catalogue">
                 <i class="fa-solid fa-sliders"></i> <span>Filtres</span>
-                <span id="catalogMobileFilterCountBadge" class="filter-count-badge hidden" style="background:#e11d48; color:#fff; border-radius:99px; padding:1px 6px; font-size:10px; margin-left:4px;">0</span>
+                <span id="catalogFilterCountBadge" class="filter-count-badge hidden">0</span>
               </button>
               <span id="catalogResultsCount" class="catalog-count-pill">Chargement du catalogue...</span>
             </div>
@@ -2137,7 +2182,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
   <script src="js/jszip.min.js?v=1792467041992"></script>
   <script src="js/epub.min.js?v=1792467041992"></script>
-  <script src="js/noveltrad.app.min.js?v=1793048541251"></script>
+  <script src="js/noveltrad.app.min.js?v=1793278904050"></script>
 
   <script>
     if ('serviceWorker' in navigator) {
@@ -2374,5 +2419,18 @@
   </div>
   <script src="/js/reader_search.min.js?v=1793191021438"></script>
   <script src="/js/rewards.min.js?v=1793197762780"></script>
+  <!-- RACCOURCI CLAVIER RECHERCHE (CTRL+K) -->
+  <script>
+    document.addEventListener('keydown', function(e) {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        var searchInput = document.getElementById('navGlobalSearchInput');
+        if (searchInput) {
+          searchInput.focus();
+          searchInput.select();
+        }
+      }
+    });
+  </script>
 </body>
 </html>

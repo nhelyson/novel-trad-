@@ -1,0 +1,1344 @@
+/* ==========================================================================
+   NOVELTRAD - HOMEPAGE REDESIGN V2 (Antigravity & Emil Design Engineering)
+   Spatial Depth • Weightless Cards • Glassmorphism • Spring Physics
+   ========================================================================== */
+
+:root {
+  --nt-bg-abyss: #07090e;
+  --nt-bg-surface: rgba(13, 17, 28, 0.72);
+  --nt-bg-card: rgba(17, 23, 38, 0.85);
+  --nt-indigo: #6366f1;
+  --nt-indigo-glow: rgba(99, 102, 241, 0.35);
+  --nt-rose: #f43f5e;
+  --nt-rose-glow: rgba(244, 63, 94, 0.35);
+  --nt-amber: #f59e0b;
+  --nt-emerald: #10b981;
+  --nt-border-glass: rgba(255, 255, 255, 0.08);
+  --nt-border-hover: rgba(99, 102, 241, 0.4);
+  --nt-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --nt-smooth: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+   1. HERO SECTION : SPATIAL STAGE AVEC HALO AMBIANT ET PROFONDEUR 3D
+   ────────────────────────────────────────────────────────────────────────── */
+#homeLnoriHero.home-lnori-hero {
+  position: relative !important;
+  width: 100% !important;
+  min-height: 560px !important;
+  margin: 0 0 44px 0 !important;
+  padding: 0 !important;
+  background: radial-gradient(ellipse 80% 60% at 50% -10%, rgba(99, 102, 241, 0.12) 0%, transparent 70%),
+              radial-gradient(ellipse 60% 50% at 85% 50%, rgba(244, 63, 94, 0.08) 0%, transparent 60%),
+              var(--nt-bg-abyss) !important;
+  overflow: hidden !important;
+  border: none !important;
+  border-bottom: none !important;
+  box-shadow: none !important;
+}
+
+/* Fond Ambiant Flouté Volumétrique */
+#homeHeroAmbient.home-hero-ambient {
+  position: absolute !important;
+  inset: -80px !important;
+  filter: blur(65px) saturate(2.4) brightness(0.65) !important;
+  opacity: 0.65 !important;
+  transform: scale(1.3) !important;
+  transition: background-image 0.9s var(--nt-smooth), opacity 0.5s ease !important;
+  pointer-events: none !important;
+  z-index: 1 !important;
+}
+
+/* Voile d'Incrustation Vigneté */
+#homeHeroOverlay.home-hero-overlay {
+  position: absolute !important;
+  inset: 0 !important;
+  background: radial-gradient(ellipse 90% 80% at 50% 30%, transparent 15%, rgba(7, 9, 14, 0.7) 65%, #07090e 100%),
+              linear-gradient(to bottom, rgba(7, 9, 14, 0.2) 0%, rgba(7, 9, 14, 0.75) 75%, #07090e 100%) !important;
+  pointer-events: none !important;
+  z-index: 2 !important;
+}
+
+/* Grille interne du Hero */
+.home-hero-layout {
+  position: relative !important;
+  z-index: 3 !important;
+  width: 100% !important;
+  max-width: 1320px !important;
+  margin: 0 auto !important;
+  padding: 56px 24px 48px 24px !important;
+  display: grid !important;
+  grid-template-columns: 1.15fr 0.85fr !important;
+  gap: 48px !important;
+  align-items: center !important;
+}
+
+/* Colonne Détails & Typographie */
+.home-hero-details {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 20px !important;
+  max-width: 640px !important;
+}
+
+/* Titre Hero Cinématique */
+.home-hero-title {
+  font-family: 'Outfit', 'Inter', -apple-system, sans-serif !important;
+  font-size: 42px !important;
+  font-weight: 800 !important;
+  line-height: 1.15 !important;
+  letter-spacing: -0.8px !important;
+  color: #ffffff !important;
+  margin: 0 !important;
+  background: linear-gradient(180deg, #ffffff 30%, rgba(255, 255, 255, 0.8) 100%) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  filter: drop-shadow(0 4px 20px rgba(0, 0, 0, 0.5)) !important;
+}
+
+/* Métadonnées & Auteur */
+.home-hero-meta {
+  display: flex !important;
+  align-items: center !important;
+  flex-wrap: wrap !important;
+  gap: 12px !important;
+  color: #94a3b8 !important;
+  font-size: 14px !important;
+}
+
+.home-hero-meta .author {
+  color: #f1f5f9 !important;
+  font-weight: 700 !important;
+  background: rgba(255, 255, 255, 0.06) !important;
+  padding: 3px 10px !important;
+  border-radius: 8px !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+/* Tags de Genres Glassmorphism */
+.home-hero-genres {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 8px !important;
+}
+
+.hero-genre-tag {
+  padding: 5px 13px !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  border-radius: 9999px !important;
+  background: rgba(255, 255, 255, 0.04) !important;
+  color: #cbd5e1 !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  backdrop-filter: blur(12px) !important;
+  transition: all 0.25s var(--nt-spring) !important;
+}
+
+.hero-genre-tag:hover {
+  background: rgba(99, 102, 241, 0.15) !important;
+  color: #ffffff !important;
+  border-color: rgba(99, 102, 241, 0.4) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25) !important;
+}
+
+/* Synopsis Élégant */
+.home-hero-synopsis {
+  color: #94a3b8 !important;
+  font-size: 15px !important;
+  line-height: 1.65 !important;
+  margin: 0 !important;
+  font-weight: 400 !important;
+  display: -webkit-box !important;
+  -webkit-line-clamp: 3 !important;
+  -webkit-box-orient: vertical !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+/* Boutons d'Action CTA */
+.home-hero-actions {
+  display: flex !important;
+  align-items: center !important;
+  flex-wrap: wrap !important;
+  gap: 16px !important;
+  margin-top: 10px !important;
+}
+
+.btn-hero-primary {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  padding: 14px 28px !important;
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  border-radius: 14px !important;
+  color: #ffffff !important;
+  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.25) !important;
+  box-shadow: 0 12px 28px -6px var(--nt-indigo-glow), inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+  cursor: pointer !important;
+  transition: all 0.3s var(--nt-spring) !important;
+}
+
+.btn-hero-primary:hover {
+  transform: translateY(-3px) scale(1.02) !important;
+  box-shadow: 0 20px 36px -6px rgba(99, 102, 241, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
+  background: linear-gradient(135deg, #818cf8 0%, #6366f1 100%) !important;
+}
+
+.btn-hero-primary:active {
+  transform: translateY(0) scale(0.98) !important;
+}
+
+.btn-hero-glass {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  padding: 14px 24px !important;
+  font-size: 15px !important;
+  font-weight: 600 !important;
+  border-radius: 14px !important;
+  color: #e2e8f0 !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  backdrop-filter: blur(16px) !important;
+  cursor: pointer !important;
+  transition: all 0.3s var(--nt-spring) !important;
+}
+
+.btn-hero-glass:hover {
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: #ffffff !important;
+  border-color: rgba(255, 255, 255, 0.22) !important;
+  transform: translateY(-3px) scale(1.02) !important;
+  box-shadow: 0 12px 24px -4px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+   2. PILE DE COUVERTURES 3D : LÉVITATION SPATIALE & ÉVENTAIL GYROSCOPIQUE
+   ────────────────────────────────────────────────────────────────────────── */
+.home-hero-deck-area {
+  position: relative !important;
+  width: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  perspective: 1200px !important;
+}
+
+.home-hero-stack-container {
+  position: relative !important;
+  width: 100% !important;
+  height: 380px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.home-hero-stack {
+  position: relative !important;
+  width: 250px !important;
+  height: 360px !important;
+  transform-style: preserve-3d !important;
+}
+
+.hero-carousel-card .card-inner {
+  border-radius: 18px !important;
+  border: 1px solid rgba(255, 255, 255, 0.18) !important;
+  box-shadow: 0 28px 56px -12px rgba(0, 0, 0, 0.85), 0 0 24px rgba(99, 102, 241, 0.15) !important;
+  transition: transform 0.5s var(--nt-spring), box-shadow 0.4s ease, border-color 0.4s ease !important;
+}
+
+.hero-carousel-card.card-0 .card-inner {
+  border-color: rgba(99, 102, 241, 0.45) !important;
+  box-shadow: 0 32px 64px -12px rgba(0, 0, 0, 0.9), 0 0 30px rgba(99, 102, 241, 0.25) !important;
+}
+
+.hero-carousel-card.card-0:hover .card-inner {
+  transform: translateY(-4px) scale(1.02) !important;
+  border-color: rgba(99, 102, 241, 0.75) !important;
+  box-shadow: 0 40px 80px -12px rgba(0, 0, 0, 0.95), 0 0 40px rgba(99, 102, 241, 0.45) !important;
+}
+
+.card-bookmark-ribbon {
+  position: absolute !important;
+  top: 12px !important;
+  right: 12px !important;
+  padding: 4px 10px !important;
+  border-radius: 8px !important;
+  background: linear-gradient(135deg, #f59e0b, #d97706) !important;
+  color: #000000 !important;
+  font-size: 10px !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.5px !important;
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4) !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+  z-index: 10 !important;
+}
+
+/* Navigation Puces & Flèches sous l'éventail */
+.home-hero-nav {
+  display: flex !important;
+  align-items: center !important;
+  gap: 16px !important;
+  margin-top: 24px !important;
+  z-index: 5 !important;
+}
+
+.hero-arrow-btn {
+  width: 42px !important;
+  height: 42px !important;
+  border-radius: 50% !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+  color: #cbd5e1 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  backdrop-filter: blur(12px) !important;
+  transition: all 0.25s var(--nt-spring) !important;
+}
+
+.hero-arrow-btn:hover {
+  background: rgba(99, 102, 241, 0.25) !important;
+  color: #ffffff !important;
+  border-color: rgba(99, 102, 241, 0.5) !important;
+  transform: scale(1.12) !important;
+}
+
+.home-hero-pills {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+
+.hero-pill-indicator {
+  width: 8px !important;
+  height: 8px !important;
+  border-radius: 9999px !important;
+  background: rgba(255, 255, 255, 0.2) !important;
+  transition: all 0.3s var(--nt-spring) !important;
+  cursor: pointer !important;
+}
+
+.hero-pill-indicator.active {
+  width: 28px !important;
+  background: linear-gradient(90deg, #6366f1, #818cf8) !important;
+  box-shadow: 0 0 12px var(--nt-indigo-glow) !important;
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+   3. BANDEAU DE REPRISE DE LECTURE FLOTTANT (DYNAMIC ISLAND POD)
+   ────────────────────────────────────────────────────────────────────────── */
+#homeResumeBanner.home-resume-banner:not(.hidden) {
+  position: relative !important;
+  max-width: 1320px !important;
+  margin: 0 auto 36px auto !important;
+  padding: 16px 24px !important;
+  border-radius: 20px !important;
+  background: linear-gradient(135deg, rgba(17, 24, 39, 0.85) 0%, rgba(10, 14, 23, 0.9) 100%) !important;
+  border: 1px solid rgba(99, 102, 241, 0.25) !important;
+  box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.6), 0 0 20px rgba(99, 102, 241, 0.15) !important;
+  backdrop-filter: blur(20px) !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 20px !important;
+  box-sizing: border-box !important;
+  transition: all 0.3s var(--nt-smooth) !important;
+}
+
+#homeResumeBanner:hover {
+  border-color: rgba(99, 102, 241, 0.45) !important;
+  box-shadow: 0 24px 48px -10px rgba(0, 0, 0, 0.7), 0 0 28px rgba(99, 102, 241, 0.25) !important;
+  transform: translateY(-2px) !important;
+}
+
+.resume-cover {
+  width: 54px !important;
+  height: 76px !important;
+  border-radius: 10px !important;
+  object-fit: cover !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.5) !important;
+  flex-shrink: 0 !important;
+}
+
+.resume-info {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 6px !important;
+  flex: 1 !important;
+  min-width: 0 !important;
+}
+
+.resume-label {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  font-size: 11.5px !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.6px !important;
+  color: #818cf8 !important;
+}
+
+.resume-title {
+  font-size: 16px !important;
+  font-weight: 700 !important;
+  color: #ffffff !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+.resume-progress-wrap {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+}
+
+.resume-progress-track {
+  flex: 1 !important;
+  max-width: 320px !important;
+  height: 6px !important;
+  border-radius: 9999px !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  overflow: hidden !important;
+}
+
+.resume-progress-bar {
+  height: 100% !important;
+  border-radius: 9999px !important;
+  background: linear-gradient(90deg, #6366f1, #38bdf8) !important;
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.5) !important;
+  transition: width 0.4s ease !important;
+}
+
+.resume-percent {
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  color: #38bdf8 !important;
+}
+
+.btn-resume-action {
+  padding: 10px 22px !important;
+  border-radius: 12px !important;
+  font-size: 13.5px !important;
+  font-weight: 700 !important;
+  background: linear-gradient(135deg, #6366f1, #4f46e5) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  box-shadow: 0 8px 18px rgba(99, 102, 241, 0.35) !important;
+  transition: all 0.25s var(--nt-spring) !important;
+  flex-shrink: 0 !important;
+}
+
+.btn-resume-action:hover {
+  transform: translateY(-2px) scale(1.03) !important;
+  box-shadow: 0 12px 24px rgba(99, 102, 241, 0.55) !important;
+  background: linear-gradient(135deg, #818cf8, #6366f1) !important;
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+   4. EN-TÊTES DE SECTIONS & GRILLES DE CATALOGUE (ANTIGRAVITY VIBE)
+   ────────────────────────────────────────────────────────────────────────── */
+.home-lnori-section {
+  width: 100% !important;
+  max-width: 1320px !important;
+  margin: 0 auto 48px auto !important;
+  padding: 0 24px !important;
+  box-sizing: border-box !important;
+}
+
+.home-section-title-wrap {
+  display: flex !important;
+  align-items: flex-end !important;
+  justify-content: space-between !important;
+  gap: 16px !important;
+  margin-bottom: 24px !important;
+  padding-bottom: 12px !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+
+.home-section-title-wrap h2 {
+  font-family: 'Outfit', 'Inter', sans-serif !important;
+  font-size: 24px !important;
+  font-weight: 800 !important;
+  color: #ffffff !important;
+  margin: 0 0 4px 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  letter-spacing: -0.3px !important;
+}
+
+.home-section-title-wrap p {
+  font-size: 13.5px !important;
+  color: #94a3b8 !important;
+  margin: 0 !important;
+}
+
+.home-section-link {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  color: #818cf8 !important;
+  background: rgba(99, 102, 241, 0.08) !important;
+  padding: 6px 14px !important;
+  border-radius: 9999px !important;
+  border: 1px solid rgba(99, 102, 241, 0.2) !important;
+  text-decoration: none !important;
+  transition: all 0.25s var(--nt-spring) !important;
+}
+
+.home-section-link:hover {
+  background: rgba(99, 102, 241, 0.2) !important;
+  color: #ffffff !important;
+  border-color: rgba(99, 102, 241, 0.45) !important;
+  transform: translateX(3px) !important;
+}
+
+/* Grille de Cartes Responsive & Aérée */
+.lnori-catalog-grid {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fill, minmax(185px, 1fr)) !important;
+  gap: 24px !important;
+  width: 100% !important;
+}
+
+/* Carte Roman Élégante en Lévitation */
+.lnori-card-wrapper {
+  position: relative !important;
+  width: 100% !important;
+}
+
+.lnori-card {
+  position: relative !important;
+  display: flex !important;
+  flex-direction: column !important;
+  width: 100% !important;
+  cursor: pointer !important;
+  border-radius: 16px !important;
+  transition: transform 0.35s var(--nt-spring), box-shadow 0.35s ease !important;
+}
+
+.lnori-card-cover-box {
+  position: relative !important;
+  width: 100% !important;
+  aspect-ratio: 2 / 3 !important;
+  border-radius: 16px !important;
+  overflow: hidden !important;
+  background: #111522 !important;
+  border: 1px solid var(--nt-border-glass) !important;
+  box-shadow: 0 12px 28px -6px rgba(0, 0, 0, 0.65) !important;
+  transition: all 0.35s var(--nt-spring) !important;
+}
+
+.lnori-card-cover-box img {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  border-radius: inherit !important;
+  transition: transform 0.5s var(--nt-smooth) !important;
+}
+
+.lnori-card:hover {
+  transform: translateY(-8px) scale(1.02) !important;
+}
+
+.lnori-card:hover .lnori-card-cover-box {
+  border-color: rgba(99, 102, 241, 0.5) !important;
+  box-shadow: 0 24px 44px -8px rgba(0, 0, 0, 0.8), 0 0 20px rgba(99, 102, 241, 0.35) !important;
+}
+
+.lnori-card:hover .lnori-card-cover-box img {
+  transform: scale(1.06) !important;
+}
+
+/* Badge Format & Volumes */
+.lnori-card-format-tag {
+  position: absolute !important;
+  top: 10px !important;
+  left: 10px !important;
+  padding: 4px 9px !important;
+  font-size: 10.5px !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  border-radius: 8px !important;
+  background: rgba(9, 11, 18, 0.85) !important;
+  color: #e2e8f0 !important;
+  backdrop-filter: blur(10px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  z-index: 2 !important;
+}
+
+.lnori-card-vol-badge {
+  position: absolute !important;
+  bottom: 10px !important;
+  right: 10px !important;
+  padding: 4px 9px !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  border-radius: 8px !important;
+  background: rgba(99, 102, 241, 0.9) !important;
+  color: #ffffff !important;
+  backdrop-filter: blur(10px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4) !important;
+  z-index: 2 !important;
+}
+
+/* Infos du Roman */
+.lnori-card-info {
+  margin-top: 12px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 4px !important;
+}
+
+.lnori-card-title {
+  font-family: 'Outfit', 'Inter', sans-serif !important;
+  font-size: 14.5px !important;
+  font-weight: 700 !important;
+  color: #f8fafc !important;
+  line-height: 1.35 !important;
+  height: 2.7em !important;
+  margin: 0 !important;
+  display: -webkit-box !important;
+  -webkit-line-clamp: 2 !important;
+  -webkit-box-orient: vertical !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  transition: color 0.2s ease !important;
+}
+
+.lnori-card:hover .lnori-card-title {
+  color: #818cf8 !important;
+}
+
+.lnori-card-sub {
+  font-size: 12.5px !important;
+  color: #94a3b8 !important;
+  margin: 0 !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+   4.5. CLASSEMENT TENDANCES DYNAMIQUE (BADGES INJECTÉS PAR LE MOTEUR JS)
+   ────────────────────────────────────────────────────────────────────────── */
+.lnori-rank-badge {
+  position: absolute !important;
+  top: 10px !important;
+  left: 10px !important;
+  padding: 4px 8px !important;
+  min-width: 28px !important;
+  height: 28px !important;
+  border-radius: 8px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-family: 'Outfit', -apple-system, sans-serif !important;
+  font-size: 13px !important;
+  font-weight: 800 !important;
+  z-index: 5 !important;
+  background: rgba(11, 14, 23, 0.88) !important;
+  color: #f1f5f9 !important;
+  border: 1px solid rgba(255, 255, 255, 0.16) !important;
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5) !important;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease !important;
+}
+
+/* PODIUM TOP 3 PRESTIGE DYNAMIQUE */
+
+/* Top 1 : Or Pur */
+.lnori-rank-badge.rank-1 {
+  background: linear-gradient(135deg, #f59e0b, #d97706) !important;
+  color: #ffffff !important;
+  border-color: rgba(254, 240, 138, 0.6) !important;
+  box-shadow: 0 4px 16px rgba(245, 158, 11, 0.6), 0 0 10px rgba(245, 158, 11, 0.35) !important;
+  font-size: 13.5px !important;
+}
+
+/* Top 2 : Argent Platine */
+.lnori-rank-badge.rank-2 {
+  background: linear-gradient(135deg, #94a3b8, #64748b) !important;
+  color: #ffffff !important;
+  border-color: rgba(241, 245, 249, 0.6) !important;
+  box-shadow: 0 4px 16px rgba(148, 163, 184, 0.5) !important;
+  font-size: 13.5px !important;
+}
+
+/* Top 3 : Bronze / Ambre Doré */
+.lnori-rank-badge.rank-3 {
+  background: linear-gradient(135deg, #d97706, #b45309) !important;
+  color: #ffffff !important;
+  border-color: rgba(251, 191, 36, 0.5) !important;
+  box-shadow: 0 4px 16px rgba(217, 119, 6, 0.5) !important;
+  font-size: 13.5px !important;
+}
+
+/* Micro-interaction au hover de la carte */
+.lnori-card:hover .lnori-rank-badge {
+  transform: scale(1.15) !important;
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+   5. EXPLORER PAR GENRES : PASTILLES INTERACTIVES (WEBTOON & NOVEL STYLE)
+   ────────────────────────────────────────────────────────────────────────── */
+.home-genres-bar {
+  width: 100% !important;
+  max-width: 1320px !important;
+  margin: 16px auto 56px auto !important;
+  padding: 0 24px !important;
+  box-sizing: border-box !important;
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 12px !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.genre-pill-card {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  padding: 12px 20px !important;
+  border-radius: 9999px !important;
+  background: rgba(17, 24, 39, 0.75) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  color: #f1f5f9 !important;
+  text-decoration: none !important;
+  backdrop-filter: blur(14px) !important;
+  font-family: 'Outfit', 'Inter', sans-serif !important;
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.2px !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4) !important;
+  transition: all 0.3s var(--nt-spring) !important;
+  cursor: pointer !important;
+}
+
+.genre-pill-icon {
+  width: 28px !important;
+  height: 28px !important;
+  border-radius: 50% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 13px !important;
+  transition: transform 0.3s var(--nt-spring) !important;
+}
+
+/* Couleurs signatures par Genre façon Webtoon / MangaDex */
+.genre-pill-card.isekai .genre-pill-icon { background: rgba(129, 140, 248, 0.2); color: #818cf8; }
+.genre-pill-card.fantasy .genre-pill-icon { background: rgba(168, 85, 247, 0.2); color: #a855f7; }
+.genre-pill-card.action .genre-pill-icon { background: rgba(244, 63, 94, 0.2); color: #f43f5e; }
+.genre-pill-card.romance .genre-pill-icon { background: rgba(236, 72, 153, 0.2); color: #ec4899; }
+.genre-pill-card.drama .genre-pill-icon { background: rgba(245, 158, 11, 0.2); color: #f59e0b; }
+.genre-pill-card.comedy .genre-pill-icon { background: rgba(234, 179, 8, 0.2); color: #eab308; }
+.genre-pill-card.scifi .genre-pill-icon { background: rgba(6, 182, 212, 0.2); color: #06b6d4; }
+.genre-pill-card.mystery .genre-pill-icon { background: rgba(99, 102, 241, 0.2); color: #6366f1; }
+.genre-pill-card.slice .genre-pill-icon { background: rgba(16, 185, 129, 0.2); color: #10b981; }
+.genre-pill-card.seinen .genre-pill-icon { background: rgba(225, 29, 72, 0.2); color: #e11d48; }
+
+/* Micro-interactions au Survol */
+.genre-pill-card:hover {
+  transform: translateY(-4px) scale(1.04) !important;
+  color: #ffffff !important;
+}
+
+.genre-pill-card:hover .genre-pill-icon {
+  transform: scale(1.15) rotate(6deg) !important;
+}
+
+.genre-pill-card.isekai:hover { border-color: rgba(129, 140, 248, 0.5) !important; box-shadow: 0 10px 24px rgba(129, 140, 248, 0.35) !important; }
+.genre-pill-card.fantasy:hover { border-color: rgba(168, 85, 247, 0.5) !important; box-shadow: 0 10px 24px rgba(168, 85, 247, 0.35) !important; }
+.genre-pill-card.action:hover { border-color: rgba(244, 63, 94, 0.5) !important; box-shadow: 0 10px 24px rgba(244, 63, 94, 0.35) !important; }
+.genre-pill-card.romance:hover { border-color: rgba(236, 72, 153, 0.5) !important; box-shadow: 0 10px 24px rgba(236, 72, 153, 0.35) !important; }
+.genre-pill-card.drama:hover { border-color: rgba(245, 158, 11, 0.5) !important; box-shadow: 0 10px 24px rgba(245, 158, 11, 0.35) !important; }
+.genre-pill-card.comedy:hover { border-color: rgba(234, 179, 8, 0.5) !important; box-shadow: 0 10px 24px rgba(234, 179, 8, 0.35) !important; }
+.genre-pill-card.scifi:hover { border-color: rgba(6, 182, 212, 0.5) !important; box-shadow: 0 10px 24px rgba(6, 182, 212, 0.35) !important; }
+.genre-pill-card.mystery:hover { border-color: rgba(99, 102, 241, 0.5) !important; box-shadow: 0 10px 24px rgba(99, 102, 241, 0.35) !important; }
+.genre-pill-card.slice:hover { border-color: rgba(16, 185, 129, 0.5) !important; box-shadow: 0 10px 24px rgba(16, 185, 129, 0.35) !important; }
+.genre-pill-card.seinen:hover { border-color: rgba(225, 29, 72, 0.5) !important; box-shadow: 0 10px 24px rgba(225, 29, 72, 0.35) !important; }
+
+/* ──────────────────────────────────────────────────────────────────────────
+   6. RESPONSIVE MOBILE (< 768px)
+   ────────────────────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .home-hero-layout {
+    grid-template-columns: 1fr !important;
+    gap: 32px !important;
+    padding: 32px 16px !important;
+    text-align: center !important;
+  }
+
+  .home-hero-details {
+    align-items: center !important;
+    max-width: 100% !important;
+  }
+
+  .home-hero-title {
+    font-size: 28px !important;
+  }
+
+  .home-hero-actions {
+    justify-content: center !important;
+    width: 100% !important;
+  }
+
+  .btn-hero-primary, .btn-hero-glass {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+
+  .home-hero-stack-container {
+    height: 300px !important;
+  }
+
+  .home-hero-stack {
+    width: 200px !important;
+    height: 290px !important;
+  }
+
+  .lnori-catalog-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 14px !important;
+  }
+
+  .home-genre-pills-grid {
+    gap: 8px !important;
+    justify-content: center !important;
+  }
+
+  .genre-pill-card {
+    padding: 9px 15px !important;
+    font-size: 13px !important;
+  }
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+   7. NAVBAR & SEARCH CAPSULE MODERNE (SANS BOUTON INTRUSIF)
+   ────────────────────────────────────────────────────────────────────────── */
+.topnav {
+  background: rgba(8, 10, 18, 0.85) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+  transition: background 0.3s ease, border-color 0.3s ease !important;
+}
+
+.search-filter-container {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0 !important;
+}
+
+.nav-search-wrapper {
+  position: relative !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  width: 260px !important;
+  height: 40px !important;
+  padding: 0 14px !important;
+  border-radius: 9999px !important;
+  background: rgba(15, 23, 42, 0.75) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  backdrop-filter: blur(12px) !important;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
+}
+
+.nav-search-wrapper:focus-within {
+  width: 340px !important;
+  background: rgba(15, 23, 42, 0.95) !important;
+  border-color: rgba(99, 102, 241, 0.5) !important;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15), 0 8px 24px rgba(0, 0, 0, 0.5) !important;
+}
+
+.nav-search-icon {
+  font-size: 13.5px !important;
+  color: #64748b !important;
+  transition: color 0.2s ease !important;
+  flex-shrink: 0 !important;
+}
+
+.nav-search-wrapper:focus-within .nav-search-icon {
+  color: #818cf8 !important;
+}
+
+.nav-search-input {
+  flex: 1 !important;
+  background: transparent !important;
+  border: none !important;
+  outline: none !important;
+  color: #f1f5f9 !important;
+  font-family: inherit !important;
+  font-size: 13px !important;
+  padding: 0 !important;
+  min-width: 0 !important;
+}
+
+.nav-search-input::placeholder {
+  color: #64748b !important;
+  font-size: 12.5px !important;
+}
+
+.nav-search-kbd {
+  font-family: inherit !important;
+  font-size: 10.5px !important;
+  font-weight: 700 !important;
+  color: #94a3b8 !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  border-radius: 6px !important;
+  padding: 2px 6px !important;
+  letter-spacing: 0.3px !important;
+  flex-shrink: 0 !important;
+  pointer-events: none !important;
+  transition: opacity 0.2s ease !important;
+}
+
+.nav-search-wrapper:focus-within .nav-search-kbd {
+  opacity: 0 !important;
+}
+
+.nav-search-clear {
+  background: transparent !important;
+  border: none !important;
+  color: #94a3b8 !important;
+  font-size: 13px !important;
+  cursor: pointer !important;
+  padding: 4px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: color 0.2s ease !important;
+}
+
+.nav-search-clear:hover {
+  color: #ffffff !important;
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+   8. BOUTON FILTRE DANS LA SOUS-BARRE DU CATALOGUE
+   ────────────────────────────────────────────────────────────────────────── */
+.catalog-filter-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  padding: 8px 18px !important;
+  border-radius: 12px !important;
+  background: rgba(15, 23, 42, 0.8) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  color: #f1f5f9 !important;
+  font-family: 'Outfit', sans-serif !important;
+  font-size: 13.5px !important;
+  font-weight: 700 !important;
+  cursor: pointer !important;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+}
+
+.catalog-filter-btn:hover,
+.catalog-filter-btn.active {
+  background: var(--nt-primary) !important;
+  border-color: rgba(255, 255, 255, 0.25) !important;
+  box-shadow: 0 6px 18px rgba(99, 102, 241, 0.45) !important;
+  transform: translateY(-2px) !important;
+  color: #ffffff !important;
+}
+
+.catalog-filter-btn .filter-count-badge:not(.hidden) {
+  background: #e11d48 !important;
+  color: #ffffff !important;
+  border-radius: 9999px !important;
+  padding: 1px 7px !important;
+  font-size: 11px !important;
+  font-weight: 800 !important;
+}
+
+
+/* ──────────────────────────────────────────────────────────────────────────
+   9. TOPNAV DESKTOP REDESIGN (CENTRE & HARMONISÉ 1320PX)
+   Protected: Mobile drawer & sidebar (#navMobileDrawer) remain 100% untouched.
+   ────────────────────────────────────────────────────────────────────────── */
+@media (min-width: 1024px) {
+  .topnav {
+    position: sticky !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    height: 64px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    z-index: 1000 !important;
+    background: rgba(7, 9, 14, 0.85) !important;
+    backdrop-filter: blur(20px) saturate(1.8) !important;
+    -webkit-backdrop-filter: blur(20px) saturate(1.8) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+
+  /* Centrage Strict 1320px aligné avec le Hero et les Cartes */
+  .topnav-container {
+    width: 100% !important;
+    max-width: 1320px !important;
+    margin: 0 auto !important;
+    padding: 0 24px !important;
+    height: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 20px !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Groupe Gauche : Logo + Liens Centraux */
+  .topnav-left-group {
+    display: flex !important;
+    align-items: center !important;
+    gap: 24px !important;
+    flex-shrink: 0 !important;
+  }
+
+  /* Logo NovelTrad */
+  .topnav-logo {
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+    text-decoration: none !important;
+    cursor: pointer !important;
+    padding: 4px 6px !important;
+    border-radius: 10px !important;
+    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+  }
+
+  .topnav-logo:hover {
+    transform: translateY(-1px) scale(1.02) !important;
+  }
+
+  .topnav-logo .logo-icon {
+    width: 36px !important;
+    height: 36px !important;
+    border-radius: 10px !important;
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(168, 85, 247, 0.2)) !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-shadow: 0 4px 14px rgba(99, 102, 241, 0.2) !important;
+  }
+
+  .topnav-logo .logo-brand {
+    font-family: 'Outfit', -apple-system, sans-serif !important;
+    font-size: 18.5px !important;
+    font-weight: 800 !important;
+    letter-spacing: -0.4px !important;
+  }
+
+  .topnav-logo .logo-novel {
+    color: #ffffff !important;
+  }
+
+  .topnav-logo .logo-trad {
+    background: linear-gradient(135deg, #818cf8 0%, #c084fc 100%) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+  }
+
+  /* Liens Centraux Épurés (Sans encadrement / capsule globale) */
+  .topnav-nav-links {
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    background: transparent !important;
+    padding: 0 !important;
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  .nav-item-btn {
+    position: relative !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    padding: 8px 14px !important;
+    border-radius: 8px !important;
+    color: #94a3b8 !important;
+    font-family: 'Outfit', 'Inter', sans-serif !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    background: transparent !important;
+    border: none !important;
+    cursor: pointer !important;
+    text-decoration: none !important;
+    transition: color 0.2s ease, background 0.2s ease !important;
+    white-space: nowrap !important;
+    user-select: none !important;
+  }
+
+  .nav-item-btn:hover {
+    color: #ffffff !important;
+    background: rgba(255, 255, 255, 0.06) !important;
+  }
+
+  /* État Onglet Actif Épuré */
+  .nav-item-btn.active {
+    color: #ffffff !important;
+    font-weight: 600 !important;
+    background: rgba(255, 255, 255, 0.08) !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+
+  .nav-item-btn.active::after {
+    content: '' !important;
+    position: absolute !important;
+    bottom: 2px !important;
+    left: 12px !important;
+    right: 12px !important;
+    height: 2px !important;
+    border-radius: 9999px !important;
+    background: #818cf8 !important;
+    box-shadow: 0 0 8px rgba(99, 102, 241, 0.6) !important;
+  }
+
+  /* Dropdown Chevron */
+  .nav-dropdown .nav-caret {
+    font-size: 10px !important;
+    margin-left: 2px !important;
+    opacity: 0.7 !important;
+    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.2s ease !important;
+  }
+
+  .nav-dropdown:hover .nav-caret,
+  .nav-dropdown.open .nav-caret {
+    transform: rotate(180deg) !important;
+    opacity: 1 !important;
+    color: #818cf8 !important;
+  }
+
+  /* Menu Déroulant Glassmorphism */
+  .nav-dropdown-menu {
+    top: calc(100% + 8px) !important;
+    min-width: 260px !important;
+    background: rgba(11, 15, 25, 0.95) !important;
+    backdrop-filter: blur(28px) saturate(2) !important;
+    -webkit-backdrop-filter: blur(28px) saturate(2) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 14px !important;
+    padding: 6px !important;
+    box-shadow: 0 20px 48px -6px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(99, 102, 241, 0.15) !important;
+    gap: 3px !important;
+  }
+
+  .nav-dropdown-link {
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+    padding: 8px 12px !important;
+    border-radius: 10px !important;
+    background: transparent !important;
+    border: none !important;
+    transition: all 0.18s ease !important;
+  }
+
+  .nav-dropdown-link:hover {
+    background: rgba(255, 255, 255, 0.08) !important;
+    transform: translateX(3px) !important;
+  }
+
+  .nav-dropdown-link i {
+    width: 30px !important;
+    height: 30px !important;
+    border-radius: 9px !important;
+    background: rgba(99, 102, 241, 0.12) !important;
+    border: 1px solid rgba(99, 102, 241, 0.22) !important;
+    color: #818cf8 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 13px !important;
+    flex-shrink: 0 !important;
+    transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+  }
+
+  .nav-dropdown-link:hover i {
+    background: linear-gradient(135deg, #6366f1 0%, #818cf8 100%) !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 14px rgba(99, 102, 241, 0.45) !important;
+    transform: scale(1.08) !important;
+  }
+
+  .nav-dropdown-link .nav-link-title {
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    color: #f1f5f9 !important;
+  }
+
+  .nav-dropdown-link .nav-link-desc {
+    font-size: 11px !important;
+    color: #64748b !important;
+  }
+
+  /* Masquer Traduction de la rangée centrale sur desktop */
+  .topnav-nav-links .nav-dropdown[data-nav="trad"] {
+    display: none !important;
+  }
+
+  /* Badge Mature (+18) élégant et compact dans la capsule */
+  #navMatureLink.mature-nav-link {
+    color: #fb7185 !important;
+    background: rgba(244, 63, 94, 0.08) !important;
+    border: 1px solid rgba(244, 63, 94, 0.2) !important;
+    padding: 6px 12px !important;
+    font-size: 12.5px !important;
+    font-weight: 700 !important;
+  }
+
+  #navMatureLink.mature-nav-link i {
+    color: #f43f5e !important;
+  }
+
+  #navMatureLink.mature-nav-link:hover {
+    background: rgba(244, 63, 94, 0.18) !important;
+    color: #ffffff !important;
+    border-color: rgba(244, 63, 94, 0.45) !important;
+  }
+
+  /* Groupe Droite : Recherche & Profil */
+  .topnav-right-group {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    gap: 12px !important;
+    flex-shrink: 0 !important;
+  }
+
+  .topnav-actions-wrapper {
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+  }
+
+  /* Barre de Recherche : Format élégant 38px */
+  .nav-search-wrapper {
+    height: 38px !important;
+    width: 240px !important;
+  }
+
+  .nav-search-wrapper:focus-within {
+    width: 300px !important;
+  }
+
+  /* Bouton Thème Circulaire 38px */
+  .nav-theme-toggle {
+    width: 38px !important;
+    height: 38px !important;
+    border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background: rgba(15, 23, 42, 0.75) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    color: #f59e0b !important;
+    font-size: 14px !important;
+    cursor: pointer !important;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+  }
+
+  .nav-theme-toggle:hover {
+    transform: rotate(180deg) scale(1.08) !important;
+    background: rgba(245, 158, 11, 0.15) !important;
+    border-color: rgba(245, 158, 11, 0.4) !important;
+    color: #fde047 !important;
+  }
+
+  /* Bouton Connexion Pilule 38px */
+  .btn-nav-auth-pill {
+    height: 38px !important;
+    padding: 0 18px !important;
+    border-radius: 9999px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    color: #ffffff !important;
+    font-size: 13.5px !important;
+    font-weight: 600 !important;
+    font-family: 'Outfit', sans-serif !important;
+    box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35) !important;
+    cursor: pointer !important;
+    transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+  }
+
+  .btn-nav-auth-pill:hover {
+    transform: translateY(-1px) !important;
+    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5) !important;
+  }
+
+  /* Profil Utilisateur 38px */
+  .nav-user-pill {
+    height: 38px !important;
+    padding: 0 14px !important;
+    border-radius: 9999px !important;
+    background: rgba(15, 23, 42, 0.75) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    gap: 8px !important;
+  }
+
+  .nav-user-avatar {
+    width: 24px !important;
+    height: 24px !important;
+    border-radius: 50% !important;
+    background: linear-gradient(135deg, #6366f1, #a855f7) !important;
+  }
+
+  /* Popover Flottant Utilisateur */
+  .nav-user-dropdown {
+    top: calc(100% + 8px) !important;
+    right: 0 !important;
+    width: 250px !important;
+    background: rgba(11, 15, 25, 0.96) !important;
+    backdrop-filter: blur(28px) saturate(2) !important;
+    -webkit-backdrop-filter: blur(28px) saturate(2) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 14px !important;
+    box-shadow: 0 20px 48px -6px rgba(0, 0, 0, 0.8) !important;
+    padding: 8px !important;
+  }
+
+  .nav-dropdown-item {
+    padding: 8px 12px !important;
+    border-radius: 8px !important;
+    font-size: 13px !important;
+    font-weight: 500 !important;
+    color: #cbd5e1 !important;
+  }
+}

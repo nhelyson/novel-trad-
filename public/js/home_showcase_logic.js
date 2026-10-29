@@ -593,8 +593,14 @@ initDeckCards() {
         return;
       }
 
-      seriesList.forEach(series => {
+      seriesList.forEach((series, index) => {
         const wrap = document.createElement('div');
+        const isTrending = containerId === 'homeTrendingGrid';
+        const rankNum = index + 1;
+        if (isTrending) {
+          wrap.classList.add('is-trending-rank');
+          wrap.setAttribute('data-rank', rankNum);
+        }
         wrap.className = 'lnori-card-wrapper';
 
         const rawGridCover = series.cover || '';
@@ -612,6 +618,7 @@ initDeckCards() {
         wrap.innerHTML = `
           <div class="lnori-card">
             <div class="lnori-card-cover-box">
+              ${isTrending ? `<span class="lnori-rank-badge rank-${rankNum}">#${rankNum}</span>` : ''}
               ${series.is_original ? '<div class="card-bookmark-ribbon" title="Création Originale"><i class="fa-solid fa-feather-pointed"></i><span>ORIGINAL</span></div>' : ''}
               <img src="${coverSrc}" alt="${series.title}" loading="lazy" decoding="async" onload="this.classList.add('loaded')" onerror="this.onerror=null;this.src='https://placehold.co/400x600/18181b/ffffff?text=${encodeURIComponent(series.title)}'">
               <span class="lnori-card-vol-badge">${volCount} Vol.</span>
