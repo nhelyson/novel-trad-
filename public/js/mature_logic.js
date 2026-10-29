@@ -9,6 +9,39 @@
   const ageGateModal = document.getElementById('ageGateModal');
   const btnConfirmAge = document.getElementById('btnConfirmAge');
 
+  
+  // --- ADSTERRA POPUNDER COOLDOWN CONTROLLER (2 HEURES) ---
+  function initControlledPopunder() {
+    // 2 heures de cooldown = 2 * 60 * 60 * 1000 ms = 7 200 000 ms
+    const COOLDOWN_MS = 2 * 60 * 60 * 1000;
+    const STORAGE_KEY = 'noveltrad_mature_popunder_ts';
+    const lastTrigger = parseInt(localStorage.getItem(STORAGE_KEY) || '0', 10);
+    const now = Date.now();
+
+    // Si le cooldown est actif, on ne charge AUCUN script popunder !
+    if (now - lastTrigger < COOLDOWN_MS) {
+      const remainingMin = Math.round((COOLDOWN_MS - (now - lastTrigger)) / 60000);
+      console.log(`[Monétisation] Popunder sous cooldown (encore ${remainingMin} min restantes pour ce lecteur)`);
+      return;
+    }
+
+    // Le lecteur est éligible : on injecte le script Adsterra Popunder officiel
+    console.log('[Monétisation] Lecteur éligible au Popunder. Chargement du script...');
+    const script = document.createElement('script');
+    script.setAttribute('data-cfasync', 'false');
+    script.src = 'https://abscloud.org/1/7f7fbfb98a79e557023ce94325949857';
+    document.body.appendChild(script);
+
+    // Dès le 1er clic sur la page, on enregistre l'heure pour bloquer pendant 2h
+    const onFirstClick = () => {
+      localStorage.setItem(STORAGE_KEY, Date.now().toString());
+      console.log('[Monétisation] Popunder déclenché — Cooldown 2h activé avec succès.');
+      window.removeEventListener('click', onFirstClick, true);
+    };
+
+    window.addEventListener('click', onFirstClick, true);
+  }
+
   function checkAgeVerification() {
     const verified = localStorage.getItem('noveltrad_age_verified');
     if (verified === 'true') {
@@ -48,6 +81,11 @@
   const podiumContainer = document.getElementById('maturePodiumContainer');
   const leaderboardContainer = document.getElementById('matureLeaderboardContainer');
   const latestContainer = document.getElementById('matureLatestContainer');
+  const navSearchWrapper = document.getElementById('navSearchWrapper');
+  const navSearchInput = document.getElementById('navSearchInput');
+  const navSearchDropdown = document.getElementById('navSearchDropdown');
+  const navSearchResultsList = document.getElementById('navSearchResultsList');
+  const navSearchCountBadge = document.getElementById('navSearchCountBadge');
   
 
   // --- SEARCH DROPDOWN LOGIC (In Navbar) ---
@@ -475,5 +513,250 @@
   }
 
   // Init
-  document.addEventListener('DOMContentLoaded', checkAgeVerification);
+  // Preload data in background so the UI is ready the moment the user confirms
+  loadMatureData();
+  
+  
+  // --- CATALOGUE MATURE (+18) EXPLORER ENGINE ---
+  let catalogParams = {
+    genre: 'all',
+    status: 'all',
+    sort: 'popular',
+    page: 1,
+    limit: 18,
+    totalPages: 1,
+    total: 0,
+    loading: false
+  };
+
+  const matureCatalogGrid = document.getElementById('matureCatalogGrid');
+  const matureCatalogTotalBadge = document.getElementById('matureCatalogTotalBadge');
+  const matureSortSelect = document.getElementById('matureSortSelect');
+  const matureStatusSelect = document.getElementById('matureStatusSelect');
+  const matureGenrePills = document.querySelectorAll('.m-genre-pill');
+  const matureCatalogLoadWrap = document.getElementById('matureCatalogLoadWrap');
+  const btnLoadMoreCatalog = document.getElementById('btnLoadMoreCatalog');
+
+  async function fetchMatureCatalog(append = false) {
+    if (catalogParams.loading) return;
+    catalogParams.loading = true;
+
+    if (!append && matureCatalogGrid) {
+      matureCatalogGrid.innerHTML = '<div class="m-catalog-loading"><i class="fa-solid fa-spinner fa-spin" style="margin-right: 8px; color: var(--m-accent);"></i> Chargement du catalogue...</div>';
+    }
+
+    try {
+      const url = `/api/catalog/explore?mature=true&genre=${encodeURIComponent(catalogParams.genre)}&status=${encodeURIComponent(catalogParams.status)}&sort=${encodeURIComponent(catalogParams.sort)}&page=${catalogParams.page}&limit=${catalogParams.limit}`;
+      const res = await fetch(url);
+      const data = await res.json();
+
+      if (data.success) {
+        catalogParams.total = data.total || 0;
+        catalogParams.totalPages = data.totalPages || 1;
+
+        if (matureCatalogTotalBadge) {
+          matureCatalogTotalBadge.textContent = `${catalogParams.total} œuvre${catalogParams.total > 1 ? 's' : ''}`;
+        }
+
+        renderCatalogCards(data.series || [], append);
+
+        // Manage Load More button
+        if (matureCatalogLoadWrap) {
+          if (catalogParams.page < catalogParams.totalPages) {
+            matureCatalogLoadWrap.style.display = 'block';
+          } else {
+            matureCatalogLoadWrap.style.display = 'none';
+          }
+        }
+      } else {
+        if (!append && matureCatalogGrid) {
+          matureCatalogGrid.innerHTML = '<div class="m-catalog-empty">Erreur lors de la récupération du catalogue.</div>';
+        }
+      }
+    } catch (e) {
+      console.error('[Catalog] Error fetching explore mature:', e);
+      if (!append && matureCatalogGrid) {
+        matureCatalogGrid.innerHTML = '<div class="m-catalog-empty">Impossible de charger le catalogue.</div>';
+      }
+    } finally {
+      catalogParams.loading = false;
+    }
+  }
+
+  function renderCatalogCards(seriesList, append = false) {
+    if (!matureCatalogGrid) return;
+
+    if (seriesList.length === 0 && !append) {
+      matureCatalogGrid.innerHTML = `
+        <div class="m-catalog-empty">
+          <i class="fa-solid fa-book-open" style="font-size: 32px; color: var(--m-accent); margin-bottom: 12px; display: block; opacity: 0.5;"></i>
+          Aucune œuvre mature ne correspond à vos filtres.
+        </div>
+      `;
+      return;
+    }
+
+    const fallbackCover = 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=400';
+
+    const cardsHtml = seriesList.map(item => {
+      const cover = item.cover || fallbackCover;
+      const rating = typeof item.rating === 'number' ? item.rating.toFixed(1) : (item.rating || '4.8');
+      const views = (item.views || 0).toLocaleString('fr-FR');
+      const volCount = (item.volumes && item.volumes.length) || item.volume_count || 1;
+      const statusLabel = item.status_fr || (item.status === 'FINISHED' ? 'Terminé' : 'En cours');
+
+      return `
+        <a href="/series.html?id=${encodeURIComponent(item.id)}" class="m-catalog-card">
+          <div class="m-catalog-cover-wrap">
+            <img src="${cover}" class="m-catalog-cover" alt="" onerror="this.src='${fallbackCover}'" loading="lazy">
+            <span class="m-catalog-tag-mature">+18</span>
+            <span class="m-catalog-tag-status">${escapeHtml(statusLabel)}</span>
+          </div>
+          <div class="m-catalog-card-body">
+            <div class="m-catalog-card-title">${escapeHtml(item.title)}</div>
+            <div class="m-catalog-card-author"><i class="fa-solid fa-pen-nib" style="font-size: 10px; opacity: 0.7;"></i> ${escapeHtml(item.author || 'Auteur')}</div>
+            <div class="m-catalog-card-meta">
+              <span style="color: #fbbf24; font-weight: 700;"><i class="fa-solid fa-star"></i> ${rating}</span>
+              <span><i class="fa-solid fa-eye" style="color: #e11d48;"></i> ${views}</span>
+              <span>${volCount} vol.</span>
+            </div>
+          </div>
+        </a>
+      `;
+    }).join('');
+
+    if (append) {
+      matureCatalogGrid.insertAdjacentHTML('beforeend', cardsHtml);
+    } else {
+      matureCatalogGrid.innerHTML = cardsHtml;
+    }
+  }
+
+  function initCatalogEvents() {
+    // Genre Pills
+    matureGenrePills.forEach(pill => {
+      pill.addEventListener('click', () => {
+        matureGenrePills.forEach(p => p.classList.remove('active'));
+        pill.classList.add('active');
+        catalogParams.genre = pill.getAttribute('data-genre') || 'all';
+        catalogParams.page = 1;
+        fetchMatureCatalog(false);
+      });
+    });
+
+    // Sort Dropdown
+    if (matureSortSelect) {
+      matureSortSelect.addEventListener('change', (e) => {
+        catalogParams.sort = e.target.value;
+        catalogParams.page = 1;
+        fetchMatureCatalog(false);
+      });
+    }
+
+    // Status Dropdown
+    if (matureStatusSelect) {
+      matureStatusSelect.addEventListener('change', (e) => {
+        catalogParams.status = e.target.value;
+        catalogParams.page = 1;
+        fetchMatureCatalog(false);
+      });
+    }
+
+    // Load More Button
+    if (btnLoadMoreCatalog) {
+      btnLoadMoreCatalog.addEventListener('click', () => {
+        if (catalogParams.page < catalogParams.totalPages) {
+          catalogParams.page++;
+          btnLoadMoreCatalog.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Chargement...';
+          fetchMatureCatalog(true).then(() => {
+            btnLoadMoreCatalog.innerHTML = '<i class="fa-solid fa-rotate-right"></i> Charger plus d\'œuvres';
+          });
+        }
+      });
+    }
+
+    // Initial load
+    fetchMatureCatalog(false);
+  }
+
+  // --- MOBILE BOTTOM APP BAR LOGIC ---
+  function initMobileBottomNav() {
+    const bnavItems = document.querySelectorAll('.m-bottom-nav-item[data-target]');
+    const bnavSearch = document.getElementById('bnavSearch');
+    const navSearchInput = document.getElementById('navSearchInput');
+
+    // Smooth scroll on tap
+    bnavItems.forEach(item => {
+      item.addEventListener('click', (e) => {
+        e.preventDefault();
+        const targetId = item.getAttribute('data-target');
+        const targetEl = document.getElementById(targetId);
+
+        if (targetEl) {
+          const navOffset = 68;
+          const elementPosition = targetEl.getBoundingClientRect().top;
+          const offsetPosition = elementPosition + window.pageYOffset - navOffset;
+
+          window.scrollTo({
+            top: offsetPosition,
+            behavior: 'smooth'
+          });
+        }
+
+        // Set active immediately
+        document.querySelectorAll('.m-bottom-nav-item').forEach(b => b.classList.remove('active'));
+        item.classList.add('active');
+      });
+    });
+
+    // Search button in bottom bar: focuses top search input
+    if (bnavSearch) {
+      bnavSearch.addEventListener('click', (e) => {
+        e.preventDefault();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        setTimeout(() => {
+          if (navSearchInput) {
+            navSearchInput.focus();
+            openSearchDropdown();
+          }
+        }, 250);
+
+        document.querySelectorAll('.m-bottom-nav-item').forEach(b => b.classList.remove('active'));
+        bnavSearch.classList.add('active');
+      });
+    }
+
+    // Scroll spy: auto-highlight active tab as user scrolls
+    const sections = [
+      { id: 'mHeroSection', btnId: 'bnavHero' },
+      { id: 'mRankingSection', btnId: 'bnavRanking' },
+      { id: 'mCatalogSection', btnId: 'bnavCatalog' },
+      { id: 'mLatestSection', btnId: 'bnavLatest' }
+    ];
+
+    let scrollTimeout = null;
+    window.addEventListener('scroll', () => {
+      if (scrollTimeout) return;
+      scrollTimeout = setTimeout(() => {
+        scrollTimeout = null;
+        const scrollPos = window.scrollY + 200;
+
+        for (let i = sections.length - 1; i >= 0; i--) {
+          const sec = document.getElementById(sections[i].id);
+          if (sec && sec.offsetTop <= scrollPos) {
+            document.querySelectorAll('.m-bottom-nav-item').forEach(b => b.classList.remove('active'));
+            const activeBtn = document.getElementById(sections[i].btnId);
+            if (activeBtn) activeBtn.classList.add('active');
+            break;
+          }
+        }
+      }, 100);
+    }, { passive: true });
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    checkAgeVerification();
+    initMobileBottomNav();
+    initCatalogEvents();
+  });
 })();

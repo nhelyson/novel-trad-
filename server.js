@@ -2609,8 +2609,8 @@ app.get('/api/catalog/featured', (req, res) => {
 app.get('/api/catalog/explore', (req, res) => {
   try {
     res.set('Cache-Control', 'public, max-age=30, stale-while-revalidate=120');
-    const { q, genre, status, format, origin, sort, page, limit } = req.query;
-    const result = CatalogService.getExplore({ q, genre, status, format, origin, sort, page, limit });
+    const { q, genre, status, format, origin, sort, page, limit, mature } = req.query;
+    const result = CatalogService.getExplore({ q, genre, status, format, origin, sort, page, limit, mature });
     res.json({ success: true, ...result });
   } catch (e) {
     res.status(500).json({ success: false, message: e.message });

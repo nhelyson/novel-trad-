@@ -17,7 +17,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
   <!-- Stylesheet -->
-  <link rel="stylesheet" href="/css/mature.css?v=3">
+  <link rel="stylesheet" href="/css/mature.css?v=1793286243102">
 </head>
 <body>
 
@@ -89,7 +89,7 @@
     <!-- =======================================================================
        HERO SLIDER CARROUSEL (Directement en vedette sans texte superflus)
        ======================================================================= -->
-  <section class="m-hero" style="padding: 20px 0 16px 0;">
+  <section class="m-hero" id="mHeroSection" style="padding: 20px 0 16px 0;">
     <div class="m-container">
       <div class="m-hero-slider-wrap" aria-label="Carrousel des romans en vedette">
         <div class="m-slider-track" id="matureSliderTrack"></div>
@@ -109,7 +109,7 @@
   <!-- =======================================================================
        GRANDE SECTION : CLASSEMENT (1, 2, 3...) + TABS
        ======================================================================= -->
-  <main class="m-section">
+  <main class="m-section" id="mRankingSection">
     <div class="m-container">
       <div class="m-section-header">
         <div class="m-section-title-wrap">
@@ -136,7 +136,83 @@
   <!-- =======================================================================
        SECTION : DERNIERES SORTIES
        ======================================================================= -->
-  <section class="m-section" style="border-top: 1px solid var(--m-border-subtle); margin-top: 20px;">
+  
+  <!-- =======================================================================
+       SECTION : CATALOGUE COMPLET (+18) AVEC FILTRES & EXPLORATEUR
+       ======================================================================= -->
+  <section class="m-section" id="mCatalogSection" style="border-top: 1px solid var(--m-border-subtle); margin-top: 10px;">
+    <div class="m-container">
+      <div class="m-section-header">
+        <div class="m-section-title-wrap">
+          <div class="m-section-icon" style="background: rgba(225, 29, 72, 0.12); color: var(--m-accent); border-color: var(--m-border-active);">
+            <i class="fa-solid fa-book-open"></i>
+          </div>
+          <div>
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <h2 class="m-section-title">Catalogue des Récits (+18)</h2>
+              <span class="m-catalog-count-pill" id="matureCatalogTotalBadge">0 œuvre</span>
+            </div>
+            <p class="m-section-sub">Explorez toutes les œuvres réservées aux adultes, dark fantasy et seinen</p>
+          </div>
+        </div>
+
+        <!-- Sort & Status Toolbar -->
+        <div class="m-catalog-controls">
+          <div class="m-select-wrapper">
+            <i class="fa-solid fa-arrow-down-wide-short m-select-icon"></i>
+            <select id="matureSortSelect" class="m-catalog-select" aria-label="Trier les œuvres">
+              <option value="popular">🔥 Plus populaires</option>
+              <option value="rating">⭐ Mieux notés</option>
+              <option value="latest">⚡ Derniers ajouts</option>
+              <option value="az">🔤 Titre (A - Z)</option>
+            </select>
+          </div>
+
+          <div class="m-select-wrapper">
+            <i class="fa-solid fa-filter m-select-icon"></i>
+            <select id="matureStatusSelect" class="m-catalog-select" aria-label="Filtrer par statut">
+              <option value="all">Tous les statuts</option>
+              <option value="releasing">En cours</option>
+              <option value="finished">Terminé</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Genres Bar (Pill filters) -->
+      <div class="m-genre-scroll-wrapper">
+                <div class="m-genre-pills" id="matureGenrePillsContainer">
+          <button type="button" class="m-genre-pill active" data-genre="all">Tous</button>
+          <button type="button" class="m-genre-pill" data-genre="Seinen">Seinen</button>
+          <button type="button" class="m-genre-pill" data-genre="Psychologique">Psychologique</button>
+          <button type="button" class="m-genre-pill" data-genre="Ecchi">Ecchi</button>
+          <button type="button" class="m-genre-pill" data-genre="Romance">Romance</button>
+          <button type="button" class="m-genre-pill" data-genre="Drame">Drame</button>
+          <button type="button" class="m-genre-pill" data-genre="Fantaisie">Dark Fantasy</button>
+          <button type="button" class="m-genre-pill" data-genre="Action">Action</button>
+          <button type="button" class="m-genre-pill" data-genre="Comédie">Comédie</button>
+          <button type="button" class="m-genre-pill" data-genre="Science-Fiction">Science-Fiction</button>
+          <button type="button" class="m-genre-pill" data-genre="Surnaturel">Surnaturel</button>
+        </div>
+      </div>
+
+      <!-- Novels Grid -->
+      <div class="m-catalog-grid" id="matureCatalogGrid">
+        <div class="m-catalog-loading">
+          <i class="fa-solid fa-spinner fa-spin"></i> Chargement du catalogue...
+        </div>
+      </div>
+
+      <!-- Load More Button -->
+      <div class="m-catalog-load-wrap" id="matureCatalogLoadWrap" style="display: none;">
+        <button type="button" class="m-btn-load-more" id="btnLoadMoreCatalog">
+          <i class="fa-solid fa-rotate-right"></i> Charger plus d'œuvres
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <section class="m-section" id="mLatestSection" style="border-top: 1px solid var(--m-border-subtle); margin-top: 20px;">
     <div class="m-container">
       <div class="m-section-header">
         <div class="m-section-title-wrap">
@@ -162,7 +238,52 @@
     </div>
   </footer>
 
+
+  <!-- =======================================================================
+       MOBILE BOTTOM APP BAR (Dock natif pour smartphone)
+       ======================================================================= -->
+  <nav class="m-bottom-nav" aria-label="Navigation mobile">
+    <div class="m-bottom-nav-inner">
+      <button type="button" class="m-bottom-nav-item active" id="bnavHero" data-target="mHeroSection">
+        <div class="m-bnav-icon-wrap">
+          <i class="fa-solid fa-fire"></i>
+        </div>
+        <span class="m-bnav-label">Vedette</span>
+      </button>
+
+      <button type="button" class="m-bottom-nav-item" id="bnavRanking" data-target="mRankingSection">
+        <div class="m-bnav-icon-wrap">
+          <i class="fa-solid fa-ranking-star"></i>
+        </div>
+        <span class="m-bnav-label">Classement</span>
+      </button>
+
+      <button type="button" class="m-bottom-nav-item" id="bnavCatalog" data-target="mCatalogSection">
+        <div class="m-bnav-icon-wrap">
+          <i class="fa-solid fa-book-open"></i>
+        </div>
+        <span class="m-bnav-label">Catalogue</span>
+      </button>
+
+      <button type="button" class="m-bottom-nav-item" id="bnavSearch">
+        <div class="m-bnav-icon-wrap">
+          <i class="fa-solid fa-magnifying-glass"></i>
+        </div>
+        <span class="m-bnav-label">Recherche</span>
+      </button>
+
+      <a href="/index.html" class="m-bottom-nav-item" id="bnavExit" title="Quitter la section mature">
+        <div class="m-bnav-icon-wrap">
+          <i class="fa-solid fa-house"></i>
+        </div>
+        <span class="m-bnav-label">Accueil</span>
+      </a>
+    </div>
+  </nav>
+
   <!-- Script -->
-  <script src="/js/mature_logic.js?v=3"></script>
+  <script src="/js/mature_logic.js?v=1793286243102"></script>
+  <!-- Adsterra Social Bar (Pub Flottante / In-Page Push) -->
+  <script data-cfasync="false" src="https://bauval.org/14/5461bf3b487f5be14c5adf849f4ed575"></script>
 </body>
 </html>
