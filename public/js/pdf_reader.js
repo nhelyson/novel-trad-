@@ -109,12 +109,50 @@ window.checkIsDownloadRestricted = function(targetBook) {
   // ==========================================================================
   const VOLUME_CACHE_NAME = 'noveltrad-volumes-v1';
 
-  async function getVolumeFromCache(url) {
+    async function getVolumeFromCache(url) {
     if (!('caches' in window)) return null;
     try {
       const cache = await caches.open(VOLUME_CACHE_NAME);
       const match = await cache.match(url);
       if (match) {
+        // Validation ultra-légère en ligne de la fraîcheur du volume (0 Ko, timeout court 2.5s)
+        try {
+          const controller = new AbortController();
+          const tId = setTimeout(() => controller.abort(), 2500);
+          const headRes = await fetch(url, {
+            method: 'HEAD',
+            cache: 'no-cache',
+            signal: controller.signal,
+            headers: { 'ngrok-skip-browser-warning': 'true' }
+          });
+          clearTimeout(tId);
+
+          if (headRes.ok) {
+            const serverEtag = headRes.headers.get('ETag');
+            const serverLastMod = headRes.headers.get('Last-Modified');
+            const serverLen = headRes.headers.get('Content-Length');
+
+            const cachedEtag = match.headers.get('ETag');
+            const cachedLastMod = match.headers.get('Last-Modified');
+            const cachedLen = match.headers.get('Content-Length');
+
+            // Si le serveur a une version plus récente, ou si l'ancien cache n'avait pas d'ETag, ou si la taille diffère
+            const isStale = (serverEtag && cachedEtag && serverEtag !== cachedEtag) ||
+                            (serverLastMod && cachedLastMod && serverLastMod !== cachedLastMod) ||
+                            (!cachedEtag && serverEtag) ||
+                            (serverLen && cachedLen && serverLen !== cachedLen);
+
+            if (isStale) {
+              console.log('[VolumeCache] 🔄 Volume mis à jour sur le serveur, purge du cache local et re-téléchargement...');
+              await cache.delete(url);
+              return null; // Forcer le téléchargement de la nouvelle version corrigée
+            }
+          }
+        } catch (netErr) {
+          // Si réseau coupé ou timeout (mode avion, etc.), on autorise la lecture hors-ligne
+          console.warn('[VolumeCache] Mode hors-ligne / réseau lent, lecture du cache local:', netErr.message);
+        }
+
         return await match.arrayBuffer();
       }
     } catch (e) {
@@ -123,17 +161,22 @@ window.checkIsDownloadRestricted = function(targetBook) {
     return null;
   }
 
-  async function saveVolumeToCache(url, buffer) {
+  async function saveVolumeToCache(url, buffer, resp) {
     if (!('caches' in window) || !buffer) return;
     try {
       const cache = await caches.open(VOLUME_CACHE_NAME);
-      const response = new Response(buffer.slice(0), {
-        headers: {
-          'Content-Type': 'application/octet-stream',
-          'Content-Length': buffer.byteLength.toString(),
-          'Cache-Control': 'public, max-age=86400, must-revalidate'
-        }
-      });
+      const headers = {
+        'Content-Type': 'application/octet-stream',
+        'Content-Length': buffer.byteLength.toString(),
+        'Cache-Control': 'public, max-age=86400, must-revalidate'
+      };
+      if (resp && resp.headers) {
+        const et = resp.headers.get('ETag');
+        if (et) headers['ETag'] = et;
+        const lm = resp.headers.get('Last-Modified');
+        if (lm) headers['Last-Modified'] = lm;
+      }
+      const response = new Response(buffer.slice(0), { headers });
       await cache.put(url, response);
     } catch (e) {
       console.warn('[VolumeCache] Cache save notice:', e);
@@ -1507,7 +1550,7 @@ window.checkIsDownloadRestricted = function(targetBook) {
         }
 
         // Sauvegarder immédiatement dans le cache local du navigateur
-        await saveVolumeToCache(fileUrl, bookData);
+        await saveVolumeToCache(fileUrl, bookData, resp);
       }
 
       if (status) status.textContent = "Ouverture des chapitres...";
