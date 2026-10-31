@@ -150,6 +150,20 @@
     const dismissKey = 'nt_dismissed_resume_' + (latest.bookId || latest.id);
     if (sessionStorage.getItem(dismissKey)) return;
 
+    // Résolution intelligente de la couverture depuis catalogDB si manquante
+    if (!latest.cover || latest.cover.trim() === '' || latest.cover.includes('default_cover.jpg')) {
+      const sId = latest.seriesId || latest.series_id;
+      const bId = latest.bookId || latest.id;
+      if (window.catalogDB && Array.isArray(window.catalogDB.series)) {
+        const s = window.catalogDB.series.find(ser => ser.id === sId || (ser.volumes && ser.volumes.some(v => v.id === bId)));
+        if (s) {
+          const vol = (s.volumes || []).find(v => v.id === bId);
+          latest.cover = (vol && (vol.cover || vol.cover_url)) || s.cover || '';
+          if (!latest.seriesId) latest.seriesId = s.id;
+        }
+      }
+    }
+
     // Afficher le bandeau
     renderResumeBanner(latest, readTimestamp);
   }
@@ -163,7 +177,26 @@
     banner.setAttribute('role', 'complementary');
     banner.setAttribute('aria-label', 'Reprendre la lecture');
 
-    const coverUrl = item.cover || '/uploads/covers/default_cover.jpg';
+    // Déterminer la couverture : item.cover > catalogDB local > image de secours
+    let coverUrl = (item.cover || '').trim();
+    if (!coverUrl || coverUrl.includes('default_cover.jpg')) {
+      const sId = item.seriesId || item.series_id;
+      const bId = item.bookId || item.id;
+      if (window.catalogDB && Array.isArray(window.catalogDB.series)) {
+        const s = window.catalogDB.series.find(ser => ser.id === sId || (ser.volumes && ser.volumes.some(v => v.id === bId)));
+        if (s) {
+          const vol = (s.volumes || []).find(v => v.id === bId);
+          coverUrl = (vol && (vol.cover || vol.cover_url)) || s.cover || '';
+        }
+      }
+    }
+
+    const fallbackCoverSvg = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='170' viewBox='0 0 120 170'%3E%3Crect width='120' height='170' fill='%2318181b'/%3E%3Ccircle cx='60' cy='65' r='24' fill='%23e11d48' opacity='0.85'/%3E%3Cpath d='M55 55 L70 65 L55 75 Z' fill='%23ffffff'/%3E%3Ctext x='60' y='118' font-family='sans-serif' font-size='12' font-weight='bold' fill='%23ffffff' text-anchor='middle'%3ENovelTrad%3C/text%3E%3Ctext x='60' y='136' font-family='sans-serif' font-size='9' fill='%2394a3b8' text-anchor='middle'%3ELecture%3C/text%3E%3C/svg%3E";
+
+    if (!coverUrl) {
+      coverUrl = '/uploads/covers/default_cover.jpg';
+    }
+
     const titleText = item.title || 'Volume en cours';
     const timeText = formatTimeAgo(readTimestamp);
     const pct = Math.max(1, Math.min(99, Math.round(item.progressPct !== undefined ? item.progressPct : (item.progress || 0))));
@@ -180,7 +213,7 @@
       <div class="nt-resume-inner">
         <!-- Vignette couverture avec effet relief -->
         <div class="nt-resume-cover-wrap">
-          <img src="${coverUrl}" alt="Couverture" class="nt-resume-cover" onerror="this.src='/uploads/covers/default_cover.jpg'; this.onerror=null;">
+          <img src="${coverUrl}" alt="Couverture" class="nt-resume-cover" loading="lazy" decoding="async" onerror="this.onerror=null; this.src='${fallbackCoverSvg}';">
           <div class="nt-resume-play-badge">
             <i class="fa-solid fa-play"></i>
           </div>
@@ -257,7 +290,7 @@
           fileKey: item.bookId || item.id,
           seriesId: item.seriesId || '',
           title: item.title,
-          cover: item.cover,
+          cover: coverUrl || item.cover,
           format: format,
           location: item.position || item.location,
           chapterNumber: item.chapterId || item.volumeNumber || 1,

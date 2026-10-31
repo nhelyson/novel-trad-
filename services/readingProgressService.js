@@ -48,6 +48,48 @@ class ReadingProgressService {
     }
   }
 
+  static resolveCatalogMetadata(record) {
+    if (!record) return record;
+    try {
+      const catPath = path.join(__dirname, '..', 'data', 'catalog_db.json');
+      if (fs.existsSync(catPath)) {
+        const cat = JSON.parse(fs.readFileSync(catPath, 'utf8'));
+        const sId = record.series_id || record.seriesId;
+        const bId = record.book_id || record.bookId;
+
+        let foundSeries = null;
+        let foundVol = null;
+
+        if (sId) {
+          foundSeries = (cat.series || []).find(s => s.id === sId);
+        }
+        if (!foundSeries && bId) {
+          foundSeries = (cat.series || []).find(s => (s.volumes || []).some(v => v.id === bId));
+        }
+
+        if (foundSeries) {
+          if (!record.series_id && !record.seriesId) {
+            record.series_id = foundSeries.id;
+            record.seriesId = foundSeries.id;
+          }
+          if (bId && foundSeries.volumes) {
+            foundVol = foundSeries.volumes.find(v => v.id === bId);
+          }
+          const resolvedCover = (foundVol && (foundVol.cover || foundVol.cover_url)) || foundSeries.cover || '';
+          if (resolvedCover && (!record.cover || record.cover.trim() === '' || record.cover.includes('default_cover.jpg'))) {
+            record.cover = resolvedCover;
+          }
+          if (!record.title) {
+            record.title = foundVol ? `${foundSeries.title} - ${foundVol.title || ('Volume ' + (foundVol.volume_number || 1))}` : foundSeries.title;
+          }
+        }
+      }
+    } catch (e) {
+      // Non-blocking
+    }
+    return record;
+  }
+
   static async saveProgress(userId, data = {}) {
     if (!userId) return null;
 
@@ -68,6 +110,9 @@ class ReadingProgressService {
       last_read_at: new Date(data.lastReadAt || Date.now()).toISOString(),
       updated_at: Date.now()
     };
+
+    // Enrichir avec catalog_db.json si couverture ou métadonnées manquantes
+    this.resolveCatalogMetadata(record);
 
     // 1. Sauvegarde locale (Garantie 100% sans latence)
     const local = this.loadLocalData();
@@ -118,7 +163,7 @@ class ReadingProgressService {
           .maybeSingle();
 
         if (!error && data) {
-          return {
+          const resObj = {
             userId: data.user_id,
             bookId: data.book_id,
             seriesId: data.series_id,
@@ -131,6 +176,8 @@ class ReadingProgressService {
             status: data.status || 'reading',
             lastReadAt: new Date(data.last_read_at).getTime()
           };
+          this.resolveCatalogMetadata(resObj);
+          return resObj;
         }
       } catch (e) {}
     }
@@ -140,7 +187,7 @@ class ReadingProgressService {
     if (local.users && local.users[userId]) {
       const u = local.users[userId];
       if (u._latest) {
-        return {
+        const resObj = {
           userId: u._latest.user_id,
           bookId: u._latest.book_id,
           seriesId: u._latest.series_id,
@@ -153,6 +200,8 @@ class ReadingProgressService {
           status: u._latest.status || 'reading',
           lastReadAt: new Date(u._latest.last_read_at).getTime()
         };
+        this.resolveCatalogMetadata(resObj);
+        return resObj;
       }
     }
 

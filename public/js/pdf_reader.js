@@ -541,6 +541,23 @@ window.checkIsDownloadRestricted = function(targetBook) {
   window.openBookReader = async function (book) {
     window.triggerReportOnboardingTip && window.triggerReportOnboardingTip();
     if (!book) return;
+
+    // Résolution automatique de la couverture si absente
+    if (!book.cover || (typeof book.cover === 'string' && book.cover.includes('default_cover.jpg'))) {
+      try {
+        const sId = book.seriesId || book.series_id;
+        const bId = book.id || book.bookId;
+        if (window.catalogDB && Array.isArray(window.catalogDB.series)) {
+          const s = window.catalogDB.series.find(ser => ser.id === sId || (ser.volumes && ser.volumes.some(v => v.id === bId)));
+          if (s) {
+            const vol = (s.volumes || []).find(v => v.id === bId);
+            book.cover = (vol && (vol.cover || vol.cover_url)) || s.cover || book.cover;
+            if (!book.seriesId) book.seriesId = s.id;
+          }
+        }
+      } catch (e) {}
+    }
+
     currentBookRef = book;
     window.currentBookRef = book;
     initWebtoonBottomBarEvents();

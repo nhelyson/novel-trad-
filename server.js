@@ -154,7 +154,17 @@ app.get('/uploads/covers/:filename', async (req, res, next) => {
     const filename = path.basename(req.params.filename);
     const origPath = path.join(__dirname, 'uploads', 'covers', filename);
 
-    if (!fs.existsSync(origPath)) return next();
+    if (!fs.existsSync(origPath)) {
+      if (filename === 'default_cover.jpg') {
+        const fallbackDefault = path.join(__dirname, 'public', 'img', 'default_cover.jpg');
+        if (fs.existsSync(fallbackDefault)) {
+          res.setHeader('Content-Type', 'image/jpeg');
+          res.setHeader('Cache-Control', 'public, max-age=86400');
+          return fs.createReadStream(fallbackDefault).pipe(res);
+        }
+      }
+      return next();
+    }
 
     // Si le client demande expressément l'original non compressé
     if (req.query.original === 'true') return next();
