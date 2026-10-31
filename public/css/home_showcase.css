@@ -8850,29 +8850,72 @@ html.theme-light .reader-review-textarea,
 
 
 /* =============================================================================
-   REFONTE ESPACE COMMENTAIRES, THREADED REPLIES & SPOILER SHIELD (NOVELTRAD 2026)
+   REFONTE ESPACE COMMENTAIRES DU LECTEUR (WEBNOVEL & MANGADEX PRO STYLE)
    ============================================================================= */
 
-/* Header amélioré */
+/* 1. CONTENEUR PRINCIPAL DU MODULE */
+.vol-comments-section {
+  border-radius: 18px !important;
+  background: #090d16 !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  padding: 24px 20px !important;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5) !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
+  color: #f1f5f9 !important;
+  box-sizing: border-box !important;
+}
+
+/* 2. EN-TÊTE DU MODULE (HEADER) */
+.vol-comments-header {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  flex-wrap: wrap !important;
+  gap: 16px !important;
+  padding-bottom: 20px !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07) !important;
+  margin-bottom: 20px !important;
+}
+
+.vol-comments-title-wrap {
+  display: flex !important;
+  align-items: center !important;
+  gap: 14px !important;
+}
+
 .vol-comments-icon-badge {
   width: 44px !important;
   height: 44px !important;
   border-radius: 12px !important;
-  background: linear-gradient(135deg, rgba(245, 158, 11, 0.25), rgba(217, 119, 6, 0.1)) !important;
-  border: 1px solid rgba(245, 158, 11, 0.35) !important;
+  background: linear-gradient(135deg, rgba(244, 63, 94, 0.22), rgba(190, 18, 60, 0.08)) !important;
+  border: 1px solid rgba(244, 63, 94, 0.35) !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
   font-size: 19px !important;
-  color: #fbbf24 !important;
-  box-shadow: 0 0 16px rgba(245, 158, 11, 0.2) !important;
+  color: #fb7185 !important;
+  box-shadow: 0 0 18px rgba(244, 63, 94, 0.18) !important;
   flex-shrink: 0 !important;
 }
 
 .vol-comments-title-texts {
   display: flex !important;
   flex-direction: column !important;
-  gap: 2px !important;
+  gap: 3px !important;
+}
+
+.vol-comments-headline-row {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+}
+
+.vol-comments-title {
+  margin: 0 !important;
+  font-size: 18px !important;
+  font-weight: 800 !important;
+  color: #ffffff !important;
+  letter-spacing: -0.02em !important;
 }
 
 .vol-comments-subtitle {
@@ -8882,13 +8925,147 @@ html.theme-light .reader-review-textarea,
   font-weight: 500 !important;
 }
 
-/* Zone de saisie d'avis (Input Box Redesign) */
+.vol-comments-count-pill {
+  font-size: 11.5px !important;
+  font-weight: 700 !important;
+  color: #fb7185 !important;
+  background: rgba(244, 63, 94, 0.14) !important;
+  border: 1px solid rgba(244, 63, 94, 0.3) !important;
+  padding: 2px 9px !important;
+  border-radius: 9999px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  line-height: 1.4 !important;
+}
+
+/* ONGLETS DE TRI (SORT TABS) */
+.vol-comments-sort-tabs {
+  display: flex !important;
+  align-items: center !important;
+  background: rgba(255, 255, 255, 0.04) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 10px !important;
+  padding: 3px !important;
+  gap: 4px !important;
+}
+
+.vol-sort-tab {
+  background: transparent !important;
+  border: none !important;
+  color: #94a3b8 !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  padding: 6px 14px !important;
+  border-radius: 8px !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  transition: all 0.18s ease !important;
+}
+
+.vol-sort-tab:hover {
+  color: #ffffff !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+}
+
+.vol-sort-tab.active {
+  background: linear-gradient(135deg, rgba(244, 63, 94, 0.28), rgba(225, 29, 72, 0.15)) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(244, 63, 94, 0.45) !important;
+  box-shadow: 0 2px 10px rgba(244, 63, 94, 0.2) !important;
+}
+
+/* 3. FORMULAIRE DE SAISIE PRINCIPAL (COMPOSER) */
+.vol-comment-input-box {
+  background: rgba(15, 23, 42, 0.75) !important;
+  border: 1px solid rgba(255, 255, 255, 0.09) !important;
+  border-radius: 16px !important;
+  padding: 18px 20px !important;
+  margin-bottom: 24px !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 8px 24px rgba(0, 0, 0, 0.3) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+}
+
 .vol-input-user-row {
   display: flex !important;
   align-items: center !important;
   justify-content: space-between !important;
   gap: 12px !important;
   margin-bottom: 12px !important;
+}
+
+.vol-user-profile-meta {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  min-width: 0 !important;
+}
+
+.vol-user-avatar {
+  width: 36px !important;
+  height: 36px !important;
+  border-radius: 50% !important;
+  background: #1e293b !important;
+  border: 1.5px solid rgba(244, 63, 94, 0.4) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  overflow: hidden !important;
+  color: #94a3b8 !important;
+  font-size: 14px !important;
+  flex-shrink: 0 !important;
+}
+
+.vol-user-avatar img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+}
+
+.vol-user-identity {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+
+.vol-user-name {
+  font-size: 13.5px !important;
+  font-weight: 700 !important;
+  color: #f8fafc !important;
+}
+
+.vol-guest-wrap {
+  position: relative !important;
+  display: inline-flex !important;
+  align-items: center !important;
+}
+
+.vol-guest-icon {
+  position: absolute !important;
+  left: 9px !important;
+  font-size: 11px !important;
+  color: #64748b !important;
+  pointer-events: none !important;
+}
+
+.vol-guest-name-input {
+  background: rgba(0, 0, 0, 0.4) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  border-radius: 8px !important;
+  color: #f1f5f9 !important;
+  font-size: 12px !important;
+  padding: 5px 10px 5px 28px !important;
+  outline: none !important;
+  max-width: 170px !important;
+  transition: all 0.2s ease !important;
+}
+
+.vol-guest-name-input:focus {
+  border-color: #f43f5e !important;
+  background: rgba(0, 0, 0, 0.6) !important;
+  box-shadow: 0 0 10px rgba(244, 63, 94, 0.25) !important;
 }
 
 .vol-input-meta-actions {
@@ -8909,24 +9086,66 @@ html.theme-light .reader-review-textarea,
   font-weight: 700 !important;
 }
 
+.vol-char-counter.at-limit {
+  color: #ef4444 !important;
+  font-weight: 700 !important;
+}
+
 .vol-login-link-btn {
-  background: rgba(245, 158, 11, 0.12) !important;
-  border: 1px solid rgba(245, 158, 11, 0.3) !important;
-  color: #fbbf24 !important;
+  background: rgba(244, 63, 94, 0.12) !important;
+  border: 1px solid rgba(244, 63, 94, 0.3) !important;
+  color: #fb7185 !important;
   font-size: 11.5px !important;
   font-weight: 700 !important;
   border-radius: 6px !important;
   padding: 4px 10px !important;
   cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 5px !important;
   transition: all 0.15s ease !important;
 }
 
 .vol-login-link-btn:hover {
-  background: rgba(245, 158, 11, 0.25) !important;
+  background: rgba(244, 63, 94, 0.25) !important;
   color: #ffffff !important;
 }
 
-/* Spoiler pill toggle */
+.vol-textarea-wrap {
+  position: relative !important;
+}
+
+.vol-comment-textarea {
+  width: 100% !important;
+  background: rgba(0, 0, 0, 0.45) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  border-radius: 12px !important;
+  color: #f8fafc !important;
+  font-family: inherit !important;
+  font-size: 14px !important;
+  line-height: 1.6 !important;
+  padding: 12px 14px !important;
+  box-sizing: border-box !important;
+  resize: vertical !important;
+  outline: none !important;
+  transition: border-color 0.2s, box-shadow 0.2s !important;
+}
+
+.vol-comment-textarea:focus {
+  border-color: #f43f5e !important;
+  box-shadow: 0 0 16px rgba(244, 63, 94, 0.28) !important;
+  background: rgba(0, 0, 0, 0.6) !important;
+}
+
+.vol-input-footer {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  margin-top: 12px !important;
+  flex-wrap: wrap !important;
+  gap: 10px !important;
+}
+
 .vol-spoiler-toggle {
   display: inline-flex !important;
   align-items: center !important;
@@ -8956,135 +9175,159 @@ html.theme-light .reader-review-textarea,
   background: rgba(239, 68, 68, 0.18) !important;
   border-color: rgba(239, 68, 68, 0.45) !important;
   color: #fca5a5 !important;
-  box-shadow: 0 0 10px rgba(239, 68, 68, 0.25) !important;
+  box-shadow: 0 0 12px rgba(239, 68, 68, 0.25) !important;
 }
 
-/* Spoiler Shield sur le commentaire */
-.vol-spoiler-shield {
+.vol-submit-btn {
+  background: linear-gradient(135deg, #e11d48 0%, #be123c 100%) !important;
+  color: #ffffff !important;
+  border: none !important;
+  font-weight: 700 !important;
+  font-size: 13px !important;
+  padding: 9px 20px !important;
   border-radius: 10px !important;
-  overflow: hidden !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  box-shadow: 0 4px 16px rgba(225, 29, 72, 0.35) !important;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease !important;
 }
 
-.vol-spoiler-banner {
-  background: rgba(239, 68, 68, 0.12) !important;
-  border: 1px solid rgba(239, 68, 68, 0.3) !important;
-  border-radius: 8px !important;
-  padding: 8px 12px !important;
+.vol-submit-btn:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 6px 22px rgba(225, 29, 72, 0.5) !important;
+}
+
+.vol-submit-btn:disabled {
+  opacity: 0.65 !important;
+  cursor: not-allowed !important;
+  transform: none !important;
+}
+
+/* 4. CARTES DE COMMENTAIRES (CARDS) */
+.vol-comments-feed {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 16px !important;
+}
+
+.vol-comment-card {
+  background: rgba(15, 23, 42, 0.65) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 14px !important;
+  padding: 16px 18px !important;
+  transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease !important;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.25) !important;
+}
+
+.vol-comment-card:hover {
+  border-color: rgba(244, 63, 94, 0.25) !important;
+}
+
+.vol-comment-card.is-top-rank {
+  border-color: rgba(245, 158, 11, 0.4) !important;
+  background: linear-gradient(180deg, rgba(245, 158, 11, 0.05) 0%, rgba(15, 23, 42, 0.7) 100%) !important;
+}
+
+.vol-card-header {
+  display: flex !important;
+  align-items: flex-start !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+  margin-bottom: 10px !important;
+}
+
+.vol-card-author-group {
   display: flex !important;
   align-items: center !important;
-  justify-content: space-between !important;
-  font-size: 12.5px !important;
-  color: #fca5a5 !important;
-  font-weight: 600 !important;
-  gap: 8px !important;
+  gap: 10px !important;
+  min-width: 0 !important;
 }
 
-.vol-btn-reveal-spoiler {
-  background: rgba(239, 68, 68, 0.25) !important;
-  border: 1px solid rgba(239, 68, 68, 0.4) !important;
-  color: #ffffff !important;
-  font-size: 11.5px !important;
-  font-weight: 700 !important;
-  padding: 3px 10px !important;
-  border-radius: 6px !important;
-  cursor: pointer !important;
-  transition: background 0.15s !important;
-}
-
-.vol-btn-reveal-spoiler:hover {
-  background: rgba(239, 68, 68, 0.45) !important;
-}
-
-.vol-spoiler-content {
-  margin-top: 8px !important;
-  padding-left: 4px !important;
-}
-
-/* Boutons d'action : J'aime & Répondre */
-.vol-btn-like {
-  background: rgba(255, 255, 255, 0.05) !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+.vol-card-avatar {
+  width: 38px !important;
+  height: 38px !important;
+  border-radius: 50% !important;
+  background: #1e293b !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.12) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  overflow: hidden !important;
   color: #94a3b8 !important;
-  font-size: 12.5px !important;
-  font-weight: 600 !important;
-  border-radius: 9999px !important;
-  padding: 5px 12px !important;
-  display: inline-flex !important;
+  font-size: 14px !important;
+  flex-shrink: 0 !important;
+}
+
+.vol-card-avatar-img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+}
+
+.vol-card-author-meta {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 2px !important;
+}
+
+.vol-card-name-row {
+  display: flex !important;
   align-items: center !important;
+  flex-wrap: wrap !important;
   gap: 6px !important;
-  cursor: pointer !important;
-  transition: all 0.2s ease !important;
 }
 
-.vol-btn-like:hover {
-  background: rgba(244, 63, 94, 0.15) !important;
-  border-color: rgba(244, 63, 94, 0.35) !important;
-  color: #fb7185 !important;
-}
-
-.vol-btn-like.liked {
-  background: rgba(244, 63, 94, 0.2) !important;
-  border-color: rgba(244, 63, 94, 0.5) !important;
-  color: #f43f5e !important;
-}
-
-.vol-btn-like.liked i {
-  color: #f43f5e !important;
-  animation: volHeartPulse 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
-}
-
-@keyframes volHeartPulse {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.4); }
-  100% { transform: scale(1); }
-}
-
-.vol-btn-reply {
-  background: rgba(255, 255, 255, 0.05) !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
-  color: #cbd5e1 !important;
-  font-size: 12px !important;
-  font-weight: 600 !important;
-  border-radius: 9999px !important;
-  padding: 5px 12px !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  gap: 6px !important;
-  cursor: pointer !important;
-  transition: all 0.2s ease !important;
-}
-
-.vol-btn-reply:hover {
-  background: rgba(245, 158, 11, 0.18) !important;
-  border-color: rgba(245, 158, 11, 0.45) !important;
-  color: #fbbf24 !important;
-  transform: translateY(-1px) !important;
-}
-
-.vol-reply-count-badge {
-  background: rgba(245, 158, 11, 0.25) !important;
-  color: #f59e0b !important;
-  border-radius: 10px !important;
-  font-size: 10.5px !important;
+.vol-card-username {
+  font-size: 14px !important;
   font-weight: 700 !important;
-  padding: 1px 6px !important;
+  color: #f8fafc !important;
 }
 
-/* Badge mention réponse */
-.vol-reply-to-pill {
-  font-size: 11px !important;
-  font-weight: 600 !important;
-  color: #fbbf24 !important;
-  background: rgba(245, 158, 11, 0.15) !important;
-  border: 1px solid rgba(245, 158, 11, 0.3) !important;
-  padding: 2px 8px !important;
-  border-radius: 6px !important;
+.vol-card-time {
+  font-size: 11.5px !important;
+  color: #64748b !important;
   display: inline-flex !important;
   align-items: center !important;
   gap: 4px !important;
 }
 
-/* Badges Top Rangs Spotlight */
+.vol-badge-role {
+  font-size: 10.5px !important;
+  font-weight: 700 !important;
+  padding: 1px 7px !important;
+  border-radius: 6px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.03em !important;
+}
+
+.vol-badge-role.admin {
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.25), rgba(244, 63, 94, 0.2)) !important;
+  border: 1px solid rgba(244, 63, 94, 0.45) !important;
+  color: #fb7185 !important;
+}
+
+.vol-badge-role.vip {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.25), rgba(217, 119, 6, 0.15)) !important;
+  border: 1px solid rgba(245, 158, 11, 0.4) !important;
+  color: #fbbf24 !important;
+}
+
+.vol-badge-role.member {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: #94a3b8 !important;
+}
+
+.vol-badge-top-rank {
+  font-size: 10.5px !important;
+  font-weight: 800 !important;
+  padding: 2px 7px !important;
+  border-radius: 6px !important;
+  border: 1px solid transparent !important;
+}
+
 .vol-badge-top-rank.rank-1 {
   background: linear-gradient(135deg, rgba(245, 158, 11, 0.3), rgba(217, 119, 6, 0.15)) !important;
   border-color: rgba(245, 158, 11, 0.5) !important;
@@ -9103,13 +9346,178 @@ html.theme-light .reader-review-textarea,
   color: #fcd34d !important;
 }
 
-/* Tiroir de réponse inline */
+.vol-btn-delete {
+  background: transparent !important;
+  border: none !important;
+  color: #64748b !important;
+  cursor: pointer !important;
+  font-size: 13px !important;
+  padding: 4px 6px !important;
+  border-radius: 4px !important;
+  transition: all 0.15s ease !important;
+}
+
+.vol-btn-delete:hover {
+  color: #ef4444 !important;
+  background: rgba(239, 68, 68, 0.15) !important;
+}
+
+.vol-card-body {
+  margin-bottom: 12px !important;
+}
+
+.vol-comment-text {
+  font-size: 14px !important;
+  line-height: 1.65 !important;
+  color: #cbd5e1 !important;
+  word-break: break-word !important;
+  white-space: pre-line !important;
+}
+
+/* SPOILERS (SHIELD PRO) */
+.vol-spoiler-shield {
+  border-radius: 10px !important;
+  overflow: hidden !important;
+  border: 1px dashed rgba(239, 68, 68, 0.35) !important;
+  background: rgba(239, 68, 68, 0.06) !important;
+  padding: 10px 12px !important;
+}
+
+.vol-spoiler-banner {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 10px !important;
+}
+
+.vol-spoiler-banner-left {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  font-size: 12.5px !important;
+  color: #fca5a5 !important;
+  font-weight: 600 !important;
+}
+
+.vol-btn-reveal-spoiler {
+  background: rgba(239, 68, 68, 0.25) !important;
+  border: 1px solid rgba(239, 68, 68, 0.45) !important;
+  color: #ffffff !important;
+  font-size: 11.5px !important;
+  font-weight: 700 !important;
+  padding: 4px 10px !important;
+  border-radius: 6px !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+  transition: background 0.15s !important;
+}
+
+.vol-btn-reveal-spoiler:hover {
+  background: rgba(239, 68, 68, 0.45) !important;
+}
+
+.vol-spoiler-content {
+  margin-top: 10px !important;
+  padding-top: 10px !important;
+  border-top: 1px dashed rgba(239, 68, 68, 0.25) !important;
+}
+
+.vol-spoiler-content.hidden {
+  display: none !important;
+}
+
+/* PIED DE CARTE (ACTIONS : LIKE & RÉPONDRE) */
+.vol-card-footer {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+
+.vol-btn-like {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: #94a3b8 !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  border-radius: 9999px !important;
+  padding: 5px 12px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+}
+
+.vol-btn-like:hover {
+  background: rgba(244, 63, 94, 0.15) !important;
+  border-color: rgba(244, 63, 94, 0.35) !important;
+  color: #fb7185 !important;
+}
+
+.vol-btn-like.has-likes {
+  color: #cbd5e1 !important;
+}
+
+.vol-btn-like.liked {
+  background: rgba(244, 63, 94, 0.2) !important;
+  border-color: rgba(244, 63, 94, 0.5) !important;
+  color: #f43f5e !important;
+}
+
+.vol-btn-like.liked i {
+  color: #f43f5e !important;
+  animation: volHeartPulse 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+}
+
+@keyframes volHeartPulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.35); }
+  100% { transform: scale(1); }
+}
+
+.vol-btn-reply,
+.vol-btn-reply-nested {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: #cbd5e1 !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  border-radius: 9999px !important;
+  padding: 5px 12px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+}
+
+.vol-btn-reply:hover,
+.vol-btn-reply-nested:hover {
+  background: rgba(244, 63, 94, 0.18) !important;
+  border-color: rgba(244, 63, 94, 0.45) !important;
+  color: #fb7185 !important;
+  transform: translateY(-1px) !important;
+}
+
+.vol-reply-count-badge {
+  background: rgba(244, 63, 94, 0.25) !important;
+  color: #fb7185 !important;
+  border-radius: 10px !important;
+  font-size: 10.5px !important;
+  font-weight: 700 !important;
+  padding: 1px 6px !important;
+}
+
+/* 5. TIROIR DE RÉPONSE DIRECTE (INLINE REPLY COMPOSER) */
 .vol-reply-drawer {
-  margin-top: 12px !important;
+  margin-top: 14px !important;
   padding: 14px 16px !important;
   border-radius: 12px !important;
-  background: rgba(15, 23, 42, 0.75) !important;
-  border: 1px solid rgba(245, 158, 11, 0.35) !important;
+  background: rgba(15, 23, 42, 0.85) !important;
+  border: 1px solid rgba(244, 63, 94, 0.35) !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4) !important;
   animation: volReplySlideIn 0.24s cubic-bezier(0.16, 1, 0.3, 1) !important;
 }
 
@@ -9133,7 +9541,7 @@ html.theme-light .reader-review-textarea,
 
 .vol-reply-textarea {
   width: 100% !important;
-  background: rgba(0, 0, 0, 0.45) !important;
+  background: rgba(0, 0, 0, 0.5) !important;
   border: 1px solid rgba(255, 255, 255, 0.14) !important;
   border-radius: 8px !important;
   color: #f8fafc !important;
@@ -9147,8 +9555,8 @@ html.theme-light .reader-review-textarea,
 }
 
 .vol-reply-textarea:focus {
-  border-color: #f59e0b !important;
-  box-shadow: 0 0 12px rgba(245, 158, 11, 0.35) !important;
+  border-color: #f43f5e !important;
+  box-shadow: 0 0 14px rgba(244, 63, 94, 0.3) !important;
 }
 
 .vol-reply-actions-row {
@@ -9177,9 +9585,9 @@ html.theme-light .reader-review-textarea,
 }
 
 .vol-btn-send-reply {
-  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
-  color: #000 !important;
-  font-weight: 800 !important;
+  background: linear-gradient(135deg, #e11d48 0%, #be123c 100%) !important;
+  color: #ffffff !important;
+  font-weight: 700 !important;
   border: none !important;
   border-radius: 6px !important;
   padding: 6px 16px !important;
@@ -9188,29 +9596,73 @@ html.theme-light .reader-review-textarea,
   display: inline-flex !important;
   align-items: center !important;
   gap: 6px !important;
+  box-shadow: 0 2px 10px rgba(225, 29, 72, 0.35) !important;
   transition: all 0.15s ease !important;
 }
 
 .vol-btn-send-reply:hover {
   transform: translateY(-1px) !important;
-  box-shadow: 0 0 14px rgba(245, 158, 11, 0.45) !important;
+  box-shadow: 0 4px 16px rgba(225, 29, 72, 0.5) !important;
 }
 
-/* Fil de discussion des réponses (Thread) */
+/* 6. ACCORDÉON ET ARBORESCENCE DES RÉPONSES (THREAD TREE) */
+.vol-thread-toggle-row {
+  margin-top: 10px !important;
+}
+
+.vol-btn-toggle-thread {
+  background: transparent !important;
+  border: none !important;
+  color: #fb7185 !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  padding: 4px 0 !important;
+  transition: color 0.15s ease !important;
+}
+
+.vol-btn-toggle-thread:hover {
+  color: #fda4af !important;
+}
+
+.vol-thread-chevron {
+  font-size: 10px !important;
+  transition: transform 0.2s ease !important;
+}
+
 .vol-replies-thread {
-  margin-top: 14px !important;
+  margin-top: 12px !important;
   padding-left: 18px !important;
-  border-left: 2px solid rgba(245, 158, 11, 0.35) !important;
+  border-left: 2px solid rgba(244, 63, 94, 0.35) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 10px !important;
+}
+
+.vol-replies-thread.hidden {
+  display: none !important;
+}
+
+.vol-replies-list {
   display: flex !important;
   flex-direction: column !important;
   gap: 10px !important;
 }
 
 .vol-reply-card {
-  background: rgba(255, 255, 255, 0.02) !important;
+  background: rgba(0, 0, 0, 0.35) !important;
   border: 1px solid rgba(255, 255, 255, 0.06) !important;
   border-radius: 10px !important;
   padding: 12px 14px !important;
+}
+
+.vol-reply-card .vol-card-avatar {
+  width: 30px !important;
+  height: 30px !important;
+  font-size: 12px !important;
 }
 
 .vol-reply-card .vol-card-username {
@@ -9221,6 +9673,120 @@ html.theme-light .reader-review-textarea,
   font-size: 13.5px !important;
   line-height: 1.55 !important;
 }
+
+.vol-reply-to-pill {
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  color: #fb7185 !important;
+  background: rgba(244, 63, 94, 0.15) !important;
+  border: 1px solid rgba(244, 63, 94, 0.3) !important;
+  padding: 2px 7px !important;
+  border-radius: 6px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+}
+
+/* 7. SPOTLIGHT TOP 3 (HALL OF FAME) */
+.vol-top-spotlight {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.08), rgba(217, 119, 6, 0.02)) !important;
+  border: 1px solid rgba(245, 158, 11, 0.3) !important;
+  border-radius: 14px !important;
+  padding: 16px 18px !important;
+  margin-bottom: 24px !important;
+}
+
+.vol-top-spotlight-title {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  font-size: 13px !important;
+  font-weight: 800 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.04em !important;
+  color: #fbbf24 !important;
+  margin-bottom: 12px !important;
+}
+
+.vol-top-spotlight-list {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 12px !important;
+}
+
+/* 8. ÉTATS VIDES ET CHARGEMENT */
+.vol-feed-loading,
+.vol-feed-empty {
+  text-align: center !important;
+  padding: 36px 20px !important;
+  color: #94a3b8 !important;
+}
+
+.vol-feed-loading {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 10px !important;
+  font-size: 14px !important;
+}
+
+.vol-feed-empty h4 {
+  margin: 12px 0 6px 0 !important;
+  color: #f1f5f9 !important;
+  font-size: 16px !important;
+  font-weight: 700 !important;
+}
+
+.vol-feed-empty p {
+  margin: 0 !important;
+  font-size: 13.5px !important;
+  color: #64748b !important;
+  max-width: 420px !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+.empty-icon-wrap {
+  width: 54px !important;
+  height: 54px !important;
+  border-radius: 50% !important;
+  background: rgba(255, 255, 255, 0.04) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 24px !important;
+  color: #64748b !important;
+  margin: 0 auto 12px auto !important;
+}
+
+/* =============================================================================
+   ADAPTATION TIROIR LATÉRAL DU LECTEUR (VOL-COMMENTS-DRAWER)
+   ============================================================================= */
+.vol-comments-drawer {
+  background: #080c14 !important;
+  border-left: 1px solid rgba(255, 255, 255, 0.09) !important;
+  box-shadow: -12px 0 48px rgba(0, 0, 0, 0.85) !important;
+}
+
+.vol-drawer-header {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+  background: rgba(13, 17, 26, 0.95) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+}
+
+.vol-drawer-content-mount {
+  padding: 16px !important;
+}
+
+.vol-drawer-content-mount .vol-comments-section {
+  padding: 0 !important;
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
 
 /* =============================================================================
    BANDEAU FLOTTANT "REPRENDRE LA LECTURE" (CROSS-DEVICE)
