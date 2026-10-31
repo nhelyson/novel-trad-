@@ -1,8 +1,14 @@
 /**
- * inline_comments.js -> Evolved into Webtoon-style End-of-Volume Comments (NovelTrad)
+ * inline_comments.js - Espace Commentaires & Débats de Tome / Webtoon (NovelTrad 2026)
  * 
- * In-line paragraph reader module (distraction-free mode).
- * - End-of-Volume Webtoon comment system (Top comments, like/unlike, spoilers, guest/member auth).
+ * Refonte complète UI/UX :
+ * - Fils de discussion imbriqués (Threaded Replies) avec mention @Auteur
+ * - Classement dynamique (Top Avis populaires vs Récents)
+ * - Spotlight Top 3 (Hall of Fame) avec médailles dorées
+ * - Détection et bascule interactive des Spoilers (Blur & Reveal)
+ * - Identité visiteur (guest) persistante avec sauvegarde automatique du pseudo
+ * - Compteur de likes avec micro-animations et états actifs
+ * - Compteur de caractères en direct et raccourcis d'action
  */
 (function() {
   'use strict';
@@ -38,16 +44,10 @@
   }
 
   // =========================================================================
-  //  1. SAFE NO-OP FOR LEGACY IN-LINE CALLS (PREVENTS ANY CRASHES)
+  //  1. SAFE NO-OP FOR LEGACY IN-LINE CALLS
   // =========================================================================
-  window.initInlineParagraphComments = function() {
-    // In-line reader overlay disabled in minimalist view.
-  };
-
-  window.openParagraphComments = function() {
-    // Legacy drawer fallback
-  };
-
+  window.initInlineParagraphComments = function() {};
+  window.openParagraphComments = function() {};
   window.closeParagraphComments = function() {
     const drawer = document.getElementById('paraCommentsDrawer');
     const backdrop = document.getElementById('paraCommentsBackdrop');
@@ -56,7 +56,7 @@
   };
 
   // =========================================================================
-  //  2. WEBTOON END-OF-VOLUME COMMENTS ENGINE
+  //  2. WEBTOON END-OF-VOLUME COMMENTS ENGINE (REFONTE COMPLÈTE)
   // =========================================================================
   window.renderVolumeCommentsSection = function(mountContainer, bookKey, options) {
     if (!mountContainer || !bookKey) return;
@@ -64,34 +64,40 @@
 
     const cleanBookKey = String(bookKey);
     let commentsData = [];
-    let activeSort = 'top'; // 'top' or 'recent'
+    let activeSort = 'top'; // 'top' ou 'recent'
     let isSubmitting = false;
 
-    // Render skeleton layout
+    // Rendu du squelette de l'espace commentaire
     mountContainer.innerHTML = `
-      <section class="vol-comments-section" id="volCommentsSection_${cleanBookKey}" aria-label="Commentaires du volume">
+      <section class="vol-comments-section" id="volCommentsSection_${cleanBookKey}" aria-label="Commentaires et avis du volume">
         
-        <!-- Header with Webtoon tabs -->
+        <!-- HEADER MODERNE -->
         <div class="vol-comments-header">
           <div class="vol-comments-title-wrap">
-            <h3 class="vol-comments-title">
+            <div class="vol-comments-icon-badge">
               <i class="fa-solid fa-comments"></i>
-              <span>Espace Débat & Avis</span>
-            </h3>
-            <span class="vol-comments-count-pill" id="volCommentsCountBadge">Chargement...</span>
+            </div>
+            <div class="vol-comments-title-texts">
+              <h3 class="vol-comments-title">Avis & Discussions</h3>
+              <p class="vol-comments-subtitle">Partagez vos ressentis, théories et soutiens à l'équipe</p>
+            </div>
+            <span class="vol-comments-count-pill" id="volCommentsCountBadge">
+              <i class="fa-solid fa-spinner fa-spin"></i>
+            </span>
           </div>
 
-          <div class="vol-comments-sort-tabs" role="tablist">
+          <!-- ONGLETS DE TRI -->
+          <div class="vol-comments-sort-tabs" role="tablist" aria-label="Trier les commentaires">
             <button type="button" class="vol-sort-tab active" data-sort="top" title="Trier par votes">
-              <i class="fa-solid fa-fire"></i> <span>Top Avis</span>
+              <i class="fa-solid fa-fire"></i> <span>Populaires</span>
             </button>
             <button type="button" class="vol-sort-tab" data-sort="recent" title="Trier par date">
-              <i class="fa-solid fa-clock"></i> <span>Plus Récents</span>
+              <i class="fa-solid fa-clock"></i> <span>Récents</span>
             </button>
           </div>
         </div>
 
-        <!-- Submission Box -->
+        <!-- FORMULAIRE DE SAISIE PRINCIPAL -->
         <div class="vol-comment-input-box" id="volCommentInputBox">
           <div class="vol-input-user-row">
             <div class="vol-user-avatar" id="volInputAvatar">
@@ -99,27 +105,36 @@
             </div>
             <div class="vol-user-identity" id="volUserIdentity">
               <span class="vol-user-name" id="volInputUserName">Lecteur</span>
-              <input type="text" id="volGuestNameInput" class="vol-guest-name-input hidden" placeholder="Votre pseudo (ex: SoloFan)" maxlength="24">
+              <input type="text" id="volGuestNameInput" class="vol-guest-name-input hidden" placeholder="Votre pseudo (ex: SoloFan)" maxlength="24" autocomplete="nickname">
             </div>
-            <button type="button" id="volLoginPromptBtn" class="vol-login-link-btn hidden">
-              <i class="fa-solid fa-right-to-bracket"></i> Se connecter
-            </button>
+            <div class="vol-input-meta-actions">
+              <span class="vol-char-counter" id="volCharCounter">0 / 1000</span>
+              <button type="button" id="volLoginPromptBtn" class="vol-login-link-btn hidden">
+                <i class="fa-solid fa-right-to-bracket"></i> Se connecter
+              </button>
+            </div>
           </div>
 
-          <textarea id="volCommentText" class="vol-comment-textarea" placeholder="Qu'avez-vous pensé de ce tome ? Vos scènes préférées, théories ou mot pour les traducteurs..." rows="3" maxlength="1000"></textarea>
+          <div class="vol-textarea-wrap">
+            <textarea id="volCommentText" class="vol-comment-textarea" placeholder="Qu'avez-vous pensé de ce tome ? Vos scènes préférées, théories ou mot pour les traducteurs..." rows="3" maxlength="1000"></textarea>
+          </div>
 
           <div class="vol-input-footer">
-            <label class="vol-spoiler-toggle">
+            <label class="vol-spoiler-toggle" title="Masquer le texte sous un avertissement de spoiler">
               <input type="checkbox" id="volSpoilerCheck">
-              <span><i class="fa-solid fa-triangle-exclamation"></i> Contient un spoiler</span>
+              <span class="vol-spoiler-pill">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                <span>Contient un spoiler</span>
+              </span>
             </label>
             <button type="button" id="volSubmitCommentBtn" class="vol-submit-btn">
-              <i class="fa-solid fa-paper-plane"></i> <span>Publier</span>
+              <i class="fa-solid fa-paper-plane"></i>
+              <span>Publier mon avis</span>
             </button>
           </div>
         </div>
 
-        <!-- Top Comments Spotlight (Webtoon Top 3) -->
+        <!-- SPOTLIGHT TOP 3 (Webtoon Hall of Fame) -->
         <div class="vol-top-spotlight hidden" id="volTopSpotlight">
           <div class="vol-top-spotlight-title">
             <i class="fa-solid fa-crown" style="color:#f59e0b;"></i>
@@ -128,7 +143,7 @@
           <div class="vol-top-spotlight-list" id="volTopSpotlightList"></div>
         </div>
 
-        <!-- Full Comments List -->
+        <!-- FLUX PRINCIPAL DES COMMENTAIRES -->
         <div class="vol-comments-feed" id="volCommentsFeed">
           <div class="vol-feed-loading">
             <i class="fa-solid fa-circle-notch fa-spin"></i>
@@ -139,12 +154,14 @@
       </section>
     `;
 
+    // Éléments du DOM
     const countBadge = mountContainer.querySelector('#volCommentsCountBadge');
     const sortTabs = mountContainer.querySelectorAll('.vol-sort-tab');
     const feed = mountContainer.querySelector('#volCommentsFeed');
     const topSpotlight = mountContainer.querySelector('#volTopSpotlight');
     const topSpotlightList = mountContainer.querySelector('#volTopSpotlightList');
     const textarea = mountContainer.querySelector('#volCommentText');
+    const charCounter = mountContainer.querySelector('#volCharCounter');
     const submitBtn = mountContainer.querySelector('#volSubmitCommentBtn');
     const spoilerCheck = mountContainer.querySelector('#volSpoilerCheck');
     const avatarEl = mountContainer.querySelector('#volInputAvatar');
@@ -152,7 +169,7 @@
     const guestInput = mountContainer.querySelector('#volGuestNameInput');
     const loginPromptBtn = mountContainer.querySelector('#volLoginPromptBtn');
 
-    // Update user display in form
+    // Mise à jour de l'identité de l'utilisateur
     function updateFormIdentity() {
       const auth = window.authManager;
       if (auth && auth.currentUser) {
@@ -171,10 +188,10 @@
         if (avatar) {
           avatarEl.innerHTML = `<img src="${avatar}" alt="${escapeHtml(pseudo)}">`;
         } else {
-          avatarEl.innerHTML = '<i class="fa-solid fa-user"></i>';
+          avatarEl.innerHTML = '<i class="fa-solid fa-user-check"></i>';
         }
       } else {
-        // Guest mode
+        // Mode Invité (Guest)
         userNameEl.classList.add('hidden');
         guestInput.classList.remove('hidden');
         loginPromptBtn.classList.remove('hidden');
@@ -186,6 +203,7 @@
     }
     updateFormIdentity();
 
+    // Raccourci vers la modal de connexion
     if (loginPromptBtn) {
       loginPromptBtn.addEventListener('click', () => {
         if (typeof window.openAuthModal === 'function') {
@@ -197,7 +215,16 @@
       });
     }
 
-    // Sort tabs handler
+    // Compteur de caractères en direct
+    if (textarea && charCounter) {
+      textarea.addEventListener('input', () => {
+        const len = textarea.value.length;
+        charCounter.textContent = `${len} / 1000`;
+        charCounter.classList.toggle('near-limit', len > 850);
+      });
+    }
+
+    // Gestion du tri
     sortTabs.forEach(tab => {
       tab.addEventListener('click', () => {
         const s = tab.getAttribute('data-sort');
@@ -208,7 +235,7 @@
       });
     });
 
-    // Fetch comments from API
+    // Chargement des commentaires depuis l'API
     async function loadVolumeComments() {
       try {
         const resp = await fetch(`/api/comments/${encodeURIComponent(cleanBookKey)}/volume_end`);
@@ -216,7 +243,9 @@
         const data = await resp.json();
         commentsData = Array.isArray(data.comments) ? data.comments : [];
         renderCommentsList();
-        if (typeof window.refreshVolumeCommentsBadge === "function") window.refreshVolumeCommentsBadge(cleanBookKey);
+        if (typeof window.refreshVolumeCommentsBadge === "function") {
+          window.refreshVolumeCommentsBadge(cleanBookKey);
+        }
       } catch (err) {
         console.warn('[VolumeComments] Erreur chargement:', err);
         feed.innerHTML = `
@@ -225,17 +254,18 @@
             <p>Impossible de charger les avis pour le moment.</p>
           </div>
         `;
-        countBadge.textContent = '0';
+        if (countBadge) countBadge.textContent = '0 avis';
       }
     }
 
-        function renderCommentsList() {
+    // Rendu visuel de la liste
+    function renderCommentsList() {
       const count = commentsData.length;
       if (countBadge) {
-        countBadge.textContent = count + (count > 1 ? ' avis' : ' avis');
+        countBadge.textContent = `${count} avis`;
       }
 
-      // 1. TOP SPOTLIGHT (Uniquement commentaires principaux)
+      // 1. TOP SPOTLIGHT (Commentaires principaux les plus aimés)
       const topLevelAll = commentsData.filter(c => !c.parent_id);
       const likedComments = [...topLevelAll].filter(c => (c.likes || 0) > 0);
       likedComments.sort((a, b) => (b.likes || 0) - (a.likes || 0));
@@ -252,7 +282,7 @@
         topSpotlightList.innerHTML = '';
       }
 
-      // 2. MAIN FEED
+      // 2. ÉTAT VIDE
       if (count === 0) {
         feed.innerHTML = `
           <div class="vol-feed-empty">
@@ -264,7 +294,7 @@
         return;
       }
 
-      // Séparer les commentaires principaux et les réponses
+      // Séparation des commentaires principaux et de leurs réponses
       const topLevelComments = commentsData.filter(c => !c.parent_id);
       const repliesMap = new Map();
       commentsData.filter(c => c.parent_id).forEach(r => {
@@ -272,12 +302,12 @@
         repliesMap.get(r.parent_id).push(r);
       });
 
-      // Trier les réponses par ordre chronologique
+      // Tri des réponses chronologique (plus ancienne en premier)
       repliesMap.forEach(list => {
         list.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
       });
 
-      // Trier les commentaires principaux
+      // Tri des commentaires principaux
       if (activeSort === 'top') {
         topLevelComments.sort((a, b) => (b.likes || 0) - (a.likes || 0) || new Date(b.created_at) - new Date(a.created_at));
       } else {
@@ -293,6 +323,7 @@
       bindFeedEvents();
     }
 
+    // Construction du DOM d'une carte de commentaire
     function buildCommentCard(c, isTopCard, rank, isReply = false, replies = []) {
       const card = document.createElement('div');
       card.className = isReply 
@@ -311,41 +342,44 @@
         : '';
 
       const topBadgeMarkup = isTopCard
-        ? `<span class="vol-badge-top-rank"><i class="fa-solid fa-crown"></i> TOP ${rank || ''}</span>`
+        ? `<span class="vol-badge-top-rank rank-${rank || 1}"><i class="fa-solid fa-crown"></i> TOP ${rank || ''}</span>`
         : '';
 
       const relTime = formatRelativeTime(c.created_at);
 
-      // Spoiler wrapper
+      // Traitement des Spoilers
       let contentMarkup = '';
       if (c.is_spoiler) {
         contentMarkup = `
-          <div class="vol-spoiler-box" onclick="this.classList.toggle('revealed')">
+          <div class="vol-spoiler-shield" id="spShield-${c.id}">
             <div class="vol-spoiler-banner">
-              <i class="fa-solid fa-triangle-exclamation"></i>
-              <span>Attention Spoiler</span>
-              <em>(Cliquer pour révéler)</em>
+              <i class="fa-solid fa-eye-slash"></i>
+              <span>Ce commentaire contient un spoiler</span>
+              <button type="button" class="vol-btn-reveal-spoiler" data-cid="${c.id}">Afficher</button>
             </div>
-            <div class="vol-spoiler-text">${escapeHtml(c.content)}</div>
+            <div class="vol-comment-text vol-spoiler-content hidden" id="spContent-${c.id}">
+              ${escapeHtml(c.content)}
+            </div>
           </div>
         `;
       } else {
-        contentMarkup = `<p class="vol-comment-text">${escapeHtml(c.content)}</p>`;
+        contentMarkup = `<div class="vol-comment-text">${escapeHtml(c.content)}</div>`;
       }
 
+      // Droits de suppression
       const auth = window.authManager;
       const currentUserId = auth && auth.currentUser ? auth.currentUser.id : null;
       const isAdmin = auth && auth.isAdmin && auth.isAdmin();
       const canDelete = isAdmin || (currentUserId && currentUserId === c.user_id);
 
-      // Reply badge if this is a reply
+      // Badge de mention pour une réponse
       const replyToMarkup = (isReply && c.excerpt && c.excerpt.startsWith('Réponse à '))
         ? `<span class="vol-reply-to-pill"><i class="fa-solid fa-reply fa-xs"></i> ${escapeHtml(c.excerpt)}</span>`
         : '';
 
+      // Section des réponses imbriquées
       let repliesSectionMarkup = '';
       if (!isReply) {
-        // Build thread of replies
         let repliesHtml = '';
         if (replies.length > 0) {
           replies.forEach(r => {
@@ -372,7 +406,7 @@
             </div>
           </div>
 
-          <!-- Fil de discussion des réponses -->
+          <!-- Fil de discussion des réponses (Thread) -->
           <div class="vol-replies-thread ${replies.length > 0 ? '' : 'hidden'}" id="repliesThread-${c.id}">
             <div class="vol-replies-list" id="repliesList-${c.id}">
               ${repliesHtml}
@@ -392,7 +426,7 @@
                 ${roleBadge}
                 ${topBadgeMarkup}
               </div>
-              <span class="vol-card-time">${relTime}</span>
+              <span class="vol-card-time"><i class="fa-regular fa-clock fa-2xs"></i> ${relTime}</span>
             </div>
           </div>
           ${canDelete ? `<button type="button" class="vol-btn-delete" data-cid="${c.id}" title="Supprimer ce commentaire"><i class="fa-regular fa-trash-can"></i></button>` : ''}
@@ -403,7 +437,7 @@
         </div>
 
         <div class="vol-card-footer">
-          <button type="button" class="vol-btn-like ${(c.likes > 0) ? 'has-likes' : ''}" data-cid="${c.id}">
+          <button type="button" class="vol-btn-like ${(c.likes > 0) ? 'has-likes' : ''}" data-cid="${c.id}" title="J'aime">
             <i class="fa-regular fa-heart"></i>
             <span class="vol-like-count">${c.likes || 0}</span>
           </button>
@@ -422,8 +456,23 @@
       return card;
     }
 
+    // Liaison des événements sur les cartes
     function bindFeedEvents() {
-      // 1. Bouton Répondre : ouvre le tiroir inline
+      // 1. Défloutage / Bascule des spoilers
+      mountContainer.querySelectorAll('.vol-btn-reveal-spoiler').forEach(btn => {
+        btn.onclick = (e) => {
+          e.stopPropagation();
+          const cId = btn.getAttribute('data-cid');
+          const content = mountContainer.querySelector('#spContent-' + cId);
+          if (content) {
+            const isHidden = content.classList.contains('hidden');
+            content.classList.toggle('hidden');
+            btn.textContent = isHidden ? 'Masquer' : 'Afficher';
+          }
+        };
+      });
+
+      // 2. Bouton Répondre : ouvre le tiroir inline
       mountContainer.querySelectorAll('.vol-btn-reply').forEach(btn => {
         btn.onclick = (e) => {
           e.stopPropagation();
@@ -431,20 +480,22 @@
           const drawer = mountContainer.querySelector('#replyDrawer-' + cId);
           if (drawer) {
             const isHidden = drawer.classList.contains('hidden');
-            // Fermer les autres tiroirs
-            mountContainer.querySelectorAll('.vol-reply-drawer').forEach(d => d.classList.add('hidden'));
+            // Fermer les autres tiroirs ouverts
+            mountContainer.querySelectorAll('.vol-reply-drawer').forEach(d => {
+              if (d !== drawer) d.classList.add('hidden');
+            });
             if (isHidden) {
               drawer.classList.remove('hidden');
               const txt = drawer.querySelector('.vol-reply-textarea');
-              if (txt) {
-                txt.focus();
-              }
+              if (txt) txt.focus();
+            } else {
+              drawer.classList.add('hidden');
             }
           }
         };
       });
 
-      // 2. Bouton Annuler réponse
+      // 3. Bouton Annuler réponse
       mountContainer.querySelectorAll('.vol-btn-cancel-reply').forEach(btn => {
         btn.onclick = (e) => {
           e.stopPropagation();
@@ -458,7 +509,7 @@
         };
       });
 
-      // 3. Bouton Envoyer la réponse
+      // 4. Bouton Envoyer la réponse
       mountContainer.querySelectorAll('.vol-btn-send-reply').forEach(btn => {
         btn.onclick = async (e) => {
           e.stopPropagation();
@@ -486,6 +537,7 @@
             let visitorName = '';
             if (guestInput && !guestInput.classList.contains('hidden')) {
               visitorName = guestInput.value.trim();
+              if (visitorName) localStorage.setItem('noveltrad_visitor_name', visitorName);
             }
 
             const payload = {
@@ -511,7 +563,7 @@
             commentsData.push(data.comment || data);
             renderCommentsList();
 
-            // Notification visuelle
+            // Notification visuelle sur la nouvelle réponse
             const newCard = mountContainer.querySelector('#vcmt-' + (data.comment?.id || data.id));
             if (newCard) {
               newCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -527,7 +579,8 @@
           }
         };
       });
-      // Like button handlers
+
+      // 5. Bouton J'aime (Likes)
       mountContainer.querySelectorAll('.vol-btn-like').forEach(btn => {
         btn.onclick = async (e) => {
           e.stopPropagation();
@@ -547,12 +600,10 @@
             });
             const data = await res.json();
             if (data.success) {
-              // Update local state
               const target = commentsData.find(x => x.id === cId);
               if (target) {
                 target.likes = data.likes;
                 if (!Array.isArray(target.liked_by)) target.liked_by = [];
-                // Update UI count
                 mountContainer.querySelectorAll(`.vol-btn-like[data-cid="${cId}"]`).forEach(b => {
                   const cnt = b.querySelector('.vol-like-count');
                   if (cnt) cnt.textContent = data.likes;
@@ -574,7 +625,7 @@
         };
       });
 
-      // Delete button handlers
+      // 6. Bouton Suppression
       mountContainer.querySelectorAll('.vol-btn-delete').forEach(btn => {
         btn.onclick = async (e) => {
           e.stopPropagation();
@@ -596,7 +647,9 @@
             if (data.success) {
               commentsData = commentsData.filter(x => x.id !== cId);
               renderCommentsList();
-              if (typeof window.refreshVolumeCommentsBadge === "function") window.refreshVolumeCommentsBadge(cleanBookKey);
+              if (typeof window.refreshVolumeCommentsBadge === "function") {
+                window.refreshVolumeCommentsBadge(cleanBookKey);
+              }
             } else {
               alert(data.error || 'Erreur lors de la suppression.');
             }
@@ -607,7 +660,7 @@
       });
     }
 
-    // Submit new comment
+    // Soumission du nouveau commentaire principal
     submitBtn.addEventListener('click', async () => {
       if (isSubmitting) return;
       const text = textarea.value.trim();
@@ -650,25 +703,28 @@
           throw new Error(data.error || 'Erreur lors de la publication.');
         }
 
-        // Reset inputs
+        // Réinitialisation des champs
         textarea.value = '';
+        if (charCounter) charCounter.textContent = '0 / 1000';
         if (spoilerCheck) spoilerCheck.checked = false;
 
-        // Insert new comment and re-render
+        // Insertion et rafraîchissement
         commentsData.unshift(data.comment || data);
         renderCommentsList();
-        if (typeof window.refreshVolumeCommentsBadge === "function") window.refreshVolumeCommentsBadge(cleanBookKey);
+        if (typeof window.refreshVolumeCommentsBadge === "function") {
+          window.refreshVolumeCommentsBadge(cleanBookKey);
+        }
 
       } catch(err) {
         alert(err.message || 'Impossible de publier le commentaire.');
       } finally {
         isSubmitting = false;
         submitBtn.disabled = false;
-        submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> <span>Publier</span>';
+        submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> <span>Publier mon avis</span>';
       }
     });
 
-    // Initial load
+    // Chargement initial
     loadVolumeComments();
   };
 

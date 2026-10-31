@@ -9,6 +9,22 @@
   let activeBannerEl = null;
 
   // =========================================================================
+  // 0. HELPER : IDENTIFIANT D'APPAREIL PERSISTANT POUR INVITÉS (GUEST)
+  // =========================================================================
+  function getDeviceId() {
+    try {
+      let did = localStorage.getItem('noveltrad_device_id');
+      if (!did || did.length < 8) {
+        did = 'dev_' + Date.now().toString(36) + '_' + Math.random().toString(36).substring(2, 10);
+        localStorage.setItem('noveltrad_device_id', did);
+      }
+      return did;
+    } catch (e) {
+      return 'dev_guest';
+    }
+  }
+
+  // =========================================================================
   // 1. HELPER : ENVOI DE LA PROGRESSION EN TEMPS RÉEL VERS LE SERVEUR
   // =========================================================================
   window.syncReadingProgressToServer = function(progressRecord) {
@@ -23,18 +39,24 @@
           token = await auth.getAccessToken();
         }
 
-        const headers = { 'Content-Type': 'application/json' };
+        const deviceId = getDeviceId();
+        const headers = { 
+          'Content-Type': 'application/json',
+          'X-Device-Id': deviceId
+        };
         if (token) headers['Authorization'] = 'Bearer ' + token;
+
+        const payload = Object.assign({}, progressRecord, { deviceId });
 
         await fetch('/api/user/reading-progress', {
           method: 'POST',
           headers,
-          body: JSON.stringify(progressRecord)
+          body: JSON.stringify(payload)
         });
       } catch (err) {
         // Silently continue (offline first)
       }
-    }, 2000);
+    }, 1800);
   };
 
   // =========================================================================
@@ -78,7 +100,9 @@
         token = await auth.getAccessToken();
       }
 
-      const headers = {};
+      const headers = {
+        'X-Device-Id': getDeviceId()
+      };
       if (token) headers['Authorization'] = 'Bearer ' + token;
 
       const res = await fetch('/api/user/latest-reading', { headers });
@@ -139,7 +163,7 @@
     banner.setAttribute('role', 'complementary');
     banner.setAttribute('aria-label', 'Reprendre la lecture');
 
-    const coverUrl = item.cover || '/public/images/default_cover.jpg';
+    const coverUrl = item.cover || '/uploads/covers/default_cover.jpg';
     const titleText = item.title || 'Volume en cours';
     const timeText = formatTimeAgo(readTimestamp);
     const pct = Math.max(1, Math.min(99, Math.round(item.progressPct !== undefined ? item.progressPct : (item.progress || 0))));
@@ -156,7 +180,7 @@
       <div class="nt-resume-inner">
         <!-- Vignette couverture avec effet relief -->
         <div class="nt-resume-cover-wrap">
-          <img src="${coverUrl}" alt="Couverture" class="nt-resume-cover" onerror="this.src='/public/images/default_cover.jpg'; this.onerror=null;">
+          <img src="${coverUrl}" alt="Couverture" class="nt-resume-cover" onerror="this.src='/uploads/covers/default_cover.jpg'; this.onerror=null;">
           <div class="nt-resume-play-badge">
             <i class="fa-solid fa-play"></i>
           </div>
@@ -258,11 +282,14 @@
     }
   }
 
+  // Rendre la fonction accessible globalement pour les déclencheurs
+  window.checkAndDisplayResumeBanner = checkAndDisplayResumeBanner;
+
   // =========================================================================
   // 4. HOOKS D'INITIALISATION
   // =========================================================================
   document.addEventListener('DOMContentLoaded', () => {
-    // Petit délai d'une seconde pour laisser le temps à la page et IndexedDB de s'initialiser
+    // Délai pour laisser le temps à la page et IndexedDB de s'initialiser
     setTimeout(checkAndDisplayResumeBanner, 1200);
 
     // Écouter les changements d'authentification

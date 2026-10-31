@@ -3871,6 +3871,17 @@ app.post('/api/comments/:bookKey/:paragraphId', async (req, res) => {
 // CROSS-DEVICE REALTIME READING PROGRESS SYNC
 // =============================================================================
 
+// Helper pour identifier l'utilisateur (authentifié Supabase ou identifiant appareil stable)
+function resolveReadingUserId(req, authUser) {
+  if (authUser && authUser.id) return String(authUser.id);
+  const deviceId = (req.headers['x-device-id'] || req.body?.deviceId || req.query?.deviceId || '').toString().trim();
+  if (deviceId) {
+    return 'dev_' + deviceId.replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 36);
+  }
+  const clientIp = (req.headers['x-forwarded-for']?.split(',')[0] || req.socket.remoteAddress || '127.0.0.1').trim();
+  return 'guest_' + Buffer.from(clientIp).toString('hex').slice(-6);
+}
+
 // POST /api/user/reading-progress - Sauvegarder la position de lecture temps-réel (Debounced)
 app.post('/api/user/reading-progress', async (req, res) => {
   try {
@@ -3879,9 +3890,7 @@ app.post('/api/user/reading-progress', async (req, res) => {
       authUser = await authenticateUser(req);
     } catch (e) {}
 
-    const clientIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1';
-    const userId = authUser ? authUser.id : ('guest_' + Buffer.from(clientIp).toString('hex').slice(-6));
-
+    const userId = resolveReadingUserId(req, authUser);
     const progress = await ReadingProgressService.saveProgress(userId, req.body);
     res.json({ success: true, progress });
   } catch (err) {
@@ -3898,9 +3907,7 @@ app.get('/api/user/latest-reading', async (req, res) => {
       authUser = await authenticateUser(req);
     } catch (e) {}
 
-    const clientIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1';
-    const userId = authUser ? authUser.id : ('guest_' + Buffer.from(clientIp).toString('hex').slice(-6));
-
+    const userId = resolveReadingUserId(req, authUser);
     const latest = await ReadingProgressService.getLatestProgress(userId);
     res.json({ success: true, hasProgress: Boolean(latest), progress: latest });
   } catch (err) {
