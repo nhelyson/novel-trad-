@@ -1294,6 +1294,14 @@ app.get('/api/translation-events/:jobId', (req, res) => {
   res.write(': keepalive\n\n');
   if (typeof res.flush === 'function') res.flush();
 
+  // Heartbeat régulier toutes les 15s pour empêcher les reverse-proxies (Nginx, Cloudflare) de couper le flux HTTP/2
+  const heartbeatTimer = setInterval(() => {
+    if (!res.writableEnded) {
+      res.write(': ping\n\n');
+      if (typeof res.flush === 'function') res.flush();
+    }
+  }, 15000);
+
   const currentJob = DiskJobStore.getJob(jobId);
   if (currentJob) {
     sendUpdate(currentJob);
@@ -1303,6 +1311,7 @@ app.get('/api/translation-events/:jobId', (req, res) => {
   DiskJobStore.on(eventName, sendUpdate);
 
   req.on('close', () => {
+    clearInterval(heartbeatTimer);
     DiskJobStore.off(eventName, sendUpdate);
   });
 });
@@ -1782,9 +1791,21 @@ app.get('/api/library/events', (req, res) => {
   res.flushHeaders();
   res.write(': keepalive\n\n');
   if (typeof res.flush === 'function') res.flush();
+
+  const heartbeatTimer = setInterval(() => {
+    if (!res.writableEnded) {
+      res.write(': ping\n\n');
+      if (typeof res.flush === 'function') res.flush();
+    }
+  }, 15000);
+
   if (LibraryWatcher && LibraryWatcher.addClient) {
     LibraryWatcher.addClient(res);
   }
+
+  req.on('close', () => {
+    clearInterval(heartbeatTimer);
+  });
 });
 
 app.get('/api/library/paths', async (req, res) => {
@@ -3265,7 +3286,36 @@ app.get(['/api/download-job/:jobId', '/api/download-job/:jobId/*'], async (req, 
       }
     } catch(e) {}
 
-    return res.status(404).json({ error: true, message: 'Couverture introuvable.' });
+    // Fallback gracieux sur l'image par défaut pour éviter l'erreur 404 dans la console
+    const defaultCoverPath = path.join(__dirname, 'public', 'img', 'default_cover.jpg');
+    if (fs.existsSync(defaultCoverPath)) {
+      res.setHeader('Content-Type', 'image/jpeg');
+      res.setHeader('Cache-Control', 'public, max-age=86400');
+      return res.sendFile(defaultCoverPath);
+    }
+
+    const fallbackSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 540" width="360" height="540">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e1b4b" />
+      <stop offset="50%" stop-color="#0f172a" />
+      <stop offset="100%" stop-color="#020617" />
+    </linearGradient>
+    <linearGradient id="acc" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#6366f1" />
+      <stop offset="100%" stop-color="#a855f7" />
+    </linearGradient>
+  </defs>
+  <rect width="360" height="540" fill="url(#bg)" />
+  <rect x="0" y="0" width="16" height="540" fill="#000" opacity="0.3" />
+  <circle cx="180" cy="220" r="44" fill="url(#acc)" opacity="0.2" />
+  <path d="M180 196c-13.3 0-24 10.7-24 24s10.7 24 24 24 24-10.7 24-24-10.7-24-24-24zm0 40c-8.8 0-16-7.2-16-16s7.2-16 16-16 16 7.2 16 16-7.2 16-16 16z" fill="#818cf8" />
+  <text x="180" y="315" text-anchor="middle" fill="#f8fafc" font-family="system-ui, sans-serif" font-weight="700" font-size="18">NOVELTRAD</text>
+  <text x="180" y="340" text-anchor="middle" fill="#94a3b8" font-family="system-ui, sans-serif" font-size="13">Livre Numérique</text>
+</svg>`;
+    res.setHeader('Content-Type', 'image/svg+xml');
+    res.setHeader('Cache-Control', 'public, max-age=86400');
+    return res.send(fallbackSvg);
   }
 
   // B. Fichier externe en Base64 (Zero-copy sécurisé avec Sandboxing)
