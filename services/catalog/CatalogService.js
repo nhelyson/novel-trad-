@@ -452,8 +452,8 @@ class CatalogService {
                 if (rB !== rA) return rB - rA;
 
                 // 3. Critère tertiaire : Nombre de volumes disponibles
-                const volA = (a.volumes || []).length;
-                const volB = (b.volumes || []).length;
+                const volA = (Array.isArray(a.volumes) && a.volumes.length > 0) ? a.volumes.length : (a.volume_count || 0);
+                const volB = (Array.isArray(b.volumes) && b.volumes.length > 0) ? b.volumes.length : (b.volume_count || 0);
                 if (volB !== volA) return volB - volA;
 
                 // 4. Dernier recours : Ordre alphabétique stable

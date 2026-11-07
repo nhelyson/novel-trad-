@@ -495,11 +495,13 @@ initDeckCards() {
     // -----------------------------------------------------------------------
     async loadSectionsData() {
       try {
-        const [latestRes, generalRes] = await Promise.all([
+        const [latestRes, popularRes, generalRes] = await Promise.all([
           fetch('/api/catalog/explore?sort=latest&limit=24'),
+          fetch('/api/catalog/explore?sort=popular&limit=20'),
           fetch('/api/catalog/explore?limit=100')
         ]);
         const latestData = await latestRes.json().catch(() => null);
+        const popularData = await popularRes.json().catch(() => null);
         const data = await generalRes.json().catch(() => null);
 
         // Helper parsing timestamp unifié
@@ -541,32 +543,28 @@ initDeckCards() {
         if (data && data.success && Array.isArray(data.series)) {
           const list = data.series;
 
-          // 2. TENDANCES (Vues réelles pondérées par la vélocité récente, sans points magiques)
-          const getTrendingScore = (s) => {
-            const views = s.views || 0;
-            // Une série sans aucune vue ne peut mathématiquement pas être une tendance
-            if (views === 0) return 0;
+          // Tri Tendances & Populaires unifié (1: Vues DESC, 2: Note DESC, 3: Volumes DESC, 4: Titre ASC)
+          const sortPopular = (a, b) => {
+            const vA = a.views || 0;
+            const vB = b.views || 0;
+            if (vB !== vA) return vB - vA;
 
-            const relTime = getReleaseTime(s);
-            const daysAgo = Math.max(0, (Date.now() - relTime) / (1000 * 60 * 60 * 24));
-            // Multiplicateur doux : de x1.8 aujourd'hui à x1.0 après 30 jours
-            const recencyMultiplier = daysAgo < 30 ? (1 + ((30 - daysAgo) / 30) * 0.8) : 1.0;
-            const ratingBonus = (parseFloat(s.rating) || 4.0) * 0.5;
-            return (views * recencyMultiplier) + ratingBonus;
+            const rA = parseFloat(a.rating) || 4.0;
+            const rB = parseFloat(b.rating) || 4.0;
+            if (rB !== rA) return rB - rA;
+
+            const volA = (Array.isArray(a.volumes) && a.volumes.length > 0) ? a.volumes.length : (a.volume_count || 0);
+            const volB = (Array.isArray(b.volumes) && b.volumes.length > 0) ? b.volumes.length : (b.volume_count || 0);
+            if (volB !== volA) return volB - volA;
+
+            return (a.title || '').localeCompare(b.title || '');
           };
 
-          const trendingSelection = [...list]
-            .filter(s => (s.views || 0) > 0)
-            .sort((a, b) => getTrendingScore(b) - getTrendingScore(a))
-            .slice(0, 10);
-
-          if (trendingSelection.length < 4) {
-            // Fallback gracieux pour catalogue neuf
-            const fallback = [...list]
-              .sort((a, b) => (b.views || 0) - (a.views || 0) || (b.rating || 0) - (a.rating || 0))
-              .slice(0, 10);
-            this.renderLnoriGrid('homeTrendingGrid', fallback);
-          } else {
+          // 2. TENDANCES & POPULAIRES (Priorité absolue au tri serveur sort=popular)
+          if (popularData && popularData.success && Array.isArray(popularData.series) && popularData.series.length > 0) {
+            this.renderLnoriGrid('homeTrendingGrid', popularData.series.slice(0, 10));
+          } else if (data && data.success && Array.isArray(data.series)) {
+            const trendingSelection = [...data.series].sort(sortPopular).slice(0, 10);
             this.renderLnoriGrid('homeTrendingGrid', trendingSelection);
           }
 
