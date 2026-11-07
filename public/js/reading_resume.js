@@ -85,6 +85,11 @@
   // 3. VÉRIFICATION ET AFFICHAGE DU BANDEAU "REPRENDRE LA LECTURE"
   // =========================================================================
   async function checkAndDisplayResumeBanner() {
+    // Si un bandeau est déjà présent dans le DOM, ne pas tenter d'en recréer un second (anti-dédoublement)
+    if (document.getElementById('ntResumeReadingBanner') || document.querySelector('.nt-resume-banner')) {
+      return;
+    }
+
     // Si le lecteur est déjà ouvert ou actif, ne pas afficher
     const readerOverlay = document.getElementById('readerOverlay');
     if (readerOverlay && !readerOverlay.classList.contains('hidden') && readerOverlay.style.display !== 'none') {
@@ -169,7 +174,13 @@
   }
 
   function renderResumeBanner(item, readTimestamp) {
-    if (activeBannerEl) activeBannerEl.remove();
+    // Nettoyer rigoureusement TOUT bandeau existant dans le DOM avant d'en injecter un (anti-dédoublement)
+    const oldBanners = document.querySelectorAll('#ntResumeReadingBanner, .nt-resume-banner');
+    oldBanners.forEach(b => b.remove());
+    if (activeBannerEl) {
+      try { activeBannerEl.remove(); } catch(e) {}
+      activeBannerEl = null;
+    }
 
     const banner = document.createElement('div');
     banner.id = 'ntResumeReadingBanner';

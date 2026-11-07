@@ -286,8 +286,8 @@ class AdminManager {
         elQueueRecent.innerHTML = this.pendingQueue.slice(0, 3).map(n => `
           <div class="admin-queue-mini-item" style="display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; padding:12px; background:rgba(255,255,255,0.02); border-radius:8px; margin-bottom:8px;">
             <div>
-              <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
-                <strong>${n.title}</strong>
+              <div style="display:flex; align-items:center; gap:6px; min-width:0; overflow:hidden;">
+                <strong style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:280px; display:inline-block;" title="${this.escape(n.title)}">${this.escape(n.title)}</strong>
                 ${(n.is_mature === true || (n.genres || []).some(g => /dark|gore|horreur|adulte|mature|psychologique|ecchi/i.test(g))) ? '<span style="background:rgba(225,29,72,0.18); border:1px solid rgba(225,29,72,0.45); color:#f43f5e; font-size:10px; padding:1px 6px; border-radius:4px; font-weight:800;"><i class="fa-solid fa-triangle-exclamation"></i> SENSIBLE</span>' : ''}
               </div>
               <span style="font-size:12px; color:var(--text-muted, #94a3b8);">Soumis par ${n.created_by_email || n.created_by || 'Contributeur'}</span>
