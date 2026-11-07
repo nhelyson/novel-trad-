@@ -141,6 +141,9 @@ class EpubProcessor {
     const profiler = new PerformanceProfiler(docId);
     DiskJobStore.createJob(docId, filename, 'epub');
 
+    // 0. Charger les traductions existantes pour ce job (reprise après pause quota)
+    await DiskJobStore.loadJobTranslations(docId);
+
     // 1. Analyse préalable
     DiskJobStore.setPhase(docId, 'ANALYSIS', 'Analyse de la structure EPUB...');
     if (onProgress) onProgress('Analyse de la structure EPUB...', 2);
@@ -148,12 +151,21 @@ class EpubProcessor {
     const analysis = await this.analyze(epubBuffer, filename);
     profiler.endStep('1. Analyse EPUB');
 
+    // Calcul du nombre de caractères restants réels si c'est une reprise
+    const existingJob = DiskJobStore.getJob(docId);
+    const resumeStartBlock = existingJob?.currentBlock || 0;
+    const estimatedTotalBlocks = analysis.totalTextBlocks || 1;
+    const remainingRatio = resumeStartBlock > 0 
+      ? Math.max(0.05, (estimatedTotalBlocks - resumeStartBlock) / estimatedTotalBlocks)
+      : 1;
+    const estimatedRemainingChars = Math.round(analysis.totalCharacters * remainingRatio);
+
     // 2. Vérification du Quota DeepL (Si provider === 'deepl')
     DiskJobStore.setPhase(docId, 'QUOTA_CHECK', 'Vérification du quota de traduction...');
     const quotaCheck = await QuotaGuard.checkPreTranslationQuota(
       provider ? provider.getName() : 'gemini',
       apiKey,
-      analysis.totalCharacters,
+      estimatedRemainingChars,
       'epub'
     );
 
@@ -206,6 +218,7 @@ class EpubProcessor {
     let translatedBlocksCount = 0;
     const isGemini = provider && (provider.getName() || '').toLowerCase().includes('gemini');
     const batchSize = isGemini ? 75 : 25;
+    let lastReportedProgress = resumeStartBlock;
 
     for (let cIdx = 0; cIdx < chapterData.length; cIdx++) {
       const { validNodes } = chapterData[cIdx];
@@ -221,9 +234,9 @@ class EpubProcessor {
         const toTranslateIndices = [];
         const toTranslateTexts = [];
 
-        // 1. Recherche dans la mémoire éphémère (0 caractère API consommé sur le repêchage)
+        // 1. Recherche dans la mémoire éphémère (avec docId pour le job)
         for (let idx = 0; idx < sourceTexts.length; idx++) {
-          const cached = await TranslationMemory.lookup(sourceTexts[idx], targetLang);
+          const cached = await TranslationMemory.lookup(sourceTexts[idx], targetLang, docId);
           if (cached) {
             translatedTexts[idx] = cached.translatedText;
           } else {
@@ -247,7 +260,8 @@ class EpubProcessor {
             const isQuota = Boolean(err.isQuotaExceeded || err.message?.includes('Quota') || err.message?.includes('456'));
             if (isQuota) {
               console.warn(`[EpubProcessor] Quota clé atteint à ${translatedBlocksCount} / ${grandTotalBlocks} blocs. Pause pour relais...`);
-              DiskJobStore.setWaitingForKey(
+              await DiskJobStore.flushJobTranslations(docId);
+              await DiskJobStore.setWaitingForKey(
                 docId,
                 translatedBlocksCount,
                 grandTotalBlocks,
@@ -262,6 +276,7 @@ class EpubProcessor {
               throw partialErr;
             }
             const isAuth = Boolean(err.isAuthError || err.message?.includes('403') || err.message?.includes('invalide'));
+            await DiskJobStore.flushJobTranslations(docId);
             DiskJobStore.failJob(docId, err.message, isQuota, isAuth);
             throw new Error(`Erreur lors de la traduction par DeepL/Moteur : ${err.message}`);
           }
@@ -279,15 +294,20 @@ class EpubProcessor {
 
         translatedBlocksCount += nodeBatch.length;
 
-        DiskJobStore.setTranslationProgress(
-          docId,
-          translatedBlocksCount,
-          grandTotalBlocks,
-          `Traduction : ${translatedBlocksCount} / ${grandTotalBlocks} blocs`
-        );
+        // Émission de progression : seulement si nouveaux blocs traduits ou si on dépasse le point de reprise
+        const hadNewTranslations = toTranslateTexts.length > 0;
+        if (hadNewTranslations || translatedBlocksCount >= lastReportedProgress) {
+          lastReportedProgress = translatedBlocksCount;
+          DiskJobStore.setTranslationProgress(
+            docId,
+            translatedBlocksCount,
+            grandTotalBlocks,
+            `Traduction : ${translatedBlocksCount} / ${grandTotalBlocks} blocs`
+          );
 
-        if (onProgress) {
-          onProgress(`Traduction : ${translatedBlocksCount} / ${grandTotalBlocks} blocs`, Math.round((translatedBlocksCount / grandTotalBlocks) * 100));
+          if (onProgress) {
+            onProgress(`Traduction : ${translatedBlocksCount} / ${grandTotalBlocks} blocs`, Math.round((translatedBlocksCount / grandTotalBlocks) * 100));
+          }
         }
       }
     }

@@ -1548,13 +1548,16 @@ app.post('/api/resume-translation', async (req, res) => {
       return res.status(404).json({ error: true, message: 'Job introuvable.' });
     }
 
+    // Charger les traductions déjà effectuées depuis le disque pour ce job
+    await DiskJobStore.loadJobTranslations(jobId);
+
     const effectiveKey = submittedKey || job.apiKey;
     const effectiveProvider = provider || job.provider || 'deepl';
     await DiskJobStore.updateJobApiKey(jobId, effectiveKey, effectiveProvider);
     await DiskJobStore.updateJob(jobId, {
       status: 'PROCESSING',
       phase: 'TRANSLATION',
-      statusMessage: 'Reprise de la traduction...',
+      statusMessage: `Reprise de la traduction (${job.currentBlock || 0} / ${job.totalBlocks || 0} blocs déjà traduits)...`,
       error: null,
       isQuotaExceeded: false,
       isAuthError: false

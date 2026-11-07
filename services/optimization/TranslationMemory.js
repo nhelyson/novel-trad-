@@ -2,12 +2,12 @@ const TextNormalizer = require('./TextNormalizer');
 const DiskJobStore = require('../storage/DiskJobStore');
 
 class TranslationMemory {
-  static async lookup(sourceText, targetLang) {
+  static async lookup(sourceText, targetLang, jobId = null) {
     if (!sourceText || typeof sourceText !== 'string') return null;
     const normalized = TextNormalizer.normalize(sourceText);
     const hash = TextNormalizer.hash(sourceText);
 
-    const match = DiskJobStore.findInMemory(hash, targetLang);
+    const match = DiskJobStore.findInMemory(hash, targetLang, jobId);
     if (match) {
       return {
         sourceText,
@@ -30,13 +30,13 @@ class TranslationMemory {
     }
   }
 
-  static async deduplicateBatch(segments, targetLang) {
+  static async deduplicateBatch(segments, targetLang, jobId = null) {
     const cachedSegments = [];
     const newSegments = [];
     let charactersSaved = 0;
 
     for (const seg of segments) {
-      const cached = await this.lookup(seg.source_text || seg.text, targetLang);
+      const cached = await this.lookup(seg.source_text || seg.text, targetLang, jobId);
       if (cached) {
         charactersSaved += (seg.source_text || seg.text || '').length;
         cachedSegments.push({

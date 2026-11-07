@@ -9,7 +9,9 @@ class DiskJobStore extends EventEmitter {
   constructor() {
     super();
     this.jobs = new Map();
-    this.ephemeralCache = new Map(); 
+    this.ephemeralCache = new Map();
+    this.jobTranslations = new Map();
+    this.pendingSaves = new Map(); 
 
     if (!fs.existsSync(JOBS_DIR)) {
       fs.mkdirSync(JOBS_DIR, { recursive: true });
@@ -194,6 +196,7 @@ class DiskJobStore extends EventEmitter {
  }
 
   async setWaitingForKey(jobId, currentBlock, totalBlocks, message) {
+    await this.flushJobTranslations(jobId);
     return this.updateJob(jobId, {
       status: 'WAITING_FOR_KEY', phase: 'TRANSLATION_PAUSED', currentBlock, totalBlocks,
       statusMessage: message || `Quota cle epuise (${currentBlock}/${totalBlocks} blocs). En attente de la cle suivante...`
@@ -288,6 +291,8 @@ class DiskJobStore extends EventEmitter {
  }
 
   async completeJob(jobId, profilerSummary = null) {
+    await this.flushJobTranslations(jobId);
+    this.jobTranslations.delete(jobId);
     return this.updateJob(jobId, {
       status: 'COMPLETED', phase: 'FINALIZATION',
       statusMessage: 'Traitement termine avec succes !', profilerSummary
@@ -295,6 +300,11 @@ class DiskJobStore extends EventEmitter {
   }
 
   async removeJob(jobId) {
+    if (this.pendingSaves.has(jobId)) {
+      clearTimeout(this.pendingSaves.get(jobId));
+      this.pendingSaves.delete(jobId);
+    }
+    this.jobTranslations.delete(jobId);
     this.jobs.delete(jobId);
     this.removeAllListeners(`progress:${jobId}`);
     const jobDir = this.getJobDir(jobId);
@@ -321,42 +331,90 @@ class DiskJobStore extends EventEmitter {
     }
  }
 
-  async saveJobTranslation(jobId, hash, translatedText, targetLang) {
+  getJobTranslationsCount(jobId) {
+    const map = this.jobTranslations.get(jobId);
+    return map ? map.size : 0;
+  }
+
+  _scheduleSaveTranslations(jobId) {
+    if (this.pendingSaves.has(jobId)) return;
+    const timer = setTimeout(async () => {
+      this.pendingSaves.delete(jobId);
+      await this.flushJobTranslations(jobId);
+    }, 1000);
+    this.pendingSaves.set(jobId, timer);
+  }
+
+  async flushJobTranslations(jobId) {
+    if (this.pendingSaves.has(jobId)) {
+      clearTimeout(this.pendingSaves.get(jobId));
+      this.pendingSaves.delete(jobId);
+    }
+    const jobMap = this.jobTranslations.get(jobId);
+    if (!jobMap || jobMap.size === 0) return;
     const jobDir = this.getJobDir(jobId);
-    if (!fs.existsSync(jobDir)) return;
+    if (!fs.existsSync(jobDir)) {
+      await fs.promises.mkdir(jobDir, { recursive: true });
+    }
     const transPath = path.join(jobDir, 'translations.json');
-    let data = {};
     try {
-      if (fs.existsSync(transPath)) {
-        data = JSON.parse(fs.readFileSync(transPath, 'utf8'));
-      }
-    } catch(e) {}
-    const key = hash + '_' + targetLang.toUpperCase();
-    data[key] = translatedText;
-    fs.writeFileSync(transPath, JSON.stringify(data));
+      const obj = Object.fromEntries(jobMap);
+      await fs.promises.writeFile(transPath, JSON.stringify(obj));
+    } catch (e) {
+      console.error(`[DiskJobStore] Erreur sauvegarde translations.json pour ${jobId}:`, e.message);
+    }
+  }
+
+  async saveJobTranslation(jobId, hash, translatedText, targetLang) {
+    if (!jobId || !hash || !translatedText) return;
+    let jobMap = this.jobTranslations.get(jobId);
+    if (!jobMap) {
+      jobMap = new Map();
+      this.jobTranslations.set(jobId, jobMap);
+    }
+    const key = `${hash}_${targetLang.toUpperCase()}`;
+    jobMap.set(key, translatedText);
     this.saveToMemory(hash, translatedText, targetLang);
+    this._scheduleSaveTranslations(jobId);
   }
 
   async loadJobTranslations(jobId) {
+    let jobMap = this.jobTranslations.get(jobId);
+    if (!jobMap) {
+      jobMap = new Map();
+      this.jobTranslations.set(jobId, jobMap);
+    }
     const transPath = path.join(this.getJobDir(jobId), 'translations.json');
     try {
       if (fs.existsSync(transPath)) {
-        const data = JSON.parse(fs.readFileSync(transPath, 'utf8'));
-        for (const key of Object.keys(data)) {
-          this.ephemeralCache.set(key, data[key]);
+        const raw = await fs.promises.readFile(transPath, 'utf8');
+        const data = JSON.parse(raw);
+        for (const [key, value] of Object.entries(data)) {
+          jobMap.set(key, value);
+          this.ephemeralCache.set(key, value);
         }
+        console.log(`[DiskJobStore] ${jobMap.size} traductions chargees depuis le disque pour le job ${jobId}`);
       }
-    } catch (e) {}
+    } catch (e) {
+      console.error(`[DiskJobStore] Erreur chargement translations.json pour ${jobId}:`, e.message);
+    }
+    return jobMap;
   }
 
-  findInMemory(hash, targetLang) {
+  findInMemory(hash, targetLang, jobId = null) {
     const key = `${hash}_${targetLang.toUpperCase()}`;
+    if (jobId && this.jobTranslations.has(jobId)) {
+      const jobMap = this.jobTranslations.get(jobId);
+      if (jobMap.has(key)) {
+        return jobMap.get(key);
+      }
+    }
     return this.ephemeralCache.get(key) || null;
   }
 
   saveToMemory(hash, translatedText, targetLang) {
     const key = `${hash}_${targetLang.toUpperCase()}`;
-    if (this.ephemeralCache.size > 10000) {
+    if (this.ephemeralCache.size > 25000) {
       const firstKey = this.ephemeralCache.keys().next().value;
       this.ephemeralCache.delete(firstKey);
     }

@@ -23,7 +23,7 @@ class TranslationPipeline {
     const { cleanedSegments, skippedSegments, charactersSaved: cleanSaved } = DocumentCleaner.cleanDocumentSegments(segments);
 
     // 3. Recherche dans le cache éphémère
-    const { cachedSegments, newSegments, charactersSaved: memorySaved } = await TranslationMemory.deduplicateBatch(cleanedSegments, targetLang);
+    const { cachedSegments, newSegments, charactersSaved: memorySaved } = await TranslationMemory.deduplicateBatch(cleanedSegments, targetLang, docId);
 
     const totalSegments = segments.length;
     const cachedCount = cachedSegments.length;
@@ -67,6 +67,9 @@ class TranslationPipeline {
     const profiler = new PerformanceProfiler(docId);
     DiskJobStore.createJob(docId, filename, 'text');
 
+    // 0. Charger les traductions existantes pour ce job (reprise après pause quota)
+    await DiskJobStore.loadJobTranslations(docId);
+
     const provider = TranslationFactory.getProvider(providerName);
     if (!provider.isAvailable()) {
       throw new Error(`Le fournisseur sélectionné (${provider.getName()}) n'est pas disponible.`);
@@ -83,11 +86,18 @@ class TranslationPipeline {
     profiler.endStep('2. Nettoyage');
 
     // 3. Vérification du Quota DeepL (Si provider === 'deepl')
+    const existingJob = DiskJobStore.getJob(docId);
+    const resumeStartBlock = existingJob?.currentBlock || 0;
+    const remainingRatio = resumeStartBlock > 0 && rawSegs.length > 0
+      ? Math.max(0.05, (rawSegs.length - resumeStartBlock) / rawSegs.length)
+      : 1;
+    const estimatedRemainingChars = Math.round(rawText.length * remainingRatio);
+
     DiskJobStore.setPhase(docId, 'QUOTA_CHECK', 'Vérification du quota de traduction...');
     const quotaCheck = await QuotaGuard.checkPreTranslationQuota(
       provider.getName(),
       apiKey,
-      rawText.length,
+      estimatedRemainingChars,
       'text'
     );
 
@@ -107,8 +117,8 @@ class TranslationPipeline {
     }
 
     // 5. Traitement des nouveaux segments par lots
-    DiskJobStore.setPhase(docId, 'TRANSLATION', `Traduction de ${newSegments.length} segments...`, {
-      totalBlocks: newSegments.length
+    DiskJobStore.setPhase(docId, 'TRANSLATION', `Traduction de ${rawSegs.length} segments...`, {
+      totalBlocks: rawSegs.length
     });
 
     const batches = BatchEngine.createBatches(newSegments);
@@ -155,6 +165,7 @@ class TranslationPipeline {
         console.error(`[Pipeline] Échec lot ${bIndex + 1}: ${batchErr.message}`);
         const isQuota = Boolean(batchErr.isQuotaExceeded || batchErr.message?.includes('456'));
         if (isQuota) {
+          await DiskJobStore.flushJobTranslations(docId);
           DiskJobStore.setWaitingForKey(docId, translatedCount, rawSegs.length, `Quota clé 1 atteint (${translatedCount}/${rawSegs.length} blocs). En attente de la clé 2...`);
           const partialErr = new Error(`Quota de la clé 1 épuisé (${translatedCount} / ${rawSegs.length} blocs traduits). Saisissez la clé 2 pour continuer.`);
           partialErr.isQuotaExceeded = true;
